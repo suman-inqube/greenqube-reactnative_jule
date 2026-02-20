@@ -10,10 +10,10 @@ import {
 import {Colors, Fonts} from '../utils/Constants';
 const {width} = Dimensions.get('window');
 const TabBar = ({
-  tabs = ['Tab 1', 'Tab 2'],
+  tabs = ['Tab 1', 'Tab 2', 'Tab 3'],
   activeTab = 0,
   onTabPress = () => {},
-  tabWidth = width / 2,
+  tabWidth = width,
   indicatorColor = '#28a745',
   height = 50,
   backgroundColor = '#f9f9f9',

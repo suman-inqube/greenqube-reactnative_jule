@@ -33,12 +33,14 @@ import {
   uploadCarbonAgrDocs,
   landRouteApi,
   uploadFarmerIdAdd,
+  setCycleDateAPI,
 } from '../../../config/apiHere';
 import {formatISODateWithSuffix} from '../../Common/CommonFunction';
 import {
   addPlotImageAPI,
   getPlotDocAPI,
   deletePlotImageAPI,
+  addCropInputAPI,
 } from '../Loan/LoanAPI';
 import config from '../../../config';
 import axios from 'axios';
@@ -77,6 +79,7 @@ import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
 import CoFarmer from '../../Components/CoFarmer';
 import CoFarmerList from '../../../Components/CoFarmerList';
 import ListOfCoFarmer from '../../Components/ListOfCoFarmer';
+import CropData from './CropData';
 const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 const LiveHood = ({
   sendDataToParent,
@@ -85,6 +88,7 @@ const LiveHood = ({
   onTabPress,
   setAddPlot,
   addPlot,
+  historyData,
 }) => {
   //GQR-65
   const today = new Date();
@@ -224,6 +228,7 @@ const LiveHood = ({
   const [newDate, setnewDate] = useState(new Date());
   const [penCycleStart, setopenCycleStart] = useState(false);
   const [penCycleEnd, setopenCycleEnd] = useState(false);
+  const [seddingData, setseddingData] = useState(false);
   const [issuenewDate, setIssueNewDate] = useState(new Date());
   const [productionSeason, setProductionSeason] = useState([]);
   const [livelihoodType, setLivelihoodType] = useState([]);
@@ -277,6 +282,110 @@ const LiveHood = ({
   const [minStartDate, setMinStartDate] = useState(new Date());
   const [maxHarvestDate, setMaxHarvestDate] = useState(new Date());
   const [minHarvestDate, setMinHarvestDate] = useState(new Date());
+
+  const [selectedTab, setSelectedTab] = useState('PLOT');
+
+  const [amendmentData, setAmendmentData] = useState({
+    organic_amendment_type: [],
+    fertilizers: [],
+    pesticide: [],
+  });
+
+  const [selectedType, setSelectedType] = useState('organic_amendment_type');
+
+  const currentList = amendmentData[selectedType] || [];
+
+  const amendmentTypes = [
+    {label: 'Organic amendment', value: 'organic_amendment_type'},
+    {label: 'Fertilizer', value: 'fertilizers'},
+    {label: 'Pesticide', value: 'pesticide'},
+  ];
+
+  const [formData, setFormData] = useState({
+    ferti_pesti_fid: '',
+    quantity: '',
+    unit_fid: '1cc9b81b4-dbcd-4381-8cf0-3a7cb40d87a2',
+    no_of_applications: '',
+  });
+
+  const handleChange = (key, value) => {
+    if (key === 'quantity' || key === 'no_of_applications') {
+      const numericRegex = /^[0-9]*\.?[0-9]*$/;
+      if (!numericRegex.test(value)) return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const addMoreAmendments = () => {
+    const {ferti_pesti_fid, quantity, no_of_applications} = formData;
+
+    if (!ferti_pesti_fid || !quantity || !no_of_applications) {
+      Toast.show({
+        text: 'Please fill all fields',
+        ...AlertMesg[0],
+      });
+      return;
+    }
+
+    const newEntry = {
+      ferti_pesti_fid,
+      quantity: Number(quantity),
+      unit_fid: formData.unit_fid,
+      no_of_applications: Number(no_of_applications),
+    };
+
+    setAmendmentData(prev => ({
+      ...prev,
+      [selectedType]: [...prev[selectedType], newEntry],
+    }));
+
+    setFormData({
+      ferti_pesti_fid: '',
+      quantity: '',
+      unit_fid: '1cc9b81b4-dbcd-4381-8cf0-3a7cb40d87a2',
+      no_of_applications: '',
+    });
+  };
+
+  const deleteAmendment = index => {
+    setAmendmentData(prev => ({
+      ...prev,
+      [selectedType]: prev[selectedType].filter((_, i) => i !== index),
+    }));
+  };
+
+  const allItems = Object.entries(amendmentData).flatMap(([type, items]) =>
+    items.map((item, index) => ({
+      ...item,
+      type,
+      uniqueKey: `${type}-${index}`,
+    })),
+  );
+
+  const formatAmendmentPayload = (allItems, cu_rel_id) => {
+  const groupedData = {
+    cu_rel_fid: cu_rel_id,
+    organic_amendment_type: [],
+    fertilizers: [],
+    pesticide: [],
+  };
+
+  allItems.forEach(item => {
+    const { type, uniqueKey, ...rest } = item;
+
+    if (groupedData[type]) {
+      groupedData[type].push(rest);
+    }
+  });
+
+  return groupedData;
+};
+
+
   const onPageLoad = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -620,8 +729,7 @@ const LiveHood = ({
           ]);
         }
         if (cropAndPlotDetails?.status === 200) {
-
-          console.log("cropAndPlotDetails==",cropAndPlotDetails?.data?.data)
+          console.log('cropAndPlotDetails==', cropAndPlotDetails?.data?.data);
           const data = cropAndPlotDetails?.data?.data || {};
           plotSiteUserLandDetails.map(async (dataLandDetails, index) => {
             if (dataLandDetails?.rel_id == findData.value) {
@@ -661,59 +769,189 @@ const LiveHood = ({
                 setArea(data.land_info?.google_area);
               }
 
-              setFarmerData(prev => ({
-                ...prev,
-                createdBy: user_id,
-                plot_no: data?.land_info?.plot_no,
-                cu_rel_id: data?.cu_rel_id,
-                land_rel_id: findData?.value,
-                daag_no: dataLandDetails?.daag_no,
-                khatian_no: dataLandDetails?.khatian_no,
-                plant_number: dataLandDetails?.plant_number,
-                jl_no: dataLandDetails?.jl_no,
-                mouja: dataLandDetails?.mouja,
-                land_size: dataLandDetails?.land_size,
-                plot_Site: findData?.value,
-                plot_Site_Name: findData?.label,
-                expectedProduction: data?.yield_amount,
-                cycleStartDate: data?.sowing_date,
-                cycleEndDate: data?.harvesting_date.substring(-1, 10),
-                terrainType: dataLandDetails?.terrain_type?.name,
-                terrainTypeValue: dataLandDetails?.terrain_type?.fid,
-                landType: dataLandDetails?.lan_type?.name,
-                landTypeValue: dataLandDetails?.lan_type?.fid,
-                soilType: dataLandDetails?.soil_type?.name,
-                soilTypeValue: dataLandDetails?.soil_type?.fid,
-                unit: dataLandDetails?.land_unit?.name,
-                unitValue: dataLandDetails?.land_unit?.fid,
-                productionSeason: `${data?.crop_season?.name}${
-                  data?.cropSeasonTime?.year
-                    ? '(' + data?.cropSeasonTime?.year + ')'
-                    : ''
-                }`,
+              if (historyData) {
+                setFarmerData(prev => ({
+                  ...prev,
+                  createdBy: user_id,
+                  plot_no: data?.land_info?.plot_no,
+                  cu_rel_id: dataProps?.plot_crops[0]?.cu_rel_id,
+                  land_rel_id: findData?.value,
+                  daag_no: dataLandDetails?.daag_no,
+                  khatian_no: dataLandDetails?.khatian_no,
+                  plant_number: dataLandDetails?.plant_number,
+                  jl_no: dataLandDetails?.jl_no,
+                  mouja: dataLandDetails?.mouja,
+                  land_size: dataLandDetails?.land_size,
+                  plot_Site: findData?.value,
+                  plot_Site_Name: findData?.label,
 
-                productionSeasonValue: data?.crop_season?.fid,
-                productionSeasonSdId: data?.season_date_fid,
-                livelihoodType: data?.crop_type?.name,
-                livelihoodTypeValue: data?.crop_type?.fid,
-                produceName: data?.crop_name?.name,
-                produceNameValue: data?.crop_name?.fid,
-                produceVariety: data?.crop_variety?.name,
-                produceVarietyValue: data?.crop_variety?.fid,
-                productionProcess: data?.farmer_production_system?.name,
-                productionProcessValue: data?.farmer_production_system?.fid,
-                unitProduct: data?.agri_unit && data?.agri_unit?.unit_name,
-                unitProductValue: data?.agri_unit && data?.agri_unit?.fid,
-                unit_value: dataLandDetails?.land_unit?.unit_value,
-                google_area: data.land_info?.google_area,
-                IOTId: data.land_info?.device_no,
-                IOTLatlat: data.land_info?.device_lat,
-                IOTLatLong: data.land_info?.device_long,
-                crop_cycl_start_date: data.crop_cycl_start_date,
-                ConvertedreportedLandsize:
-                  Number(dataLandDetails?.land_unit?.defined_unit_value) *
-                  Number(dataLandDetails?.land_size),
-              }));
+                  expectedProduction: dataProps?.plot_crops[0]?.yield_amount,
+                  cycleStartDate: dataProps?.plot_crops[0]?.sowing_date,
+                  cycleEndDate:
+                    dataProps?.plot_crops[0]?.harvesting_date.substring(-1, 10),
+
+                  terrainType: dataLandDetails?.terrain_type?.name,
+                  terrainTypeValue: dataLandDetails?.terrain_type?.fid,
+                  landType: dataLandDetails?.lan_type?.name,
+                  landTypeValue: dataLandDetails?.lan_type?.fid,
+                  soilType: dataLandDetails?.soil_type?.name,
+                  soilTypeValue: dataLandDetails?.soil_type?.fid,
+                  unit: dataLandDetails?.land_unit?.name,
+                  unitValue: dataLandDetails?.land_unit?.fid,
+
+                  productionSeason: `${
+                    dataProps?.plot_crops[0]?.cropSeasonTime?.season_info?.name
+                  }${
+                    dataProps?.plot_crops[0]?.cropSeasonTime?.year
+                      ? '(' +
+                        dataProps?.plot_crops[0]?.cropSeasonTime?.year +
+                        ')'
+                      : ''
+                  }`,
+
+                  productionSeasonValue:
+                    dataProps?.plot_crops[0]?.cropSeasonTime?.season_fid,
+                  productionSeasonSdId:
+                    dataProps?.plot_crops[0]?.cropSeasonTime?.sd_id,
+                  livelihoodType: dataProps?.plot_crops[0]?.crop_type?.name,
+                  livelihoodTypeValue: dataProps?.plot_crops[0]?.crop_type?.fid,
+                  produceName: dataProps?.plot_crops[0]?.crop_name?.name,
+                  produceNameValue: dataProps?.plot_crops[0]?.crop_name?.fid,
+                  produceVariety: dataProps?.plot_crops[0]?.crop_variety?.name,
+                  produceVarietyValue:
+                    dataProps?.plot_crops[0]?.crop_variety?.fid,
+                  productionProcess: dataProps?.plot_crops[0]?.farmer_production_system?.name,
+                  productionProcessValue: dataProps?.plot_crops[0]?.farmer_production_system?.fid,
+                  unitProduct: dataProps?.plot_crops[0]?.agri_unit && dataProps?.plot_crops[0]?.agri_unit?.unit_name,
+                  unitProductValue: dataProps?.plot_crops[0]?.agri_unit && dataProps?.plot_crops[0]?.agri_unit?.fid,
+                  unit_value: dataLandDetails?.land_unit?.unit_value,
+
+                  plantation_method:
+                    dataProps?.plot_crops[0]?.plantation_method,
+                  seeding_date: dataProps?.plot_crops[0]?.seeding_date,
+                  water_source: dataProps?.plot_crops[0]?.water_source,
+                  gap_seeding_firrig:
+                    dataProps?.plot_crops[0]?.gap_seeding_firrig,
+                  irri_practice: dataProps?.plot_crops[0]?.irri_practice,
+                  drying_period_prac:
+                    dataProps?.plot_crops[0]?.drying_period_prac,
+                  gap_draining_harvest:
+                    dataProps?.plot_crops[0]?.gap_draining_harvest,
+                  after_harvest_rice_stubble:
+                    dataProps?.plot_crops[0]?.after_harvest_rice_stubble,
+                  after_harvest_straw:
+                    dataProps?.plot_crops[0]?.after_harvest_straw,
+                  straw_removed: dataProps?.plot_crops[0]?.straw_removed,
+                  straw_incorporate:
+                    dataProps?.plot_crops[0]?.straw_incorporate,
+                  end_usg_rm_straw: dataProps?.plot_crops[0]?.end_usg_rm_straw,
+
+                  unit_value: dataLandDetails?.land_unit?.unit_value,
+                  google_area: data.land_info?.google_area,
+                  IOTId: data.land_info?.device_no,
+                  IOTLatlat: data.land_info?.device_lat,
+                  IOTLatLong: data.land_info?.device_long,
+                  // crop_cycl_start_date: dataProps.crop_cycl_start_date,
+                  ConvertedreportedLandsize:
+                    Number(dataLandDetails?.land_unit?.defined_unit_value) *
+                    Number(dataLandDetails?.land_size),
+                }));
+
+                 const pestDetails = await axiosGet(
+                ROUTES.GET.PEST_DETAILS({
+                  cu_rel_fid: dataProps?.plot_crops[0]?.cu_rel_id,
+                }),
+                '',
+                {
+                  information: `${dbname},${lan_id}`,
+                  Authorization: `${token}`,
+                },
+              );
+              console.log('pestDetails==',JSON.stringify(pestDetails?.data?.data))
+
+
+              } else {
+                setFarmerData(prev => ({
+                  ...prev,
+                  createdBy: user_id,
+                  plot_no: data?.land_info?.plot_no,
+                  cu_rel_id: data?.cu_rel_id,
+                  land_rel_id: findData?.value,
+                  daag_no: dataLandDetails?.daag_no,
+                  khatian_no: dataLandDetails?.khatian_no,
+                  plant_number: dataLandDetails?.plant_number,
+                  jl_no: dataLandDetails?.jl_no,
+                  mouja: dataLandDetails?.mouja,
+                  land_size: dataLandDetails?.land_size,
+                  plot_Site: findData?.value,
+                  plot_Site_Name: findData?.label,
+                  expectedProduction: data?.yield_amount,
+                  cycleStartDate: data?.sowing_date,
+                  cycleEndDate: data?.harvesting_date.substring(-1, 10),
+                  terrainType: dataLandDetails?.terrain_type?.name,
+                  terrainTypeValue: dataLandDetails?.terrain_type?.fid,
+                  landType: dataLandDetails?.lan_type?.name,
+                  landTypeValue: dataLandDetails?.lan_type?.fid,
+                  soilType: dataLandDetails?.soil_type?.name,
+                  soilTypeValue: dataLandDetails?.soil_type?.fid,
+                  unit: dataLandDetails?.land_unit?.name,
+                  unitValue: dataLandDetails?.land_unit?.fid,
+                  productionSeason: `${data?.crop_season?.name}${
+                    data?.cropSeasonTime?.year
+                      ? '(' + data?.cropSeasonTime?.year + ')'
+                      : ''
+                  }`,
+
+                  productionSeasonValue: data?.crop_season?.fid,
+                  productionSeasonSdId: data?.season_date_fid,
+                  livelihoodType: data?.crop_type?.name,
+                  livelihoodTypeValue: data?.crop_type?.fid,
+                  produceName: data?.crop_name?.name,
+                  produceNameValue: data?.crop_name?.fid,
+                  produceVariety: data?.crop_variety?.name,
+                  produceVarietyValue: data?.crop_variety?.fid,
+                  productionProcess: data?.farmer_production_system?.name,
+                  productionProcessValue: data?.farmer_production_system?.fid,
+                  unitProduct: data?.agri_unit && data?.agri_unit?.unit_name,
+                  unitProductValue: data?.agri_unit && data?.agri_unit?.fid,
+                  unit_value: dataLandDetails?.land_unit?.unit_value,
+                  google_area: data.land_info?.google_area,
+                  IOTId: data.land_info?.device_no,
+                  IOTLatlat: data.land_info?.device_lat,
+                  IOTLatLong: data.land_info?.device_long,
+                  crop_cycl_start_date: data.crop_cycl_start_date,
+                  ConvertedreportedLandsize:
+                    Number(dataLandDetails?.land_unit?.defined_unit_value) *
+                    Number(dataLandDetails?.land_size),
+
+                  plantation_method: data?.plantation_method,
+                  seeding_date: data?.seeding_date,
+                  water_source: data?.water_source,
+                  gap_seeding_firrig: data?.gap_seeding_firrig,
+                  irri_practice: data?.irri_practice,
+                  drying_period_prac: data?.drying_period_prac,
+                  gap_draining_harvest: data?.gap_draining_harvest,
+                  after_harvest_rice_stubble: data?.after_harvest_rice_stubble,
+                  after_harvest_straw: data?.after_harvest_straw,
+                  straw_removed: data?.straw_removed,
+                  straw_incorporate: data?.straw_incorporate,
+                  end_usg_rm_straw: data?.end_usg_rm_straw,
+                }));
+
+                const pestDetails = await axiosGet(
+                ROUTES.GET.PEST_DETAILS({
+                  cu_rel_fid: data?.cu_rel_id,
+                }),
+                '',
+                {
+                  information: `${dbname},${lan_id}`,
+                  Authorization: `${token}`,
+                },
+              );
+              console.log('pestDetails==',JSON.stringify(pestDetails?.data?.data));
+
+              }
+
               const seasonData = await axiosGet(
                 ROUTES.GET.PRODUCE_SEASON({
                   crop_name_fid: data?.crop_name?.fid,
@@ -1042,6 +1280,11 @@ const LiveHood = ({
         crop_cycl_start_date: '',
       }));
     }
+  };
+
+  const handleseedDatePicker = async item => {
+    const selectedDate = effective_dates(item);
+    setFarmerData(prev => ({...prev, ['Seeding_date']: selectedDate}));
   };
   const handleDatePicker = async item => {
     const selectedDate = effective_dates(item);
@@ -1663,6 +1906,25 @@ const LiveHood = ({
         formdata.append('yield_unit', farmerData.unitProductValue);
         formdata.append('sowing_date', farmerData.cycleStartDate);
         formdata.append('harvesting_date', farmerData.cycleEndDate);
+
+        formdata.append('plantation_method', farmerData.plantation_method);
+        formdata.append('seeding_date', farmerData.seeding_date);
+        formdata.append('water_source', farmerData.water_source);
+        formdata.append('gap_seeding_firrig', farmerData.gap_seeding_firrig);
+        formdata.append('irri_practice', farmerData.irri_practice);
+        formdata.append('drying_period_prac', farmerData.drying_period_prac);
+        formdata.append(
+          'gap_draining_harvest',
+          farmerData.gap_draining_harvest,
+        );
+        formdata.append(
+          'after_harvest_rice_stubble',
+          farmerData.after_harvest_rice_stubble,
+        );
+        formdata.append('after_harvest_straw', farmerData.after_harvest_straw);
+        formdata.append('straw_removed', farmerData.straw_removed);
+        formdata.append('straw_incorporate', farmerData.straw_incorporate);
+        formdata.append('end_usg_rm_straw', farmerData.end_usg_rm_straw);
         if (
           farmerData?.google_area > 0 &&
           farmerData?.google_area != undefined
@@ -1717,6 +1979,7 @@ const LiveHood = ({
             });
           }
         } else {
+          // console.log('amendmentData===', JSON.stringify(allItems));
           var cusCropCyclStartDate = '2004-02-29';
           if (harvested != '') {
             cusCropCyclStartDate = '2004-02-29';
@@ -1780,6 +2043,7 @@ const LiveHood = ({
           if (cusCropCyclStartDate) {
             dataToSend.crop_cycl_start_date = cusCropCyclStartDate;
           }
+
           let save_data = qs.stringify(dataToSend);
 
           let updateLandCropdetails_res = {};
@@ -1793,6 +2057,34 @@ const LiveHood = ({
             true,
             {information: `${dbname},${lan_id},${farmeruserID}`},
           );
+
+          let save_extradata = qs.stringify({
+            plantation_method: farmerData.plantation_method,
+            seeding_date: farmerData.seeding_date,
+            water_source: farmerData.water_source,
+            gap_seeding_firrig: farmerData.gap_seeding_firrig,
+            irri_practice: farmerData.irri_practice,
+            drying_period_prac: farmerData.drying_period_prac,
+            gap_draining_harvest: farmerData.gap_draining_harvest,
+            after_harvest_rice_stubble: farmerData.after_harvest_rice_stubble,
+            after_harvest_straw: farmerData.after_harvest_straw,
+            straw_removed: farmerData.straw_removed,
+            straw_incorporate: farmerData.straw_incorporate,
+            end_usg_rm_straw: farmerData.end_usg_rm_straw,
+          });
+
+          var [setCycleDate] = await Promise.all([
+            setCycleDateAPI(
+              dbname,
+              lan_id,
+              farmeruserID,
+              token,
+              farmerData.cu_rel_id,
+              save_extradata,
+            ),
+          ]);
+
+          const finalPayload = formatAmendmentPayload(allItems, farmerData.cu_rel_id);
 
           // UpdateLandCropdetailsAPI(
           //   dbname,
@@ -1819,6 +2111,14 @@ const LiveHood = ({
                 farmeruserID,
                 formDataPlotImg,
               ),
+              addCropInputAPI(
+                dbname,
+                lan_id,
+                token,
+                farmeruserID,
+                finalPayload,
+              ),
+              
             ],
           );
           if (addPlotImageAPIRes.data?.error?.errorCode == 400) {
@@ -1930,6 +2230,7 @@ const LiveHood = ({
     signature,
     addressProof,
     identityProofIdentityPropf,
+    allItems
   ]);
   const handleUserData = async () => {
     setOutofRange(false);
@@ -2028,24 +2329,24 @@ const LiveHood = ({
         // setPolygons([newPolygon]);
         //basudev
         // if (!overlapFound) {
-          setPolygons([...nearPolSet, newPolygon]);
-          setNewPolygon([]);
-          setLocation(newPolygon);
-          setEditing(false);
-          setShowModal(false);
+        setPolygons([...nearPolSet, newPolygon]);
+        setNewPolygon([]);
+        setLocation(newPolygon);
+        setEditing(false);
+        setShowModal(false);
 
-          setFarmerData(prev => ({
-            ...prev,
-            google_area: geolib.getAreaOfPolygon(newPolygon),
-          }));
-          if (landUnitsquareMetre?.[0]?.defined_unit_value) {
-            setArea(
-              Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-                geolib.getAreaOfPolygon(newPolygon),
-            );
-          } else {
-            setArea(geolib.getAreaOfPolygon(newPolygon));
-          }
+        setFarmerData(prev => ({
+          ...prev,
+          google_area: geolib.getAreaOfPolygon(newPolygon),
+        }));
+        if (landUnitsquareMetre?.[0]?.defined_unit_value) {
+          setArea(
+            Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
+              geolib.getAreaOfPolygon(newPolygon),
+          );
+        } else {
+          setArea(geolib.getAreaOfPolygon(newPolygon));
+        }
         // } else {
         //   Alert.alert(
         //     'Overlap Detected',
@@ -2273,6 +2574,50 @@ const LiveHood = ({
   const handleAddUserDataMouja = useCallback(text => {
     setFarmerData(prev => ({...prev, ['mouja']: text}));
   }, []);
+
+  const handleAddUserDataYield = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['yield']: text}));
+  }, []);
+  const handleAddUserDataPlantationMethod = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['Plantation_Method']: text}));
+  }, []);
+
+  // const handleAddUserDataSeedingdate = useCallback(text => {
+  //   setFarmerData(prev => ({...prev, ['Seeding_date']: text}));
+  // }, []);
+  const handleAddUserDataWaterSource = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['Water_source']: text}));
+  }, []);
+  const handleAddUserDataGapSeedingFirrig = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['gap_seeding_firrig']: text}));
+  }, []);
+  const handleAddUserDataIrriPractice = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['irri_practice']: text}));
+  }, []);
+
+  const handleAddUserDataDryingPeriodPrac = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['drying_period_prac']: text}));
+  }, []);
+  const handleAddUserDataGapDrainingHarvest = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['gap_draining_harvest']: text}));
+  }, []);
+  const handleAddUserDataAfterHarvestRiceStubble = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['after_harvest_rice_stubble']: text}));
+  }, []);
+  const handleAddUserDataAfterHarvestStraw = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['after_harvest_straw']: text}));
+  }, []);
+
+  const handleAddUserDataStrawRemoved = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['straw_removed']: text}));
+  }, []);
+  const handleAddUserDataStrawIncorporate = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['straw_incorporate']: text}));
+  }, []);
+  const handleAddUserDataEndUsgRmStraw = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['end_usg_rm_straw']: text}));
+  }, []);
+
   const handleAddDataTerrainType = useCallback(item => {
     const {label, value} = item;
     setFarmerData(prev => ({
@@ -2558,6 +2903,12 @@ const LiveHood = ({
     <MyErrorBoundary>
       <>
         <DatePickerComp
+          openDate={seddingData}
+          newDate={minStartDate}
+          setOpenDate={setseddingData}
+          handleDatePicker={handleseedDatePicker}
+        />
+        <DatePickerComp
           openDate={penCycleStart}
           newDate={minStartDate}
           setOpenDate={setopenCycleStart}
@@ -2669,6 +3020,27 @@ const LiveHood = ({
             handleHarvested={handleHarvested}
           />
         )}
+
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[
+              styles.tabButton,
+              selectedTab === 'PLOT' && styles.activeTab,
+            ]}
+            onPress={() => setSelectedTab('PLOT')}>
+            <Text style={styles.tabText}>Plot Data</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.tabButton,
+              selectedTab === 'CROP' && styles.activeTab,
+            ]}
+            onPress={() => setSelectedTab('CROP')}>
+            <Text style={styles.tabText}>Crop Data</Text>
+          </TouchableOpacity>
+        </View>
+
         <ScrollView
           style={{
             marginTop: 7,
@@ -2699,11 +3071,7 @@ const LiveHood = ({
               </View>
             )}
 
-            {activeTab === 0 && (
-              <PlotList /> /* Existing Plot Status renamed to Plot List */
-            )}
-
-            {activeTab === 1 && (
+            {selectedTab === 'PLOT' && (
               <View>
                 {userData == 'addUserData' || addPlot == true ? (
                   <InputTextForm
@@ -3093,12 +3461,11 @@ const LiveHood = ({
               </View>
             )}
 
-            {activeTab === 2 && (
+            {selectedTab === 'CROP' && (
               /* 2. Use the new CropData component here */
               <CropData
                 t={t}
                 farmerData={farmerData}
-                setFarmerData={setFarmerData}
                 livelihoodType={livelihoodType}
                 handleAddDatalivelihoodType={handleAddDatalivelihoodType}
                 produceName={produceName}
@@ -3108,59 +3475,104 @@ const LiveHood = ({
                 productionProcess={productionProcess}
                 handleAddDataProductionProcess={handleAddDataProductionProcess}
                 productionUnit={productionUnit}
+                handleAddDataUnitProduct={handleAddDataUnitProduct}
                 productionSeason={productionSeason}
                 handleAddDataproductionSeason={handleAddDataproductionSeason}
                 setopenCycleStart={setopenCycleStart}
                 setopenCycleEnd={setopenCycleEnd}
+                handleUserListUpdate={handleUserListUpdate}
+                isLoading={isLoading}
+                harvested={harvested}
+                userData={userData}
+                addPlot={addPlot}
+                edit={edit}
                 DropdownForm={DropdownForm}
                 InputTextForm={InputTextForm}
-                DatePickerComp={DatePickerComp}
-                minStartDate={minStartDate}
-                maxStartDate={maxStartDate}
-                minHarvestDate={minHarvestDate}
-                maxHarvestDate={maxHarvestDate}
-                handleDatePicker={handleDatePicker}
-                handleDatePicker2={handleDatePicker2}
+                ButtonForm={ButtonForm}
+                InputTextFormEdit={InputTextFormEdit}
+                handleAddUserDataDaag={handleAddUserDataDaag}
+                // amendmentList={amendmentList}
+                addMoreAmendments={addMoreAmendments}
+                handleChange={handleChange}
+                formData={formData}
+                handleAddUserDataYield={handleAddUserDataYield}
+                handleAddUserDataPlantationMethod={
+                  handleAddUserDataPlantationMethod
+                }
+                // handleAddUserDataSeedingdate={handleAddUserDataSeedingdate}
+                handleAddUserDataWaterSource={handleAddUserDataWaterSource}
+                handleAddUserDataGapSeedingFirrig={
+                  handleAddUserDataGapSeedingFirrig
+                }
+                handleAddUserDataIrriPractice={handleAddUserDataIrriPractice}
+                handleAddUserDataDryingPeriodPrac={
+                  handleAddUserDataDryingPeriodPrac
+                }
+                handleAddUserDataGapDrainingHarvest={
+                  handleAddUserDataGapDrainingHarvest
+                }
+                handleAddUserDataAfterHarvestRiceStubble={
+                  handleAddUserDataAfterHarvestRiceStubble
+                }
+                handleAddUserDataAfterHarvestStraw={
+                  handleAddUserDataAfterHarvestStraw
+                }
+                handleAddUserDataStrawRemoved={handleAddUserDataStrawRemoved}
+                handleAddUserDataStrawIncorporate={
+                  handleAddUserDataStrawIncorporate
+                }
+                handleAddUserDataEndUsgRmStraw={handleAddUserDataEndUsgRmStraw}
+                selectedType={selectedType}
+                setSelectedType={setSelectedType}
+                deleteAmendment={deleteAmendment}
+                currentList={currentList}
+                amendmentTypes={amendmentTypes}
+                allItems={allItems}
+                setAmendmentData={setAmendmentData}
+                setseddingData={setseddingData}
               />
             )}
           </View>
         </ScrollView>
-
-        <ButtonForm
-          label={t('submit')}
-          onPress={() => handleUserListUpdate()}
-          loading={isLoading}
-        />
-        <FloatingActionButton
-          position="right"
-          actions={getActionsPlot(
-            t,
-            styles,
-            Colors,
-            plotEdit,
-            addPlot,
-            activeTab,
-            plotId,
-            statuslevel.label,
-            dbLanTokUsr?.co_farmer,
-          )}
-          color={Colors.useGreen}
-          onPressItem={name => {
-            if (name == 'MapView') {
-              setShowModal(!showModal);
-            } else if (name == 'coFarmer') {
-              setModalVisibleCoFarmer(prev => !prev);
-            } else if (name == 'coFarmerList') {
-              setListOfModalVisibleCoFarmer(prev => !prev);
-            } else if (name == 'AddCoFarmerList') {
-              setListOfModalVisibleCoFarmerAdd(prev => !prev);
-            } else {
-              handleUserData();
-            }
-          }}
-          overlayColor="rgba(22, 17, 17, 0.35)"
-          distanceToEdge={{vertical: 80, horizontal: 25}}
-        />
+        {selectedTab === 'CROP' && (
+          <ButtonForm
+            label={t('submit')}
+            onPress={() => handleUserListUpdate()}
+            loading={isLoading}
+          />
+        )}
+        {selectedTab === 'PLOT' && (
+          <FloatingActionButton
+            position="right"
+            actions={getActionsPlot(
+              t,
+              styles,
+              Colors,
+              plotEdit,
+              addPlot,
+              activeTab,
+              plotId,
+              statuslevel.label,
+              dbLanTokUsr?.co_farmer,
+            )}
+            color={Colors.useGreen}
+            onPressItem={name => {
+              if (name == 'MapView') {
+                setShowModal(!showModal);
+              } else if (name == 'coFarmer') {
+                setModalVisibleCoFarmer(prev => !prev);
+              } else if (name == 'coFarmerList') {
+                setListOfModalVisibleCoFarmer(prev => !prev);
+              } else if (name == 'AddCoFarmerList') {
+                setListOfModalVisibleCoFarmerAdd(prev => !prev);
+              } else {
+                handleUserData();
+              }
+            }}
+            overlayColor="rgba(22, 17, 17, 0.35)"
+            distanceToEdge={{vertical: 80, horizontal: 25}}
+          />
+        )}
         {showModal && (
           <Modal
             animationIn="slideInLeft"
@@ -3578,5 +3990,22 @@ const styles = StyleSheet.create({
   rightAccent: {
     width: 3,
     backgroundColor: '#d1fae5',
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#eee',
+  },
+  tabButton: {
+    flex: 1,
+    padding: 12,
+    alignItems: 'center',
+  },
+  activeTab: {
+    borderBottomWidth: 3,
+    borderBottomColor: 'green',
+    backgroundColor: '#fff',
+  },
+  tabText: {
+    fontWeight: '600',
   },
 });

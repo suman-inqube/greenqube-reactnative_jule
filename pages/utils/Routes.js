@@ -342,6 +342,16 @@ export const ROUTES = {
 
     UNIQUE_SCAN_CODE: ({unique_id = ''}) =>
       `categoryRoute/pipeQrDetails?unique_id=${unique_id}&act_type=new`,
+    GET_CROP_HISTORY: ({plot_id = ''}) =>
+      `carbonRoute/cropHistory?land_rel_id=${plot_id}`,
+    GET_CROP_DETAILS: ({plot_id = ''}) =>
+      `landRoute/landActiveCrop_e?land_rel_id=${plot_id}`,
+    USERLANDLIST_E: ({farmer_id = ''}) =>
+      `landRoute/userLandList_e/${farmer_id}`,
+    LANDACTIVECROP_E: ({rel_id = ''}) =>
+      `landRoute/landActiveCrop_e?land_rel_id=${rel_id}`,
+    PEST_DETAILS: ({cu_rel_fid = ''}) =>
+      `carbonRoute/cropInputDetails?cu_rel_fid==${cu_rel_fid}`,
   },
 
   PUT: {

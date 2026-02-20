@@ -115,6 +115,36 @@ export const addPlotImageAPI = async (
   }
 };
 
+export const addCropInputAPI = async (
+  dbName,
+  languageID,
+  token,
+  farmerID,
+  payload,
+) => {
+  const axiosHeaders = {
+    headers: {
+      Authorization: token,
+      information: `${dbName},${languageID},${farmerID}`,
+      'Content-Type': 'application/json',
+    },
+  };
+
+  try {
+    const response = await axios.post(
+      `${config.BASE_URL}carbonRoute/addCropInput`,
+      payload,
+      axiosHeaders,
+    );
+
+    return response;
+  } catch (error) {
+    console.log('addCropInputAPI error:', error.response?.data);
+    return error.response;
+  }
+};
+
+
 export const loanPurposeAPI = async (dbName, languageId, token) => {
   const axiosHeaders = {
     headers: {

@@ -93,7 +93,7 @@ function AdminStack() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: 'transparent' },
+        contentStyle: {backgroundColor: 'transparent'},
 
         // 🔄 Screen transition
         animation: 'slide_from_bottom', // others: 'fade', 'slide_from_left', 'slide_from_bottom', 'simple_push'
@@ -118,7 +118,7 @@ function AdminStack() {
         },
 
         // 🎬 Custom transition interpolator (advanced)
-        cardStyleInterpolator: ({ current, layouts }) => ({
+        cardStyleInterpolator: ({current, layouts}) => ({
           cardStyle: {
             transform: [
               {
@@ -176,6 +176,7 @@ function AdminStack() {
       <Stack.Screen name="password" component={ForgotPassword} />
       <Stack.Screen name="information" component={Information} />
       <Stack.Screen name="livehood" component={PlotList} />
+      <Stack.Screen name="PlotDetails" component={LiveHood} />
       <Stack.Screen name="CrateProblemUser" component={CrateProblemUser} />
       <Stack.Screen name="InsuranceEnquiry" component={InsuranceEnquiry} />
       <Stack.Screen

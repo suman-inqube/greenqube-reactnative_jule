@@ -35,6 +35,10 @@ import FloatingActionButton from '../../Components/FloatingActionButton';
 import TabBar from '../../Components/TabBar';
 import PlotCard from '../../Components/PlotCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {ROUTES} from '../../utils/Routes';
+import {axiosGet} from '../../utils/api';
+import CropData from './CropData';
+import LoadingScreen from '../../Common/LoadingScreen';
 
 // Import or Create a CropData component if you have one,
 // otherwise using a placeholder View below.
@@ -45,14 +49,17 @@ const CropDataPlaceholder = () => (
 );
 
 const PlotList = () => {
+   const navigation = useNavigation();
   const route = useRoute();
   const {farmeruserID} = route.params;
   const [activeTab, setActiveTab] = useState(0);
   const [dataProps, setDataProps] = useState({});
   const [addPlot, setAddPlot] = useState(false);
+  const [historyData, setHistoryData] = useState(false);
   const [plotList, setPlotList] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadinglandActiveCrop, setIsLoadinglandActiveCrop] = useState(false);
   const [landUnitsquareMetre, setLandUnitsquareMetre] = useState([]);
   const [landAreaUnit, setLandAreaUnit] = useState([]);
   const scrollRef = useRef(null);
@@ -61,9 +68,33 @@ const PlotList = () => {
     useContext(userCreateContext);
   const {dbname, lan_id, token} = loginUser_data;
 
+ 
+
+  const handlePlotPress = useCallback(
+    payload => {
+      if (payload?.source === 'HISTORY') {
+        setHistoryData(true);
+        console.log('History item selected');
+        console.log(JSON.stringify(payload.data));
+         onTabPress(1, payload.data);
+      }
+
+      if (payload?.source === 'CURRENT') {
+        setHistoryData(false);
+        console.log('Current plot selected');
+        console.log(JSON.stringify(payload.data));
+         onTabPress(1, payload.data);
+      }
+    },
+    [onTabPress, farmeruserID, navigation],
+  );
+
   const onTabPress = useCallback((index, data = {}) => {
+console.log('hisdata--', index);
     setActiveTab(index);
     setDataProps(data);
+
+    
     scrollRef.current?.scrollTo({x: index * width, animated: true});
   }, []);
 
@@ -71,11 +102,14 @@ const PlotList = () => {
     try {
       setIsLoading(true);
       const [plotsRes, unitAreaRes, unitSqRes] = await Promise.all([
-        plotListApproval(dbname, lan_id, token, farmeruserID),
+        axiosGet(ROUTES.GET.USERLANDLIST_E({farmer_id: farmeruserID}), token, {
+          Information: `${dbname},${lan_id}`,
+        }),
         LandUnitArea(dbname, lan_id, token),
         LandUnitsquare_metre(dbname, lan_id, token),
-        AllFarmerList(),
+        // AllFarmerList(),
       ]);
+
       if (plotsRes?.status === 200) setPlotList(plotsRes?.data || []);
       if (unitAreaRes?.status === 200)
         setLandAreaUnit(unitAreaRes?.data?.data?.rows || []);
@@ -116,80 +150,168 @@ const PlotList = () => {
     [t, CustomHeader],
   );
 
+  const landActiveCrop = async (item, index) => {
+    setIsLoadinglandActiveCrop(true);
+    try {
+      const res = await axiosGet(
+        ROUTES.GET.LANDACTIVECROP_E({rel_id: item.rel_id}),
+        token,
+        {
+          Information: `${dbname},${lan_id}`,
+        },
+      );
+      if (res.status == 200) {
+        setIsLoadinglandActiveCrop(false);
+        const {
+          harvesting_date,
+          crop_name: {name: cropName} = {},
+          crop_variety: {name: varietyName} = {},
+          sowing_date,
+        } = res.data?.[0] || {};
+        setPlotList(prev => {
+          const copy = [...prev];
+          copy[index] = {
+            ...copy[index],
+            plot_crops: [
+              {
+                crop_name: {name: cropName},
+                crop_variety: {name: varietyName},
+                sowing_date: sowing_date,
+                harvesting_date: harvesting_date,
+              },
+            ],
+          };
+
+          return copy;
+        });
+      }
+    } catch (error) {
+      setIsLoadinglandActiveCrop(false);
+      console.error(error);
+    } finally {
+      setIsLoadinglandActiveCrop(false);
+    }
+  };
+
   return (
     <Root>
       <FarmerDrawerScreenWrapper1>
         <View style={styles.container}>
           {renderCustomHeader}
-          <TabBar
-            tabs={['Plot List', 'Plot Data', 'Crop Data']}
-            activeTab={activeTab}
-            onTabPress={ix => onTabPress(ix)}
-            indicatorColor={Colors.useGreen}
-            height={65}
-            backgroundColor={Colors.background}
-            colors={Colors.primary}
-          />
-          <ScrollView
-            ref={scrollRef}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            scrollEnabled={false}
-            onScroll={Animated.event(
-              [{nativeEvent: {contentOffset: {x: animatedValue}}}],
-              {useNativeDriver: false},
-            )}
-            scrollEventThrottle={16}
-            onMomentumScrollEnd={e =>
-              setActiveTab(Math.round(e.nativeEvent.contentOffset.x / width))
-            }>
-            {/* Tab 0: Plot List */}
-            <View style={styles.page}>
-              <FlatList
-                data={isLoading ? Array.from({length: 5}) : plotList}
-                keyExtractor={(item, index) => item?.id?.toString() || index}
-                refreshing={refreshing}
-                onRefresh={() => setRefreshing(false)}
-                renderItem={({item, index}) =>
-                  isLoading ? (
-                    <PlotStatusSkeletonScreen />
-                  ) : (
-                    <PlotCard
-                      item={item}
-                      onPress={() => onTabPress(1, item)}
-                      landUnitsquareMetre={landUnitsquareMetre}
-                      landAreaUnit={landAreaUnit}
-                    />
-                  )
-                }
-                contentContainerStyle={{padding: 15}}
-                showsVerticalScrollIndicator={false}
-                initialNumToRender={5}
-                windowSize={5}
-                removeClippedSubviews={true}
+          {activeTab === 0 && (
+            <>
+              <TabBar
+                tabs={['Plot List']}
+                activeTab={activeTab}
+                onTabPress={ix => onTabPress(ix)}
+                indicatorColor={Colors.useGreen}
+                height={65}
+                backgroundColor={Colors.background}
+                colors={Colors.primary}
               />
-            </View>
+              {isLoadinglandActiveCrop ? (
+                <View style={styles.LoadingScreen}>
+                  <LoadingScreen />
+                </View>
+              ) : null}
+              <ScrollView
+                ref={scrollRef}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                scrollEnabled={false}
+                onScroll={Animated.event(
+                  [{nativeEvent: {contentOffset: {x: animatedValue}}}],
+                  {useNativeDriver: false},
+                )}
+                scrollEventThrottle={16}
+                onMomentumScrollEnd={e =>
+                  setActiveTab(
+                    Math.round(e.nativeEvent.contentOffset.x / width),
+                  )
+                }>
+                {/* Tab 0: Plot List */}
+                <View style={styles.page}>
+                  <FlatList
+                    data={isLoading ? Array.from({length: 5}) : plotList}
+                    keyExtractor={(item, index) =>
+                      item?.id?.toString() || index
+                    }
+                    refreshing={refreshing}
+                    onRefresh={() => setRefreshing(false)}
+                    renderItem={({item, index}) =>
+                      isLoading ? (
+                        <PlotStatusSkeletonScreen />
+                      ) : (
+                        <PlotCard
+                          item={item}
+                          index={index}
+                          // onPress={() => onTabPress(1, item)}
+                          onPress={handlePlotPress}
+                          landUnitsquareMetre={landUnitsquareMetre}
+                          landAreaUnit={landAreaUnit}
+                          apiCall={landActiveCrop}
+                        />
+                      )
+                    }
+                    contentContainerStyle={{padding: 15}}
+                    showsVerticalScrollIndicator={false}
+                    initialNumToRender={5}
+                    windowSize={5}
+                    removeClippedSubviews={true}
+                  />
+                </View>
+                <View style={styles.page}>
+                  {activeTab === 1 && (
+                    <LiveHood
+                      dataProps={dataProps}
+                      activeTab={activeTab}
+                      setActiveTab={setActiveTab}
+                      onTabPress={onTabPress}
+                      setAddPlot={setAddPlot}
+                      addPlot={addPlot}
+                      historyData={historyData}
+                    />
+                  )}
+                </View>
+                {/* Tab 2: Crop Data */}
+                <View style={styles.page}></View>
+              </ScrollView>
+            </>
+          )}
 
-            {/* Tab 1: Plot Data */}
-            <View style={styles.page}>
-              {activeTab === 1 && (
-                <LiveHood
-                  dataProps={dataProps}
-                  activeTab={activeTab}
-                  setActiveTab={setActiveTab}
-                  onTabPress={onTabPress}
-                  setAddPlot={setAddPlot}
-                  addPlot={addPlot}
-                />
-              )}
-            </View>
-
-            {/* Tab 2: Crop Data */}
-            <View style={styles.page}>
-             
-            </View>
-          </ScrollView>
+          {activeTab === 1 && (
+            <>
+              <ScrollView
+                ref={scrollRef}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                scrollEnabled={false}
+                onScroll={Animated.event(
+                  [{nativeEvent: {contentOffset: {x: animatedValue}}}],
+                  {useNativeDriver: false},
+                )}
+                scrollEventThrottle={16}
+                onMomentumScrollEnd={e =>
+                  setActiveTab(
+                    Math.round(e.nativeEvent.contentOffset.x / width),
+                  )
+                }>
+                <View style={styles.page}>
+                  <LiveHood
+                    dataProps={dataProps}
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                    onTabPress={onTabPress}
+                    setAddPlot={setAddPlot}
+                    addPlot={addPlot}
+                    historyData={historyData}
+                  />
+                </View>
+              </ScrollView>
+            </>
+          )}
 
           {activeTab === 0 && (
             <FloatingActionButton

@@ -25,6 +25,7 @@ import {userCreateContext} from './pages/Context/usersCreateContext';
 import {addModuleForView} from './config/apiHere';
 import './ignoreWarnings';
 import {navigationRef} from './pages/utils/NavigationUtils';
+import {BottomSheetProvider} from './pages/Common/BottomSheetProvider';
 
 const Stack = createNativeStackNavigator();
 
@@ -38,108 +39,116 @@ function AppContent() {
   const {dbname, lan_id, token, user_id} = loginUser_data || {};
 
   return (
-    <SafeAreaProvider>
-      <GestureHandlerRootView style={{flex: 1}}>
-        <NavigationContainer
-          ref={navigationRef}
-          onReady={() => {
-            routeNameRef.current = navigationRef.getCurrentRoute()?.name;
-          }}
-          onStateChange={() => {
-            const previousRouteName = routeNameRef.current;
-            const currentRouteName = navigationRef.getCurrentRoute()?.name;
+    <BottomSheetProvider>
+      <SafeAreaProvider>
+        <GestureHandlerRootView style={{flex: 1}}>
+          <NavigationContainer
+            ref={navigationRef}
+            onReady={() => {
+              routeNameRef.current = navigationRef.getCurrentRoute()?.name;
+            }}
+            onStateChange={() => {
+              const previousRouteName = routeNameRef.current;
+              const currentRouteName = navigationRef.getCurrentRoute()?.name;
 
-            if (
-              previousRouteName !== currentRouteName &&
-              dbname &&
-              token &&
-              user_id
-            ) {
-              switch (currentRouteName) {
-                case 'FarmerFarmIncomeExpenseList':
-                  addModuleForView(
-                    dbname,
-                    lan_id,
-                    user_id,
-                    token,
-                    'IncomeExpense User',
-                    'module_view',
-                    'incomeExpense_user',
-                    1,
-                  );
-                  break;
+              if (
+                previousRouteName !== currentRouteName &&
+                dbname &&
+                token &&
+                user_id
+              ) {
+                switch (currentRouteName) {
+                  case 'FarmerFarmIncomeExpenseList':
+                    addModuleForView(
+                      dbname,
+                      lan_id,
+                      user_id,
+                      token,
+                      'IncomeExpense User',
+                      'module_view',
+                      'incomeExpense_user',
+                      1,
+                    );
+                    break;
 
-                case 'FarmerLoan':
-                  addModuleForView(
-                    dbname,
-                    lan_id,
-                    user_id,
-                    token,
-                    'Loan User',
-                    'module_view',
-                    'loan_user',
-                    1,
-                  );
-                  break;
+                  case 'FarmerLoan':
+                    addModuleForView(
+                      dbname,
+                      lan_id,
+                      user_id,
+                      token,
+                      'Loan User',
+                      'module_view',
+                      'loan_user',
+                      1,
+                    );
+                    break;
 
-                case 'FarmerInsuranceEnquiry':
-                  addModuleForView(
-                    dbname,
-                    lan_id,
-                    user_id,
-                    token,
-                    'Insurance User',
-                    'module_view',
-                    'insurance_user',
-                    1,
-                  );
-                  break;
+                  case 'FarmerInsuranceEnquiry':
+                    addModuleForView(
+                      dbname,
+                      lan_id,
+                      user_id,
+                      token,
+                      'Insurance User',
+                      'module_view',
+                      'insurance_user',
+                      1,
+                    );
+                    break;
 
-                case 'PackageOfPractices':
-                  addModuleForView(
-                    dbname,
-                    lan_id,
-                    user_id,
-                    token,
-                    'PoP User',
-                    'module_view',
-                    'pop_user',
-                    1,
-                  );
-                  break;
+                  case 'PackageOfPractices':
+                    addModuleForView(
+                      dbname,
+                      lan_id,
+                      user_id,
+                      token,
+                      'PoP User',
+                      'module_view',
+                      'pop_user',
+                      1,
+                    );
+                    break;
 
-                default:
-                  break;
+                  default:
+                    break;
+                }
               }
-            }
 
-            routeNameRef.current = currentRouteName;
-          }}>
-          <Stack.Navigator
-            initialRouteName="SplashScreen"
-            screenOptions={{headerShown: false}}>
-            <Stack.Screen name="SplashScreen" component={SplashScreen} />
-            <Stack.Screen name="Login" component={Login} />
-            <Stack.Screen name="Signup" component={Signup} />
-            <Stack.Screen name="SignUpViwer" component={SignUpViwer} />
-            <Stack.Screen name="Persnol" component={Persnol} />
-            <Stack.Screen name="PersnolUpdate" component={PersnolUpdate} />
-            <Stack.Screen name="Financial" component={Financial} />
-            <Stack.Screen name="FinancialUpdate" component={FinancialUpdate} />
-            <Stack.Screen name="ProduceInfo" component={ProduceInfo} />
-            <Stack.Screen
-              name="ProduceInfoUpdate"
-              component={ProduceInfoUpdate}
-            />
-            <Stack.Screen name="AdminNavigation" component={AdminNavigation} />
-            <Stack.Screen
-              name="FarmerNavigation"
-              component={FarmerNavigation}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </GestureHandlerRootView>
-    </SafeAreaProvider>
+              routeNameRef.current = currentRouteName;
+            }}>
+            <Stack.Navigator
+              initialRouteName="SplashScreen"
+              screenOptions={{headerShown: false}}>
+              <Stack.Screen name="SplashScreen" component={SplashScreen} />
+              <Stack.Screen name="Login" component={Login} />
+              <Stack.Screen name="Signup" component={Signup} />
+              <Stack.Screen name="SignUpViwer" component={SignUpViwer} />
+              <Stack.Screen name="Persnol" component={Persnol} />
+              <Stack.Screen name="PersnolUpdate" component={PersnolUpdate} />
+              <Stack.Screen name="Financial" component={Financial} />
+              <Stack.Screen
+                name="FinancialUpdate"
+                component={FinancialUpdate}
+              />
+              <Stack.Screen name="ProduceInfo" component={ProduceInfo} />
+              <Stack.Screen
+                name="ProduceInfoUpdate"
+                component={ProduceInfoUpdate}
+              />
+              <Stack.Screen
+                name="AdminNavigation"
+                component={AdminNavigation}
+              />
+              <Stack.Screen
+                name="FarmerNavigation"
+                component={FarmerNavigation}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </GestureHandlerRootView>
+      </SafeAreaProvider>
+    </BottomSheetProvider>
   );
 }
 
