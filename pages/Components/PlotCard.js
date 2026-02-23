@@ -79,7 +79,10 @@ const PlotCard = memo(({item, onPress, landUnitsquareMetre, landAreaUnit}) => {
                 {convertedArea} {landAreaUnit?.[0]?.name || ''}
               </Text>
             </View>
-            <StatusBadge status={item?.status_level} />
+            <View style={{flexDirection: 'row'}}>
+              <StatusBadge status={item?.plot_status} />
+              <StatusBadge status={item?.status_level} />
+            </View>
           </View>
         }
       />

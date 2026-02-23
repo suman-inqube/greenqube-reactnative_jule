@@ -1,4 +1,4 @@
-import { DEFAULT } from '@sentry/react-native/dist/js/tracing';
+import {DEFAULT} from '@sentry/react-native/dist/js/tracing';
 
 export const ROUTES = {
   POST: {
@@ -18,6 +18,7 @@ export const ROUTES = {
     ACTIVITY_SAVE: `inputOutputRoute/addUserActivity`,
     SAVE_CO_FARMERS: `settingsRoute/saveCoFarmers`,
     FARMER_SIGNUP_BY_AGENT: `agentRoute/farmerSignupByAgent`,
+    ADD_PLOTI_MGS: `landRoute/addPlotImgs`,
   },
 
   GET: {
@@ -342,6 +343,11 @@ export const ROUTES = {
 
     UNIQUE_SCAN_CODE: ({unique_id = ''}) =>
       `categoryRoute/pipeQrDetails?unique_id=${unique_id}&act_type=new`,
+
+    USERLANDLIST_E: ({farmer_id = ''}) =>
+      `landRoute/userLandList_e/${farmer_id}`,
+    LANDACTIVECROP_E: ({rel_id = ''}) =>
+      `landRoute/landActiveCrop_e?land_rel_id=${rel_id}`,
   },
 
   PUT: {

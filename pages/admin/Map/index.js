@@ -85,6 +85,7 @@ export default function Map({
   baselatLong,
   handleRegionChangeComplete,
   isLoading,
+  offline_mode = 0,
 }) {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [drawingReference, setDrawingReference] = useState(null);
@@ -369,15 +370,15 @@ export default function Map({
         },
       );
     }
-    // if (!isOffline) {
-    //   baseActions.push({
-    //     text: isDownloading ? 'Downloading...' : 'Download Map',
-    //     icon: <Icon name="cloud-download" size={24} color="#fff" />,
-    //     name: 'downloadMap',
-    //     position: 6,
-    //     color: Colors.useGreen,
-    //   });
-    // }
+    if (!isOffline && offline_mode == 1) {
+      baseActions.push({
+        text: isDownloading ? 'Downloading...' : 'Download Map',
+        icon: <Icon name="cloud-download" size={24} color="#fff" />,
+        name: 'downloadMap',
+        position: 6,
+        color: Colors.useGreen,
+      });
+    }
     return baseActions;
   }, [editing, isOffline]);
   const handleActionPress = useCallback(
@@ -460,7 +461,7 @@ export default function Map({
     }
   };
   const downloadOfflineTiles = async () => {
-    console.log(TILE_DIR,SATELLITE_DIR);
+    console.log(TILE_DIR, SATELLITE_DIR);
     if (isOffline) {
       Alert.alert('Offline', 'Please connect to internet to download map.');
       return;

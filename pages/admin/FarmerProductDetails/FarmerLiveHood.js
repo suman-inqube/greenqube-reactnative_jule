@@ -113,7 +113,7 @@ const FarmerLiveHood = ({
     daag_no: '',
     khatian_no: '',
     plant_number: '',
-     jl_no: '',
+    jl_no: '',
     mouja: '',
     land_size: '',
     plot_Site: '',
@@ -417,8 +417,8 @@ const FarmerLiveHood = ({
       daag_no: '',
       khatian_no: '',
       plant_number: '',
-       jl_no: '',
-    mouja: '',
+      jl_no: '',
+      mouja: '',
       land_size: '',
       plot_Site: '',
       plot_Site_Name: '',
@@ -978,7 +978,7 @@ const FarmerLiveHood = ({
           if (
             ![
               'APPROVED',
-              'CARBON_DOCUMENTS_SUBMITTED',
+              // 'CARBON_DOCUMENTS_SUBMITTED',
               'CARBON_DOCUMENTS_APPROVED',
               'CARBON_DOCUMENTS_REJECTED',
             ].includes(statuslevel.label)
@@ -1330,9 +1330,10 @@ const FarmerLiveHood = ({
             }
           }
           if (
-            (statuslevel.label == 'APPROVED' ||
-              statuslevel.label == 'CARBON_DOCUMENTS_REJECTED') &&
-            carbonFlag == true
+             statuslevel.label == 'APPROVED' ||
+            statuslevel.label == 'PENDING' ||
+            (statuslevel.label == 'CARBON_DOCUMENTS_REJECTED' &&
+              carbonFlag == true)
           ) {
             const formdataCarbon = new FormData();
             formdataCarbon.append('rel_id', farmerData.land_rel_id);
@@ -1580,7 +1581,7 @@ const FarmerLiveHood = ({
           if (dataLandDetails?.rel_id == findData.value) {
             if (
               dataLandDetails?.status_level == 'APPROVED' ||
-              dataLandDetails?.status_level == 'CARBON_DOCUMENTS_SUBMITTED' ||
+              // dataLandDetails?.status_level == 'CARBON_DOCUMENTS_SUBMITTED' ||
               dataLandDetails?.status_level == 'CARBON_DOCUMENTS_APPROVED' ||
               dataLandDetails?.status_level == 'CARBON_DOCUMENTS_REJECTED'
             ) {
@@ -1891,12 +1892,12 @@ const FarmerLiveHood = ({
   const handleAddUserDataPlanNumber = useCallback(text => {
     setFarmerData(prev => ({...prev, ['plant_number']: text}));
   }, []);
-   const handleAddUserDataJLNo = useCallback(text => {
-      setFarmerData(prev => ({...prev, ['jl_no']: text}));
-    }, []);
-    const handleAddUserDataMouja = useCallback(text => {
-      setFarmerData(prev => ({...prev, ['mouja']: text}));
-    }, []);
+  const handleAddUserDataJLNo = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['jl_no']: text}));
+  }, []);
+  const handleAddUserDataMouja = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['mouja']: text}));
+  }, []);
   const handleAddDataTerrainType = useCallback(item => {
     const {label, value} = item;
     setFarmerData(prev => ({
@@ -1936,7 +1937,7 @@ const FarmerLiveHood = ({
     if (
       ![
         'APPROVED',
-        'CARBON_DOCUMENTS_SUBMITTED',
+        // 'CARBON_DOCUMENTS_SUBMITTED',
         'CARBON_DOCUMENTS_APPROVED',
         'CARBON_DOCUMENTS_REJECTED',
       ].includes(statuslevel.label)
@@ -2216,7 +2217,10 @@ const FarmerLiveHood = ({
   };
   const [InputTextFormEdit, setInputTextFormEdit] = useState(true);
   useEffect(() => {
-    if (harvested === '' && statuslevel.label === '') {
+    if (
+      (harvested === '' && statuslevel.label === '') ||
+      statuslevel.label === 'CARBON_DOCUMENTS_SUBMITTED'
+    ) {
       setInputTextFormEdit(true);
     } else if (
       statuslevel.label == 'APPROVED' ||
@@ -2359,26 +2363,26 @@ const FarmerLiveHood = ({
             onChangeText={handleAddUserDataPlanNumber}
             editable={InputTextFormEdit}
           />
-             {carbonFlag == true ? (
-             <InputTextForm
+          {carbonFlag == true ? (
+            <InputTextForm
               label={t('JL No')}
               value={farmerData.jl_no}
               onChangeText={handleAddUserDataJLNo}
               editable={InputTextFormEdit}
             />
-            ) : (
-                  <></>
-                )}
-             {carbonFlag == true ? (
+          ) : (
+            <></>
+          )}
+          {carbonFlag == true ? (
             <InputTextForm
               label={t('Mouja Name')}
               value={farmerData.mouja}
               onChangeText={handleAddUserDataMouja}
               editable={InputTextFormEdit}
             />
-            ) : (
-                  <></>
-                )}
+          ) : (
+            <></>
+          )}
 
           <DropdownForm
             label={t('select_terrain_type')}
@@ -2410,7 +2414,7 @@ const FarmerLiveHood = ({
                 onChangeText={handleAddUserDataland_size}
                 editable={
                   statuslevel.label == 'APPROVED' ||
-                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                  //  ||statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED'
                   statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
                   statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                     ? false
@@ -2428,7 +2432,7 @@ const FarmerLiveHood = ({
                 val={farmerData.unit}
                 disable={
                   statuslevel.label == 'APPROVED' ||
-                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                  // ||  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED'
                   statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
                   statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                     ? true
@@ -2515,7 +2519,7 @@ const FarmerLiveHood = ({
             loginUser_data={loginUser_data}
             disable={
               statuslevel.label == 'APPROVED' ||
-              statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+              // || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED'
               statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
               statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                 ? false
@@ -2547,7 +2551,8 @@ const FarmerLiveHood = ({
               }
               disable={
                 statuslevel.label == 'APPROVED' ||
-                statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                // ||
+                // statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED'
                 statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
                 statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                   ? false
@@ -2819,6 +2824,7 @@ const FarmerLiveHood = ({
             </View>
           </TouchableOpacity>
           {(statuslevel.label == 'APPROVED' ||
+            statuslevel.label == 'PENDING' ||
             statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
             statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
             statuslevel.label === 'CARBON_DOCUMENTS_REJECTED' ||
@@ -2837,16 +2843,20 @@ const FarmerLiveHood = ({
                     : statuslevel.label
                 }
                 disable={
-                  statuslevel.label == 'APPROVED'
+                  statuslevel.label == 'APPROVED' ||
+                  statuslevel.label == 'PENDING'
                     ? true
-                    : statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    : //  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
                       statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                     ? false
                     : true
                 }
                 InputTextFormEdit={
-                  statuslevel.label == 'APPROVED' ? true : false
+                  statuslevel.label == 'APPROVED' ||
+                  statuslevel.label == 'PENDING'
+                    ? true
+                    : false
                 }
               />
               <SignatureCapture

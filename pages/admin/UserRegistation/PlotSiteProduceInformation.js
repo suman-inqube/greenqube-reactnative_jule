@@ -247,8 +247,15 @@ const PlotSiteProduceInformation = () => {
     return Object.values(grouped);
   };
   //GQR-65
-  const {dbName, languageId, token, supervisorId, company, country} =
-    dbLanTokUsr;
+ const {
+   dbName,
+   languageId,
+   token,
+   supervisorId,
+   company,
+   country,
+   offline_mode,
+ } = dbLanTokUsr;
   //GQR-65
   var prodctionSeasionArray = [];
   const onPageLoad = async () => {
@@ -1982,6 +1989,7 @@ const PlotSiteProduceInformation = () => {
               type="livehoood"
               handleRegionChangeComplete={handleRegionChangeComplete}
               isLoading={isLoading}
+              offline_mode={offline_mode}
             />
           </Modal>
         )}

@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import {SPSheet} from '@sekizlipenguen/react-native-popup-confirm-toast';
-import DocumentPicker, {types,pick} from '@react-native-documents/picker';
+import DocumentPicker, {types, pick} from '@react-native-documents/picker';
 import {createPdf} from 'react-native-images-to-pdf'; // Assuming you need to import this
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
@@ -284,7 +284,8 @@ const CarbonCertificate = ({
           </Text>
           <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
             {status_level === 'CARBON_DOCUMENTS_REJECTED' ||
-            status_level === 'APPROVED' ? (
+            status_level === 'APPROVED' ||
+            status_level === 'PENDING' ? (
               <TouchableOpacity
                 onPress={() => {
                   handleScanAndCreatePdf(data?.ImageType, index);
@@ -308,9 +309,10 @@ const CarbonCertificate = ({
             ) : (
               <></>
             )}
-            
+
             {status_level === 'CARBON_DOCUMENTS_REJECTED' ||
-            status_level === 'APPROVED' ? (
+            status_level === 'APPROVED' ||
+            status_level === 'PENDING' ? (
               <TouchableOpacity
                 onPress={() => {
                   onHandleDocumentSelection(data?.ImageType, index);
