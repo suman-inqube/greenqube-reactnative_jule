@@ -351,7 +351,7 @@ export const ROUTES = {
     LANDACTIVECROP_E: ({rel_id = ''}) =>
       `landRoute/landActiveCrop_e?land_rel_id=${rel_id}`,
     PEST_DETAILS: ({cu_rel_fid = ''}) =>
-      `carbonRoute/cropInputDetails?cu_rel_fid==${cu_rel_fid}`,
+      `carbonRoute/cropInputDetails?cu_rel_fid=${cu_rel_fid}`,
   },
 
   PUT: {

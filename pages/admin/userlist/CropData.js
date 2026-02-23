@@ -133,180 +133,194 @@ const CropData = ({
       </View>
       {/* {amendmentList.map((data, index) => {
         return ( */}
-      <View style={styles.AddExpenseContainer}>
-        <View style={styles.inputContainer}>
-          <Text
-            style={{
-              fontSize: 24,
-              marginBottom: 10,
-            }}>
-            Amendmenats & Inputs
-          </Text>
-          <View>
-            {amendmentTypes.map(option => (
-              <TouchableOpacity
-                key={option.value} // ✅ FIXED
-                style={styles.radioRow}
-                onPress={() => setSelectedType(option.value)}>
-                <View style={styles.radioOuter}>
-                  {selectedType === option.value && (
-                    <View style={styles.radioInner} />
+
+      {userData !== 'addUserData' && addPlot !== true && (
+        <>
+          <View style={styles.AddExpenseContainer}>
+            <View style={styles.inputContainer}>
+              <Text
+                style={{
+                  fontSize: 24,
+                  marginBottom: 10,
+                }}>
+                Amendmenats & Inputs
+              </Text>
+              <View>
+                {amendmentTypes.map(option => (
+                  <TouchableOpacity
+                    key={option.value} // ✅ FIXED
+                    style={styles.radioRow}
+                    onPress={() => setSelectedType(option.value)}>
+                    <View style={styles.radioOuter}>
+                      {selectedType === option.value && (
+                        <View style={styles.radioInner} />
+                      )}
+                    </View>
+
+                    <Text style={styles.radioText}>{option.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <InputTextForm
+                label={t('Name')}
+                value={formData.ferti_pesti_fid}
+                onChangeText={text => handleChange('ferti_pesti_fid', text)}
+              />
+            </View>
+            <View style={styles.AddExpenseItemContainer}>
+              <InputTextForm
+                label={t('Quantity (kg)')}
+                value={formData.quantity}
+                onChangeText={text => handleChange('quantity', text)}
+              />
+
+              <InputTextForm
+                label={t('Number of applications')}
+                value={formData.no_of_applications}
+                onChangeText={text => handleChange('no_of_applications', text)}
+              />
+            </View>
+            <TouchableOpacity
+              onPress={addMoreAmendments}
+              style={styles.addMore}>
+              <MaterialIcons name={'add-circle'} color="white" size={25} />
+              <Text style={styles.addMoreText}>{t('add_more')}</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* })} */}
+
+          {allItems.length > 0 && (
+            <View style={{marginTop: 20}}>
+              <Text style={{fontSize: 18, fontWeight: 'bold'}}>Items</Text>
+
+              {allItems.map((item, index) => (
+                <View
+                  key={item.uniqueKey}
+                  style={{
+                    backgroundColor: '#fff',
+                    padding: 12,
+                    marginVertical: 6,
+                    borderRadius: 8,
+                    elevation: 2,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}>
+                  <View>
+                    <Text>Type: {item.type}</Text>
+                    <Text>Name: {item.ferti_pesti_fid}</Text>
+                    <Text>
+                      Qty: {item.quantity} {item?.fp_unit?.unit_name || 'kg'}
+                    </Text>
+                    <Text>Applications: {item.no_of_applications}</Text>
+                  </View>
+
+                  {/* 🔥 DELETE ONLY FOR LOCAL ITEMS */}
+                  {!item.isFromAPI && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setAmendmentData(prev => ({
+                          ...prev,
+                          [item.type]: prev[item.type].filter(
+                            (_, i) =>
+                              i !== Number(item.uniqueKey.split('-')[1]),
+                          ),
+                        }));
+                      }}
+                      style={{
+                        backgroundColor: 'red',
+                        padding: 6,
+                        borderRadius: 6,
+                      }}>
+                      <Text style={{color: 'white'}}>Delete</Text>
+                    </TouchableOpacity>
                   )}
                 </View>
-
-                <Text style={styles.radioText}>{option.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <InputTextForm
-            label={t('Name')}
-            value={formData.ferti_pesti_fid}
-            onChangeText={text => handleChange('ferti_pesti_fid', text)}
-          />
-        </View>
-        <View style={styles.AddExpenseItemContainer}>
-          <InputTextForm
-            label={t('Quantity (kg)')}
-            value={formData.quantity}
-            onChangeText={text => handleChange('quantity', text)}
-          />
-
-          <InputTextForm
-            label={t('Number of applications')}
-            value={formData.no_of_applications}
-            onChangeText={text => handleChange('no_of_applications', text)}
-          />
-        </View>
-        <TouchableOpacity onPress={addMoreAmendments} style={styles.addMore}>
-          <MaterialIcons name={'add-circle'} color="white" size={25} />
-          <Text style={styles.addMoreText}>{t('add_more')}</Text>
-        </TouchableOpacity>
-      </View>
-      
-      {/* })} */}
-      {currentList.length > 0 && (
-        <View style={{marginTop: 20}}>
-          <Text style={{fontSize: 18, fontWeight: 'bold'}}>Items</Text>
-
-          {allItems.map((item, index) => (
-            <View
-              key={item.uniqueKey}
-              style={{
-                backgroundColor: '#fff',
-                padding: 12,
-                marginVertical: 6,
-                borderRadius: 8,
-                elevation: 2,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-              <View>
-                <Text>Type: {item.type}</Text>
-                <Text>Name: {item.ferti_pesti_fid}</Text>
-                <Text>Qty: {item.quantity}</Text>
-                <Text>Applications: {item.no_of_applications}</Text>
-              </View>
-
-              <TouchableOpacity
-                onPress={() => {
-                  setAmendmentData(prev => ({
-                    ...prev,
-                    [item.type]: prev[item.type].filter(
-                      (_, i) => i !== Number(item.uniqueKey.split('-')[1]),
-                    ),
-                  }));
-                }}
-                style={{
-                  backgroundColor: 'red',
-                  padding: 6,
-                  borderRadius: 6,
-                }}>
-                <Text style={{color: 'white'}}>Delete</Text>
-              </TouchableOpacity>
+              ))}
             </View>
-          ))}
-        </View>
-      )}
-      {/* <InputTextForm
+          )}
+          {/* <InputTextForm
         label={t('Yield')}
         value={farmerData.yield}
         onChangeText={handleAddUserDataYield}
       /> */}
-      <InputTextForm
-        label={t('Plantation Method')}
-        value={farmerData.Plantation_Method}
-        onChangeText={handleAddUserDataPlantationMethod}
-      />
-      {/* <InputTextForm
+          <InputTextForm
+            label={t('Plantation Method')}
+            value={farmerData.Plantation_Method}
+            onChangeText={handleAddUserDataPlantationMethod}
+          />
+          {/* <InputTextForm
         label={t('Seeding date')}
         value={farmerData.Seeding_date}
         onChangeText={handleAddUserDataSeedingdate}
       /> */}
-      <TouchableOpacity
-        onPress={() => setseddingData(true)}
-        style={styles.datePicker}>
-        <Text style={styles.label}>{t('Seeding date')}</Text>
-        <View style={styles.dateDisplay}>
-          <Text style={{color: '#000'}}>
-            {farmerData.Seeding_date || 'Select'}
-          </Text>
-          <Image
-            source={require('../../Common/images/calendar.png')}
-            style={styles.icon}
+          <TouchableOpacity
+            onPress={() => setseddingData(true)}
+            style={styles.datePicker}>
+            <Text style={styles.label}>{t('Seeding date')}</Text>
+            <View style={styles.dateDisplay}>
+              <Text style={{color: '#000'}}>
+                {farmerData.Seeding_date || 'Select'}
+              </Text>
+              <Image
+                source={require('../../Common/images/calendar.png')}
+                style={styles.icon}
+              />
+            </View>
+          </TouchableOpacity>
+          <InputTextForm
+            label={t('Water source')}
+            value={farmerData.Water_source}
+            onChangeText={handleAddUserDataWaterSource}
           />
-        </View>
-      </TouchableOpacity>
-      <InputTextForm
-        label={t('Water source')}
-        value={farmerData.Water_source}
-        onChangeText={handleAddUserDataWaterSource}
-      />
-      <InputTextForm
-        label={t('Gap (days) between seeding & first irrigation')}
-        value={farmerData.gap_seeding_firrig}
-        onChangeText={handleAddUserDataGapSeedingFirrig}
-      />
-      <InputTextForm
-        label={t('Irrigation practice')}
-        value={farmerData.irri_practice}
-        onChangeText={handleAddUserDataIrriPractice}
-      />
-      <InputTextForm
-        label={t('Drying periods practiced')}
-        value={farmerData.drying_period_prac}
-        onChangeText={handleAddUserDataDryingPeriodPrac}
-      />
-      <InputTextForm
-        label={t('Gap (days) between draining the field & harvest')}
-        value={farmerData.gap_draining_harvest}
-        onChangeText={handleAddUserDataGapDrainingHarvest}
-      />
-      <InputTextForm
-        label={t('After harvest, what do you do with rice stubble?')}
-        value={farmerData.after_harvest_rice_stubble}
-        onChangeText={handleAddUserDataAfterHarvestRiceStubble}
-      />
-      <InputTextForm
-        label={t('After harvest, what do you do with the straw?')}
-        value={farmerData.after_harvest_straw}
-        onChangeText={handleAddUserDataAfterHarvestStraw}
-      />
-      <InputTextForm
-        label={t('% of straw removed')}
-        value={farmerData.straw_removed}
-        onChangeText={handleAddUserDataStrawRemoved}
-      />
-      <InputTextForm
-        label={t('% of straw incorporated')}
-        value={farmerData.straw_incorporate}
-        onChangeText={handleAddUserDataStrawIncorporate}
-      />
-      <InputTextForm
-        label={t('End usage of removed straw')}
-        value={farmerData.end_usg_rm_straw}
-        onChangeText={handleAddUserDataEndUsgRmStraw}
-      />
+          <InputTextForm
+            label={t('Gap (days) between seeding & first irrigation')}
+            value={farmerData.gap_seeding_firrig}
+            onChangeText={handleAddUserDataGapSeedingFirrig}
+          />
+          <InputTextForm
+            label={t('Irrigation practice')}
+            value={farmerData.irri_practice}
+            onChangeText={handleAddUserDataIrriPractice}
+          />
+          <InputTextForm
+            label={t('Drying periods practiced')}
+            value={farmerData.drying_period_prac}
+            onChangeText={handleAddUserDataDryingPeriodPrac}
+          />
+          <InputTextForm
+            label={t('Gap (days) between draining the field & harvest')}
+            value={farmerData.gap_draining_harvest}
+            onChangeText={handleAddUserDataGapDrainingHarvest}
+          />
+          <InputTextForm
+            label={t('After harvest, what do you do with rice stubble?')}
+            value={farmerData.after_harvest_rice_stubble}
+            onChangeText={handleAddUserDataAfterHarvestRiceStubble}
+          />
+          <InputTextForm
+            label={t('After harvest, what do you do with the straw?')}
+            value={farmerData.after_harvest_straw}
+            onChangeText={handleAddUserDataAfterHarvestStraw}
+          />
+          <InputTextForm
+            label={t('% of straw removed')}
+            value={farmerData.straw_removed}
+            onChangeText={handleAddUserDataStrawRemoved}
+          />
+          <InputTextForm
+            label={t('% of straw incorporated')}
+            value={farmerData.straw_incorporate}
+            onChangeText={handleAddUserDataStrawIncorporate}
+          />
+          <InputTextForm
+            label={t('End usage of removed straw')}
+            value={farmerData.end_usg_rm_straw}
+            onChangeText={handleAddUserDataEndUsgRmStraw}
+          />
+        </>
+      )}
       {/* 7. Production Session */}
       <DropdownForm
         label={t('addcrop_select_cultivating_season')}

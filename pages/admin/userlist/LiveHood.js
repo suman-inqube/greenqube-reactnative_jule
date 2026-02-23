@@ -320,37 +320,37 @@ const LiveHood = ({
     }));
   };
 
-  const addMoreAmendments = () => {
-    const {ferti_pesti_fid, quantity, no_of_applications} = formData;
+ const addMoreAmendments = () => {
+  const {ferti_pesti_fid, quantity, no_of_applications} = formData;
 
-    if (!ferti_pesti_fid || !quantity || !no_of_applications) {
-      Toast.show({
-        text: 'Please fill all fields',
-        ...AlertMesg[0],
-      });
-      return;
-    }
-
-    const newEntry = {
-      ferti_pesti_fid,
-      quantity: Number(quantity),
-      unit_fid: formData.unit_fid,
-      no_of_applications: Number(no_of_applications),
-    };
-
-    setAmendmentData(prev => ({
-      ...prev,
-      [selectedType]: [...prev[selectedType], newEntry],
-    }));
-
-    setFormData({
-      ferti_pesti_fid: '',
-      quantity: '',
-      unit_fid: '1cc9b81b4-dbcd-4381-8cf0-3a7cb40d87a2',
-      no_of_applications: '',
+  if (!ferti_pesti_fid || !quantity || !no_of_applications) {
+    Toast.show({
+      text: 'Please fill all fields',
+      ...AlertMesg[0],
     });
+    return;
+  }
+
+  const newEntry = {
+    ferti_pesti_fid,
+    quantity: Number(quantity),
+    unit_fid: formData.unit_fid,
+    no_of_applications: Number(no_of_applications),
+    isFromAPI: false,  // 🔥 important
   };
 
+  setAmendmentData(prev => ({
+    ...prev,
+    [selectedType]: [...prev[selectedType], newEntry],
+  }));
+
+  setFormData({
+    ferti_pesti_fid: '',
+    quantity: '',
+    unit_fid: '1cc9b81b4-dbcd-4381-8cf0-3a7cb40d87a2',
+    no_of_applications: '',
+  });
+};
   const deleteAmendment = index => {
     setAmendmentData(prev => ({
       ...prev,
@@ -383,6 +383,55 @@ const LiveHood = ({
   });
 
   return groupedData;
+};
+
+const fetchAndGroupPestDetails = async (cuRelId) => {
+  if (!cuRelId) return;
+
+  try {
+    const response = await axiosGet(
+      ROUTES.GET.PEST_DETAILS({
+        cu_rel_fid: cuRelId,
+      }),
+      '',
+      {
+        information: `${dbname},${lan_id}`,
+        Authorization: `${token}`,
+      },
+    );
+
+    const pestRows = response?.data?.data?.rows || [];
+
+    const groupedData = {
+      organic_amendment_type: [],
+      fertilizers: [],
+      pesticide: [],
+    };
+
+    pestRows.forEach(item => {
+      const formattedItem = {
+        ...item,
+        isFromAPI: true,     // 🔥 important
+      };
+
+      if (item.type === 'ORGANIC_AMENDMENT_TYPE') {
+        groupedData.organic_amendment_type.push(formattedItem);
+      }
+
+      if (item.type === 'FERTILIZER') {
+        groupedData.fertilizers.push(formattedItem);
+      }
+
+      if (item.type === 'PESTICIDE') {
+        groupedData.pesticide.push(formattedItem);
+      }
+    });
+
+    setAmendmentData(groupedData);
+
+  } catch (error) {
+    console.log('Error fetching pest details:', error);
+  }
 };
 
 
@@ -528,6 +577,8 @@ const LiveHood = ({
       CrashlyticsRecordError(error, 'LiveHood', 'onpageload');
     }
   }, [coords]);
+
+
 
   const handlePlot = useCallback(
     async findData => {
@@ -857,17 +908,9 @@ const LiveHood = ({
                     Number(dataLandDetails?.land_size),
                 }));
 
-                 const pestDetails = await axiosGet(
-                ROUTES.GET.PEST_DETAILS({
-                  cu_rel_fid: dataProps?.plot_crops[0]?.cu_rel_id,
-                }),
-                '',
-                {
-                  information: `${dbname},${lan_id}`,
-                  Authorization: `${token}`,
-                },
-              );
-              console.log('pestDetails==',JSON.stringify(pestDetails?.data?.data))
+                fetchAndGroupPestDetails(dataProps?.plot_crops[0]?.cu_rel_id);
+
+                
 
 
               } else {
@@ -938,17 +981,7 @@ const LiveHood = ({
                   end_usg_rm_straw: data?.end_usg_rm_straw,
                 }));
 
-                const pestDetails = await axiosGet(
-                ROUTES.GET.PEST_DETAILS({
-                  cu_rel_fid: data?.cu_rel_id,
-                }),
-                '',
-                {
-                  information: `${dbname},${lan_id}`,
-                  Authorization: `${token}`,
-                },
-              );
-              console.log('pestDetails==',JSON.stringify(pestDetails?.data?.data));
+                fetchAndGroupPestDetails(data?.cu_rel_id);
 
               }
 
@@ -2073,6 +2106,7 @@ const LiveHood = ({
             end_usg_rm_straw: farmerData.end_usg_rm_straw,
           });
 
+          console.log('setCycleDateAPI==',save_extradata)
           var [setCycleDate] = await Promise.all([
             setCycleDateAPI(
               dbname,
@@ -2101,6 +2135,7 @@ const LiveHood = ({
             }
           });
           formDataPlotImg.append('rel_id', plotId);
+          console.log('finalPayload==',JSON.stringify(finalPayload))
           const [deletePlotImageAPIRes, addPlotImageAPIRes] = await Promise.all(
             [
               deletePlotImageAPI(dbname, lan_id, token, formDataDelete),
