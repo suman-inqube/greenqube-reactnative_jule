@@ -2348,27 +2348,55 @@ const FarmerLiveHood = ({
             label={t('daag_no')}
             value={farmerData.daag_no}
             onChangeText={handleAddUserDataDaag}
-            editable={InputTextFormEdit}
+            editable={
+                    statuslevel.label == 'APPROVED' ||
+                     statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                      ? false
+                      : true
+                  }
           />
           <InputTextForm
             label={t('khatian_no')}
             value={farmerData.khatian_no}
             onChangeText={handleAddUserDataKKhatian}
-            editable={InputTextFormEdit}
+            editable={
+                    statuslevel.label == 'APPROVED' ||
+                     statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                      ? false
+                      : true
+                  }
           />
 
           <InputTextForm
             label={t('no_of_plants')}
             value={farmerData.plant_number}
             onChangeText={handleAddUserDataPlanNumber}
-            editable={InputTextFormEdit}
+           editable={
+                    statuslevel.label == 'APPROVED' ||
+                     statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                      ? false
+                      : true
+                  }
           />
           {carbonFlag == true ? (
             <InputTextForm
               label={t('JL No')}
               value={farmerData.jl_no}
               onChangeText={handleAddUserDataJLNo}
-              editable={InputTextFormEdit}
+              editable={
+                    statuslevel.label == 'APPROVED' ||
+                     statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                      ? false
+                      : true
+                  }
             />
           ) : (
             <></>
@@ -2378,7 +2406,14 @@ const FarmerLiveHood = ({
               label={t('Mouja Name')}
               value={farmerData.mouja}
               onChangeText={handleAddUserDataMouja}
-              editable={InputTextFormEdit}
+              editable={
+                    statuslevel.label == 'APPROVED' ||
+                     statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                      ? false
+                      : true
+                  }
             />
           ) : (
             <></>

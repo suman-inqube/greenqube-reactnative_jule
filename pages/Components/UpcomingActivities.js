@@ -6,19 +6,21 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState, memo, useMemo} from 'react';
+import React, {useState, memo, useMemo, useCallback} from 'react';
 import ImageForm from '../Common/ImageForm';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
-import moment from 'moment';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
-
+import LoadingScreen from '../Common/LoadingScreen';
+import {MotiView} from 'moti';
+import Skeleton from './Skeleton';
 const UpcomingActivities = ({
   uiState,
   t,
   loginUserData,
   dashboardType,
   activitySchedule,
+  isLoading,
 }) => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('Upcoming');
@@ -81,48 +83,29 @@ const UpcomingActivities = ({
       return transformedData.overdue;
     }
   }, [activeTab, transformedData]);
-
-  const getUserRoleText = () => {
-    if (!loginUserData) return '';
-
-    const userRole = loginUserData.user_role?.role_name;
-
-    if (
-      userRole &&
-      (userRole.toLowerCase() === 'admin' ||
-        userRole.toLowerCase() === 'supervisor' ||
-        userRole.toLowerCase() === 'agent')
-    ) {
-      return 'Supervisor';
-    } else {
-      return 'Farmer';
-    }
-  };
-  const handlePlusButtonPress = () => {
+  const handlePlusButtonPress = useCallback(() => {
     if (activeTab === 'Upcoming') {
-      if (dashboardType === 'Supervisor') {
-        navigation.navigate('UpcomingActivity');
-      } else {
-        navigation.navigate('FarmerUpcomingActivity');
-      }
+      navigation.navigate(
+        dashboardType === 'Supervisor'
+          ? 'UpcomingActivity'
+          : 'FarmerUpcomingActivity',
+      );
     } else {
-      if (dashboardType === 'Supervisor') {
-        navigation.navigate('PendingActivity');
-      } else {
-        navigation.navigate('FarmerPendingActivity');
-      }
+      navigation.navigate(
+        dashboardType === 'Supervisor'
+          ? 'PendingActivity'
+          : 'FarmerPendingActivity',
+      );
     }
-  };
+  }, [activeTab, dashboardType, navigation]);
 
-  const renderActivityItem = ({item}) => {
-    // console.log('item123', item);
-    return (
+  const renderActivityItem = useCallback(
+    ({item}) => (
       <View style={styles.activityItem}>
         <View style={styles.activityIndicator} />
         <View style={styles.activityDetails}>
-          <Text style={styles.activityTitle}> {item.activityName}</Text>
+          <Text style={styles.activityTitle}>{item.activityName}</Text>
 
-          {/* <View style={styles.activityMeta}> */}
           <View style={styles.nameRow}>
             <Text style={styles.activityDate}>
               {dashboardType === 'Supervisor'
@@ -133,26 +116,27 @@ const UpcomingActivities = ({
                       : item.date || 0
                   } ${activeTab === 'overdue' ? 'days ago' : 'days'}`}
             </Text>
+
             <Text style={styles.plotName}>{item.plot}</Text>
           </View>
-          {/* </View> */}
         </View>
       </View>
-    );
-  };
-
-  const renderEmptyState = () => (
-    <View style={styles.emptyState}>
-      <Text style={styles.emptyStateText}>
-        {activeTab === 'Upcoming'
-          ? 'No upcoming activities'
-          : 'No pending activities'}
-      </Text>
-    </View>
+    ),
+    [dashboardType, activeTab],
   );
-  // const currentActivities =
-  //   activeTab === 'Upcoming' ? upcomingActivities : pendingActivities;
-  console.log(uiState)
+
+  const renderEmptyState = useCallback(
+    () => (
+      <View style={styles.emptyState}>
+        <Text style={styles.emptyStateText}>
+          {activeTab === 'Upcoming'
+            ? 'No upcoming activities'
+            : 'No pending activities'}
+        </Text>
+      </View>
+    ),
+    [activeTab],
+  );
   return (
     <ScrollView>
       <View style={styles.mainProfileContainer}>
@@ -192,68 +176,107 @@ const UpcomingActivities = ({
                     )} */}
             </View>
           </View>
-          <View style={styles.upcomingActivitiesContainer}>
-            <View style={styles.tabContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.tab,
-                  activeTab === 'Upcoming' && styles.activeTab,
-                ]}
-                onPress={() => setActiveTab('Upcoming')}>
-                <Text
+
+          {isLoading ? (
+            <MotiView
+              from={{opacity: 0.4}}
+              animate={{opacity: 1}}
+              transition={{
+                type: 'timing',
+                duration: 900,
+                loop: true,
+                repeatReverse: true,
+              }}
+              style={styles.container}>
+              {/* Tabs Skeleton */}
+              <View style={styles.tabContainer}>
+                <Skeleton height={32} width={110} borderRadius={8} />
+                <Skeleton height={32} width={110} borderRadius={8} />
+                <Skeleton height={32} width={32} borderRadius={16} />
+              </View>
+
+              {/* Activity List Skeleton */}
+              {[1, 2, 3].map(i => (
+                <View key={i} style={styles.activityItem}>
+                  <Skeleton height={8} width={8} borderRadius={4} />
+
+                  <View style={styles.textBlock}>
+                    <Skeleton height={12} width="85%" borderRadius={4} />
+                    <Skeleton
+                      height={10}
+                      width="60%"
+                      borderRadius={4}
+                      style={styles.mt6}
+                    />
+                  </View>
+                </View>
+              ))}
+            </MotiView>
+          ) : (
+            <View style={styles.upcomingActivitiesContainer}>
+              <View style={styles.tabContainer}>
+                <TouchableOpacity
                   style={[
-                    styles.tabText,
-                    activeTab === 'Upcoming' && styles.activeTabText,
-                  ]}>
-                  {t('Upcoming')}
-                </Text>
-                <Text
+                    styles.tab,
+                    activeTab === 'Upcoming' && styles.activeTab,
+                  ]}
+                  onPress={() => setActiveTab('Upcoming')}>
+                  <Text
+                    style={[
+                      styles.tabText,
+                      activeTab === 'Upcoming' && styles.activeTabText,
+                    ]}>
+                    {t('Upcoming')}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.tabText,
+                      activeTab === 'Upcoming' && styles.activeTabText,
+                    ]}>
+                    {t('Activity')}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
                   style={[
-                    styles.tabText,
-                    activeTab === 'Upcoming' && styles.activeTabText,
-                  ]}>
-                  {t('Activity')}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.tab,
-                  activeTab === 'overdue' && styles.activeTab,
-                ]}
-                onPress={() => setActiveTab('overdue')}>
-                <Text
-                  style={[
-                    styles.tabText,
-                    activeTab === 'overdue' && styles.activeTabText,
-                  ]}>
-                  {t('Pending')}
-                </Text>
-                <Text
-                  style={[
-                    styles.tabText,
-                    activeTab === 'overdue' && styles.activeTabText,
-                  ]}>
-                  {t('Activity')}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.plusButton}
-                onPress={handlePlusButtonPress}>
-                <MaterialIcons name="arrow-forward" size={20} color="white" />
-              </TouchableOpacity>
+                    styles.tab,
+                    activeTab === 'overdue' && styles.activeTab,
+                  ]}
+                  onPress={() => setActiveTab('overdue')}>
+                  <Text
+                    style={[
+                      styles.tabText,
+                      activeTab === 'overdue' && styles.activeTabText,
+                    ]}>
+                    {t('Pending')}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.tabText,
+                      activeTab === 'overdue' && styles.activeTabText,
+                    ]}>
+                    {t('Activity')}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.plusButton}
+                  onPress={handlePlusButtonPress}>
+                  <MaterialIcons name="arrow-forward" size={20} color="white" />
+                </TouchableOpacity>
+              </View>
+              <FlatList
+                data={currentActivities}
+                keyExtractor={item => item.id.toString()}
+                renderItem={renderActivityItem}
+                ListEmptyComponent={renderEmptyState}
+                // contentContainerStyle={styles.activitiesListContainer}
+                updateCellsBatchingPeriod={50}
+                initialNumToRender={3}
+                maxToRenderPerBatch={3}
+                windowSize={3}
+                removeClippedSubviews={true}
+              />
             </View>
-            <FlatList
-              data={currentActivities}
-              keyExtractor={item => item.id.toString()}
-              renderItem={renderActivityItem}
-              ListEmptyComponent={renderEmptyState}
-              // contentContainerStyle={styles.activitiesListContainer}
-              maxToRenderPerBatch={8}
-              windowSize={5}
-              initialNumToRender={6}
-              updateCellsBatchingPeriod={50}
-            />
-          </View>
+          )}
         </View>
       </View>
     </ScrollView>
@@ -261,6 +284,39 @@ const UpcomingActivities = ({
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 0.55,
+    backgroundColor: 'rgba(0,0,0,0.37)',
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
+    padding: 10,
+    width: '90%',
+  },
+
+  tabContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+
+  activityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+
+  textBlock: {
+    marginLeft: 10,
+    flex: 1,
+  },
+
+  mt6: {marginTop: 6},
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
   mainProfileContainer: {
     // flex: 1,
     // marginVertical: 10,

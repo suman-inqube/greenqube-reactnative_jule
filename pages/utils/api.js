@@ -27,6 +27,7 @@ const SLOW_THRESHOLD = 30000;
 
 const instance = axios.create({
   baseURL: 'http://134.209.155.11:4003/',
+  // baseURL: 'http://134.209.155.11:6006/',
   // baseURL: 'https://mygreenqube.com:4003/',
   timeout: 50000,
 });
@@ -139,6 +140,7 @@ export const axiosGet = async (
       data: {message: 'No internet & no cache'},
     });
   }
+   console.log('url==', url);
   try {
     const response = await instance.get(url, {
       headers: {...(token && {Authorization: token}), ...extraHeaders},

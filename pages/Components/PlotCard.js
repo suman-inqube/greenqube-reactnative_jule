@@ -80,8 +80,8 @@ const PlotCard = memo(({item, onPress, landUnitsquareMetre, landAreaUnit}) => {
               </Text>
             </View>
             <View style={{flexDirection: 'row'}}>
-              <StatusBadge status={item?.plot_status} />
-              <StatusBadge status={item?.status_level} />
+              <StatusBadge type="Plot" status={item?.plot_status} />
+              <StatusBadge type="Carbon" status={item?.status_level} />
             </View>
           </View>
         }

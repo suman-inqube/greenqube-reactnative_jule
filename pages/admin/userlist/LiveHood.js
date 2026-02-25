@@ -1320,7 +1320,7 @@ const LiveHood = ({
       );
       // landRouteApi(dbname, lan_id, type);
       if (landType_res?.status == 200) {
-        console.log('unit==',JSON.stringify(landType_res.data.data.rows))
+        console.log('unit==', JSON.stringify(landType_res.data.data.rows));
         const landTypeArray = landType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
           label: data?.name,
@@ -1343,8 +1343,7 @@ const LiveHood = ({
       });
 
       if (landunitAPI?.status == 200) {
-
-        console.log('unit==',JSON.stringify(landunitAPI.data.data.rows))
+        console.log('unit==', JSON.stringify(landunitAPI.data.data.rows));
         setFarmerData(prev => ({
           ...prev,
           unit_valueArr: JSON.stringify(landunitAPI.data.data.rows),
@@ -2272,10 +2271,12 @@ const LiveHood = ({
   }, []);
   const [InputTextFormEdit, setInputTextFormEdit] = useState(true);
   useEffect(() => {
+    console.log('status--', statuslevel.label, harvested);
     if (
       (harvested === '' && statuslevel.label === '') ||
       statuslevel.label === 'CARBON_DOCUMENTS_SUBMITTED'
     ) {
+      console.log('status--1');
       setInputTextFormEdit(true);
     } else if (
       statuslevel.label == 'APPROVED' ||
@@ -2283,6 +2284,7 @@ const LiveHood = ({
       statuslevel.label === 'CARBON_DOCUMENTS_APPROVED' ||
       statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
     ) {
+      console.log('status--2');
       setInputTextFormEdit(false);
     } else if (
       harvested === 'same produce' &&
@@ -2291,16 +2293,19 @@ const LiveHood = ({
         statuslevel.label === 'CARBON_DOCUMENTS_APPROVED' ||
         statuslevel.label === 'CARBON_DOCUMENTS_REJECTED')
     ) {
+      console.log('status--3');
       setInputTextFormEdit(true);
     } else if (
       harvested == '' &&
       (statuslevel.label === 'PENDING' || statuslevel.label === 'REJECTED')
     ) {
+      console.log('status--4');
       setInputTextFormEdit(true);
     } else if (
       harvested == 'same produce' &&
       (statuslevel.label === 'PENDING' || statuslevel.label === 'REJECTED')
     ) {
+      console.log('status--5');
       setInputTextFormEdit(true);
     } else {
       console.log(
@@ -2834,20 +2839,35 @@ const LiveHood = ({
               label={t('daag_no')}
               value={farmerData.daag_no}
               onChangeText={handleAddUserDataDaag}
-              editable={InputTextFormEdit}
+              editable={
+                statuslevel.label == 'APPROVED' ||
+                statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
+                  ? false
+                  : true
+              }
             />
 
             <InputTextForm
               label={t('khatian_no')}
               value={farmerData.khatian_no}
               onChangeText={handleAddUserDataKKhatian}
-              editable={InputTextFormEdit}
+              editable={
+                statuslevel.label == 'APPROVED' ||
+                statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
+                  ? false
+                  : true
+              }
             />
             <InputTextForm
               label={t('no_of_plants')}
               value={farmerData.plant_number}
               onChangeText={handleAddUserDataPlanNumber}
-              editable={InputTextFormEdit}
+              editable={
+                statuslevel.label == 'APPROVED' ||
+                statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
+                  ? false
+                  : true
+              }
             />
 
             {carbonFlag == true ? (
@@ -2855,7 +2875,12 @@ const LiveHood = ({
                 label={t('JL No')}
                 value={farmerData.jl_no}
                 onChangeText={handleAddUserDataJLNo}
-                editable={InputTextFormEdit}
+                editable={
+                  statuslevel.label == 'APPROVED' ||
+                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
+                    ? false
+                    : true
+                }
               />
             ) : (
               <></>
@@ -2865,7 +2890,12 @@ const LiveHood = ({
                 label={t('Mouja Name')}
                 value={farmerData.mouja}
                 onChangeText={handleAddUserDataMouja}
-                editable={InputTextFormEdit}
+                editable={
+                  statuslevel.label == 'APPROVED' ||
+                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
+                    ? false
+                    : true
+                }
               />
             ) : (
               <></>
@@ -2904,9 +2934,7 @@ const LiveHood = ({
                   // editable={InputTextFormEdit}
                   editable={
                     statuslevel.label == 'APPROVED' ||
-                    // statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
                       ? false
                       : true
                   }
@@ -2922,9 +2950,7 @@ const LiveHood = ({
                   val={farmerData.unit}
                   disable={
                     statuslevel.label == 'APPROVED' ||
-                    // statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
                       ? true
                       : false
                   }

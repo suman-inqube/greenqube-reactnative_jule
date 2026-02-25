@@ -2756,7 +2756,7 @@ const styles = StyleSheet.create({
   },
   watermarkText: {
     color: '#df2020',
-    fontSize: 8,
+    fontSize: 7,
     fontWeight: 'bold',
     fontFamily: 'Arial',
   },

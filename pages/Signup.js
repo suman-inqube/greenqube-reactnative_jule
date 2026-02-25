@@ -126,8 +126,8 @@ const Signup = () => {
         );
         // companyDataListAPI(country_id, language_id);
 
-        if (company_res.data.data) {
-          company_res.data.data.agri_companies.forEach(element => {
+        if (company_res?.data?.data) {
+          company_res?.data?.data?.agri_companies.forEach(element => {
             companyArray.push({
               value: element.id,
               label: element.company_name,
@@ -180,7 +180,7 @@ const Signup = () => {
     });
   const {option_value} = resCarbonFlag?.data?.data || {};
   await setItem('carbon_status', option_value);
-    console.log('resCarbonFlag=', resCarbonFlag);
+   
     supervisorDataList(company.value);
   };
   let supervisorDataList = async company_id => {
