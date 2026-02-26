@@ -65,6 +65,8 @@ const CropData = ({
   handleAddUserDataFinalYieldUnit,
   handleAddDataYieldUnitProduct,
 }) => {
+
+  console.log('hisdata133331--', JSON.stringify(farmerData));
   // const [selectedType, setSelectedType] = useState('organic_amendment_type');
   return (
     <View style={styles.container}>
@@ -255,7 +257,7 @@ const CropData = ({
           />
           <InputTextForm
             label={t('Plantation Method')}
-            value={farmerData.Plantation_Method}
+            value={farmerData.plantation_method}
             onChangeText={handleAddUserDataPlantationMethod}
           />
           {/* <InputTextForm
@@ -269,7 +271,7 @@ const CropData = ({
             <Text style={styles.label}>{t('Seeding date')}</Text>
             <View style={styles.dateDisplay}>
               <Text style={{color: '#000'}}>
-                {farmerData.Seeding_date || 'Select'}
+                {farmerData.seeding_date || 'Select'}
               </Text>
               <Image
                 source={require('../../Common/images/calendar.png')}
@@ -279,7 +281,7 @@ const CropData = ({
           </TouchableOpacity>
           <InputTextForm
             label={t('Water source')}
-            value={farmerData.Water_source}
+            value={farmerData.water_source}
             onChangeText={handleAddUserDataWaterSource}
           />
           <InputTextForm

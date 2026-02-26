@@ -366,25 +366,44 @@ const LiveHood = ({
     })),
   );
 
+  // const formatAmendmentPayload = (allItems, cu_rel_id) => {
+  //   const groupedData = {
+  //     cu_rel_fid: cu_rel_id,
+  //     organic_amendment_type: [],
+  //     fertilizers: [],
+  //     pesticide: [],
+  //   };
+
+  //   allItems.forEach(item => {
+  //     const {type, uniqueKey, ...rest} = item;
+
+  //     if (groupedData[type]) {
+  //       groupedData[type].push(rest);
+  //     }
+  //   });
+
+  //   return groupedData;
+  // };
+
   const formatAmendmentPayload = (allItems, cu_rel_id) => {
-    const groupedData = {
-      cu_rel_fid: cu_rel_id,
-      organic_amendment_type: [],
-      fertilizers: [],
-      pesticide: [],
-    };
-
-    allItems.forEach(item => {
-      const {type, uniqueKey, ...rest} = item;
-
-      if (groupedData[type]) {
-        groupedData[type].push(rest);
-      }
-    });
-
-    return groupedData;
+  const groupedData = {
+    cu_rel_fid: cu_rel_id,
+    organic_amendment_type: [],
+    fertilizers: [],
+    pesticide: [],
   };
 
+  allItems.forEach(item => {
+    const { type, uniqueKey, isFromAPI, ...rest } = item;
+
+    // 🔥 Only push locally added items
+    if (!isFromAPI && groupedData[type]) {
+      groupedData[type].push(rest);
+    }
+  });
+
+  return groupedData;
+};
   const fetchAndGroupPestDetails = async cuRelId => {
     if (!cuRelId) return;
 
@@ -879,17 +898,22 @@ const LiveHood = ({
                     dataProps?.plot_crops[0]?.agri_unit?.fid,
                   unit_value: dataLandDetails?.land_unit?.unit_value,
 
+                  
+                   finalyield:
+                    dataProps?.plot_crops[0]?.final_yield_qty,
+                     finalyieldunit:
+                    dataProps?.plot_crops[0]?.final_yield_unit,
                   plantation_method:
                     dataProps?.plot_crops[0]?.plantation_method,
                   seeding_date: dataProps?.plot_crops[0]?.seeding_date,
                   water_source: dataProps?.plot_crops[0]?.water_source,
                   gap_seeding_firrig:
-                    dataProps?.plot_crops[0]?.gap_seeding_firrig,
+                    String(data?.gap_seeding_firrig ?? ''),,
                   irri_practice: dataProps?.plot_crops[0]?.irri_practice,
                   drying_period_prac:
                     dataProps?.plot_crops[0]?.drying_period_prac,
                   gap_draining_harvest:
-                    dataProps?.plot_crops[0]?.gap_draining_harvest,
+                    String(data?.gap_draining_harvest ?? ''),,
                   after_harvest_rice_stubble:
                     dataProps?.plot_crops[0]?.after_harvest_rice_stubble,
                   after_harvest_straw:
@@ -912,6 +936,8 @@ const LiveHood = ({
 
                 fetchAndGroupPestDetails(dataProps?.plot_crops[0]?.cu_rel_id);
               } else {
+
+                console.log('hisdata11--',JSON.stringify(data?.gap_draining_harvest));
                 setFarmerData(prev => ({
                   ...prev,
                   createdBy: user_id,
@@ -965,13 +991,18 @@ const LiveHood = ({
                     Number(dataLandDetails?.land_unit?.defined_unit_value) *
                     Number(dataLandDetails?.land_size),
 
+
+                    finalyield:
+                    data?.final_yield_qty,
+                     finalyieldunit:
+                    data?.final_yield_unit,
                   plantation_method: data?.plantation_method,
                   seeding_date: data?.seeding_date,
                   water_source: data?.water_source,
-                  gap_seeding_firrig: data?.gap_seeding_firrig,
+                  gap_seeding_firrig: String(data?.gap_seeding_firrig ?? ''),
                   irri_practice: data?.irri_practice,
                   drying_period_prac: data?.drying_period_prac,
-                  gap_draining_harvest: data?.gap_draining_harvest,
+                  gap_draining_harvest:  String(data?.gap_draining_harvest ?? ''),
                   after_harvest_rice_stubble: data?.after_harvest_rice_stubble,
                   after_harvest_straw: data?.after_harvest_straw,
                   straw_removed: data?.straw_removed,
@@ -1314,7 +1345,7 @@ const LiveHood = ({
 
   const handleseedDatePicker = async item => {
     const selectedDate = effective_dates(item);
-    setFarmerData(prev => ({...prev, ['Seeding_date']: selectedDate}));
+    setFarmerData(prev => ({...prev, ['seeding_date']: selectedDate}));
   };
   const handleDatePicker = async item => {
     const selectedDate = effective_dates(item);
@@ -1937,24 +1968,24 @@ const LiveHood = ({
         formdata.append('sowing_date', farmerData.cycleStartDate);
         formdata.append('harvesting_date', farmerData.cycleEndDate);
 
-        formdata.append('plantation_method', farmerData.plantation_method);
-        formdata.append('seeding_date', farmerData.seeding_date);
-        formdata.append('water_source', farmerData.water_source);
-        formdata.append('gap_seeding_firrig', farmerData.gap_seeding_firrig);
-        formdata.append('irri_practice', farmerData.irri_practice);
-        formdata.append('drying_period_prac', farmerData.drying_period_prac);
-        formdata.append(
-          'gap_draining_harvest',
-          farmerData.gap_draining_harvest,
-        );
-        formdata.append(
-          'after_harvest_rice_stubble',
-          farmerData.after_harvest_rice_stubble,
-        );
-        formdata.append('after_harvest_straw', farmerData.after_harvest_straw);
-        formdata.append('straw_removed', farmerData.straw_removed);
-        formdata.append('straw_incorporate', farmerData.straw_incorporate);
-        formdata.append('end_usg_rm_straw', farmerData.end_usg_rm_straw);
+        // formdata.append('plantation_method', farmerData.plantation_method);
+        // formdata.append('seeding_date', farmerData.seeding_date);
+        // formdata.append('water_source', farmerData.water_source);
+        // formdata.append('gap_seeding_firrig', farmerData.gap_seeding_firrig);
+        // formdata.append('irri_practice', farmerData.irri_practice);
+        // formdata.append('drying_period_prac', farmerData.drying_period_prac);
+        // formdata.append(
+        //   'gap_draining_harvest',
+        //   farmerData.gap_draining_harvest,
+        // );
+        // formdata.append(
+        //   'after_harvest_rice_stubble',
+        //   farmerData.after_harvest_rice_stubble,
+        // );
+        // formdata.append('after_harvest_straw', farmerData.after_harvest_straw);
+        // formdata.append('straw_removed', farmerData.straw_removed);
+        // formdata.append('straw_incorporate', farmerData.straw_incorporate);
+        // formdata.append('end_usg_rm_straw', farmerData.end_usg_rm_straw);
         if (
           farmerData?.google_area > 0 &&
           farmerData?.google_area != undefined
@@ -2089,13 +2120,15 @@ const LiveHood = ({
           );
 
           let save_extradata = qs.stringify({
+             final_yield_qty: farmerData.final_yield_qty,
+            final_yield_unit: farmerData.final_yield_unit,
             plantation_method: farmerData.plantation_method,
             seeding_date: farmerData.seeding_date,
             water_source: farmerData.water_source,
-            gap_seeding_firrig: farmerData.gap_seeding_firrig,
+            gap_seeding_firrig: Number(farmerData.gap_seeding_firrig),
             irri_practice: farmerData.irri_practice,
             drying_period_prac: farmerData.drying_period_prac,
-            gap_draining_harvest: farmerData.gap_draining_harvest,
+            gap_draining_harvest: Number(farmerData.gap_draining_harvest),
             after_harvest_rice_stubble: farmerData.after_harvest_rice_stubble,
             after_harvest_straw: farmerData.after_harvest_straw,
             straw_removed: farmerData.straw_removed,
@@ -2613,14 +2646,11 @@ const LiveHood = ({
     setFarmerData(prev => ({...prev, ['yield']: text}));
   }, []);
   const handleAddUserDataPlantationMethod = useCallback(text => {
-    setFarmerData(prev => ({...prev, ['Plantation_Method']: text}));
+    setFarmerData(prev => ({...prev, ['plantation_method']: text}));
   }, []);
 
-  // const handleAddUserDataSeedingdate = useCallback(text => {
-  //   setFarmerData(prev => ({...prev, ['Seeding_date']: text}));
-  // }, []);
   const handleAddUserDataWaterSource = useCallback(text => {
-    setFarmerData(prev => ({...prev, ['Water_source']: text}));
+    setFarmerData(prev => ({...prev, ['water_source']: text}));
   }, []);
   const handleAddUserDataGapSeedingFirrig = useCallback(text => {
     setFarmerData(prev => ({...prev, ['gap_seeding_firrig']: text}));

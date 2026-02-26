@@ -90,7 +90,7 @@ const PlotList = () => {
   );
 
   const onTabPress = useCallback((index, data = {}) => {
-console.log('hisdata--', index);
+
     setActiveTab(index);
     setDataProps(data);
 
@@ -161,12 +161,14 @@ console.log('hisdata--', index);
         },
       );
       if (res.status == 200) {
+        // console.log('crop==', JSON.stringify(res.data?.[0]));
         setIsLoadinglandActiveCrop(false);
         const {
           harvesting_date,
           crop_name: {name: cropName} = {},
           crop_variety: {name: varietyName} = {},
           sowing_date,
+          
         } = res.data?.[0] || {};
         setPlotList(prev => {
           const copy = [...prev];
@@ -178,6 +180,7 @@ console.log('hisdata--', index);
                 crop_variety: {name: varietyName},
                 sowing_date: sowing_date,
                 harvesting_date: harvesting_date,
+                // season:,
               },
             ],
           };
