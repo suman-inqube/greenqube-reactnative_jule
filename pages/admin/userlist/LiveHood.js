@@ -2077,7 +2077,7 @@ const LiveHood = ({
         });
         // setPolygons([newPolygon]);
         //basudev
-        // if (!overlapFound) {
+        if (!overlapFound) {
         setPolygons([...nearPolSet, newPolygon]);
         setNewPolygon([]);
         setLocation(newPolygon);
@@ -2096,14 +2096,14 @@ const LiveHood = ({
         } else {
           setArea(geolib.getAreaOfPolygon(newPolygon));
         }
-        // } else {
-        //   Alert.alert(
-        //     'Overlap Detected',
-        //     'Coordinates are overlapping',
-        //     [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-        //     {cancelable: false},
-        //   );
-        // }
+        } else {
+          Alert.alert(
+            'Overlap Detected',
+            'Coordinates are overlapping',
+            [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+            {cancelable: false},
+          );
+        }
       } else {
         // setArea(0);
         Alert.alert(

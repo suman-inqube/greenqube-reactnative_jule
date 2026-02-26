@@ -304,14 +304,14 @@ const ActivityReportAWD = ({navigation}) => {
           {latitude: existingPipe.latitude, longitude: existingPipe.longitude},
         );
 
-        // if (distance < 20) {
-        //   Alert.alert(
-        //     'Too Close!',
-        //     `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
-        //     [{text: 'OK', style: 'cancel'}],
-        //   );
-        //   return false;
-        // }
+        if (distance < 20) {
+          Alert.alert(
+            'Too Close!',
+            `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
+            [{text: 'OK', style: 'cancel'}],
+          );
+          return false;
+        }
       }
       return true;
     } catch (error) {
