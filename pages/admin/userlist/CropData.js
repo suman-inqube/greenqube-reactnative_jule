@@ -41,7 +41,7 @@ const CropData = ({
   addMoreAmendments,
   handleChange,
   formData,
-  handleAddUserDataYield,
+  handleAddUserDataFinalYield,
   handleAddUserDataPlantationMethod,
   // handleAddUserDataSeedingdate,
   handleAddUserDataWaterSource,
@@ -62,6 +62,8 @@ const CropData = ({
   allItems,
   setAmendmentData,
   setseddingData,
+  handleAddUserDataFinalYieldUnit,
+  handleAddDataYieldUnitProduct,
 }) => {
   // const [selectedType, setSelectedType] = useState('organic_amendment_type');
   return (
@@ -118,7 +120,7 @@ const CropData = ({
             keyboardType="number-pad"
             required={true}
             value={farmerData.expectedProduction}
-            onChangeText={text => (farmerData.expectedProduction = text)} // Standardized with parent state
+            onChangeText={handleAddDataYieldUnitProduct} //{text => (farmerData.expectedProduction = text)} // Standardized with parent state
           />
         </View>
         <View style={{width: '45%'}}>
@@ -240,11 +242,17 @@ const CropData = ({
               ))}
             </View>
           )}
-          {/* <InputTextForm
-        label={t('Yield')}
-        value={farmerData.yield}
-        onChangeText={handleAddUserDataYield}
-      /> */}
+          <InputTextForm
+            label={t('Yield')}
+            value={farmerData.finalyield}
+            onChangeText={handleAddUserDataFinalYield}
+          />
+
+          <InputTextForm
+            label={t('Yield Unit')}
+            value={farmerData.finalyieldunit}
+            onChangeText={handleAddUserDataFinalYieldUnit}
+          />
           <InputTextForm
             label={t('Plantation Method')}
             value={farmerData.Plantation_Method}

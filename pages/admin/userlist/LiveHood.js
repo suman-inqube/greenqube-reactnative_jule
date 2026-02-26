@@ -320,37 +320,37 @@ const LiveHood = ({
     }));
   };
 
- const addMoreAmendments = () => {
-  const {ferti_pesti_fid, quantity, no_of_applications} = formData;
+  const addMoreAmendments = () => {
+    const {ferti_pesti_fid, quantity, no_of_applications} = formData;
 
-  if (!ferti_pesti_fid || !quantity || !no_of_applications) {
-    Toast.show({
-      text: 'Please fill all fields',
-      ...AlertMesg[0],
+    if (!ferti_pesti_fid || !quantity || !no_of_applications) {
+      Toast.show({
+        text: 'Please fill all fields',
+        ...AlertMesg[0],
+      });
+      return;
+    }
+
+    const newEntry = {
+      ferti_pesti_fid,
+      quantity: Number(quantity),
+      unit_fid: formData.unit_fid,
+      no_of_applications: Number(no_of_applications),
+      isFromAPI: false, // 🔥 important
+    };
+
+    setAmendmentData(prev => ({
+      ...prev,
+      [selectedType]: [...prev[selectedType], newEntry],
+    }));
+
+    setFormData({
+      ferti_pesti_fid: '',
+      quantity: '',
+      unit_fid: '1cc9b81b4-dbcd-4381-8cf0-3a7cb40d87a2',
+      no_of_applications: '',
     });
-    return;
-  }
-
-  const newEntry = {
-    ferti_pesti_fid,
-    quantity: Number(quantity),
-    unit_fid: formData.unit_fid,
-    no_of_applications: Number(no_of_applications),
-    isFromAPI: false,  // 🔥 important
   };
-
-  setAmendmentData(prev => ({
-    ...prev,
-    [selectedType]: [...prev[selectedType], newEntry],
-  }));
-
-  setFormData({
-    ferti_pesti_fid: '',
-    quantity: '',
-    unit_fid: '1cc9b81b4-dbcd-4381-8cf0-3a7cb40d87a2',
-    no_of_applications: '',
-  });
-};
   const deleteAmendment = index => {
     setAmendmentData(prev => ({
       ...prev,
@@ -367,73 +367,71 @@ const LiveHood = ({
   );
 
   const formatAmendmentPayload = (allItems, cu_rel_id) => {
-  const groupedData = {
-    cu_rel_fid: cu_rel_id,
-    organic_amendment_type: [],
-    fertilizers: [],
-    pesticide: [],
-  };
-
-  allItems.forEach(item => {
-    const { type, uniqueKey, ...rest } = item;
-
-    if (groupedData[type]) {
-      groupedData[type].push(rest);
-    }
-  });
-
-  return groupedData;
-};
-
-const fetchAndGroupPestDetails = async (cuRelId) => {
-  if (!cuRelId) return;
-
-  try {
-    const response = await axiosGet(
-      ROUTES.GET.PEST_DETAILS({
-        cu_rel_fid: cuRelId,
-      }),
-      '',
-      {
-        information: `${dbname},${lan_id}`,
-        Authorization: `${token}`,
-      },
-    );
-
-    const pestRows = response?.data?.data?.rows || [];
-
     const groupedData = {
+      cu_rel_fid: cu_rel_id,
       organic_amendment_type: [],
       fertilizers: [],
       pesticide: [],
     };
 
-    pestRows.forEach(item => {
-      const formattedItem = {
-        ...item,
-        isFromAPI: true,     // 🔥 important
-      };
+    allItems.forEach(item => {
+      const {type, uniqueKey, ...rest} = item;
 
-      if (item.type === 'ORGANIC_AMENDMENT_TYPE') {
-        groupedData.organic_amendment_type.push(formattedItem);
-      }
-
-      if (item.type === 'FERTILIZER') {
-        groupedData.fertilizers.push(formattedItem);
-      }
-
-      if (item.type === 'PESTICIDE') {
-        groupedData.pesticide.push(formattedItem);
+      if (groupedData[type]) {
+        groupedData[type].push(rest);
       }
     });
 
-    setAmendmentData(groupedData);
+    return groupedData;
+  };
 
-  } catch (error) {
-    console.log('Error fetching pest details:', error);
-  }
-};
+  const fetchAndGroupPestDetails = async cuRelId => {
+    if (!cuRelId) return;
 
+    try {
+      const response = await axiosGet(
+        ROUTES.GET.PEST_DETAILS({
+          cu_rel_fid: cuRelId,
+        }),
+        '',
+        {
+          information: `${dbname},${lan_id}`,
+          Authorization: `${token}`,
+        },
+      );
+
+      const pestRows = response?.data?.data?.rows || [];
+
+      const groupedData = {
+        organic_amendment_type: [],
+        fertilizers: [],
+        pesticide: [],
+      };
+
+      pestRows.forEach(item => {
+        const formattedItem = {
+          ...item,
+          isFromAPI: true, // 🔥 important
+        };
+
+        if (item.type === 'ORGANIC_AMENDMENT_TYPE') {
+          groupedData.organic_amendment_type.push(formattedItem);
+        }
+
+        if (item.type === 'FERTILIZER') {
+          groupedData.fertilizers.push(formattedItem);
+        }
+
+        if (item.type === 'PESTICIDE') {
+          groupedData.pesticide.push(formattedItem);
+        }
+      });
+
+      setAmendmentData(groupedData);
+    } catch (error) {
+      console.log('Error fetching pest details:', error);
+    }
+  };
 
   const onPageLoad = useCallback(async () => {
     try {
@@ -577,8 +575,6 @@ const fetchAndGroupPestDetails = async (cuRelId) => {
       CrashlyticsRecordError(error, 'LiveHood', 'onpageload');
     }
   }, [coords]);
-
-
 
   const handlePlot = useCallback(
     async findData => {
@@ -871,10 +867,16 @@ const fetchAndGroupPestDetails = async (cuRelId) => {
                   produceVariety: dataProps?.plot_crops[0]?.crop_variety?.name,
                   produceVarietyValue:
                     dataProps?.plot_crops[0]?.crop_variety?.fid,
-                  productionProcess: dataProps?.plot_crops[0]?.farmer_production_system?.name,
-                  productionProcessValue: dataProps?.plot_crops[0]?.farmer_production_system?.fid,
-                  unitProduct: dataProps?.plot_crops[0]?.agri_unit && dataProps?.plot_crops[0]?.agri_unit?.unit_name,
-                  unitProductValue: dataProps?.plot_crops[0]?.agri_unit && dataProps?.plot_crops[0]?.agri_unit?.fid,
+                  productionProcess:
+                    dataProps?.plot_crops[0]?.farmer_production_system?.name,
+                  productionProcessValue:
+                    dataProps?.plot_crops[0]?.farmer_production_system?.fid,
+                  unitProduct:
+                    dataProps?.plot_crops[0]?.agri_unit &&
+                    dataProps?.plot_crops[0]?.agri_unit?.unit_name,
+                  unitProductValue:
+                    dataProps?.plot_crops[0]?.agri_unit &&
+                    dataProps?.plot_crops[0]?.agri_unit?.fid,
                   unit_value: dataLandDetails?.land_unit?.unit_value,
 
                   plantation_method:
@@ -909,10 +911,6 @@ const fetchAndGroupPestDetails = async (cuRelId) => {
                 }));
 
                 fetchAndGroupPestDetails(dataProps?.plot_crops[0]?.cu_rel_id);
-
-                
-
-
               } else {
                 setFarmerData(prev => ({
                   ...prev,
@@ -982,7 +980,6 @@ const fetchAndGroupPestDetails = async (cuRelId) => {
                 }));
 
                 fetchAndGroupPestDetails(data?.cu_rel_id);
-
               }
 
               const seasonData = await axiosGet(
@@ -2106,7 +2103,7 @@ const fetchAndGroupPestDetails = async (cuRelId) => {
             end_usg_rm_straw: farmerData.end_usg_rm_straw,
           });
 
-          console.log('setCycleDateAPI==',save_extradata)
+          console.log('setCycleDateAPI==', save_extradata);
           var [setCycleDate] = await Promise.all([
             setCycleDateAPI(
               dbname,
@@ -2118,7 +2115,10 @@ const fetchAndGroupPestDetails = async (cuRelId) => {
             ),
           ]);
 
-          const finalPayload = formatAmendmentPayload(allItems, farmerData.cu_rel_id);
+          const finalPayload = formatAmendmentPayload(
+            allItems,
+            farmerData.cu_rel_id,
+          );
 
           // UpdateLandCropdetailsAPI(
           //   dbname,
@@ -2135,7 +2135,7 @@ const fetchAndGroupPestDetails = async (cuRelId) => {
             }
           });
           formDataPlotImg.append('rel_id', plotId);
-          console.log('finalPayload==',JSON.stringify(finalPayload))
+          console.log('finalPayload==', JSON.stringify(finalPayload));
           const [deletePlotImageAPIRes, addPlotImageAPIRes] = await Promise.all(
             [
               deletePlotImageAPI(dbname, lan_id, token, formDataDelete),
@@ -2153,7 +2153,6 @@ const fetchAndGroupPestDetails = async (cuRelId) => {
                 farmeruserID,
                 finalPayload,
               ),
-              
             ],
           );
           if (addPlotImageAPIRes.data?.error?.errorCode == 400) {
@@ -2265,7 +2264,7 @@ const fetchAndGroupPestDetails = async (cuRelId) => {
     signature,
     addressProof,
     identityProofIdentityPropf,
-    allItems
+    allItems,
   ]);
   const handleUserData = async () => {
     setOutofRange(false);
@@ -2651,6 +2650,16 @@ const fetchAndGroupPestDetails = async (cuRelId) => {
   }, []);
   const handleAddUserDataEndUsgRmStraw = useCallback(text => {
     setFarmerData(prev => ({...prev, ['end_usg_rm_straw']: text}));
+  }, []);
+
+  const handleAddDataYieldUnitProduct = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['expectedProduction']: text}));
+  }, []);
+  const handleAddUserDataFinalYield = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['final_yield_qty']: text}));
+  }, []);
+  const handleAddUserDataFinalYieldUnit = useCallback(text => {
+    setFarmerData(prev => ({...prev, ['final_yield_unit']: text}));
   }, []);
 
   const handleAddDataTerrainType = useCallback(item => {
@@ -3565,6 +3574,11 @@ const fetchAndGroupPestDetails = async (cuRelId) => {
                 allItems={allItems}
                 setAmendmentData={setAmendmentData}
                 setseddingData={setseddingData}
+                handleAddUserDataFinalYieldUnit={
+                  handleAddUserDataFinalYieldUnit
+                }
+                handleAddUserDataFinalYield={handleAddUserDataFinalYield}
+                 handleAddDataYieldUnitProduct={handleAddDataYieldUnitProduct}
               />
             )}
           </View>
