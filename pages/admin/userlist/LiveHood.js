@@ -908,12 +908,12 @@ const LiveHood = ({
                   seeding_date: dataProps?.plot_crops[0]?.seeding_date,
                   water_source: dataProps?.plot_crops[0]?.water_source,
                   gap_seeding_firrig:
-                    String(data?.gap_seeding_firrig ?? ''),,
+                    String(dataProps?.plot_crops[0]?.gap_seeding_firrig ?? ''),
                   irri_practice: dataProps?.plot_crops[0]?.irri_practice,
                   drying_period_prac:
                     dataProps?.plot_crops[0]?.drying_period_prac,
                   gap_draining_harvest:
-                    String(data?.gap_draining_harvest ?? ''),,
+                    String(dataProps?.plot_crops[0]?.gap_draining_harvest ?? ''),
                   after_harvest_rice_stubble:
                     dataProps?.plot_crops[0]?.after_harvest_rice_stubble,
                   after_harvest_straw:
