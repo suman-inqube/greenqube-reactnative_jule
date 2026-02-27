@@ -667,7 +667,7 @@ const Information = ({sendDataToParent, farmerID}) => {
             }),
             formData,
             token,
-            '',
+            false,
             {information: `${dbname},${lan_id},${user_id}`},
           ),
           // UserInformationUpdate(

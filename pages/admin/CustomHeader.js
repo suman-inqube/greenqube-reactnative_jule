@@ -8,7 +8,7 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
-const ImageForm = lazy(() => import('../Common/ImageForm'));
+import ImageForm from '../Common/ImageForm';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {goBack} from '../utils/NavigationUtils';
 import {Colors, Fonts} from '../utils/Constants';

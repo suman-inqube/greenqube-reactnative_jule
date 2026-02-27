@@ -11,21 +11,17 @@ import {
   Animated,
   StyleSheet,
   View,
-  StatusBar,
   SafeAreaView,
-  Platform,
   ImageBackground,
   TouchableOpacity,
   FlatList,
   Alert,
   BackHandler,
-  RefreshControl,
   Linking,
   InteractionManager,
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
 import {userCreateContext} from '../Context/usersCreateContext';
-import {LandUnitArea, UnitConversonToDefault} from '../../config/apiHere';
 import CarouselSlider from '../Components/CarouselSlider';
 import TrackingInfromation from '../Components/TrackingInfromation';
 import UpcomingActivities from '../Components/UpcomingActivities';
@@ -34,21 +30,13 @@ import {Colors} from '../utils/Constants';
 import {axiosGet} from '../utils/api';
 import {ROUTES} from '../utils/Routes';
 import useDoubleBackToExit from '../utils/useDoubleBackToExit';
-import {Permission, PERMISSIONS_TYPE} from '../AppPermission/AppPermission';
 import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
 import {getDashboardItems} from '../utils/dashboardItems';
-import {Fenced_Rejected_Plot_List} from '../../config/apiHere';
-import {
-  useFocusEffect,
-  useIsFocused,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
-import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
+import {useRoute} from '@react-navigation/native';
+// import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
 // const HEADER_HEIGHT = 60;
 const Dashboard = ({navigation}) => {
-  const isFocused = useIsFocused();
   useDoubleBackToExit();
   const {
     getItem,
@@ -59,15 +47,12 @@ const Dashboard = ({navigation}) => {
     isOnline,
     Toast,
     AlertMesg,
-    coords,
-    AllFarmerList,
     loginUser_data,
     startWatchingLocation,
     stopWatchingLocation,
   } = useContext(userCreateContext);
   const [refreshing, setRefreshing] = useState(false);
   const route = useRoute();
-
   const {
     headerTranslateY,
     filterTranslateY,
@@ -77,7 +62,6 @@ const Dashboard = ({navigation}) => {
     INITIAL_IMAGE_HEIGHT,
     HEADER_HEIGHT,
   } = useCollapsibleHeader(refreshing);
-  // Batch UI-related small states into one object to reduce setState calls
   const [uiState, setUiState] = useState({
     bottomBanner: null,
     userName: null,
@@ -87,18 +71,18 @@ const Dashboard = ({navigation}) => {
     topBannerImg: topBanner || null,
     defaultLand: false,
     convertionLUState: false,
-  });
-
-  // Batch data coming from server into one object
-  const [dataState, setDataState] = useState({
     plotStatus: [],
     usefulInfoList: [],
     activitySchedule: [],
   });
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState({
+    initial: true,
+    slowData: false,
+  });
   const navigateToPages = useCallback(
     pageName => {
+      navigation.navigate(pageName);
       if (isOnline) {
         if (pageName === 'PersonalInformation') {
           if (uiState.convertionLUState === false) {
@@ -124,571 +108,17 @@ const Dashboard = ({navigation}) => {
     },
     [isOnline, navigation, uiState.convertionLUState, Toast, AlertMesg],
   );
-  // const onPageLoad = useCallback(
-  //   async type => {
-  //     if (!loginUser_data) {
-  //       return;
-  //     }
-  //     try {
-  //       const login = loginUser_data || {};
-  //       const {dbname, lan_id, token, agri_user_addresses, user_id} = login;
-
-  //       let plotStatus = [];
-  //       var usefulInfoList = [];
-  //       let activitySchedule = [];
-  //       let convertionLUState = false;
-  //       let defaultLand = false;
-  //       const [
-  //         bottomBannerData,
-  //         userNameData,
-  //         profileImgData,
-
-  //         company_website,
-  //         logoImageData,
-  //         topBannerData,
-  //         UnitConversonToDefault_res,
-  //         LandUnitArea_res,
-  //         FARMER_USEFULL_INFO_LIST,
-  //         PLOT_STATUS,
-  //         ALL_ACTIVITY_SCHEDULE_RES,
-  //       ] = await Promise.all([
-  //         getItem('bottomBannerData'),
-  //         getItem('userNameData'),
-  //         getItem('profileImgData'),
-  //         // getItem('loginUser_data'),
-  //         getItem('company_website'),
-  //         getItem('logoImageData'),
-  //         getItem('topBannerData'),
-
-  //         axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT(), token, {
-  //           information: `${dbname},${lan_id}`,
-  //         }),
-  //         axiosGet(ROUTES.GET.LAND_UNIT_AREA(), token, {
-  //           information: `${dbname},${lan_id}`,
-  //         }),
-  //         axiosGet(
-  //           ROUTES.GET.USEFULL_INFO_LIST({
-  //             userId: user_id,
-  //             userType: 'supervisor',
-  //             post: 'general_info',
-  //             titleSearch: '',
-  //             state_id: agri_user_addresses[0]?.agri_state.fid,
-  //             district_id: agri_user_addresses[0]?.agri_district.fid,
-  //             subdiv_id: agri_user_addresses[0]?.agri_subdivision.fid,
-  //           }),
-  //           '',
-  //           {information: `${dbname},${lan_id}`},
-  //         ),
-
-  //         axiosGet(
-  //           ROUTES.GET.Fenced_Rejected_Plot_List({
-  //             page: 1,
-  //             status_level: 'REJECTED',
-  //             geo_type: '',
-  //             searchBy: '',
-  //             supervisor_id: user_id,
-  //           }),
-  //           token,
-  //           {information: `${dbname},${lan_id},${user_id}`},
-  //         ),
-
-  //         axiosGet(
-  //           ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
-  //             supervisor_id: user_id,
-  //             type: 'carbon_activity',
-  //           }),
-  //           token,
-  //           {information: `${dbname},${lan_id},${user_id}`},
-  //         ),
-  //         Permission.requestMultiple([
-  //           PERMISSIONS_TYPE.microphone,
-  //           PERMISSIONS_TYPE.fineLocation,
-  //           PERMISSIONS_TYPE.notifications,
-  //         ]),
-
-  //         AllFarmerList(),
-  //       ]);
-  //       let missingCount = 0;
-  //       if (UnitConversonToDefault_res?.status === 200) {
-  //         const rows = UnitConversonToDefault_res.data?.data?.rows || [];
-  //         for (let r of rows) {
-  //           if (r.defined_unit_value == null || r.defined_unit_value === '')
-  //             missingCount++;
-  //         }
-  //         if (missingCount > 0) convertionLUState = true;
-  //       }
-  //       if (LandUnitArea_res?.status === 200) {
-  //         const rows = LandUnitArea_res.data?.data?.rows || [];
-  //         for (let r of rows) {
-  //           if (r.defined_unit_value?.length > 0) {
-  //             defaultLand = true;
-
-  //             break;
-  //           }
-  //         }
-  //       }
-  //       if (FARMER_USEFULL_INFO_LIST?.status === 200) {
-  //         usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.rows || [];
-  //       }
-  //       if (PLOT_STATUS?.status === 200) {
-  //         plotStatus = PLOT_STATUS.data?.data?.rows || [];
-  //       }
-  //       if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
-  //         activitySchedule = ALL_ACTIVITY_SCHEDULE_RES.data?.data?.data || [];
-  //       }
-  //       const logoImgToSet = logoImage || logoImageData || null;
-  //       const topBannerToSet = topBanner || topBannerData || null;
-
-  //       setUiState(prev => ({
-  //         ...prev,
-  //         bottomBanner: bottomBannerData,
-  //         userName: userNameData,
-  //         profileImg: profileImgData,
-  //         company_website: company_website || prev.company_website,
-  //         logoImg: logoImgToSet,
-  //         topBannerImg: topBannerToSet,
-  //         defaultLand,
-  //         convertionLUState,
-  //       }));
-
-  //       setDataState({
-  //         plotStatus,
-  //         usefulInfoList,
-  //         activitySchedule,
-  //       });
-
-  //       setIsLoading(false);
-
-  //       // single batched state updates
-  //     } catch (error) {
-  //       console.log('catch', error);
-  //       Toast?.show({
-  //         text: error,
-  //         ...AlertMesg?.[0],
-  //       });
-  //       setIsLoading(false);
-  //     }
-  //   },
-  //   [loginUser_data],
-  // );
-  // const onPageLoad = useCallback(async () => {
-  //   if (!loginUser_data) return;
-
-  //   try {
-  //     const login = loginUser_data || {};
-  //     const {dbname, lan_id, token, agri_user_addresses, user_id} = login;
-
-  //     let plotStatus = [];
-  //     let usefulInfoList = [];
-  //     let activitySchedule = [];
-  //     let convertionLUState = false;
-  //     let defaultLand = false;
-
-  //     setIsLoading(true);
-
-  //     const results = await Promise.allSettled([
-  //       getItem('bottomBannerData'),
-  //       getItem('userNameData'),
-  //       getItem('profileImgData'),
-  //       getItem('company_website'),
-  //       getItem('logoImageData'),
-  //       getItem('topBannerData'),
-
-  //       axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT(), token, {
-  //         information: `${dbname},${lan_id}`,
-  //       }),
-
-  //       axiosGet(ROUTES.GET.LAND_UNIT_AREA(), token, {
-  //         information: `${dbname},${lan_id}`,
-  //       }),
-
-  //       axiosGet(
-  //         ROUTES.GET.USEFULL_INFO_LIST({
-  //           userId: user_id,
-  //           userType: 'supervisor',
-  //           post: 'general_info',
-  //           titleSearch: '',
-  //           state_id: agri_user_addresses[0]?.agri_state.fid,
-  //           district_id: agri_user_addresses[0]?.agri_district.fid,
-  //           subdiv_id: agri_user_addresses[0]?.agri_subdivision.fid,
-  //         }),
-  //         '',
-  //         {information: `${dbname},${lan_id}`},
-  //       ),
-
-  //       axiosGet(
-  //         ROUTES.GET.Fenced_Rejected_Plot_List({
-  //           page: 1,
-  //           status_level: 'REJECTED',
-  //           geo_type: '',
-  //           searchBy: '',
-  //           supervisor_id: user_id,
-  //         }),
-  //         token,
-  //         {information: `${dbname},${lan_id},${user_id}`},
-  //       ),
-
-  //       // ⚠️ Problem API
-  //       axiosGet(
-  //         ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
-  //           supervisor_id: user_id,
-  //           type: 'carbon_activity',
-  //         }),
-  //         token,
-  //         {information: `${dbname},${lan_id},${user_id}`},
-  //       ),
-  //     ]);
-
-  //     // ---- Local storage data ----
-  //     const bottomBannerData =
-  //       results[0].status === 'fulfilled' ? results[0].value : null;
-  //     const userNameData =
-  //       results[1].status === 'fulfilled' ? results[1].value : null;
-  //     const profileImgData =
-  //       results[2].status === 'fulfilled' ? results[2].value : null;
-  //     const company_website =
-  //       results[3].status === 'fulfilled' ? results[3].value : '';
-  //     const logoImageData =
-  //       results[4].status === 'fulfilled' ? results[4].value : null;
-  //     const topBannerData =
-  //       results[5].status === 'fulfilled' ? results[5].value : null;
-
-  //     // ---- Unit Conversion ----
-  //     const UnitConversonToDefault_res =
-  //       results[6].status === 'fulfilled' ? results[6].value : null;
-
-  //     if (UnitConversonToDefault_res?.status === 200) {
-  //       let missingCount = 0;
-  //       const rows = UnitConversonToDefault_res.data?.data?.rows || [];
-  //       for (let r of rows) {
-  //         if (!r.defined_unit_value) missingCount++;
-  //       }
-  //       if (missingCount > 0) convertionLUState = true;
-  //     }
-
-  //     // ---- Land Unit Area ----
-  //     const LandUnitArea_res =
-  //       results[7].status === 'fulfilled' ? results[7].value : null;
-
-  //     if (LandUnitArea_res?.status === 200) {
-  //       const rows = LandUnitArea_res.data?.data?.rows || [];
-  //       for (let r of rows) {
-  //         if (r.defined_unit_value?.length > 0) {
-  //           defaultLand = true;
-  //           break;
-  //         }
-  //       }
-  //     }
-
-  //     // ---- Useful Info ----
-  //     const FARMER_USEFULL_INFO_LIST =
-  //       results[8].status === 'fulfilled' ? results[8].value : null;
-
-  //     if (FARMER_USEFULL_INFO_LIST?.status === 200) {
-  //       usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.rows || [];
-  //     }
-
-  //     // ---- Plot Status ----
-  //     const PLOT_STATUS =
-  //       results[9].status === 'fulfilled' ? results[9].value : null;
-
-  //     if (PLOT_STATUS?.status === 200) {
-  //       plotStatus = PLOT_STATUS.data?.data?.rows || [];
-  //     }
-
-  //     // ---- Activity Schedule ----
-  //     const ALL_ACTIVITY_SCHEDULE_RES =
-  //       results[10].status === 'fulfilled' ? results[10].value : null;
-  //     let carbonActivities = [];
-
-  //     console.log(
-  //       'ALL_ACTIVITY_SCHEDULE_RES status:',
-  //       ALL_ACTIVITY_SCHEDULE_RES?.status,
-  //     );
-
-  //     if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
-  //       carbonActivities = ALL_ACTIVITY_SCHEDULE_RES.data?.data?.data || [];
-  //     }
-  //     let hasCarbonActivity = false;
-
-  //     for (let i = 0; i < carbonActivities.length; i++) {
-  //       if (
-  //         (carbonActivities[i]?.upcomingActivities?.length || 0) > 0 ||
-  //         (carbonActivities[i]?.overdueActivities?.length || 0) > 0
-  //       ) {
-  //         hasCarbonActivity = true;
-  //         break;
-  //       }
-  //     }
-
-  //     if (hasCarbonActivity) {
-  //       activitySchedule = carbonActivities;
-  //     } else {
-  //       // fallback → NON-CARBON activity
-  //       const NON_CARBON_RES = await axiosGet(
-  //         ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
-  //           supervisor_id: user_id,
-  //           type: 'user_activity',
-  //         }),
-  //         token,
-  //         {information: `${dbname},${lan_id},${user_id}`},
-  //       );
-  //       console.log('NON_CARBON_RES', NON_CARBON_RES);
-  //       if (NON_CARBON_RES?.status === 200) {
-  //         activitySchedule = NON_CARBON_RES.data?.data?.data || [];
-  //       }
-  //     }
-
-  //     setUiState(prev => ({
-  //       ...prev,
-  //       bottomBanner: bottomBannerData,
-  //       userName: userNameData,
-  //       profileImg: profileImgData,
-  //       company_website: company_website || prev.company_website,
-  //       logoImg: logoImage || logoImageData || null,
-  //       topBannerImg: topBanner || topBannerData || null,
-  //       defaultLand,
-  //       convertionLUState,
-  //     }));
-
-  //     setDataState({
-  //       plotStatus,
-  //       usefulInfoList,
-  //       activitySchedule,
-  //     });
-
-  //     setIsLoading(false);
-  //   } catch (error) {
-  //     console.log('onPageLoad error', error);
-  //     setIsLoading(false);
-
-  //     // 👈 EXACT old behaviour
-  //     Toast?.show({
-  //       text:
-  //         error?.response?.data?.error?.errorMessage || 'Something went wrong',
-  //       ...AlertMesg?.[0],
-  //     });
-  //   }
-  // }, [loginUser_data]);
-
-  // const onPageLoad = useCallback(async () => {
-  //   if (!loginUser_data) return;
-
-  //   try {
-  //     const login = loginUser_data || {};
-  //     const {dbname, lan_id, token, agri_user_addresses, user_id} = login;
-
-  //     let plotStatus = [];
-  //     let usefulInfoList = [];
-  //     let activitySchedule = [];
-  //     let convertionLUState = false;
-  //     let defaultLand = false;
-
-  //     setIsLoading(true);
-
-  //     const results = await Promise.allSettled([
-  //       getItem('bottomBannerData'),
-  //       getItem('userNameData'),
-  //       getItem('profileImgData'),
-  //       getItem('company_website'),
-  //       getItem('logoImageData'),
-  //       getItem('topBannerData'),
-
-  //       axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT(), token, {
-  //         information: `${dbname},${lan_id}`,
-  //       }),
-
-  //       axiosGet(ROUTES.GET.LAND_UNIT_AREA(), token, {
-  //         information: `${dbname},${lan_id}`,
-  //       }),
-
-  //       axiosGet(
-  //         ROUTES.GET.USEFULL_INFO_LIST({
-  //           userId: user_id,
-  //           userType: 'supervisor',
-  //           post: 'general_info',
-  //           titleSearch: '',
-  //           state_id: agri_user_addresses[0]?.agri_state.fid,
-  //           district_id: agri_user_addresses[0]?.agri_district.fid,
-  //           subdiv_id: agri_user_addresses[0]?.agri_subdivision.fid,
-  //         }),
-  //         '',
-  //         {information: `${dbname},${lan_id}`},
-  //       ),
-
-  //       axiosGet(
-  //         ROUTES.GET.Fenced_Rejected_Plot_List({
-  //           page: 1,
-  //           status_level: 'REJECTED',
-  //           geo_type: '',
-  //           searchBy: '',
-  //           supervisor_id: user_id,
-  //         }),
-  //         token,
-  //         {information: `${dbname},${lan_id},${user_id}`},
-  //       ),
-
-  //       // ⚠️ Problem API
-  //       axiosGet(
-  //         ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
-  //           supervisor_id: user_id,
-  //           type: 'carbon_activity',
-  //         }),
-  //         token,
-  //         {information: `${dbname},${lan_id},${user_id}`},
-  //       ),
-  //     ]);
-
-  //     // ---- Local storage data ----
-  //     const bottomBannerData =
-  //       results[0].status === 'fulfilled' ? results[0].value : null;
-  //     const userNameData =
-  //       results[1].status === 'fulfilled' ? results[1].value : null;
-  //     const profileImgData =
-  //       results[2].status === 'fulfilled' ? results[2].value : null;
-  //     const company_website =
-  //       results[3].status === 'fulfilled' ? results[3].value : '';
-  //     const logoImageData =
-  //       results[4].status === 'fulfilled' ? results[4].value : null;
-  //     const topBannerData =
-  //       results[5].status === 'fulfilled' ? results[5].value : null;
-
-  //     // ---- Unit Conversion ----
-  //     const UnitConversonToDefault_res =
-  //       results[6].status === 'fulfilled' ? results[6].value : null;
-
-  //     if (UnitConversonToDefault_res?.status === 200) {
-  //       let missingCount = 0;
-  //       const rows = UnitConversonToDefault_res.data?.data?.rows || [];
-  //       for (let r of rows) {
-  //         if (!r.defined_unit_value) missingCount++;
-  //       }
-  //       if (missingCount > 0) convertionLUState = true;
-  //     }
-
-  //     // ---- Land Unit Area ----
-  //     const LandUnitArea_res =
-  //       results[7].status === 'fulfilled' ? results[7].value : null;
-
-  //     if (LandUnitArea_res?.status === 200) {
-  //       const rows = LandUnitArea_res.data?.data?.rows || [];
-  //       for (let r of rows) {
-  //         if (r.defined_unit_value?.length > 0) {
-  //           defaultLand = true;
-  //           break;
-  //         }
-  //       }
-  //     }
-
-  //     // ---- Useful Info ----
-  //     const FARMER_USEFULL_INFO_LIST =
-  //       results[8].status === 'fulfilled' ? results[8].value : null;
-
-  //     if (FARMER_USEFULL_INFO_LIST?.status === 200) {
-  //       usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.rows || [];
-  //     }
-
-  //     // ---- Plot Status ----
-  //     const PLOT_STATUS =
-  //       results[9].status === 'fulfilled' ? results[9].value : null;
-
-  //     if (PLOT_STATUS?.status === 200) {
-  //       plotStatus = PLOT_STATUS.data?.data?.rows || [];
-  //     }
-
-  //     // ---- Activity Schedule ----
-  //     const ALL_ACTIVITY_SCHEDULE_RES =
-  //       results[10].status === 'fulfilled' ? results[10].value : null;
-  //     let carbonActivities = [];
-
-  //     console.log(
-  //       'ALL_ACTIVITY_SCHEDULE_RES status:',
-  //       ALL_ACTIVITY_SCHEDULE_RES?.status,
-  //     );
-  //     console.log('ALL_ACC', ALL_ACTIVITY_SCHEDULE_RES);
-  //     if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
-  //       carbonActivities = ALL_ACTIVITY_SCHEDULE_RES.data?.data?.data || [];
-  //     }
-  //     let hasCarbonActivity = false;
-
-  //     for (let i = 0; i < carbonActivities.length; i++) {
-  //       if (
-  //         (carbonActivities[i]?.upcomingActivities?.length || 0) > 0 ||
-  //         (carbonActivities[i]?.overdueActivities?.length || 0) > 0
-  //       ) {
-  //         hasCarbonActivity = true;
-  //         break;
-  //       }
-  //     }
-
-  //     // if (hasCarbonActivity) {
-  //     //   activitySchedule = carbonActivities;
-  //     // }
-  //     //  else {
-  //     // fallback → NON-CARBON activity
-  //     const NON_CARBON_RES = await axiosGet(
-  //       ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
-  //         supervisor_id: user_id,
-  //         type: 'user_activity',
-  //       }),
-  //       token,
-  //       {information: `${dbname},${lan_id},${user_id}`},
-  //     );
-  //     console.log('NON_CARBON_RES', NON_CARBON_RES);
-  //     if (NON_CARBON_RES?.status === 200) {
-  //       activitySchedule = NON_CARBON_RES.data?.data?.data || [];
-
-  //       // }
-  //     }
-  //     activitySchedule = [...carbonActivities, ...activitySchedule];
-  //     console.log('combinedActivities', activitySchedule);
-  //     setUiState(prev => ({
-  //       ...prev,
-  //       bottomBanner: bottomBannerData,
-  //       userName: userNameData,
-  //       profileImg: profileImgData,
-  //       company_website: company_website || prev.company_website,
-  //       logoImg: logoImage || logoImageData || null,
-  //       topBannerImg: topBanner || topBannerData || null,
-  //       defaultLand,
-  //       convertionLUState,
-  //     }));
-
-  //     setDataState({
-  //       plotStatus,
-  //       usefulInfoList,
-  //       activitySchedule,
-  //     });
-
-  //     setIsLoading(false);
-  //   } catch (error) {
-  //     console.log('onPageLoad error', error);
-  //     setIsLoading(false);
-
-  //     // 👈 EXACT old behaviour
-  //     Toast?.show({
-  //       text:
-  //         error?.response?.data?.error?.errorMessage || 'Something went wrong',
-  //       ...AlertMesg?.[0],
-  //     });
-  //   }
-  // }, [loginUser_data]);
 
   const onPageLoad = useCallback(async () => {
     if (!loginUser_data) return;
 
     try {
-      const login = loginUser_data || {};
-      const {dbname, lan_id, token, agri_user_addresses, user_id} = login;
-
+      const {dbname, lan_id, token, agri_user_addresses, user_id} =
+        loginUser_data || {};
       let plotStatus = [];
-      let usefulInfoList = [];
-      let activitySchedule = [];
       let convertionLUState = false;
       let defaultLand = false;
-
-      setIsLoading(true);
-
+      setIsLoading(prev => ({...prev, initial: true}));
       const results = await Promise.allSettled([
         getItem('bottomBannerData'),
         getItem('userNameData'),
@@ -711,9 +141,9 @@ const Dashboard = ({navigation}) => {
             userType: 'supervisor',
             post: 'general_info',
             titleSearch: '',
-            state_id: agri_user_addresses[0]?.agri_state.fid,
-            district_id: agri_user_addresses[0]?.agri_district.fid,
-            subdiv_id: agri_user_addresses[0]?.agri_subdivision.fid,
+            state_id: agri_user_addresses[0]?.agri_state?.fid,
+            district_id: agri_user_addresses[0]?.agri_district?.fid,
+            subdiv_id: agri_user_addresses[0]?.agri_subdivision?.fid,
           }),
           '',
           {information: `${dbname},${lan_id}`},
@@ -730,69 +160,57 @@ const Dashboard = ({navigation}) => {
           token,
           {information: `${dbname},${lan_id},${user_id}`},
         ),
-
-        // ⚠️ Problem API
-        axiosGet(
-          ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
-            supervisor_id: user_id,
-            type: 'carbon_activity',
-          }),
-          token,
-          {information: `${dbname},${lan_id},${user_id}`},
-        ),
       ]);
 
-      // ---- Local storage data ----
+      // ---------- PROCESS FAST RESULTS ----------
+
       const bottomBannerData =
         results[0].status === 'fulfilled' ? results[0].value : null;
+
       const userNameData =
         results[1].status === 'fulfilled' ? results[1].value : null;
+
       const profileImgData =
         results[2].status === 'fulfilled' ? results[2].value : null;
+
       const company_website =
         results[3].status === 'fulfilled' ? results[3].value : '';
+
       const logoImageData =
         results[4].status === 'fulfilled' ? results[4].value : null;
+
       const topBannerData =
         results[5].status === 'fulfilled' ? results[5].value : null;
 
-      // ---- Unit Conversion ----
+      // UNIT CONVERSION
       const UnitConversonToDefault_res =
         results[6].status === 'fulfilled' ? results[6].value : null;
 
       if (UnitConversonToDefault_res?.status === 200) {
-        console.log('hhh==')
-        let missingCount = 0;
         const rows = UnitConversonToDefault_res.data?.data?.rows || [];
-        for (let r of rows) {
-          if (!r.defined_unit_value) missingCount++;
-        }
-        if (missingCount > 0) convertionLUState = true;
+        convertionLUState = rows.some(r => !r.defined_unit_value);
       }
 
-      // ---- Land Unit Area ----
+      // LAND UNIT
       const LandUnitArea_res =
         results[7].status === 'fulfilled' ? results[7].value : null;
 
       if (LandUnitArea_res?.status === 200) {
         const rows = LandUnitArea_res.data?.data?.rows || [];
-        for (let r of rows) {
-          if (r.defined_unit_value?.length > 0) {
-            defaultLand = true;
-            break;
-          }
-        }
+        defaultLand = rows.some(r => r.defined_unit_value?.length > 0);
       }
 
-      // ---- Useful Info ----
+      // USEFUL INFO
       const FARMER_USEFULL_INFO_LIST =
         results[8].status === 'fulfilled' ? results[8].value : null;
+
+      let usefulInfoList = [];
 
       if (FARMER_USEFULL_INFO_LIST?.status === 200) {
         usefulInfoList = FARMER_USEFULL_INFO_LIST.data?.rows || [];
       }
 
-      // ---- Plot Status ----
+      // PLOT STATUS
       const PLOT_STATUS =
         results[9].status === 'fulfilled' ? results[9].value : null;
 
@@ -800,45 +218,7 @@ const Dashboard = ({navigation}) => {
         plotStatus = PLOT_STATUS.data?.data?.rows || [];
       }
 
-      // ---- Activity Schedule ----
-      const ALL_ACTIVITY_SCHEDULE_RES =
-        results[10].status === 'fulfilled' ? results[10].value : null;
-      let carbonActivities = [];
-
-      if (ALL_ACTIVITY_SCHEDULE_RES?.status === 200) {
-        carbonActivities = ALL_ACTIVITY_SCHEDULE_RES.data?.data?.data || [];
-      }
-      let hasCarbonActivity = false;
-
-      for (let i = 0; i < carbonActivities.length; i++) {
-        if (
-          (carbonActivities[i]?.upcomingActivities?.length || 0) > 0 ||
-          (carbonActivities[i]?.overdueActivities?.length || 0) > 0
-        ) {
-          hasCarbonActivity = true;
-          break;
-        }
-      }
-
-      // if (hasCarbonActivity) {
-      //   activitySchedule = carbonActivities;
-      // }
-      //  else {
-      // fallback → NON-CARBON activity
-      const NON_CARBON_RES = await axiosGet(
-        ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
-          supervisor_id: user_id,
-          type: 'user_activity',
-        }),
-        token,
-        {information: `${dbname},${lan_id},${user_id}`},
-      );
-      if (NON_CARBON_RES?.status === 200) {
-        activitySchedule = NON_CARBON_RES.data?.data?.data || [];
-
-        // }
-      }
-      activitySchedule = [...carbonActivities, ...activitySchedule];
+      // ✅ UPDATE UI FAST
       setUiState(prev => ({
         ...prev,
         bottomBanner: bottomBannerData,
@@ -849,41 +229,76 @@ const Dashboard = ({navigation}) => {
         topBannerImg: topBanner || topBannerData || null,
         defaultLand,
         convertionLUState,
-      }));
-
-      setDataState({
         plotStatus,
         usefulInfoList,
-        activitySchedule,
-      });
-
-      setIsLoading(false);
+        activitySchedule: [], // slow data later
+      }));
+      setIsLoading(prev => ({...prev, initial: false}));
+      loadSlowApis({dbname, lan_id, token, user_id});
     } catch (error) {
-      console.log('onPageLoad error', error);
-      setIsLoading(false);
-
-      // 👈 EXACT old behaviour
+      setIsLoading(prev => ({...prev, initial: false}));
       Toast?.show({
         text:
           error?.response?.data?.error?.errorMessage || 'Something went wrong',
         ...AlertMesg?.[0],
       });
-    } finally {
-      // 🔒 Guaranteed loader cleanup
-      setIsLoading(false);
     }
   }, [loginUser_data]);
+  const loadSlowApis = async ({dbname, lan_id, token, user_id}) => {
+    try {
+      setIsLoading(prev => ({...prev, slowData: true}));
+      const [carbonRes, userRes] = await Promise.allSettled([
+        axiosGet(
+          ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
+            supervisor_id: user_id,
+            type: 'carbon_activity',
+          }),
+          token,
+          {information: `${dbname},${lan_id},${user_id}`},
+        ),
+
+        axiosGet(
+          ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
+            supervisor_id: user_id,
+            type: 'user_activity',
+          }),
+          token,
+          {information: `${dbname},${lan_id},${user_id}`},
+        ),
+      ]);
+
+      const carbonActivities =
+        carbonRes.status === 'fulfilled'
+          ? carbonRes.value?.data?.data?.data || []
+          : [];
+
+      const activitySchedule =
+        userRes.status === 'fulfilled'
+          ? userRes.value?.data?.data?.data || []
+          : [];
+      setUiState(prev => ({
+        ...prev,
+        usefulInfoList: [...carbonActivities, ...activitySchedule],
+        activitySchedule,
+      }));
+      setIsLoading(prev => ({...prev, slowData: false}));
+    } catch (error) {
+      setIsLoading(prev => ({...prev, slowData: false}));
+      Toast?.show({
+        text:
+          error?.response?.data?.error?.errorMessage || 'Something went wrong',
+        ...AlertMesg?.[0],
+      });
+    }
+  };
   useEffect(() => {
     if (route?.params?.action === 'plotStatusUpdated') {
-      // Toast.show({text: t('Updated'), ...AlertMesg[0]});
-
       onPageLoad();
     }
   }, [route?.params]);
-
   useEffect(() => {
+    onPageLoad();
     const task = InteractionManager.runAfterInteractions(() => {
-      onPageLoad();
       startWatchingLocation();
     });
     return () => {
@@ -891,7 +306,6 @@ const Dashboard = ({navigation}) => {
       stopWatchingLocation();
     };
   }, []);
-
   const exit = useCallback(() => {
     Alert.alert(
       `${t('app_name')}`,
@@ -904,7 +318,6 @@ const Dashboard = ({navigation}) => {
     );
     return true;
   }, [t]);
-
   const CompanyWebsiteOpen = useCallback(() => {
     if (
       uiState.company_website &&
@@ -919,34 +332,25 @@ const Dashboard = ({navigation}) => {
       Alert.alert('Company website not found');
     }
   }, [uiState.company_website]);
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    requestAnimationFrame(async () => {
-      // await onPageLoad("refreshing");
-      const task = InteractionManager.runAfterInteractions(() => {
-        onPageLoad();
-      });
-      setRefreshing(false);
-      return () => task.cancel();
-    });
-  }, []);
 
   // memoized header content so FlatList doesn't recreate on each render
   const headerContent = useMemo(
     () => (
       <>
-        <ForegroundLocationService />
+        {/* <ForegroundLocationService /> */}
         <UpcomingActivities
           t={t}
+          isLoading={isLoading.slowData}
           uiState={uiState}
           loginUserData={loginUser_data}
           dashboardType="Supervisor"
-          activitySchedule={dataState.activitySchedule}
+          activitySchedule={uiState.activitySchedule}
         />
         <TrackingInfromation
-          plotStatus={dataState.plotStatus}
+          plotStatus={uiState.plotStatus}
           t={t}
-          usefulInfoList={dataState.usefulInfoList}
+          isLoading={isLoading.slowData}
+          usefulInfoList={uiState.usefulInfoList}
           navigation={navigation}
           trackingNavigationPath="Market"
           informationNavigationPath="UsefulInformationList"
@@ -989,8 +393,8 @@ const Dashboard = ({navigation}) => {
     [
       uiState.bottomBanner,
       uiState.profileImg,
-      dataState.plotStatus,
-      dataState.usefulInfoList,
+      uiState.plotStatus,
+      uiState.usefulInfoList,
       t,
       CompanyWebsiteOpen,
     ],
@@ -998,10 +402,6 @@ const Dashboard = ({navigation}) => {
   const dashBoardItemList = useMemo(
     () => getDashboardItems(t, navigateToPages),
     [t, navigateToPages],
-  );
-  const LOOP_ITEMS = useMemo(
-    () => [...dashBoardItemList, ...dashBoardItemList, ...dashBoardItemList],
-    [dashBoardItemList],
   );
   const renderCustomHeader = useMemo(
     () => (
@@ -1017,7 +417,7 @@ const Dashboard = ({navigation}) => {
   return (
     <FarmerDrawerScreenWrapper1>
       <SafeAreaView style={styles.container}>
-        {isLoading ? (
+        {isLoading.initial ? (
           <SkeletonScreenDashoard />
         ) : (
           <>

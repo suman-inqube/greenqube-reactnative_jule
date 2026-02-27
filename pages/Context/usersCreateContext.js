@@ -17,44 +17,44 @@ import {
   isLocationEnabled,
   promptForEnableLocationIfNeeded,
 } from 'react-native-android-location-enabler';
-import { getItem, setItem, removeItem } from '../../config/getDataFromStorage';
-import { useTranslation } from 'react-i18next';
-import { AlertMesg } from '../Common/ToastAlert';
+import {getItem, setItem, removeItem} from '../../config/getDataFromStorage';
+import {useTranslation} from 'react-i18next';
+import {AlertMesg} from '../Common/ToastAlert';
 import {
   Root,
   Toast,
   Popup,
   SPSheet,
 } from '@sekizlipenguen/react-native-popup-confirm-toast';
-import { onBackPress } from '../Common/BackPressHandler';
+import {onBackPress} from '../Common/BackPressHandler';
 import DeviceInfo from '../DeviceInfo';
 import i18next from 'i18next';
-import { getNavigationBarHeight } from 'react-native-android-navbar-height';
+import {getNavigationBarHeight} from 'react-native-android-navbar-height';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import RNRestart from 'react-native-restart';
-import { axiosGet } from '../utils/api';
-import { ROUTES } from '../utils/Routes';
-const ImagePlaceHolderCircle = lazy(() =>import('../Common/ImagePlaceHolderCircle'));
-const InputTextForm = lazy(() => import('../Common/InputTextForm'));
-const RadioForm = lazy(() => import('../Common/RadioForm'));
-const PasswordComp = lazy(() => import('../Common/PasswordComp'));
-const ButtonForm = lazy(() => import('../Common/ButtonForm'));
-const DropdownForm = lazy(() => import('../Common/DropdownForm'));
-const CustomHeader = lazy(() => import('../admin/CustomHeader'));
-const LoadingScreen = lazy(() => import('../Common/LoadingScreen'));
-const DatePickerComp = lazy(() => import('../Common/DatePickerComp'));
-const ButtonFormBottom = lazy(() => import('../Common/ButtonFormBottom'));
-const Filter = lazy(() => import('../Common/Filter'));
-const DatePicker = lazy(() => import('react-native-date-picker'));
-const config = lazy(() => import('../../config'));
-const axios = lazy(() => import('axios'));
+import {axiosGet} from '../utils/api';
+import {ROUTES} from '../utils/Routes';
+import ImagePlaceHolderCircle from '../Common/ImagePlaceHolderCircle';
+import InputTextForm from '../Common/InputTextForm';
+import RadioForm from '../Common/RadioForm';
+import PasswordComp from '../Common/PasswordComp';
+import ButtonForm from '../Common/ButtonForm';
+import DropdownForm from '../Common/DropdownForm';
+import CustomHeader from '../admin/CustomHeader';
+import LoadingScreen from '../Common/LoadingScreen';
+import DatePickerComp from '../Common/DatePickerComp';
+import ButtonFormBottom from '../Common/ButtonFormBottom';
+import Filter from '../Common/Filter';
+import DatePicker from 'react-native-date-picker';
+import config from '../../config';
+import axios from 'axios';
 
 const userCreateContext = createContext();
 const userListContext = createContext('adduser');
 
 const UserCreateContextProvider = props => {
-  const { netConnection } = DeviceInfo();
-  const { t } = useTranslation();
+  const {netConnection} = DeviceInfo();
+  const {t} = useTranslation();
 
   const [dbLanTokUsr, setdbLanTokUsr] = useState({});
   const [farmerData, setFarmerData] = useState([]);
@@ -131,7 +131,7 @@ const UserCreateContextProvider = props => {
           },
         },
       ],
-      { cancelable: false },
+      {cancelable: false},
     );
   };
 
@@ -153,7 +153,7 @@ const UserCreateContextProvider = props => {
     Geolocation.getCurrentPosition(
       pos => console.log('Initial fix:', pos.coords),
       err => console.log('Warm-up error:', err),
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
     );
 
     if (watchIdRef.current) {
@@ -207,7 +207,7 @@ const UserCreateContextProvider = props => {
       },
       {
         enableHighAccuracy: true, // Use GPS hardware
-        accuracy: { android: 'high', ios: 'bestForNavigation' },
+        accuracy: {android: 'high', ios: 'bestForNavigation'},
         distanceFilter: 3, // every small move
         interval: 3000,
         fastestInterval: 1000,
@@ -222,8 +222,8 @@ const UserCreateContextProvider = props => {
         p => {
           if (p?.mocked === true) handleMockDetected();
         },
-        () => { },
-        { enableHighAccuracy: true, timeout: 10000 },
+        () => {},
+        {enableHighAccuracy: true, timeout: 10000},
       );
     }, 10000);
 
@@ -251,6 +251,7 @@ const UserCreateContextProvider = props => {
       let resCarbonFlag = [];
       let DetailsCompany_res = [];
       let co_farmer = 0;
+      let offline_mode = 0;
       const [
         loginUser_data,
         logoImageData,
@@ -267,15 +268,28 @@ const UserCreateContextProvider = props => {
       setNavigationBarHeight(getNavigationBar);
       i18next.changeLanguage(loginUser_data?.lan_id?.toString());
       if (netConnection && loginUser_data?.token) {
-        const { dbname, lan_id, token, user_id, db_company_id } = loginUser_data || {};
-        [farmer_response, responsePlot, resCarbonFlag, DetailsCompany_res] = await Promise.all([
-          axiosGet(ROUTES.GET.LIST_USER({ user_id: user_id }), token, { information: `${dbname},${lan_id}` }),
-          axiosGet(ROUTES.GET.PLOT_AGAINST_FARMER({ user_id: user_id }), token, { information: `${dbname},${lan_id}` }),
-          axiosGet(ROUTES.GET.SHOW_CARBON_FLAG, token, { information: `${dbname},${lan_id}` }),
-          axiosGet(ROUTES.GET.DETAILS_COMPANY(db_company_id), token, { information: `${dbname},1` }),
-        ]);
+        const {dbname, lan_id, token, user_id, db_company_id} =
+          loginUser_data || {};
+        [farmer_response, responsePlot, resCarbonFlag, DetailsCompany_res] =
+          await Promise.all([
+            axiosGet(ROUTES.GET.LIST_USER({user_id: user_id}), token, {
+              information: `${dbname},${lan_id}`,
+            }),
+            axiosGet(
+              ROUTES.GET.PLOT_AGAINST_FARMER({user_id: user_id}),
+              token,
+              {information: `${dbname},${lan_id}`},
+            ),
+            axiosGet(ROUTES.GET.SHOW_CARBON_FLAG, token, {
+              information: `${dbname},${lan_id}`,
+            }),
+            axiosGet(ROUTES.GET.DETAILS_COMPANY(db_company_id), token, {
+              information: `${dbname},1`,
+            }),
+          ]);
         if (DetailsCompany_res?.status == 200) {
-          co_farmer = DetailsCompany_res.data.data?.[0]?.co_farmer
+          co_farmer = DetailsCompany_res.data.data?.[0]?.co_farmer;
+          offline_mode = DetailsCompany_res.data.data?.[0]?.offline_mode;
         }
         if (farmer_response?.status == 200) {
           await Promise.all([
@@ -301,8 +315,8 @@ const UserCreateContextProvider = props => {
         } else if (loginUser_data?.userType == 3) {
           supervisorId = loginUser_data?.user_id;
         }
-        const { company, country_id } = companyLanguage_data;
-        const { option_value } = resCarbonFlag?.data?.data || {};
+        const {company, country_id} = companyLanguage_data;
+        const {option_value} = resCarbonFlag?.data?.data || {};
         setlogoImage(logoImageData);
         settopBanner(topBannerData);
         setloginUser_data({
@@ -321,7 +335,8 @@ const UserCreateContextProvider = props => {
           languageConpany: company,
           country_id,
           carbonFlag: option_value,
-          co_farmer
+          co_farmer,
+          offline_mode,
         });
         const dataArrayName = farmer_response?.data?.data?.rows.map(data => ({
           value: data.user_id,
@@ -431,4 +446,4 @@ const UserCreateContextProvider = props => {
   );
 };
 
-export { userListContext, UserCreateContextProvider, userCreateContext };
+export {userListContext, UserCreateContextProvider, userCreateContext};

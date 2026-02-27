@@ -69,7 +69,7 @@ const SubMenuItem = memo(({ iconName, title, onPress }) => (
   </TouchableOpacity>
 ));
 const CustomDrawer = memo(({ state }) => {
-  const { isOnline } = useContext(userCreateContext) || {};
+  const {isOnline, dbLanTokUsr} = useContext(userCreateContext) || {};
   const { t } = useTranslation();
   const navigation = useNavigation();
   const activeRouteName = useMemo(
@@ -204,7 +204,6 @@ const CustomDrawer = memo(({ state }) => {
         // isExpandable: true,
         // isExpanded: expandedMenus.farmAccount,
         onPress: () => navigateToPages('FarmIncomeExpenseList'),
-       
       },
       {
         id: 'finance',
@@ -257,6 +256,16 @@ const CustomDrawer = memo(({ state }) => {
       //   title: t('Offline'),
       //   onPress: () => navigateToPages('Offline'),
       // },
+      ...(dbLanTokUsr?.offline_mode == 1
+        ? [
+            {
+              id: 'Offline',
+              iconName: 'local-activity',
+              title: t('Offline'),
+              onPress: () => navigateToPages('Offline'),
+            },
+          ]
+        : []),
       {
         id: 'logout',
         iconName: 'logout',

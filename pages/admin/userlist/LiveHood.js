@@ -61,7 +61,7 @@ import {
 
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import CarbonCertificate from '../../Common/CarbonCertificate';
-const timeoutConfig = {timeout: 5000};
+const timeoutConfig = {timeout: 50000};
 import {getDistance} from 'geolib';
 import {APP_MAP_RANGE_POLYGON} from '@env';
 import * as turf from '@turf/turf';
@@ -71,7 +71,7 @@ import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import {groupByRelId} from '../../utils/helpers';
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {axiosGet, axiosPut, axiosPost} from '../../utils/api';
+import {axiosGet, axiosPut, axiosPost, axiosDelete} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 import {getActionsPlot} from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
@@ -109,6 +109,7 @@ const LiveHood = ({
     startWatchingLocation,
     stopWatchingLocation,
     dbLanTokUsr,
+    isOnline,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
   //GQR-65
@@ -492,22 +493,22 @@ const LiveHood = ({
         produceVariety_res,
         productionProcess_res,
       ] = await Promise.all([
-        // axiosPost(
-        //   ROUTES.POST.NEAREST_LATLONG,
-        //   {
-        //     latitude: latitude,
-        //     longitude: longitude,
-        //     distance: 200,
-        //     data_limit: 100,
-        //   },
-        //   token,
-        //   false,
-        //   {
-        //     information: `${dbname},${lan_id}`,
-        //   },
-        // ),
-        nearestLatLong(dbname, lan_id, token, lat, lon),
-
+        isOnline
+          ? axiosPost(
+              ROUTES.POST.NEAREST_LATLONG,
+              {
+                latitude: lat,
+                longitude: lon,
+                distance: 200,
+                data_limit: 100,
+              },
+              token,
+              false,
+              {
+                information: `${dbname},${lan_id}`,
+              },
+            )
+          : Promise.resolve(null),
         axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT({}), token, {
           information: `${dbname},${lan_id}`,
         }),
@@ -802,7 +803,7 @@ const LiveHood = ({
             if (dataLandDetails?.rel_id == findData.value) {
               if (
                 dataLandDetails?.status_level == 'APPROVED' ||
-                dataLandDetails?.status_level == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                // dataLandDetails?.status_level == 'CARBON_DOCUMENTS_SUBMITTED' ||
                 dataLandDetails?.status_level == 'CARBON_DOCUMENTS_APPROVED' ||
                 dataLandDetails?.status_level == 'CARBON_DOCUMENTS_REJECTED'
               ) {
@@ -1648,6 +1649,7 @@ const LiveHood = ({
       );
       // landRouteApi(dbname, lan_id, type);
       if (landType_res?.status == 200) {
+        console.log('unit==', JSON.stringify(landType_res.data.data.rows));
         const landTypeArray = landType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
           label: data?.name,
@@ -1660,11 +1662,17 @@ const LiveHood = ({
   };
   const landunit_resAPI = async axiosConfig => {
     try {
+      // ROUTES.GET.PRODUCTION_PROCESS({}),
+      // '',
+      // {information: `${dbName},${languageID}`},
+
       let landunitAPI = await axios.get(config.landunitAPI, {
         ...axiosConfig,
         ...timeoutConfig,
       });
+
       if (landunitAPI?.status == 200) {
+        console.log('unit==', JSON.stringify(landunitAPI.data.data.rows));
         setFarmerData(prev => ({
           ...prev,
           unit_valueArr: JSON.stringify(landunitAPI.data.data.rows),
@@ -1676,7 +1684,7 @@ const LiveHood = ({
         setUnitAll(landunitArray);
       }
     } catch (error) {
-      console.log('Error in landtypeAPI API', error);
+      console.log('Error in landunitAPI API', error);
     }
   };
   const livelihoodTypeAPI = async (
@@ -1843,7 +1851,7 @@ const LiveHood = ({
           if (
             ![
               'APPROVED',
-              'CARBON_DOCUMENTS_SUBMITTED',
+              // 'CARBON_DOCUMENTS_SUBMITTED',
               'CARBON_DOCUMENTS_APPROVED',
               'CARBON_DOCUMENTS_REJECTED',
             ].includes(statuslevel.label)
@@ -2044,23 +2052,29 @@ const LiveHood = ({
               formdata.append('plot_image', data);
             }
           });
-          // const AddLandCropDetails_res = await axiosPost(
-          //   ROUTES.POST.ADD_LAND_CROP_DETAIL({}),
-          //   formdata,
-          //   token,
-          //   false,
-          //   { information: `${dbname},${lan_id},${farmeruserID}` },
-          // );
-          const AddLandCropDetails_res = await AddLandCropDetailsAPI(
-            dbname,
-            lan_id,
-            farmeruserID,
-            token,
+          const AddLandCropDetails_res = await axiosPost(
+            ROUTES.POST.ADD_LAND_CROP_DETAIL(),
             formdata,
-            '',
-            '',
+            token,
+            false,
+            {
+              information: `${dbname},${lan_id},${farmeruserID}`,
+              'Content-Type': 'multipart/form-data',
+            },
           );
-          if (AddLandCropDetails_res?.status === 200) {
+          // const AddLandCropDetails_res = await AddLandCropDetailsAPI(
+          //   dbname,
+          //   lan_id,
+          //   farmeruserID,
+          //   token,
+          //   formdata,
+          //   '',
+          //   '',
+          // );
+          if (
+            AddLandCropDetails_res?.status === 200 ||
+            AddLandCropDetails_res?.status === 202
+          ) {
             setIsLoading(false);
             removesetLocation();
             Toast.show({text: t('l_c_add_succ'), ...AlertMesg[0]});
@@ -2204,16 +2218,33 @@ const LiveHood = ({
             }
           });
           formDataPlotImg.append('rel_id', plotId);
-          console.log('finalPayload==', JSON.stringify(finalPayload));
-          const [deletePlotImageAPIRes, addPlotImageAPIRes, cropInputRes] =
-            await Promise.all([
-              deletePlotImageAPI(dbname, lan_id, token, formDataDelete),
-              addPlotImageAPI(
-                dbname,
-                lan_id,
-                token,
-                farmeruserID,
+          // const [deletePlotImageAPIRes, addPlotImageAPIRes] = await Promise.all(
+          //   [
+          //     isOnline deletePlotImageAPI(dbname, lan_id, token, formDataDelete),
+          //     axiosPost(ROUTES.POST.ADD_PLOTI_MGS,formDataPlotImg,token,{information: `${dbname},${lan_id},${farmeruserID}`})
+          //     // addPlotImageAPI(
+          //     //   dbname,
+          //     //   lan_id,
+          //     //   token,
+          //     //   farmeruserID,
+          //     //   formDataPlotImg,
+          //     // ),
+          //   ],
+          // );
+          const [deletePlotImageAPIRes, addPlotImageAPIRes] = await Promise.all(
+            [
+              isOnline
+                ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
+                : Promise.resolve(null),
+
+              axiosPost(
+                ROUTES.POST.ADD_PLOTI_MGS,
                 formDataPlotImg,
+                token,
+                false,
+                {
+                  information: `${dbname},${lan_id},${farmeruserID}`,
+                },
               ),
               addCropInputAPI(
                 dbname,
@@ -2274,9 +2305,12 @@ const LiveHood = ({
           }
           if (
             statuslevel.label == 'APPROVED' ||
+            statuslevel.label == 'PENDING' ||
             (statuslevel.label == 'CARBON_DOCUMENTS_REJECTED' &&
               carbonFlag == true)
           ) {
+            let hasCarbonAgreement = false;
+            let hasSignature = false;
             const formdataCarbon = new FormData();
             formdataCarbon.append('rel_id', farmerData.land_rel_id);
             if (
@@ -2285,21 +2319,26 @@ const LiveHood = ({
               carboncertificate[0].uri != ''
             ) {
               formdataCarbon.append('carbon_agreement', carboncertificate[0]);
+              hasCarbonAgreement = true;
             }
             if (
               signature?.id != undefined &&
               signature?.id == '' &&
               signature.uri != ''
             ) {
+              hasSignature = true;
               formdataCarbon.append('signature', signature);
             }
-            const carbonRes = await uploadCarbonAgrDocs(
-              dbname,
-              lan_id,
-              token,
-              farmeruserID,
-              formdataCarbon,
-            );
+
+            if (hasSignature || hasCarbonAgreement) {
+              const carbonRes = await uploadCarbonAgrDocs(
+                dbname,
+                lan_id,
+                token,
+                farmeruserID,
+                formdataCarbon,
+              );
+            }
           }
           if (!historyData) {
             if (updateLandCropdetails_res?.status === 200) {
@@ -2330,6 +2369,7 @@ const LiveHood = ({
         }
       }
     } catch (error) {
+      console.error(error);
       Toast.show({
         text: `${error?.data?.error?.errorMessage}`,
         // text: errorMessage,
@@ -2443,7 +2483,7 @@ const LiveHood = ({
         });
         // setPolygons([newPolygon]);
         //basudev
-        // if (!overlapFound) {
+        if (!overlapFound) {
         setPolygons([...nearPolSet, newPolygon]);
         setNewPolygon([]);
         setLocation(newPolygon);
@@ -2462,14 +2502,14 @@ const LiveHood = ({
         } else {
           setArea(geolib.getAreaOfPolygon(newPolygon));
         }
-        // } else {
-        //   Alert.alert(
-        //     'Overlap Detected',
-        //     'Coordinates are overlapping',
-        //     [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-        //     {cancelable: false},
-        //   );
-        // }
+        } else {
+          Alert.alert(
+            'Overlap Detected',
+            'Coordinates are overlapping',
+            [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+            {cancelable: false},
+          );
+        }
       } else {
         // setArea(0);
         Alert.alert(
@@ -2555,48 +2595,50 @@ const LiveHood = ({
         Math.abs(latestRegion.longitude - newRegion.longitude) < 0.0001;
       if (isSameLat && isSameLng) {
         try {
-          const nearestLatLong_res = await axiosPost(
-            ROUTES.POST.NEAREST_LATLONG,
-            {
-              latitude: latitude,
-              longitude: longitude,
-              distance: 200,
-              data_limit: 100,
-            },
-            token,
-            false,
-            {
-              information: `${dbname},${lan_id}`,
-            },
-          );
-
-          // nearestLatLong(
-          //   dbname,
-          //   lan_id,
-          //   token,
-          //   latitude,
-          //   longitude,
-          // );
-          if (nearestLatLong_res?.status === 200) {
-            const data = nearestLatLong_res?.data?.data;
-            setnearPolData(data);
-            const groupedData = groupByRelId(data);
-
-            const parsedTargetArray = mainLocation.map(item => ({
-              latitude: parseFloat(item.latitude),
-              longitude: parseFloat(item.longitude),
-            }));
-            const index = groupedData.findIndex(
-              subArray =>
-                JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
+          if (isOnline) {
+            const nearestLatLong_res = await axiosPost(
+              ROUTES.POST.NEAREST_LATLONG,
+              {
+                latitude: latitude,
+                longitude: longitude,
+                distance: 200,
+                data_limit: 100,
+              },
+              token,
+              false,
+              {
+                information: `${dbname},${lan_id}`,
+              },
             );
-            const foundArray = groupedData.filter(
-              item => !isEqualCoordinatesArray(item, parsedTargetArray),
-            );
-            setnearPolSet(foundArray);
 
-            // setnearPolSet(groupedData);
-            setPolygons(foundArray);
+            // nearestLatLong(
+            //   dbname,
+            //   lan_id,
+            //   token,
+            //   latitude,
+            //   longitude,
+            // );
+            if (nearestLatLong_res?.status === 200) {
+              const data = nearestLatLong_res?.data?.data;
+              setnearPolData(data);
+              const groupedData = groupByRelId(data);
+
+              const parsedTargetArray = mainLocation.map(item => ({
+                latitude: parseFloat(item.latitude),
+                longitude: parseFloat(item.longitude),
+              }));
+              // const index = groupedData.findIndex(
+              //   subArray =>
+              //     JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
+              // );
+              const foundArray = groupedData.filter(
+                item => !isEqualCoordinatesArray(item, parsedTargetArray),
+              );
+              setnearPolSet(foundArray);
+
+              // setnearPolSet(groupedData);
+              setPolygons(foundArray);
+            }
           }
         } catch (error) {
           console.error('Error fetching nearest polygon data:', error);
@@ -2635,7 +2677,12 @@ const LiveHood = ({
   }, []);
   const [InputTextFormEdit, setInputTextFormEdit] = useState(true);
   useEffect(() => {
-    if (harvested === '' && statuslevel.label === '') {
+    console.log('status--', statuslevel.label, harvested);
+    if (
+      (harvested === '' && statuslevel.label === '') ||
+      statuslevel.label === 'CARBON_DOCUMENTS_SUBMITTED'
+    ) {
+      console.log('status--1');
       setInputTextFormEdit(true);
     } else if (
       statuslevel.label == 'APPROVED' ||
@@ -2643,6 +2690,7 @@ const LiveHood = ({
       statuslevel.label === 'CARBON_DOCUMENTS_APPROVED' ||
       statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
     ) {
+      console.log('status--2');
       setInputTextFormEdit(false);
     } else if (
       harvested === 'same produce' &&
@@ -2651,16 +2699,19 @@ const LiveHood = ({
         statuslevel.label === 'CARBON_DOCUMENTS_APPROVED' ||
         statuslevel.label === 'CARBON_DOCUMENTS_REJECTED')
     ) {
+      console.log('status--3');
       setInputTextFormEdit(true);
     } else if (
       harvested == '' &&
       (statuslevel.label === 'PENDING' || statuslevel.label === 'REJECTED')
     ) {
+      console.log('status--4');
       setInputTextFormEdit(true);
     } else if (
       harvested == 'same produce' &&
       (statuslevel.label === 'PENDING' || statuslevel.label === 'REJECTED')
     ) {
+      console.log('status--5');
       setInputTextFormEdit(true);
     } else {
       console.log(
@@ -3257,161 +3308,167 @@ const LiveHood = ({
                   editable={InputTextFormEdit}
                 />
 
-                {carbonFlag == true ? (
-                  <InputTextForm
-                    label={t('JL No')}
-                    value={farmerData.jl_no}
-                    onChangeText={handleAddUserDataJLNo}
-                    editable={InputTextFormEdit}
-                  />
-                ) : (
-                  <></>
-                )}
-                {carbonFlag == true ? (
-                  <InputTextForm
-                    label={t('Mouja Name')}
-                    value={farmerData.mouja}
-                    onChangeText={handleAddUserDataMouja}
-                    editable={InputTextFormEdit}
-                  />
-                ) : (
-                  <></>
-                )}
-                <DropdownForm
-                  label={t('select_terrain_type')}
+            {carbonFlag == true ? (
+              <InputTextForm
+                label={t('JL No')}
+                value={farmerData.jl_no}
+                onChangeText={handleAddUserDataJLNo}
+                editable={
+                  statuslevel.label == 'APPROVED' ||
+                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
+                    ? false
+                    : true
+                }
+              />
+            ) : (
+              <></>
+            )}
+            {carbonFlag == true ? (
+              <InputTextForm
+                label={t('Mouja Name')}
+                value={farmerData.mouja}
+                onChangeText={handleAddUserDataMouja}
+                editable={
+                  statuslevel.label == 'APPROVED' ||
+                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
+                    ? false
+                    : true
+                }
+              />
+            ) : (
+              <></>
+            )}
+            <DropdownForm
+              label={t('select_terrain_type')}
+              required={true}
+              data={terrainTypeAll}
+              val={farmerData.terrainType}
+              onChange={handleAddDataTerrainType}
+              // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
+            />
+            <DropdownForm
+              label={t('select_land_type')}
+              required={true}
+              data={landTypeAll}
+              onChange={handleAddDataLandType}
+              val={farmerData.landType}
+              // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
+            />
+            <DropdownForm
+              label={t('addland_soil_type_dv')}
+              required={true}
+              data={soilTypeAll}
+              onChange={handleAddDataSoilType}
+              val={farmerData.soilType}
+              // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
+            />
+            <View style={styles.plotSiteUnit}>
+              <View style={{width: '45%'}}>
+                <InputTextForm
+                  label={t('pre_land_size')}
                   required={true}
-                  data={terrainTypeAll}
-                  val={farmerData.terrainType}
-                  onChange={handleAddDataTerrainType}
-                  // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
-                />
-                <DropdownForm
-                  label={t('select_land_type')}
-                  required={true}
-                  data={landTypeAll}
-                  onChange={handleAddDataLandType}
-                  val={farmerData.landType}
-                  // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
-                />
-                <DropdownForm
-                  label={t('addland_soil_type_dv')}
-                  required={true}
-                  data={soilTypeAll}
-                  onChange={handleAddDataSoilType}
-                  val={farmerData.soilType}
-                  // disable={(statuslevel.label == 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' || statuslevel.label === 'CARBON_DOCUMENTS_REJECTED') && harvested == '' || harvested == 'same produce' ? true : false}
-                />
-                <View style={styles.plotSiteUnit}>
-                  <View style={{width: '45%'}}>
-                    <InputTextForm
-                      label={t('pre_land_size')}
-                      required={true}
-                      value={farmerData.land_size}
-                      onChangeText={handleAddUserDataland_size}
-                      // editable={InputTextFormEdit}
-                      editable={
-                        statuslevel.label == 'APPROVED' ||
-                        statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                        statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                        statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                          ? false
-                          : true
-                      }
-                    />
-                  </View>
-                  <View style={{width: '45%'}}>
-                    {/* /// size */}
-                    <DropdownForm
-                      label={t('select_unit')}
-                      required={true}
-                      data={unitAll}
-                      onChange={handleAddDataUnit}
-                      val={farmerData.unit}
-                      disable={
-                        statuslevel.label == 'APPROVED' ||
-                        statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                        statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                        statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                          ? true
-                          : false
-                      }
-                    />
-                  </View>
-                </View>
-                {farmerData?.ConvertedreportedLandsize != 0 && area != null && (
-                  <InputTextForm
-                    label={
-                      t('Converted reported Land size ') +
-                      `${
-                        landAreaUnit?.[0]?.defined_unit_value
-                          ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                          : '(Square meter)'
-                      }`
-                    }
-                    value={farmerData?.ConvertedreportedLandsize.toString()}
-                    editable={false}
-                  />
-                )}
-
-                <ProofAndIdentityPropfComp
-                  t={t}
-                  title={t('address_proof')}
-                  setStateValue={setAddressProof}
-                  stateValue={addressProof}
-                  // !="APPROVED"
-                  //basudev
-                  status_level={statuslevel.label}
-                  photoDeletedValue={photoDeletedValue}
-                  setPhotoDeletedValue={setPhotoDeletedValue}
-                  loginUser_data={loginUser_data}
-                  disable={
+                  value={farmerData.land_size}
+                  onChangeText={handleAddUserDataland_size}
+                  // editable={InputTextFormEdit}
+                  editable={
                     statuslevel.label == 'APPROVED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                      ? false
-                      : statuslevel.label == 'PENDING' ||
-                        statuslevel.label == 'REJECTED'
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
                       ? false
                       : true
                   }
-                  InputTextFormEdit={InputTextFormEdit}
-                  marginBottom={navigationBarHeight}
-                  allowAddMore={true}
                 />
+              </View>
+              <View style={{width: '45%'}}>
+                {/* /// size */}
+                <DropdownForm
+                  label={t('select_unit')}
+                  required={true}
+                  data={unitAll}
+                  onChange={handleAddDataUnit}
+                  val={farmerData.unit}
+                  disable={
+                    statuslevel.label == 'APPROVED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
+                      ? true
+                      : false
+                  }
+                />
+              </View>
+            </View>
+            {farmerData?.ConvertedreportedLandsize != 0 && area != null && (
+              <InputTextForm
+                label={
+                  t('Converted reported Land size ') +
+                  `${
+                    landAreaUnit?.[0]?.defined_unit_value
+                      ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                      : '(Square meter)'
+                  }`
+                }
+                value={farmerData?.ConvertedreportedLandsize.toString()}
+                editable={false}
+              />
+            )}
 
-                <View style={{marginTop: 15}}>
-                  <ProofAndIdentityPropfComp
-                    identityProofIdentityPropf={identityProofIdentityPropf}
-                    t={t}
-                    title={t('address_proofAndIdentityPropf')}
-                    setStateValue={setIdentityProofIdentityPropf}
-                    stateValue={identityProofIdentityPropf}
-                    photoDeletedValue={identityPhotoDeletedValue}
-                    setPhotoDeletedValue={setIdentityPhotoDeletedValue}
-                    loginUser_data={loginUser_data}
-                    status_level={statuslevel.label}
-                    InputTextFormEdit={
-                      statuslevel.label == 'PENDING' ||
+            <ProofAndIdentityPropfComp
+              t={t}
+              title={t('address_proof')}
+              setStateValue={setAddressProof}
+              stateValue={addressProof}
+              // !="APPROVED"
+              //basudev
+              status_level={statuslevel.label}
+              photoDeletedValue={photoDeletedValue}
+              setPhotoDeletedValue={setPhotoDeletedValue}
+              loginUser_data={loginUser_data}
+              disable={
+                statuslevel.label == 'APPROVED' ||
+                statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                // || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
+                statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                  ? false
+                  : statuslevel.label == 'PENDING' ||
+                    statuslevel.label == 'REJECTED'
+                  ? false
+                  : true
+              }
+              InputTextFormEdit={InputTextFormEdit}
+              marginBottom={navigationBarHeight}
+              allowAddMore={true}
+            />
+
+            <View style={{marginTop: 15}}>
+              <ProofAndIdentityPropfComp
+                identityProofIdentityPropf={identityProofIdentityPropf}
+                t={t}
+                title={t('address_proofAndIdentityPropf')}
+                setStateValue={setIdentityProofIdentityPropf}
+                stateValue={identityProofIdentityPropf}
+                photoDeletedValue={identityPhotoDeletedValue}
+                setPhotoDeletedValue={setIdentityPhotoDeletedValue}
+                loginUser_data={loginUser_data}
+                status_level={statuslevel.label}
+                InputTextFormEdit={
+                  statuslevel.label == 'PENDING' ||
+                  statuslevel.label == 'REJECTED'
+                    ? true
+                    : false
+                }
+                disable={
+                  statuslevel.label == 'APPROVED' ||
+                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                  // || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
+                  statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                    ? false
+                    : statuslevel.label == 'PENDING' ||
                       statuslevel.label == 'REJECTED'
-                        ? true
-                        : false
-                    }
-                    disable={
-                      statuslevel.label == 'APPROVED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                        ? false
-                        : statuslevel.label == 'PENDING' ||
-                          statuslevel.label == 'REJECTED'
-                        ? false
-                        : true
-                    }
-                    marginBottom={navigationBarHeight}
-                    allowAddMore={false}
-                  />
-                </View>
+                    ? false
+                    : true
+                }
+                marginBottom={navigationBarHeight}
+                allowAddMore={false}
+              />
+            </View>
 
                 {area != 0 && area != null && (
                   <InputTextForm

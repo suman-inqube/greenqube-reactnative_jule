@@ -120,8 +120,11 @@ const PlotCard = memo(
                 <Text style={styles.historyText}>Crop History</Text>
               </TouchableOpacity>
 
-              <StatusBadge status={item?.status_level} />
-            </View>
+              <View style={{flexDirection: 'row'}}>
+              <StatusBadge type="Plot" status={item?.plot_status} />
+              <StatusBadge type="Carbon" status={item?.status_level} />
+              </View>
+          </View>
           }
         />
       </TouchableOpacity>
