@@ -294,6 +294,7 @@ const LiveHood = ({
   const [selectedType, setSelectedType] = useState('organic_amendment_type');
 
   const currentList = amendmentData[selectedType] || [];
+   const numericRegex = /^[0-9]*\.?[0-9]*$/;
 
   const amendmentTypes = [
     {label: 'Organic amendment', value: 'organic_amendment_type'},
@@ -310,7 +311,7 @@ const LiveHood = ({
 
   const handleChange = (key, value) => {
     if (key === 'quantity' || key === 'no_of_applications') {
-      const numericRegex = /^[0-9]*\.?[0-9]*$/;
+      // const numericRegex = /^[0-9]*\.?[0-9]*$/;
       if (!numericRegex.test(value)) return;
     }
 
@@ -386,24 +387,24 @@ const LiveHood = ({
   // };
 
   const formatAmendmentPayload = (allItems, cu_rel_id) => {
-  const groupedData = {
-    cu_rel_fid: cu_rel_id,
-    organic_amendment_type: [],
-    fertilizers: [],
-    pesticide: [],
+    const groupedData = {
+      cu_rel_fid: cu_rel_id,
+      organic_amendment_type: [],
+      fertilizers: [],
+      pesticide: [],
+    };
+
+    allItems.forEach(item => {
+      const {type, uniqueKey, isFromAPI, ...rest} = item;
+
+      // 🔥 Only push locally added items
+      if (!isFromAPI && groupedData[type]) {
+        groupedData[type].push(rest);
+      }
+    });
+
+    return groupedData;
   };
-
-  allItems.forEach(item => {
-    const { type, uniqueKey, isFromAPI, ...rest } = item;
-
-    // 🔥 Only push locally added items
-    if (!isFromAPI && groupedData[type]) {
-      groupedData[type].push(rest);
-    }
-  });
-
-  return groupedData;
-};
   const fetchAndGroupPestDetails = async cuRelId => {
     if (!cuRelId) return;
 
@@ -818,11 +819,13 @@ const LiveHood = ({
                 label: dataLandDetails?.status_level,
                 value: dataLandDetails?.status_level,
               }));
-              if (new Date() < new Date(data.harvesting_date) != true) {
-                setModalVisible(true);
-                setOutofRange(false);
-              } else {
-                setEdit(true);
+              if (!historyData) {
+                if (new Date() < new Date(data.harvesting_date) != true) {
+                  setModalVisible(true);
+                  setOutofRange(false);
+                } else {
+                  setEdit(true);
+                }
               }
               setIsLoading(false);
               // setArea(data.land_info?.google_area);
@@ -898,22 +901,21 @@ const LiveHood = ({
                     dataProps?.plot_crops[0]?.agri_unit?.fid,
                   unit_value: dataLandDetails?.land_unit?.unit_value,
 
-                  
-                   finalyield:
-                    dataProps?.plot_crops[0]?.final_yield_qty,
-                     finalyieldunit:
-                    dataProps?.plot_crops[0]?.final_yield_unit,
+                  final_yield_qty: dataProps?.plot_crops[0]?.final_yield_qty,
+                  final_yield_unit: dataProps?.plot_crops[0]?.final_yield_unit,
                   plantation_method:
                     dataProps?.plot_crops[0]?.plantation_method,
                   seeding_date: dataProps?.plot_crops[0]?.seeding_date,
                   water_source: dataProps?.plot_crops[0]?.water_source,
-                  gap_seeding_firrig:
-                    String(dataProps?.plot_crops[0]?.gap_seeding_firrig ?? ''),
+                  gap_seeding_firrig: String(
+                    dataProps?.plot_crops[0]?.gap_seeding_firrig ?? '',
+                  ),
                   irri_practice: dataProps?.plot_crops[0]?.irri_practice,
                   drying_period_prac:
                     dataProps?.plot_crops[0]?.drying_period_prac,
-                  gap_draining_harvest:
-                    String(dataProps?.plot_crops[0]?.gap_draining_harvest ?? ''),
+                  gap_draining_harvest: String(
+                    dataProps?.plot_crops[0]?.gap_draining_harvest ?? '',
+                  ),
                   after_harvest_rice_stubble:
                     dataProps?.plot_crops[0]?.after_harvest_rice_stubble,
                   after_harvest_straw:
@@ -936,8 +938,10 @@ const LiveHood = ({
 
                 fetchAndGroupPestDetails(dataProps?.plot_crops[0]?.cu_rel_id);
               } else {
-
-                console.log('hisdata11--',JSON.stringify(data?.gap_draining_harvest));
+                console.log(
+                  'hisdata11--',
+                  JSON.stringify(data?.gap_draining_harvest),
+                );
                 setFarmerData(prev => ({
                   ...prev,
                   createdBy: user_id,
@@ -991,18 +995,17 @@ const LiveHood = ({
                     Number(dataLandDetails?.land_unit?.defined_unit_value) *
                     Number(dataLandDetails?.land_size),
 
-
-                    finalyield:
-                    data?.final_yield_qty,
-                     finalyieldunit:
-                    data?.final_yield_unit,
+                  final_yield_qty: data?.final_yield_qty,
+                  final_yield_unit: data?.final_yield_unit,
                   plantation_method: data?.plantation_method,
                   seeding_date: data?.seeding_date,
                   water_source: data?.water_source,
                   gap_seeding_firrig: String(data?.gap_seeding_firrig ?? ''),
                   irri_practice: data?.irri_practice,
                   drying_period_prac: data?.drying_period_prac,
-                  gap_draining_harvest:  String(data?.gap_draining_harvest ?? ''),
+                  gap_draining_harvest: String(
+                    data?.gap_draining_harvest ?? '',
+                  ),
                   after_harvest_rice_stubble: data?.after_harvest_rice_stubble,
                   after_harvest_straw: data?.after_harvest_straw,
                   straw_removed: data?.straw_removed,
@@ -1315,6 +1318,21 @@ const LiveHood = ({
         productionSeasonValue: '',
         cycleStartDate: '',
         cycleEndDate: '',
+
+        final_yield_qty: '',
+        final_yield_unit: '',
+        plantation_method: '',
+        seeding_date: '',
+        water_source: '',
+        gap_seeding_firrig: '',
+        irri_practice: '',
+        drying_period_prac: '',
+        gap_draining_harvest: '',
+        after_harvest_rice_stubble: '',
+        after_harvest_straw: '',
+        straw_removed: '',
+        straw_incorporate: '',
+        end_usg_rm_straw: '',
       }));
     } else {
       setFarmerData(prev => ({
@@ -1339,6 +1357,21 @@ const LiveHood = ({
         IOTLatLong: '',
         IOTLatlat: '',
         crop_cycl_start_date: '',
+
+        final_yield_qty: '',
+        final_yield_unit: '',
+        plantation_method: '',
+        seeding_date: '',
+        water_source: '',
+        gap_seeding_firrig: '',
+        irri_practice: '',
+        drying_period_prac: '',
+        gap_draining_harvest: '',
+        after_harvest_rice_stubble: '',
+        after_harvest_straw: '',
+        straw_removed: '',
+        straw_incorporate: '',
+        end_usg_rm_straw: '',
       }));
     }
   };
@@ -2108,19 +2141,22 @@ const LiveHood = ({
           let save_data = qs.stringify(dataToSend);
 
           let updateLandCropdetails_res = {};
-          updateLandCropdetails_res = await axiosPut(
-            ROUTES.PUT.UPDATE_LAND_CROP_DETAILS({
-              land_rel_id: farmerData.land_rel_id,
-              crop_rel_id: farmerData.cu_rel_id,
-            }),
-            dataToSend,
-            token,
-            true,
-            {information: `${dbname},${lan_id},${farmeruserID}`},
-          );
+
+          if (!historyData) {
+            updateLandCropdetails_res = await axiosPut(
+              ROUTES.PUT.UPDATE_LAND_CROP_DETAILS({
+                land_rel_id: farmerData.land_rel_id,
+                crop_rel_id: farmerData.cu_rel_id,
+              }),
+              dataToSend,
+              token,
+              true,
+              {information: `${dbname},${lan_id},${farmeruserID}`},
+            );
+          }
 
           let save_extradata = qs.stringify({
-             final_yield_qty: farmerData.final_yield_qty,
+            final_yield_qty: farmerData.final_yield_qty,
             final_yield_unit: farmerData.final_yield_unit,
             plantation_method: farmerData.plantation_method,
             seeding_date: farmerData.seeding_date,
@@ -2169,8 +2205,8 @@ const LiveHood = ({
           });
           formDataPlotImg.append('rel_id', plotId);
           console.log('finalPayload==', JSON.stringify(finalPayload));
-          const [deletePlotImageAPIRes, addPlotImageAPIRes] = await Promise.all(
-            [
+          const [deletePlotImageAPIRes, addPlotImageAPIRes, cropInputRes] =
+            await Promise.all([
               deletePlotImageAPI(dbname, lan_id, token, formDataDelete),
               addPlotImageAPI(
                 dbname,
@@ -2186,8 +2222,7 @@ const LiveHood = ({
                 farmeruserID,
                 finalPayload,
               ),
-            ],
-          );
+            ]);
           if (addPlotImageAPIRes.data?.error?.errorCode == 400) {
             Alert.alert(
               'File',
@@ -2266,17 +2301,30 @@ const LiveHood = ({
               formdataCarbon,
             );
           }
-
-          if (updateLandCropdetails_res?.status === 200) {
-            removesetLocation();
-            Toast.show({text: t('l_c_update_succ'), ...AlertMesg[0]});
-            onTabPress(0);
+          if (!historyData) {
+            if (updateLandCropdetails_res?.status === 200) {
+              removesetLocation();
+              Toast.show({text: t('l_c_update_succ'), ...AlertMesg[0]});
+              // onTabPress(0);
+            } else {
+              setIsLoading(false);
+              Toast.show({
+                text: updateLandCropdetails_res?.data?.error?.errorMessage,
+                ...AlertMesg[0],
+              });
+            }
           } else {
-            setIsLoading(false);
-            Toast.show({
-              text: updateLandCropdetails_res?.data?.error?.errorMessage,
-              ...AlertMesg[0],
-            });
+            if (cropInputRes?.status === 200) {
+              removesetLocation();
+              Toast.show({text: t('l_c_update_succ'), ...AlertMesg[0]});
+              onTabPress(0);
+            } else {
+              setIsLoading(false);
+              Toast.show({
+                text: cropInputRes?.data?.error?.errorMessage,
+                ...AlertMesg[0],
+              });
+            }
           }
           setIsLoading(false);
         }
@@ -2653,7 +2701,9 @@ const LiveHood = ({
     setFarmerData(prev => ({...prev, ['water_source']: text}));
   }, []);
   const handleAddUserDataGapSeedingFirrig = useCallback(text => {
+     if (text === '' || numericRegex.test(text)) {
     setFarmerData(prev => ({...prev, ['gap_seeding_firrig']: text}));
+     }
   }, []);
   const handleAddUserDataIrriPractice = useCallback(text => {
     setFarmerData(prev => ({...prev, ['irri_practice']: text}));
@@ -2663,7 +2713,9 @@ const LiveHood = ({
     setFarmerData(prev => ({...prev, ['drying_period_prac']: text}));
   }, []);
   const handleAddUserDataGapDrainingHarvest = useCallback(text => {
+     if (text === '' || numericRegex.test(text)) {
     setFarmerData(prev => ({...prev, ['gap_draining_harvest']: text}));
+     }
   }, []);
   const handleAddUserDataAfterHarvestRiceStubble = useCallback(text => {
     setFarmerData(prev => ({...prev, ['after_harvest_rice_stubble']: text}));
@@ -2673,20 +2725,34 @@ const LiveHood = ({
   }, []);
 
   const handleAddUserDataStrawRemoved = useCallback(text => {
+     if (text === '' || numericRegex.test(text)) {
     setFarmerData(prev => ({...prev, ['straw_removed']: text}));
+     }
   }, []);
   const handleAddUserDataStrawIncorporate = useCallback(text => {
+     if (text === '' || numericRegex.test(text)) {
     setFarmerData(prev => ({...prev, ['straw_incorporate']: text}));
+     }
   }, []);
   const handleAddUserDataEndUsgRmStraw = useCallback(text => {
     setFarmerData(prev => ({...prev, ['end_usg_rm_straw']: text}));
   }, []);
 
   const handleAddDataYieldUnitProduct = useCallback(text => {
+     if (text === '' || numericRegex.test(text)) {
     setFarmerData(prev => ({...prev, ['expectedProduction']: text}));
+     }
   }, []);
   const handleAddUserDataFinalYield = useCallback(text => {
-    setFarmerData(prev => ({...prev, ['final_yield_qty']: text}));
+   
+
+  // Allow empty string (for backspace)
+  if (text === '' || numericRegex.test(text)) {
+    setFarmerData(prev => ({
+      ...prev,
+      final_yield_qty: text,
+    }));
+  }
   }, []);
   const handleAddUserDataFinalYieldUnit = useCallback(text => {
     setFarmerData(prev => ({...prev, ['final_yield_unit']: text}));
@@ -3608,7 +3674,8 @@ const LiveHood = ({
                   handleAddUserDataFinalYieldUnit
                 }
                 handleAddUserDataFinalYield={handleAddUserDataFinalYield}
-                 handleAddDataYieldUnitProduct={handleAddDataYieldUnitProduct}
+                handleAddDataYieldUnitProduct={handleAddDataYieldUnitProduct}
+                historyData={historyData}
               />
             )}
           </View>

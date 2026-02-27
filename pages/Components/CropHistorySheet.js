@@ -32,11 +32,12 @@ const CropHistorySheet = memo(({plotId, onSelectHistory}) => {
         const res = await axiosGet(
           ROUTES.GET.GET_CROP_HISTORY({
             plot_id: plotId,
-            page: pageNumber,
           }),
           token,
           {information: `${dbname},${lan_id}`},
         );
+
+        console.log('historycount==', JSON.stringify(res?.data?.data));
 
         const newData = res?.data?.data?.rows || [];
         const totalCount = res?.data?.data?.count || 0;

@@ -64,9 +64,12 @@ const CropData = ({
   setseddingData,
   handleAddUserDataFinalYieldUnit,
   handleAddDataYieldUnitProduct,
+  historyData,
 }) => {
-
-  console.log('hisdata133331--', JSON.stringify(farmerData));
+  // console.log('hisdata133331--', JSON.stringify(farmerData));
+   console.log('hisdata133331--', historyData);
+   console.log('hisdata133332--', harvested);
+   console.log('hisdata13333--', edit);
   // const [selectedType, setSelectedType] = useState('organic_amendment_type');
   return (
     <View style={styles.container}>
@@ -78,7 +81,9 @@ const CropData = ({
         onChange={handleAddDatalivelihoodType}
         val={farmerData.livelihoodType}
         disable={
-          edit === '' ? (harvested === 'same produce' ? true : false) : edit
+          addPlot
+            ? false
+            : historyData || (edit === '' ? harvested === 'same produce' : edit)
         }
       />
       {/* 2. Produce Name */}
@@ -89,7 +94,9 @@ const CropData = ({
         onChange={handleAddDataproduceName}
         val={farmerData.produceName}
         disable={
-          edit === '' ? (harvested === 'same produce' ? true : false) : edit
+          addPlot
+            ? false
+            : historyData || (edit === '' ? harvested === 'same produce' : edit)
         }
       />
       {/* 3. Produce Variety */}
@@ -100,7 +107,9 @@ const CropData = ({
         onChange={handleAddDataproduceVariety}
         val={farmerData.produceVariety}
         disable={
-          edit === '' ? (harvested === 'same produce' ? true : false) : edit
+          addPlot
+            ? false
+            : historyData || (edit === '' ? harvested === 'same produce' : edit)
         }
       />
       {/* 4. Production Process */}
@@ -111,7 +120,9 @@ const CropData = ({
         onChange={handleAddDataProductionProcess}
         val={farmerData.productionProcess}
         disable={
-          edit === '' ? (harvested === 'same produce' ? true : false) : edit
+          addPlot
+            ? false
+            : historyData || (edit === '' ? harvested === 'same produce' : edit)
         }
       />
       {/* 5. Expected Production & 6. Unit */}
@@ -122,6 +133,7 @@ const CropData = ({
             keyboardType="number-pad"
             required={true}
             value={farmerData.expectedProduction}
+            editable={historyData ? false : true}
             onChangeText={handleAddDataYieldUnitProduct} //{text => (farmerData.expectedProduction = text)} // Standardized with parent state
           />
         </View>
@@ -132,6 +144,12 @@ const CropData = ({
             data={productionUnit}
             onChange={handleAddDataUnitProduct}
             val={farmerData.unitProduct}
+            disable={
+              addPlot
+                ? false
+                : historyData ||
+                  (edit === '' ? harvested === 'same produce' : edit)
+            }
           />
         </View>
       </View>
@@ -246,13 +264,13 @@ const CropData = ({
           )}
           <InputTextForm
             label={t('Yield')}
-            value={farmerData.finalyield}
+            value={farmerData.final_yield_qty}
             onChangeText={handleAddUserDataFinalYield}
           />
 
           <InputTextForm
             label={t('Yield Unit')}
-            value={farmerData.finalyieldunit}
+            value={farmerData.final_yield_unit}
             onChangeText={handleAddUserDataFinalYieldUnit}
           />
           <InputTextForm
@@ -339,13 +357,23 @@ const CropData = ({
         onChange={handleAddDataproductionSeason}
         val={farmerData.productionSeason}
         disable={
-          edit === '' ? (harvested === 'same produce' ? true : false) : edit
+          // historyData || (edit === '' ? harvested === 'same produce' : edit)
+          historyData
+            ? true
+            : edit == ''
+            ? harvested == 'same produce' || harvested == 'add new Produce'
+              ? false
+              : harvested == ''
+              ? false
+              : true
+            : edit
         }
       />
       {/* 8. Cycle Start */}
       <TouchableOpacity
         onPress={() =>
-          harvested !== '' || userData === 'addUserData' || addPlot
+          !historyData &&
+          (harvested !== '' || userData === 'addUserData' || addPlot)
             ? setopenCycleStart(true)
             : null
         }
@@ -364,7 +392,8 @@ const CropData = ({
       {/* 9. Cycle End */}
       <TouchableOpacity
         onPress={() =>
-          harvested !== '' || userData === 'addUserData' || addPlot
+          !historyData &&
+          (harvested !== '' || userData === 'addUserData' || addPlot)
             ? setopenCycleEnd(true)
             : null
         }
