@@ -156,7 +156,7 @@ const CropData = ({
       {/* {amendmentList.map((data, index) => {
         return ( */}
 
-      {userData !== 'addUserData' && addPlot !== true && (
+      {harvested == '' && userData !== 'addUserData' && addPlot !== true && (
         <>
           <View style={styles.AddExpenseContainer}>
             <View style={styles.inputContainer}>
@@ -206,7 +206,7 @@ const CropData = ({
               onPress={addMoreAmendments}
               style={styles.addMore}>
               <MaterialIcons name={'add-circle'} color="white" size={25} />
-              <Text style={styles.addMoreText}>{t('add_more')}</Text>
+              <Text style={styles.addMoreText}>{t('save')}</Text>
             </TouchableOpacity>
           </View>
 

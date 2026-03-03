@@ -11,7 +11,7 @@ const PlotCard = memo(
     const {showBottomSheet} = useBottomSheet();
 
     const handleOpenHistory = useCallback(() => {
-      console.log('item--', item);
+      // console.log('item--', item);
       showBottomSheet(
         <CropHistorySheet
           plotId={item?.rel_id}
@@ -120,11 +120,22 @@ const PlotCard = memo(
                 <Text style={styles.historyText}>Crop History</Text>
               </TouchableOpacity>
 
-              <View style={{flexDirection: 'row'}}>
-              <StatusBadge type="Plot" status={item?.plot_status} />
-              <StatusBadge type="Carbon" status={item?.status_level} />
+              <View>
+                <StatusBadge type="Plot" status={item?.plot_status} />
+                <StatusBadge
+                  type="Carbon"
+                  status={
+                    [
+                      'CARBON_DOCUMENTS_SUBMITTED',
+                      'CARBON_DOCUMENTS_APPROVED',
+                      'CARBON_DOCUMENTS_REJECTED',
+                    ].includes(item?.status_level)
+                      ? item?.status_level
+                      : 'PENDING'
+                  }
+                />
               </View>
-          </View>
+            </View>
           }
         />
       </TouchableOpacity>

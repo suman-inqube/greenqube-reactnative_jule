@@ -34,7 +34,7 @@ import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
 import {getDashboardItems} from '../utils/dashboardItems';
 import {useRoute} from '@react-navigation/native';
-// import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
+import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
 // const HEADER_HEIGHT = 60;
 const Dashboard = ({navigation}) => {
   useDoubleBackToExit();
@@ -337,7 +337,7 @@ const Dashboard = ({navigation}) => {
   const headerContent = useMemo(
     () => (
       <>
-        {/* <ForegroundLocationService /> */}
+        <ForegroundLocationService />
         <UpcomingActivities
           t={t}
           isLoading={isLoading.slowData}

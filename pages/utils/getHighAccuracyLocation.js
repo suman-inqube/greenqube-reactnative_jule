@@ -10,7 +10,7 @@ export const getHighAccuracyLocation = async () => {
     // 1. Request permission
     if (Platform.OS === 'android') {
       const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       );
       if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
         console.error('Location permission denied');
@@ -20,12 +20,12 @@ export const getHighAccuracyLocation = async () => {
 
     // 2. Set high accuracy
     await FusedLocation.setLocationPriority(
-      FusedLocation.Constants.HIGH_ACCURACY
+      FusedLocation.Constants.HIGH_ACCURACY,
     );
 
     // 3. Get location
     const location = await FusedLocation.getFusedLocation();
-    
+
     return {
       latitude: location.latitude,
       longitude: location.longitude,

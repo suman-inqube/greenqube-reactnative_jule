@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     minWidth: 80,
     alignItems: "center",
+    margin:2
   },
   badgeText: {
     fontSize: 12,

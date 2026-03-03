@@ -37,7 +37,7 @@ const CropHistorySheet = memo(({plotId, onSelectHistory}) => {
           {information: `${dbname},${lan_id}`},
         );
 
-        console.log('historycount==', JSON.stringify(res?.data?.data));
+        // console.log('historycount==', JSON.stringify(res?.data?.data));
 
         const newData = res?.data?.data?.rows || [];
         const totalCount = res?.data?.data?.count || 0;

@@ -115,7 +115,7 @@ const Market = () => {
   );
 
   const detailItem = item => {
-    // console.log('item==', item);
+    console.log('item==', item);
     navigation.navigate('PlotStatusUpdate', item);
   };
 
@@ -214,6 +214,7 @@ const Market = () => {
           height={45}
           backgroundColor={Colors.background}
           colors={Colors.primary}
+          divideBy={2}
         />
         {/* <View style={styles.tabBar}>
           <TouchableOpacity style={styles.tab} onPress={() => onTabPress(0)}>

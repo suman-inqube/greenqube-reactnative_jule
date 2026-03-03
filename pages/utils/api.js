@@ -26,9 +26,9 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const SLOW_THRESHOLD = 30000;
 
 const instance = axios.create({
-  baseURL: 'http://134.209.155.11:4003/',
+  // baseURL: 'http://134.209.155.11:4003/',
   // baseURL: 'http://134.209.155.11:6006/',
-  // baseURL: 'https://mygreenqube.com:4003/',
+  baseURL: 'https://mygreenqube.com:4003/',
   timeout: 50000,
 });
 

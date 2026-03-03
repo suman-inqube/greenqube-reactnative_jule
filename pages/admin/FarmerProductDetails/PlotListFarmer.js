@@ -134,6 +134,7 @@ const PlotListFarmer = () => {
               height={65}
               backgroundColor={'#e2e2e2ff'}
               colors={Colors.primary}
+              divideBy={2}
             />
             {/* Swipeable Content */}
             <ScrollView

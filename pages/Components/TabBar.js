@@ -17,22 +17,24 @@ const TabBar = ({
   indicatorColor = '#28a745',
   height = 50,
   backgroundColor = '#f9f9f9',
+  divideBy= 1,
 }) => {
+  const calculatedTabWidth = width / divideBy;
   const indicatorPosition = useRef(
-    new Animated.Value(activeTab * tabWidth),
+    new Animated.Value(activeTab * calculatedTabWidth),
   ).current;
   useEffect(() => {
     Animated.spring(indicatorPosition, {
-      toValue: activeTab * tabWidth,
+      toValue: activeTab * calculatedTabWidth,
       useNativeDriver: true,
     }).start();
-  }, [activeTab, tabWidth]);
+  }, [activeTab, calculatedTabWidth]);
   return (
     <View style={[styles.tabBar, {height, backgroundColor}]}>
       {tabs.map((label, idx) => (
         <TouchableOpacity
           key={idx}
-          style={[styles.tab, {width: tabWidth}]}
+          style={[styles.tab, {width: calculatedTabWidth}]}
           onPress={() => onTabPress(idx)}>
           <Text
             style={[styles.tabText, activeTab === idx && styles.activeTabText]}>
@@ -45,7 +47,7 @@ const TabBar = ({
         style={[
           styles.indicator,
           {
-            width: tabWidth,
+            width: calculatedTabWidth,
             backgroundColor: indicatorColor,
             transform: [{translateX: indicatorPosition}],
           },

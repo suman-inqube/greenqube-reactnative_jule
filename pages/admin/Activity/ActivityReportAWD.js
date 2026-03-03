@@ -1889,15 +1889,15 @@ const ActivityReportAWD = ({navigation}) => {
   );
 
   const handleActivityPipe = async scannedValue => {
-    // if (!scannedValue) return;
+    if (!scannedValue) return;
      setPipeNumber('');
 
     if (saveData.field_type == 'add') {
-      // if (isScanningRef.current) return;
-      // if (lastScannedRef.current === scannedValue) return;
+      if (isScanningRef.current) return;
+      if (lastScannedRef.current === scannedValue) return;
 
-      // isScanningRef.current = true;
-      // lastScannedRef.current = scannedValue;
+      isScanningRef.current = true;
+      lastScannedRef.current = scannedValue;
 
       try {
 
@@ -3192,7 +3192,7 @@ const styles = StyleSheet.create({
   },
   watermarkText: {
     color: '#df2020',
-    fontSize: 7,
+    fontSize: 12,
     fontWeight: 'bold',
     fontFamily: 'Arial',
   },

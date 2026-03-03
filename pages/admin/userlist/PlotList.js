@@ -74,15 +74,15 @@ const PlotList = () => {
     payload => {
       if (payload?.source === 'HISTORY') {
         setHistoryData(true);
-        console.log('History item selected');
-        console.log(JSON.stringify(payload.data));
+        // console.log('History item selected');
+        // console.log(JSON.stringify(payload.data));
          onTabPress(1, payload.data);
       }
 
       if (payload?.source === 'CURRENT') {
         setHistoryData(false);
-        console.log('Current plot selected');
-        console.log(JSON.stringify(payload.data));
+        // console.log('Current plot selected');
+        // console.log(JSON.stringify(payload.data));
          onTabPress(1, payload.data);
       }
     },
@@ -110,7 +110,10 @@ const PlotList = () => {
         // AllFarmerList(),
       ]);
 
-      if (plotsRes?.status === 200) setPlotList(plotsRes?.data || []);
+      if (plotsRes?.status === 200) {
+        // console.log('sta==', JSON.stringify(plotsRes?.data));
+        setPlotList(plotsRes?.data || []);
+    }
       if (unitAreaRes?.status === 200)
         setLandAreaUnit(unitAreaRes?.data?.data?.rows || []);
       if (unitSqRes?.status === 200)
@@ -211,6 +214,7 @@ const PlotList = () => {
                 height={65}
                 backgroundColor={Colors.background}
                 colors={Colors.primary}
+                divideBy={1}
               />
               {isLoadinglandActiveCrop ? (
                 <View style={styles.LoadingScreen}>

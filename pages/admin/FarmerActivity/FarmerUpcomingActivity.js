@@ -187,6 +187,7 @@ const FarmerUpcomingActivity = () => {
             height={60}
             backgroundColor={Colors.background}
             colors={Colors.primary}
+            divideBy={2}
           />
           {loading ? (
             <View style={styles.loadingContainer}>
