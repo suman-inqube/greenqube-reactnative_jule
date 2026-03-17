@@ -5,7 +5,14 @@ import React, {
   useContext,
   useRef,
 } from 'react';
-import {View, Text,TextInput, TouchableOpacity, Image, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+} from 'react-native';
 import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
@@ -67,9 +74,7 @@ const CropData = ({
   historyData,
 }) => {
   // console.log('hisdata133331--', JSON.stringify(farmerData));
-   console.log('hisdata133331--', historyData);
-   console.log('hisdata133332--', harvested);
-   console.log('hisdata13333--', edit);
+
   // const [selectedType, setSelectedType] = useState('organic_amendment_type');
   return (
     <View style={styles.container}>

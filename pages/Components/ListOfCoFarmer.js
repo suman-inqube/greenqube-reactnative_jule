@@ -140,7 +140,6 @@ const ListOfCoFarmer = ({
           token,
           {information: `${dbname},${lan_id},${user_id}`},
         );
-        console.log('age', response);
         if (response?.status === 200) {
           setTotalPages(Math.ceil(response?.data?.data.count / 10));
           const resArr = response?.data?.data?.rows?.map(item => ({
@@ -413,7 +412,6 @@ const ListOfCoFarmer = ({
 
   const onSave = useCallback(async () => {
     try {
-      console.log('');
       setIsSubmit(true);
       const formdata = new FormData();
       formdata.append('rel_id', plotId);
@@ -463,10 +461,6 @@ const ListOfCoFarmer = ({
       }
     } catch (error) {
       setIsSubmit(false);
-      console.log(
-        'errorMessage==',
-        JSON.stringify(error),
-      );
       Alert.alert(`${error?.data?.error?.errorMessage}`);
     }
   }, [

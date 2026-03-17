@@ -69,17 +69,15 @@ const Market = () => {
           geo_type: nonGeofenced,
           page: page,
           searchBy: searchBy,
-          supervisor_id:user_id
+          supervisor_id: user_id,
         }),
         token,
         {
           information: `${dbname},${lan_id},${user_id}`,
         },
       );
-      console.log("response",response)
       if (response?.status === 200) {
         setTotalPages(Math.ceil(response?.data?.data.count / 20));
-        // console.log(JSON.stringify(response?.data?.data));
         setPlotList(response?.data?.data?.rows);
       }
       setLoading(false);
@@ -115,15 +113,17 @@ const Market = () => {
   );
 
   const detailItem = item => {
-    console.log('item==', item);
     navigation.navigate('PlotStatusUpdate', item);
   };
 
   const HandlerGoBack = () => navigation.navigate('Dashboard');
   const renderCustomHeader = useMemo(
-    () => <CustomHeader t={t} 
-    // HandlerGoBack={HandlerGoBack}
-     />,
+    () => (
+      <CustomHeader
+        t={t}
+        // HandlerGoBack={HandlerGoBack}
+      />
+    ),
     [],
   );
 

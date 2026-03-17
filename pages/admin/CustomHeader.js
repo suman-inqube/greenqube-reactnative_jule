@@ -181,6 +181,8 @@ const CustomHeader = memo(
         PendingActivity: t('Pending Activity'),
         FarmerUpcomingActivity: t('upcomming_act'),
         FarmerPendingActivity: t('Pending Activity'),
+        ActivityPlotWise: t(' Plot & Season wise Activity'),
+        FarmerActivityPlotWise: t(' Plot & Season wise Activity'),
       }),
 
       [t],

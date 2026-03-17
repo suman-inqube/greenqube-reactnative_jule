@@ -682,7 +682,6 @@ const PlotSiteProduceInformation = () => {
         storeProduceInfo.livelihoodType,
         produceName.value,
       );
-      console.log('fdjfdj');
       const seasonData = await axiosGet(
         ROUTES.GET.PRODUCE_SEASON({
           crop_name_fid: produceName.value,
@@ -714,7 +713,6 @@ const PlotSiteProduceInformation = () => {
 
       // }
       if (seasonData?.status === 200) {
-        console.log(JSON.stringify(seasonData?.data?.data));
         prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
           value: data.season_info.fid,
           label: `${data.season_info.name} (${data.year})`,
@@ -1525,7 +1523,6 @@ const PlotSiteProduceInformation = () => {
         // produceVariety: '',
         // produceVarietyValue: '',
       }));
-      console.log('fate==');
       const seasonData = await axiosGet(
         ROUTES.GET.PRODUCE_SEASON({
           // crop_name_fid: item.value,
@@ -1538,7 +1535,6 @@ const PlotSiteProduceInformation = () => {
           Authorization: `${token}`,
         },
       );
-      console.log('frdate==', JSON.stringify(seasonData?.data?.data?.rows));
       if (seasonData?.data?.data?.rows?.length > 0) {
         const row = seasonData?.data?.data?.rows[0];
 

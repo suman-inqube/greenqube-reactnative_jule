@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useRef, memo, useCallback } from 'react';
-import { View, Text, TouchableOpacity, Animated, StyleSheet } from 'react-native';
+import React, {useState, useEffect, useRef, memo, useCallback} from 'react';
+import {View, Text, TouchableOpacity, Animated, StyleSheet} from 'react-native';
 import {
   getStatusColor,
   getProduceEmoji,
   formatDate,
   effective_dates,
 } from '../utils/helpers';
-import { Colors, Fonts } from '../utils/Constants';
+import {Colors, Fonts} from '../utils/Constants';
+import {formatDateToDateName} from '../Common/DateChanger';
 
 const ActivityCard = ({
   activity,
@@ -85,7 +86,7 @@ const ActivityCard = ({
             <View
               style={[
                 styles.produceIcon,
-                { backgroundColor: statusColor + '15' },
+                {backgroundColor: statusColor + '15'},
               ]}>
               <Text style={styles.emoji}>
                 {getProduceEmoji(activity?.cropName?.name)}
@@ -120,13 +121,11 @@ const ActivityCard = ({
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={() => navigation.navigate(path, activity)}
-            style={{ paddingVertical: 10 }}>
+            style={{paddingVertical: 10}}>
             <View style={styles.farmerSection}>
               <View style={styles.infoRow}>
                 <Text style={styles.label}>{t('select_pond')}:</Text>
-                <Text style={styles.value}>
-                  {activity?.land_info?.plot_no}
-                </Text>
+                <Text style={styles.value}>{activity?.land_info?.plot_no}</Text>
               </View>
               <View style={styles.infoRow}>
                 <Text style={styles.label}>{t('farmer_number')}:</Text>
@@ -141,17 +140,16 @@ const ActivityCard = ({
                 <View style={styles.dateItem}>
                   <Text style={styles.dateLabel}>{t('Sowing')}</Text>
                   <Text style={styles.dateValue}>
-                    {formatDate(activity?.actCurel?.sowing_date)}
+                    {formatDateToDateName(activity?.actCurel?.sowing_date)}
                   </Text>
                 </View>
                 <View style={styles.dateItem}>
                   <Text style={styles.dateLabel}>{t('Harvesting')}</Text>
                   <Text style={styles.dateValue}>
-                    {effective_dates(activity?.actCurel?.harvesting_date)}
+                    {formatDateToDateName(activity?.actCurel?.harvesting_date)}
                   </Text>
                 </View>
               </View>
-
 
               <View style={styles.harvestSection}>
                 <View style={styles.dateItem}>
@@ -163,7 +161,7 @@ const ActivityCard = ({
                 <View style={styles.dateItem}>
                   <Text style={styles.dateLabel}>{t('perf_date')}</Text>
                   <Text style={styles.dateValue}>
-                    {effective_dates(activity?.act_perform_date)}
+                    {formatDateToDateName(activity?.act_perform_date)}
                   </Text>
                 </View>
               </View>
@@ -177,19 +175,27 @@ const ActivityCard = ({
           </TouchableOpacity>
         </Animated.View>
       )}
-      <View style={[styles.deviationRow, { paddingHorizontal: 16, paddingBottom: 12 }]}>
+      <View
+        style={[
+          styles.deviationRow,
+          {paddingHorizontal: 16, paddingBottom: 12},
+        ]}>
         <Text style={styles.label}>{t('deviation')}:</Text>
         <Text
           style={[
             styles.deviationValue,
-            { color: activity?.deviation > 0 ? '#EF4444' : '#10B981' },
+            {color: activity?.deviation > 0 ? '#EF4444' : '#10B981'},
           ]}>
           {activity?.deviation}
           {t('days')}
         </Text>
       </View>
 
-      <View style={[styles.activityTypeRow, { paddingHorizontal: 16, paddingBottom: 16 }]}>
+      <View
+        style={[
+          styles.activityTypeRow,
+          {paddingHorizontal: 16, paddingBottom: 16},
+        ]}>
         <Text style={styles.label}>{t('activity_type')}:</Text>
         <Text style={styles.value}>
           {activity?.typeActivity?.categoryName || 'Not specified'}
@@ -210,7 +216,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
@@ -382,7 +388,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,

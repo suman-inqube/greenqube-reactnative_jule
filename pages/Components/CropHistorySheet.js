@@ -37,11 +37,10 @@ const CropHistorySheet = memo(({plotId, onSelectHistory}) => {
           {information: `${dbname},${lan_id}`},
         );
 
-        // console.log('historycount==', JSON.stringify(res?.data?.data));
-
         const newData = res?.data?.data?.rows || [];
         const totalCount = res?.data?.data?.count || 0;
 
+        newData.forEach((history, index) => {});
         if (pageNumber === 1) {
           setData(newData);
         } else {
@@ -143,12 +142,12 @@ const CropHistorySheet = memo(({plotId, onSelectHistory}) => {
       </View>
     );
   });
-const renderItem = useCallback(
-  ({item}) => {
-    return <CropHistoryCard item={item} onSelectHistory={onSelectHistory} />;
-  },
-  [onSelectHistory],
-);
+  const renderItem = useCallback(
+    ({item}) => {
+      return <CropHistoryCard item={item} onSelectHistory={onSelectHistory} />;
+    },
+    [onSelectHistory],
+  );
 
   /* ---------------- RETURN ---------------- */
 
@@ -158,9 +157,13 @@ const renderItem = useCallback(
 
       <FlatList
         data={data}
-        keyExtractor={item => item?.cu_rel_id}
+        keyExtractor={(item, index) => `${item?.cu_rel_id}_${index}`}
         renderItem={renderItem}
-        onEndReached={() => hasMore && fetchHistory(page + 1)}
+        onEndReached={() => {
+          if (!loading && hasMore) {
+            fetchHistory(page + 1);
+          }
+        }}
         onEndReachedThreshold={0.5}
         ListFooterComponent={
           loading ? <ActivityIndicator size="small" /> : null

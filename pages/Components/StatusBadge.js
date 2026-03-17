@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React from 'react';
+import {View, Text, StyleSheet} from 'react-native';
 
 const StatusBadge = ({type, status}) => {
   const badgeStyles = {
@@ -45,13 +45,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start',
     minWidth: 80,
-    alignItems: "center",
-    margin:2
+    alignItems: 'center',
+    margin: 2,
   },
   badgeText: {
-    fontSize: 12,
-    fontWeight: "600",
+    fontSize: 11,
+    fontWeight: '600',
   },
 });

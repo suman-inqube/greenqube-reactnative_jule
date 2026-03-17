@@ -5,18 +5,27 @@ import CollapsibleCard from '../Common/CollapsibleCard';
 import StatusBadge from './StatusBadge';
 import CropHistorySheet from './CropHistorySheet';
 import {useBottomSheet} from '../Common/BottomSheetProvider';
+import {useNavigation} from '@react-navigation/native';
 
 const PlotCard = memo(
-  ({item, onPress, landUnitsquareMetre, landAreaUnit, apiCall, index}) => {
+  ({
+    item,
+    onPress,
+    landUnitsquareMetre,
+    landAreaUnit,
+    apiCall,
+    index,
+    role = 'farmer',
+    activityApi,
+  }) => {
     const {showBottomSheet} = useBottomSheet();
+    const navigation = useNavigation();
 
     const handleOpenHistory = useCallback(() => {
-      // console.log('item--', item);
       showBottomSheet(
         <CropHistorySheet
           plotId={item?.rel_id}
           onSelectHistory={historyItem => {
-
             const updatedItem = {
               ...item,
               plot_crops: [historyItem], // push history as plot_crops
@@ -49,9 +58,31 @@ const PlotCard = memo(
           apiCall={() => apiCall(item, index)}
           header={
             <View style={styles.headerContainer}>
-              <Text style={[styles.text, {fontSize: 18, color: Colors.text}]}>
-                {item?.plot_no}
-              </Text>
+              {/* Top Row: Plot Name + Status */}
+              <View style={styles.topRow}>
+                <Text style={styles.plotName} numberOfLines={1}>
+                  {item?.plot_no}
+                </Text>
+
+                <View style={styles.statusRow}>
+                  <StatusBadge type="Plot" status={item?.plot_status} />
+                  <StatusBadge
+                    type="Carbon"
+                    status={
+                      [
+                        'CARBON_DOCUMENTS_SUBMITTED',
+                        'CARBON_DOCUMENTS_APPROVED',
+                        'CARBON_DOCUMENTS_REJECTED',
+                      ].includes(item?.status_level)
+                        ? item?.status_level
+                        : 'PENDING'
+                    }
+                  />
+                  {/* <StatusBadge type="Carbon" status={item?.status_level} /> */}
+                </View>
+              </View>
+
+              {/* Area Row */}
               <View style={styles.areaRow}>
                 <Image
                   source={require('../Common/images/area-with-pins.png')}
@@ -115,26 +146,16 @@ const PlotCard = memo(
           footer={
             <View style={styles.footerRow}>
               <TouchableOpacity
-                style={styles.historyButton}
+                style={styles.actionButton}
                 onPress={handleOpenHistory}>
-                <Text style={styles.historyText}>Crop History</Text>
+                <Text style={styles.actionText}>Crop History</Text>
               </TouchableOpacity>
 
-              <View>
-                <StatusBadge type="Plot" status={item?.plot_status} />
-                <StatusBadge
-                  type="Carbon"
-                  status={
-                    [
-                      'CARBON_DOCUMENTS_SUBMITTED',
-                      'CARBON_DOCUMENTS_APPROVED',
-                      'CARBON_DOCUMENTS_REJECTED',
-                    ].includes(item?.status_level)
-                      ? item?.status_level
-                      : 'PENDING'
-                  }
-                />
-              </View>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => activityApi(item?.rel_id)}>
+                <Text style={styles.actionText}>Activity</Text>
+              </TouchableOpacity>
             </View>
           }
         />
@@ -172,7 +193,7 @@ const styles = StyleSheet.create({
   },
   footerRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between', // 🔥 Important
     alignItems: 'center',
     marginTop: 8,
   },
@@ -203,6 +224,46 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   historyText: {
+    color: '#fff',
+    fontSize: 13,
+    fontFamily: Fonts.Medium,
+  },
+  headerContainer: {
+    flex: 1, // important for arrow spacing
+  },
+
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  plotName: {
+    fontSize: 16,
+    fontFamily: Fonts.SemiBold,
+    color: Colors.text,
+    flex: 1,
+  },
+
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10, // if gap not supported, use marginRight
+  },
+  actionButton: {
+    backgroundColor: '#15af50',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+    minWidth: 120, // keeps symmetry
+    alignItems: 'center',
+  },
+
+  actionText: {
     color: '#fff',
     fontSize: 13,
     fontFamily: Fonts.Medium,

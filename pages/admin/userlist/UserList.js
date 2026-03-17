@@ -23,15 +23,15 @@ import {
 import SkeletonUserCard from '../../Components/Skeleton/SkeletonUserCard';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import PaginationNav from '../../Components/PaginationNav';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
-import { Colors, Fonts } from '../../utils/Constants';
-import { axiosGet } from '../../utils/api';
-import { ROUTES } from '../../utils/Routes';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
+import {Colors, Fonts} from '../../utils/Constants';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import ModernUserCard from '../../Components/ModernUserCard';
 
-const UserList = ({ navigation }) => {
+const UserList = ({navigation}) => {
   const {
     loginUser_data,
     CustomHeader,
@@ -66,24 +66,19 @@ const UserList = ({ navigation }) => {
   const fetchUserList = useCallback(
     async (pageNo = 1, search_key_phone = '') => {
       try {
-        setState(prev => ({ ...prev, isLoading: pageNo === 1, isLoading: true }));
-        const { dbname, lan_id, token, user_id } = loginUser_data;
+        setState(prev => ({...prev, isLoading: pageNo === 1, isLoading: true}));
+        const {dbname, lan_id, token, user_id} = loginUser_data;
         const response = await axiosGet(
           ROUTES.GET.AGENT_ROUTE({
             page: pageNo,
             search_key: search_key_phone,
           }),
           token,
-          { information: `${dbname},${lan_id},${user_id}` },
+          {information: `${dbname},${lan_id},${user_id}`},
         );
-        console.log(  ROUTES.GET.AGENT_ROUTE({
-            page: pageNo,
-            search_key: search_key_phone,
-          }),
-          token,
-          { information: `${dbname},${lan_id},${user_id}` })
+
         if (response.status === 200) {
-          const { count, no_of_item_per_page, rows } = response.data || {};
+          const {count, no_of_item_per_page, rows} = response.data || {};
           const totalPages = Math.ceil(count / no_of_item_per_page);
           setTotalPages(totalPages);
           setCount(count);
@@ -95,15 +90,16 @@ const UserList = ({ navigation }) => {
             expandedItem: null,
           }));
           if (flatListRef.current) {
-            flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+            flatListRef.current.scrollToOffset({offset: 0, animated: true});
           }
           if (!initialLoadComplete) {
             setInitialLoadComplete(true);
           }
         }
       } catch (error) {
+        console.log('error', error);
         CrashlyticsRecordError(error, 'UserList', 'fetchUserList');
-        setState(prev => ({ ...prev, isLoading: false }));
+        setState(prev => ({...prev, isLoading: false}));
       }
     },
     [loginUser_data, setItem, initialLoadComplete],
@@ -124,9 +120,9 @@ const UserList = ({ navigation }) => {
   );
 
   const handleRefresh = useCallback(async () => {
-    setState(prev => ({ ...prev, refreshing: true, expandedItem: null }));
+    setState(prev => ({...prev, refreshing: true, expandedItem: null}));
     await fetchUserList(1, '');
-    setState(prev => ({ ...prev, refreshing: false }));
+    setState(prev => ({...prev, refreshing: false}));
     setPage(1);
   }, []);
 
@@ -135,7 +131,7 @@ const UserList = ({ navigation }) => {
   }, [page]);
 
   const UserItemCard = useCallback(
-    ({ item, index }) => (
+    ({item, index}) => (
       <ModernUserCard
         item={item}
         isExpanded={state.expandedItem === item.user_id}
@@ -164,7 +160,7 @@ const UserList = ({ navigation }) => {
   }, []);
 
   const filterOptionShow = useCallback(async () => {
-    const { openFilterSheet } = await import('../../Components/FilterSheet');
+    const {openFilterSheet} = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['', 'phone', '', ''],
       t: t,
@@ -177,12 +173,12 @@ const UserList = ({ navigation }) => {
       handleFilterResult: handleFilterResult,
       handleFilterRemove: handleFilterRemove,
       navigationBarHeight: 0,
-      height: 120
+      height: 120,
     });
   }, [filterItem, searchFarmerPhone]);
 
   const handleFilterResult = useCallback(
-    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
+    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
       setFilterItem(filter);
       setSearchFarmerPhone({
         label: farmerPhone?.label,
@@ -194,12 +190,15 @@ const UserList = ({ navigation }) => {
     [],
   );
   const handleFilterRemove = useCallback(() => {
-    setSearchFarmerPhone({ label: '', value: '' });
+    setSearchFarmerPhone({label: '', value: ''});
     setFilterItem('');
     fetchUserList(1, '', '', '', '', '');
     setPage(1);
   }, []);
-  const renderCustomHeader = useMemo(() => <CustomHeader t={t} filterOptionShow={filterOptionShow} />, [filterOptionShow]);
+  const renderCustomHeader = useMemo(
+    () => <CustomHeader t={t} filterOptionShow={filterOptionShow} />,
+    [filterOptionShow],
+  );
   return (
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
@@ -227,9 +226,9 @@ const UserList = ({ navigation }) => {
             <FlatList
               ref={flatListRef}
               data={
-                state?.isLoading ? Array.from({ length: 6 }) : state?.userList
+                state?.isLoading ? Array.from({length: 6}) : state?.userList
               }
-              renderItem={({ item, index }) =>
+              renderItem={({item, index}) =>
                 state?.isLoading ? (
                   <SkeletonUserCard />
                 ) : (
@@ -290,7 +289,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     // elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     borderWidth: 1,
@@ -544,7 +543,7 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     elevation: 4,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
+    shadowOffset: {width: 0, height: -2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
@@ -556,7 +555,7 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     elevation: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
+    shadowOffset: {width: 0, height: 6},
     shadowOpacity: 0.2,
     shadowRadius: 12,
   },

@@ -78,6 +78,17 @@ const ActivityDetail = () => {
       setIsLoading(true);
 
       let agriFiles = []; // Initialize agriFiles here
+      let activityDetails = {};
+
+      const activityDetailsRes = await axiosGet(
+        ROUTES.GET.USER_ACTIVITY_DETAILS_V3({
+          uact_id: farmerFound?.uact_id,
+        }),
+        token,
+        {information: `${dbname},${lan_id},${user_id}`},
+      );
+
+      activityDetails = activityDetailsRes?.data?.data;
 
       if (farmerFound?.type == 'user_activity') {
         const activity_files = await axiosGet(
@@ -127,20 +138,22 @@ const ActivityDetail = () => {
 
       setfarmerActivity(prev => ({
         ...prev,
-        userName: farmerFound?.agri_user?.userName ?? '',
-        contactNumber: farmerFound?.agri_user?.contactNumber ?? '',
-        activitycategoryName: farmerFound?.typeActivity ?? '',
-        cropActivitycategoryName: farmerFound?.cropActivity ?? '',
-        plot_no: farmerFound?.land_info?.plot_no ?? '',
-        cropName: farmerFound?.cropName?.name ?? '',
-        growthStage: farmerFound?.growthStage?.name ?? '',
-        act_perform_date: farmerFound?.updatedAt ?? '',
-        act_desc: farmerFound?.act_desc ?? '',
-        material_used: farmerFound?.material_used ?? '',
-        water_used: farmerFound?.water_used ?? '',
-        power_used: farmerFound?.power_used ?? '',
-        act_start_date: farmerFound?.act_start_date ?? '',
-        act_to_date: farmerFound?.act_to_date ?? '',
+        userName: activityDetails?.agri_user?.userName ?? '',
+        contactNumber: activityDetails?.agri_user?.contactNumber ?? '',
+        activitycategoryName: activityDetails?.typeActivity ?? '',
+        cropActivitycategoryName: activityDetails?.cropActivity ?? '',
+        plot_no: activityDetails?.land_info?.plot_no ?? '',
+        cropName: activityDetails?.cropName?.name ?? '',
+        growthStage: activityDetails?.growthStage?.name ?? '',
+        // act_perform_date: activityDetails?.updatedAt ?? '',
+        act_perform_date: activityDetails?.act_perform_date ?? '',
+
+        act_desc: activityDetails?.act_desc ?? '',
+        material_used: activityDetails?.material_used ?? '',
+        water_used: activityDetails?.water_used ?? '',
+        power_used: activityDetails?.power_used ?? '',
+        act_start_date: activityDetails?.act_start_date ?? '',
+        act_to_date: activityDetails?.act_to_date ?? '',
       }));
     } catch (err) {
       console.error('onPageLoad error:', err);
@@ -206,23 +219,18 @@ const ActivityDetail = () => {
                         }
                         editable={false}
                       />
-                      <Text>
-                        {
-                          farmerActivity?.cropActivitycategoryName?.activity
-                            ?.categoryName
-                        }
-                      </Text>
+
                       {farmerActivity?.cropActivitycategoryName != null ? (
                         <InputTextForm
                           label={t('activity_name')}
                           value={`${
                             farmerActivity?.cropActivitycategoryName?.activity
                               ?.categoryName
-                          } ${formatDateToDateName(
+                          } (${formatDateToDateName(
                             farmerActivity?.act_start_date,
                           )} - ${formatDateToDateName(
                             farmerActivity?.act_to_date,
-                          )}`}
+                          )})`}
                           editable={false}
                         />
                       ) : null}
@@ -318,6 +326,7 @@ const ActivityDetail = () => {
                     value={farmerActivity?.growthStage}
                     editable={false}
                   />
+
                   <InputTextForm
                     label={t('act_per_date')}
                     value={formatDateToDateName(

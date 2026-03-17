@@ -181,7 +181,7 @@ function ActivityList({navigation}) {
                   ? carbonType.value
                   : carbonTypeParams,
               userID: '',
-              supervisorId:user_id,
+              supervisorId: user_id,
               search_key:
                 search_key_type && search_key_type !== 'carbon'
                   ? search_key_val
@@ -283,7 +283,6 @@ function ActivityList({navigation}) {
         <Root>
           <View style={styles.container}>
             {renderCustomHeader}
-
             <FlatList
               ref={flatListRef}
               data={isLoading ? Array.from({length: 5}) : activityAll}

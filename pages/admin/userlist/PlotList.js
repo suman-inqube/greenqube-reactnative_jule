@@ -49,7 +49,7 @@ const CropDataPlaceholder = () => (
 );
 
 const PlotList = () => {
-   const navigation = useNavigation();
+  const navigation = useNavigation();
   const route = useRoute();
   const {farmeruserID} = route.params;
   const [activeTab, setActiveTab] = useState(0);
@@ -68,33 +68,29 @@ const PlotList = () => {
     useContext(userCreateContext);
   const {dbname, lan_id, token} = loginUser_data;
 
- 
-
   const handlePlotPress = useCallback(
     payload => {
       if (payload?.source === 'HISTORY') {
         setHistoryData(true);
         // console.log('History item selected');
         // console.log(JSON.stringify(payload.data));
-         onTabPress(1, payload.data);
+        onTabPress(1, payload.data);
       }
 
       if (payload?.source === 'CURRENT') {
         setHistoryData(false);
         // console.log('Current plot selected');
         // console.log(JSON.stringify(payload.data));
-         onTabPress(1, payload.data);
+        onTabPress(1, payload.data);
       }
     },
     [onTabPress, farmeruserID, navigation],
   );
 
   const onTabPress = useCallback((index, data = {}) => {
-
     setActiveTab(index);
     setDataProps(data);
 
-    
     scrollRef.current?.scrollTo({x: index * width, animated: true});
   }, []);
 
@@ -109,11 +105,13 @@ const PlotList = () => {
         LandUnitsquare_metre(dbname, lan_id, token),
         // AllFarmerList(),
       ]);
+      console.log('plotsResJSON', JSON.stringify(plotsRes));
+      console.log('plotsRes', plotsRes);
 
       if (plotsRes?.status === 200) {
         // console.log('sta==', JSON.stringify(plotsRes?.data));
         setPlotList(plotsRes?.data || []);
-    }
+      }
       if (unitAreaRes?.status === 200)
         setLandAreaUnit(unitAreaRes?.data?.data?.rows || []);
       if (unitSqRes?.status === 200)
@@ -171,7 +169,6 @@ const PlotList = () => {
           crop_name: {name: cropName} = {},
           crop_variety: {name: varietyName} = {},
           sowing_date,
-          
         } = res.data?.[0] || {};
         setPlotList(prev => {
           const copy = [...prev];
@@ -198,7 +195,28 @@ const PlotList = () => {
       setIsLoadinglandActiveCrop(false);
     }
   };
+  const getPlotActivities = async plotId => {
+    try {
+      const res = await axiosGet(
+        ROUTES.GET.PLOTWISE_ACTIVITY({
+          plot_id: plotId,
+        }),
+        token,
+        {
+          Information: `${dbname},${lan_id},${loginUser_data.id}`,
+        },
+      );
 
+      if (res?.status === 200) {
+        navigation.navigate('ActivityPlotWise', {
+          activities: res?.data || [],
+          // plot: item,
+        });
+      }
+    } catch (error) {
+      console.log('Activity API error:', error);
+    }
+  };
   return (
     <Root>
       <FarmerDrawerScreenWrapper1>
@@ -258,6 +276,8 @@ const PlotList = () => {
                           landUnitsquareMetre={landUnitsquareMetre}
                           landAreaUnit={landAreaUnit}
                           apiCall={landActiveCrop}
+                          // role="supervisor"
+                          activityApi={getPlotActivities}
                         />
                       )
                     }

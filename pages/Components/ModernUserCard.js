@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, memo, useMemo } from 'react';
+import React, {useRef, useEffect, useCallback, memo, useMemo} from 'react';
 import {
   Animated,
   TouchableOpacity,
@@ -8,11 +8,11 @@ import {
   Dimensions,
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import { Colors, Fonts } from '../utils/Constants';
-import { MENU_ITEMS } from '../utils/dashboardItems';
+import {Colors, Fonts} from '../utils/Constants';
+import {MENU_ITEMS} from '../utils/dashboardItems';
 import ModernMenuButton from './ModernMenuButton';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
 const ModernUserCard = ({
   item,
@@ -26,7 +26,9 @@ const ModernUserCard = ({
   state,
 }) => {
   // Animations -----------------------------
-  const cardAnim = useRef(new Animated.Value(animationsEnabled ? 0 : 1)).current;
+  const cardAnim = useRef(
+    new Animated.Value(animationsEnabled ? 0 : 1),
+  ).current;
   const expandAnim = useRef(new Animated.Value(0)).current;
 
   // ---------- Entrance Animation ----------
@@ -59,12 +61,12 @@ const ModernUserCard = ({
   // ---------- Memoized Plots Data ----------
   const plotData = useMemo(() => {
     return (
-      item.agri_land_user_rels?.map(data => ({
+      item.user_plots?.map(data => ({
         value: data.rel_id,
         label: data.plot_no,
       })) || []
     );
-  }, [item.agri_land_user_rels]);
+  }, [item.user_plots]);
 
   // ---------- Memoized MENU Buttons ----------
   const menuButtons = useMemo(
@@ -79,7 +81,7 @@ const ModernUserCard = ({
           isExpanded={isExpanded}
         />
       )),
-    [t, isExpanded] // MENU_ITEMS static
+    [t, isExpanded], // MENU_ITEMS static
   );
 
   // ---------- Callbacks ----------
@@ -87,7 +89,7 @@ const ModernUserCard = ({
     menuKey => {
       onMenuPress(menuKey, {
         farmeruserID: item.user_id,
-        agri_land_user_rels: plotData,
+        user_plots: plotData,
         userName: item.userName,
         contactNumber: item.contactNumber,
         profileImage,
@@ -95,34 +97,37 @@ const ModernUserCard = ({
         farmer_type: item.farmer_type,
       });
     },
-    [onMenuPress, plotData, item, profileImage]
+    [onMenuPress, plotData, item, profileImage],
   );
 
   const handleCardPress = useCallback(() => {
     onToggle(item.user_id);
-    setState(prev => ({ ...prev, onPageLoad: true }));
+    setState(prev => ({...prev, onPageLoad: true}));
   }, [item.user_id, onToggle, setState]);
 
   // ---------- Card Enter Style ----------
   const cardStyle =
     state.onPageLoad === false
       ? {
-        opacity: cardAnim,
-        transform: [
-          { scale: cardAnim },
-          {
-            translateX: cardAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [SCREEN_WIDTH * 0.3, 0],
-            }),
-          },
-        ],
-      }
+          opacity: cardAnim,
+          transform: [
+            {scale: cardAnim},
+            {
+              translateX: cardAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [SCREEN_WIDTH * 0.3, 0],
+              }),
+            },
+          ],
+        }
       : null;
 
   return (
     <Animated.View style={[styles.modernUserCard, cardStyle]}>
-      <TouchableOpacity onPress={handleCardPress} activeOpacity={0.9} style={styles.cardTouchable}>
+      <TouchableOpacity
+        onPress={handleCardPress}
+        activeOpacity={0.9}
+        style={styles.cardTouchable}>
         {/* ---------- Header ---------- */}
         <View style={styles.cardHeader}>
           <View style={styles.userAvatar}>
@@ -146,12 +151,16 @@ const ModernUserCard = ({
               {item.userName}
             </Text>
             <Text style={styles.phoneText}>{item.contactNumber}</Text>
-            <Text style={styles.dateText}>{item.CreateDateTime?.substring(0, 10)}</Text>
+            <Text style={styles.dateText}>
+              {item.CreateDateTime?.substring(0, 10)}
+            </Text>
           </View>
 
           <View style={styles.cardActions}>
             <View style={styles.plotsBadge}>
-              <Text style={styles.plotsCount}>{item.agri_land_user_rels?.length || 0}</Text>
+              <Text style={styles.plotsCount}>
+                {item.user_plots?.length || 0}
+              </Text>
               <Text style={styles.plotsLabel}>{t('plots')}</Text>
             </View>
           </View>
@@ -194,7 +203,7 @@ const styles = {
     borderColor: Colors.border,
     overflow: 'hidden',
   },
-  cardTouchable: { padding: 0 },
+  cardTouchable: {padding: 0},
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -215,16 +224,16 @@ const styles = {
     color: '#FFFFFF',
     fontFamily: Fonts.Bold,
   },
-  userDetails: { flex: 1 },
+  userDetails: {flex: 1},
   modernUserName: {
     fontSize: 16,
     color: Colors.text,
     marginBottom: 4,
     fontFamily: Fonts.Medium,
   },
-  phoneText: { fontSize: 14, color: Colors.lightText, fontFamily: Fonts.Medium },
-  dateText: { fontSize: 12, color: Colors.lightText, fontFamily: Fonts.Medium },
-  cardActions: { alignItems: 'center' },
+  phoneText: {fontSize: 14, color: Colors.lightText, fontFamily: Fonts.Medium},
+  dateText: {fontSize: 12, color: Colors.lightText, fontFamily: Fonts.Medium},
+  cardActions: {alignItems: 'center'},
 
   plotsBadge: {
     flexDirection: 'row',

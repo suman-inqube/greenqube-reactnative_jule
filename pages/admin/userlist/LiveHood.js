@@ -250,6 +250,8 @@ const LiveHood = ({
   const [nearPolSet, setnearPolSet] = useState([]);
   const [nearPolData, setnearPolData] = useState([]);
   const [statuslevel, setstatuslevel] = useState({label: '', value: ''});
+  const [plotStatus, setplotStatus] = useState({label: '', value: ''});
+
   const [updateRelId, setupdateRelId] = useState('');
   const [referencelatLong, setreferencelatLong] = useState({
     latitude: 0,
@@ -581,7 +583,7 @@ const LiveHood = ({
         const {count, rows = []} = landUnitSquare_res.data?.data || {};
         setLandUnitsquareMetre(count > 0 ? rows : []);
       }
-
+      console.log('plotSiteUserLandDetails_res', plotSiteUserLandDetails_res);
       if (plotSiteUserLandDetails_res?.status === 200) {
         setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
       }
@@ -814,6 +816,11 @@ const LiveHood = ({
                   {cancelable: false},
                 );
               }
+              setplotStatus(prev => ({
+                ...prev,
+                label: dataLandDetails?.plot_status,
+                value: dataLandDetails?.plot_status,
+              }));
 
               setstatuslevel(prev => ({
                 ...prev,
@@ -1375,7 +1382,7 @@ const LiveHood = ({
         end_usg_rm_straw: '',
       }));
     }
-     setSelectedTab('CROP')
+    setSelectedTab('CROP');
   };
 
   const handleseedDatePicker = async item => {
@@ -1472,7 +1479,6 @@ const LiveHood = ({
   // }, []);
 
   const handleCurrentLatLong = useCallback(async index => {
-
     const values = [...location];
     const {latitude, longitude} = (await getItem('fusedLocation')) || {};
 
@@ -1482,7 +1488,7 @@ const LiveHood = ({
     }
     const lat = latitude === '' ? latlong.latitude : latitude;
     const lon = longitude === '' ? latlong.longitude : longitude;
-    
+
     if (
       coords != null &&
       // longitude.toString().length == 10 &&
@@ -2384,14 +2390,14 @@ const LiveHood = ({
 
             if (hasSignature || hasCarbonAgreement) {
               if (!historyData) {
-              const carbonRes = await uploadCarbonAgrDocs(
-                dbname,
-                lan_id,
-                token,
-                farmeruserID,
-                formdataCarbon,
-              );
-            }
+                const carbonRes = await uploadCarbonAgrDocs(
+                  dbname,
+                  lan_id,
+                  token,
+                  farmeruserID,
+                  formdataCarbon,
+                );
+              }
             }
           }
           if (!historyData) {
@@ -2446,6 +2452,7 @@ const LiveHood = ({
     setAddPlot(true);
     //basude stop
     setstatuslevel({label: '', value: ''});
+    setplotStatus({label: '', value: ''});
     setUserData('addUserData');
     setPlotEdit(true);
     setPolygons(nearPolSet);
@@ -2731,12 +2738,10 @@ const LiveHood = ({
   }, []);
   const [InputTextFormEdit, setInputTextFormEdit] = useState(true);
   useEffect(() => {
-   
     if (
       (harvested === '' && statuslevel.label === '') ||
       statuslevel.label === 'CARBON_DOCUMENTS_SUBMITTED'
     ) {
-     
       setInputTextFormEdit(true);
     } else if (
       statuslevel.label == 'APPROVED' ||
@@ -2744,7 +2749,6 @@ const LiveHood = ({
       statuslevel.label === 'CARBON_DOCUMENTS_APPROVED' ||
       statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
     ) {
-   
       setInputTextFormEdit(false);
     } else if (
       harvested === 'same produce' &&
@@ -2753,19 +2757,16 @@ const LiveHood = ({
         statuslevel.label === 'CARBON_DOCUMENTS_APPROVED' ||
         statuslevel.label === 'CARBON_DOCUMENTS_REJECTED')
     ) {
-     
       setInputTextFormEdit(true);
     } else if (
       harvested == '' &&
       (statuslevel.label === 'PENDING' || statuslevel.label === 'REJECTED')
     ) {
-     
       setInputTextFormEdit(true);
     } else if (
       harvested == 'same produce' &&
       (statuslevel.label === 'PENDING' || statuslevel.label === 'REJECTED')
     ) {
-    
       setInputTextFormEdit(true);
     } else {
       console.log(
@@ -2967,10 +2968,35 @@ const LiveHood = ({
         // Convert age to DD/MM/YYYY format
 
         // Then use it in formData
-        formdataCofarmers.append(
-          'date_of_birth',
-          coFarmerDetails.date_of_birth,
-        );
+        const convertToYYYYMMDD = dob => {
+          if (!dob) return '';
+
+          const cleanDob = dob.replace(/\//g, '-');
+
+          const parts = cleanDob.split('-');
+
+          if (parts.length === 3) {
+            let [d, m, y] = parts;
+
+            // if already YYYY-MM-DD
+            if (y.length === 2 || y.length === 1) {
+              // unlikely case
+              return '';
+            }
+
+            // DD-MM-YYYY → convert
+            if (y.length === 4) {
+              return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+            }
+          }
+
+          return cleanDob;
+        };
+        const finalDOB = convertToYYYYMMDD(coFarmerDetails.date_of_birth);
+
+        console.log('FINAL DOB SENT (EDIT) =>', finalDOB);
+
+        formdataCofarmers.append('date_of_birth', finalDOB);
         formdataCofarmers.append('gender', coFarmerDetails.gender);
         formdataCofarmers.append('contactNumber', coFarmerDetails.phone);
         if (
@@ -3047,6 +3073,7 @@ const LiveHood = ({
             type: coFarmerDetails.profile?.type,
           });
         }
+        console.log('EDIT DOB RAW =>', coFarmerDetails.date_of_birth);
         addCoFarmerRes = await axiosPost(
           ROUTES.POST.SAVE_CO_FARMERS,
           formdataCofarmers,
@@ -3424,7 +3451,7 @@ const LiveHood = ({
                       // editable={InputTextFormEdit}
                       editable={
                         statuslevel.label == 'APPROVED' ||
-                         statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                        statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
                         statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
                           ? false
                           : true
@@ -3440,7 +3467,8 @@ const LiveHood = ({
                       onChange={handleAddDataUnit}
                       val={farmerData.unit}
                       disable={
-                        statuslevel.label == 'APPROVED' ||
+                        plotStatus.label == 'APPROVED' ||
+                        statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
                         statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
                           ? true
                           : false
@@ -3877,6 +3905,12 @@ const LiveHood = ({
             loading={isLoading}
           />
         )}
+        {selectedTab != 'CROP' && (
+          <ButtonForm
+            label={t('Next')}
+            onPress={() => setSelectedTab('CROP')}
+          />
+        )}
         {selectedTab === 'PLOT' && (
           <FloatingActionButton
             position="right"
@@ -3888,18 +3922,58 @@ const LiveHood = ({
               addPlot,
               activeTab,
               plotId,
-              statuslevel.label,
+              statuslevel?.label,
               dbLanTokUsr?.co_farmer,
             )}
             color={Colors.useGreen}
             onPressItem={name => {
-              if (name == 'MapView') {
-                setShowModal(!showModal);
-              } else if (name == 'coFarmer') {
+              const plotStatusValue = plotStatus?.label;
+              const statusLevelValue = statuslevel?.label;
+
+              console.log('📊 STATUS CHECK =>', {
+                plotStatusValue,
+                statusLevelValue,
+                clicked: name,
+              });
+
+              const restrictedActions = [
+                'coFarmer',
+                'coFarmerList',
+                'AddCoFarmerList',
+              ];
+
+              // ✅ FINAL CONDITIONS
+              const isPendingCarbonSubmitted =
+                plotStatusValue === 'PENDING' &&
+                statusLevelValue === 'CARBON_DOCUMENTS_SUBMITTED';
+
+              const isApproved = plotStatusValue === 'APPROVED';
+
+              const isBlocked = isPendingCarbonSubmitted || isApproved;
+
+              // 🚫 BLOCK
+              if (isBlocked && restrictedActions.includes(name)) {
+                console.log('🚫 BLOCKED ACTION:', name);
+
+                Toast?.show({
+                  text:
+                    plotStatusValue === 'APPROVED'
+                      ? 'Co-farmer actions not allowed for Approved plot'
+                      : ' Cannot add/edit co-farmers once carbon agreement is submitted',
+                  ...AlertMesg?.[0],
+                });
+
+                return;
+              }
+
+              // ✅ NORMAL FLOW
+              if (name === 'MapView') {
+                setShowModal(prev => !prev);
+              } else if (name === 'coFarmer') {
                 setModalVisibleCoFarmer(prev => !prev);
-              } else if (name == 'coFarmerList') {
+              } else if (name === 'coFarmerList') {
                 setListOfModalVisibleCoFarmer(prev => !prev);
-              } else if (name == 'AddCoFarmerList') {
+              } else if (name === 'AddCoFarmerList') {
                 setListOfModalVisibleCoFarmerAdd(prev => !prev);
               } else {
                 handleUserData();

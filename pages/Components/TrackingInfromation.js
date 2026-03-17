@@ -100,7 +100,7 @@ const TrackingInformation = ({
               paddingHorizontal: 16,
               borderBottomWidth: isLastItem ? 0 : 1,
               borderColor: Colors.border || '#ccc',
-              backgroundColor: '#fff',
+              backgroundColor: '#f6faff',
             }}
             onPress={() =>
               navigation.navigate(activity_path || 'PlotStatusUpdate', item)
@@ -267,7 +267,7 @@ const TrackingInformation = ({
                     paddingHorizontal: 16,
                     borderBottomWidth: isLastItem ? 0 : 1, // 👈 hide border if last
                     borderColor: Colors.border || '#ccc',
-                    backgroundColor: '#fff',
+                    backgroundColor: '#f6faff',
                   }}
                   onPress={() =>
                     navigation.navigate(

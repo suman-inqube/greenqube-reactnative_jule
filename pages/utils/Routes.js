@@ -113,7 +113,7 @@ export const ROUTES = {
     }) =>
       `inputOutputRoute/list/1/0/2?&farmer_id=${farmer_id}&transaction_type=2&from_date=${from_date}&to_date=${to_date}&agent_id=${agent_id}&farmer_mobile=${farmer_mobile}`,
     AGENT_ROUTE: ({page = 1, search_key = ''}) =>
-      `agentRoute/listFarmer_e/1/${page}/2?search_key=${search_key}`,
+      `agentRoute/onlyFarmerList_e/1/${page}/2?search_key=${search_key}`,
     Fenced_Rejected_Plot_List: ({
       page,
       status_level,
@@ -121,7 +121,7 @@ export const ROUTES = {
       searchBy = '',
       supervisor_id = '',
     }) =>
-      `landRoute/plotNotification/1/${page}/3?supervisor=${supervisor_id}&user_id=&status_level=${status_level}&geo_type=${geo_type}&search_key=${searchBy}`,
+      `landRoute/plotNotification/1/${page}/3?supervisor=${supervisor_id}&user_id=&plot_status=${status_level}&geo_type=${geo_type}&search_key=${searchBy}`,
     USER_ACTIVITY_DETAILS: ({uact_id}) =>
       `inputOutputRoute/detailsUserActivity_e?uact_id=${uact_id}`,
     INPUT_LIST_API: ({category_id = ''}) =>
@@ -353,6 +353,13 @@ export const ROUTES = {
       `landRoute/landActiveCrop_e?land_rel_id=${rel_id}`,
     PEST_DETAILS: ({cu_rel_fid = ''}) =>
       `carbonRoute/cropInputDetails?cu_rel_fid=${cu_rel_fid}`,
+
+    PLOTWISE_ACTIVITY: ({plot_id = ''}) =>
+      `ioRoute/listUserActivity_v3/1/1/2?search_key=&type=carbon_activity&plot_id=${plot_id}`,
+
+    USER_ACTIVITY_DETAILS_V3: ({uact_id = ''}) =>
+      `ioRoute/userActivityDetails_v3?uact_id=${uact_id}`,
+    DETAILS_V2: ({user_id = ''}) => `loginSignupRoute/detailsv2/${user_id}`,
   },
 
   PUT: {

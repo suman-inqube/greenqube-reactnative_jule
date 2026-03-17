@@ -1,8 +1,8 @@
-import React, { Suspense, lazy } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import React, {Suspense, lazy} from 'react';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
 import CustomDrawer from './CustomDrawer';
-import { Colors } from '../utils/Constants';
+import {Colors} from '../utils/Constants';
 import Offline from './Offline';
 
 const Stack = createNativeStackNavigator();
@@ -18,6 +18,8 @@ const ForgotPassword = lazy(() => import('./userlist/ForgetPassword'));
 const Information = lazy(() => import('./userlist/Information'));
 const LiveHood = lazy(() => import('./userlist/LiveHood'));
 const PlotList = lazy(() => import('./userlist/PlotList'));
+const ActivityPlotWise = lazy(() => import('./userlist/ActivityPlotWise'));
+
 const CrateProblemUser = lazy(() => import('./userlist/CrateProblemUser'));
 const InputList = lazy(() => import('./Inputs/InputList'));
 const PastEnquiries = lazy(() => import('./Inputs/PastEnquiries'));
@@ -176,6 +178,8 @@ function AdminStack() {
       <Stack.Screen name="password" component={ForgotPassword} />
       <Stack.Screen name="information" component={Information} />
       <Stack.Screen name="livehood" component={PlotList} />
+      <Stack.Screen name="ActivityPlotWise" component={ActivityPlotWise} />
+
       <Stack.Screen name="PlotDetails" component={LiveHood} />
       <Stack.Screen name="CrateProblemUser" component={CrateProblemUser} />
       <Stack.Screen name="InsuranceEnquiry" component={InsuranceEnquiry} />
@@ -253,13 +257,13 @@ const AdminNavigation = () => {
       borderBottomColor: '#baffa0',
       marginHorizontal: 20,
     },
-    drawerLabelStyle: { marginLeft: -20 },
+    drawerLabelStyle: {marginLeft: -20},
     drawerStyle: {
       backgroundColor: Colors.drawer,
       width: '65%',
       marginLeft: -0.2,
     },
-    sceneContainerStyle: { backgroundColor: Colors.drawer, zIndex: 100 },
+    sceneContainerStyle: {backgroundColor: Colors.drawer, zIndex: 100},
   };
   return (
     <Drawer.Navigator
@@ -268,7 +272,7 @@ const AdminNavigation = () => {
       <Drawer.Screen
         name="AdminStack"
         component={AdminStack}
-        options={{ title: 'Admin Dashboard' }}
+        options={{title: 'Admin Dashboard'}}
       />
     </Drawer.Navigator>
   );

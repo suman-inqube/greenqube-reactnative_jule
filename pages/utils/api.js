@@ -26,9 +26,11 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const SLOW_THRESHOLD = 30000;
 
 const instance = axios.create({
+  baseURL: BASE_URL,
+
   // baseURL: 'http://134.209.155.11:4003/',
   // baseURL: 'http://134.209.155.11:6006/',
-  baseURL: 'https://mygreenqube.com:4003/',
+  // baseURL: 'https://mygreenqube.com:4003/',
   timeout: 50000,
 });
 
@@ -140,7 +142,7 @@ export const axiosGet = async (
       data: {message: 'No internet & no cache'},
     });
   }
-   console.log('url==', url);
+  console.log('url==', url);
   try {
     const response = await instance.get(url, {
       headers: {...(token && {Authorization: token}), ...extraHeaders},
@@ -149,9 +151,10 @@ export const axiosGet = async (
     cacheManager.setCache(cacheKey, response.data);
     return response;
   } catch (error) {
+    console.log('errorAPI', error);
     if (!online) {
-    const cached = cacheManager.getCache(cacheKey);
-    if (cached) return {data: cached, status: 200, fromCache: true};
+      const cached = cacheManager.getCache(cacheKey);
+      if (cached) return {data: cached, status: 200, fromCache: true};
     }
     throw await handleError(error);
   }
@@ -190,7 +193,10 @@ export const axiosPost = async (
     ...(token && {Authorization: token}),
     ...extraHeaders,
   };
-
+  // const headers = {
+  //   ...(token && {Authorization: token}),
+  //   ...extraHeaders,
+  // };
   // logCurl({url, method: 'POST', headers, body: payload});
 
   try {
@@ -199,6 +205,8 @@ export const axiosPost = async (
       signal: abortController?.signal,
     });
   } catch (error) {
+    console.log('gggg', error);
+
     throw await handleError(error);
   }
 };
@@ -259,13 +267,13 @@ function findField(obj, keyToFind) {
 const isFormData = data => data instanceof FormData;
 
 const handleError = async error => {
-   if (error?.response?.status === 409) {
-     console.log('error', error?.response?.status);
-     return {
-       status: error.response.status || 409,
-       data: error.response.data || {message: 'Unknown error'},
-     };
-   }
+  if (error?.response?.status === 409) {
+    console.log('error', error?.response?.status);
+    return {
+      status: error.response.status || 409,
+      data: error.response.data || {message: 'Unknown error'},
+    };
+  }
 
   if (axios.isCancel(error) || error.name === 'AbortError')
     return {status: 499, data: {message: 'Request cancelled'}};

@@ -74,9 +74,7 @@ const CropDataFarmer = ({
   historyData,
 }) => {
   // console.log('hisdata133331--', JSON.stringify(farmerData));
-  console.log('hisdata133331--', historyData);
-  console.log('hisdata133332--', harvested);
-  console.log('hisdata13333--', edit);
+
   // const [selectedType, setSelectedType] = useState('organic_amendment_type');
   return (
     <View style={styles.container}>

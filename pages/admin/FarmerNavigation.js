@@ -7,6 +7,8 @@ import FarmerDrawer from './FarmerDrawer';
 // All Screens
 import FarmerDashboard from './FarmerDashboard';
 import PlotListFarmer from './FarmerProductDetails/PlotListFarmer';
+import FarmerActivityPlotWise from './FarmerProductDetails/FarmerActivityPlotWise';
+
 import FarmerTraining from './Training/FarmerTraining';
 import FarmerTrainingList from './Training/FarmerTrainingList';
 import FarmerUsefulInformation from './Usefullinformation/FarmerUsefulInformation';
@@ -71,6 +73,11 @@ const FarmerMainStack = () => (
     }}>
     <Stack.Screen name="FarmerDashboard" component={FarmerDashboard} />
     <Stack.Screen name="FarmerLiveHood" component={PlotListFarmer} />
+    <Stack.Screen
+      name="FarmerActivityPlotWise"
+      component={FarmerActivityPlotWise}
+    />
+
     <Stack.Screen name="FarmerTraining" component={FarmerTraining} />
     <Stack.Screen name="FarmerTrainingList" component={FarmerTrainingList} />
     <Stack.Screen

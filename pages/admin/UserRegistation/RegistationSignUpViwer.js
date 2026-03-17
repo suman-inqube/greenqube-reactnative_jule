@@ -274,7 +274,7 @@ const RegistationSignUpViwer = () => {
           false,
           {
             information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${dbLanTokUsr.supervisorId}`,
-            'Content-Type': 'multipart/form-data',
+            // 'Content-Type': 'multipart/form-data',
             plot_count: landProofData.length,
           },
         );
@@ -325,7 +325,7 @@ const RegistationSignUpViwer = () => {
           }),
         });
       }, 2000);
-      console.log(error);
+      console.log('EEEE-', error);
     }
     setIsLoading(false);
   };
