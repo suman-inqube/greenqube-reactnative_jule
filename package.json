@@ -75,6 +75,7 @@
     "react-native-signature-canvas": "^5.0.1",
     "react-native-simple-audio-player": "^1.0.3",
     "react-native-svg": "^15.15.1",
+    "react-native-tts": "^4.1.1",
     "react-native-unimodules": "^0.15.0",
     "react-native-vector-icons": "^10.3.0",
     "react-native-version-check": "^3.5.0",

@@ -170,7 +170,7 @@ export const axiosPost = async (
   abortController = null,
 ) => {
   const online = await isInternetAvailable(true);
-
+ console.log('body==', body);
   if (!online) {
     cacheManager.addToQueue({
       url,
