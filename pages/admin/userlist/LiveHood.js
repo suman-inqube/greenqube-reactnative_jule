@@ -1240,6 +1240,7 @@ const LiveHood = ({
   }, []);
   useEffect(() => {
     if (plotSiteUserLandDetails.length != 0) {
+      console.log('dataProps', dataProps);
       if (dataProps?.plot_no != undefined) {
         handlePlot({
           label: dataProps?.plot_no,
@@ -1949,6 +1950,21 @@ const LiveHood = ({
           });
         }
       });
+      if (carbonFlag && !farmerData.daag_no) {
+        Toast.show({
+          text: 'Please enter Dag Number',
+          ...AlertMesg[0],
+        });
+        return;
+      }
+
+      if (carbonFlag && !farmerData.jl_no) {
+        Toast.show({
+          text: 'Please enter JL Number',
+          ...AlertMesg[0],
+        });
+        return;
+      }
       if (farmerData.plot_Site_Name == '') {
         Toast.show({
           text: `${t('please_add_plot_name_first')}`,
@@ -2413,6 +2429,7 @@ const LiveHood = ({
               });
             }
           } else {
+            console.log('cropInputRes', cropInputRes);
             if (cropInputRes?.status === 200) {
               removesetLocation();
               Toast.show({text: t('l_c_update_succ'), ...AlertMesg[0]});
@@ -2429,7 +2446,7 @@ const LiveHood = ({
         }
       }
     } catch (error) {
-      console.error(error);
+      console.error('error11', error);
       Toast.show({
         text: `${error?.data?.error?.errorMessage}`,
         // text: errorMessage,
@@ -2539,7 +2556,7 @@ const LiveHood = ({
             turf.booleanOverlap(existingGeo, newGeo) ||
             turf.booleanWithin(newGeo, existingGeo)
           ) {
-            overlapFound = true;
+            overlapFound = false;
           }
         });
         // setPolygons([newPolygon]);
@@ -3370,6 +3387,7 @@ const LiveHood = ({
                 <InputTextForm
                   label={t('daag_no')}
                   value={farmerData.daag_no}
+                  required={carbonFlag === true}
                   onChangeText={handleAddUserDataDaag}
                   editable={InputTextFormEdit}
                 />
@@ -3390,6 +3408,7 @@ const LiveHood = ({
                 {carbonFlag == true ? (
                   <InputTextForm
                     label={t('JL No')}
+                    required={carbonFlag === true}
                     value={farmerData.jl_no}
                     onChangeText={handleAddUserDataJLNo}
                     editable={

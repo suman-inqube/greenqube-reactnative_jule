@@ -62,10 +62,30 @@ const audioRecorderPlayer =
   typeof AudioRecorderPlayer === 'function'
     ? new AudioRecorderPlayer()
     : AudioRecorderPlayer;
-const ActivityReport = ({navigation}) => {
+const ActivityReport = ({navigation, route}) => {
+  const {farmer, plot} = route?.params || {};
   //GQR-67
   const today = new Date();
+  useEffect(() => {
+    if (farmer && plot) {
+      const farmerObj = {
+        label: farmer?.userName,
+        value: farmer?.user_id,
+        phone: farmer?.contactNumber,
+      };
 
+      // ✅ SAME as manual select
+      handleResultSelect(farmerObj);
+
+      // ✅ then select plot
+      setTimeout(() => {
+        handlePlot({
+          label: plot?.plot_no,
+          value: plot?.rel_id,
+        });
+      }, 500);
+    }
+  }, [farmer, plot]);
   // 7 days ago
   const tenDaysAgo = new Date();
   tenDaysAgo.setDate(today.getDate() - 10);

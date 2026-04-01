@@ -233,6 +233,7 @@ const Dashboard = ({navigation}) => {
         usefulInfoList,
         activitySchedule: [], // slow data later
       }));
+      console.log('usefulInfoList', usefulInfoList);
       setIsLoading(prev => ({...prev, initial: false}));
       loadSlowApis({dbname, lan_id, token, user_id});
     } catch (error) {
@@ -247,6 +248,7 @@ const Dashboard = ({navigation}) => {
   const loadSlowApis = async ({dbname, lan_id, token, user_id}) => {
     try {
       setIsLoading(prev => ({...prev, slowData: true}));
+
       const [carbonRes, userRes] = await Promise.allSettled([
         axiosGet(
           ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
@@ -256,7 +258,6 @@ const Dashboard = ({navigation}) => {
           token,
           {information: `${dbname},${lan_id},${user_id}`},
         ),
-
         axiosGet(
           ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
             supervisor_id: user_id,
@@ -269,19 +270,42 @@ const Dashboard = ({navigation}) => {
 
       const carbonActivities =
         carbonRes.status === 'fulfilled'
-          ? carbonRes.value?.data?.data?.data || []
+          ? carbonRes.value?.data?.data?.data ||
+            carbonRes.value?.data?.data ||
+            []
           : [];
 
-      const activitySchedule =
+      const userActivities =
         userRes.status === 'fulfilled'
-          ? userRes.value?.data?.data?.data || []
+          ? userRes.value?.data?.data?.data || userRes.value?.data?.data || []
           : [];
+
+      // ✅ CHECK IF CARBON HAS DATA
+      let hasCarbonActivity = carbonActivities.some(
+        item =>
+          (item?.upcomingActivities?.length || 0) > 0 ||
+          (item?.overdueActivities?.length || 0) > 0,
+      );
+
+      let finalActivity = [];
+
+      if (hasCarbonActivity) {
+        finalActivity = carbonActivities;
+      } else if (userActivities.length > 0) {
+        finalActivity = userActivities;
+      }
+
       setUiState(prev => ({
         ...prev,
-        usefulInfoList: [...carbonActivities, ...activitySchedule],
-        activitySchedule,
+        activitySchedule: finalActivity,
       }));
+
       setIsLoading(prev => ({...prev, slowData: false}));
+
+      console.log('CARBON RAW', carbonRes.value);
+      console.log('USER RAW', userRes.value);
+      console.log('CARBON PARSED', carbonActivities);
+      console.log('USER PARSED', userActivities);
     } catch (error) {
       setIsLoading(prev => ({...prev, slowData: false}));
       Toast?.show({
@@ -395,6 +419,9 @@ const Dashboard = ({navigation}) => {
       uiState.profileImg,
       uiState.plotStatus,
       uiState.usefulInfoList,
+      uiState.activitySchedule,
+      isLoading.slowData,
+
       t,
       CompanyWebsiteOpen,
     ],

@@ -1,4 +1,11 @@
-import {View, Text, StyleSheet, FlatList, Dimensions} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
 import React, {
   useState,
   useEffect,
@@ -142,6 +149,21 @@ const PendingActivity = () => {
     return (
       <>
         {overdueActivities.length != 0 ? (
+          // <TouchableOpacity
+          //   activeOpacity={0.8}
+          //   onPress={() => {
+          //     if (activeTab === 'carbon') {
+          //       navigation.navigate('ActivityReportAWD', {
+          //         farmer: item?.farmer,
+          //         plot: item?.crop?.land_info,
+          //       });
+          //     } else {
+          //       navigation.navigate('activityReport', {
+          //         farmer: item?.farmer,
+          //         plot: item?.crop?.land_info,
+          //       });
+          //     }
+          //   }}>
           <View View style={styles.activityItem}>
             {/* Farmer Information */}
 
@@ -229,6 +251,7 @@ const PendingActivity = () => {
             </View>
           </View>
         ) : (
+          // </TouchableOpacity>
           <></>
         )}
       </>

@@ -125,7 +125,7 @@ const ProduceInfoUpdate = () => {
   const [minStartDate, setMinStartDate] = useState(new Date());
   const [maxHarvestDate, setMaxHarvestDate] = useState(new Date());
   const [minHarvestDate, setMinHarvestDate] = useState(new Date());
-   const [carbonFlag, setCarbonStatus] = useState(false);
+  const [carbonFlag, setCarbonStatus] = useState(false);
   const renderLocationTags = () => {
     return location.map((data, index) => (
       <View key={index} style={styles.locationContainer}>
@@ -726,6 +726,20 @@ const ProduceInfoUpdate = () => {
       }
     }
     const locationEmpty = location.filter(item => item.latitude !== '');
+    if (carbonFlag && !storeProduceInfo.daagNo) {
+      Toast.show({
+        text: 'Please enter Dag Number',
+        ...AlertMesg[0],
+      });
+      return;
+    }
+    if (carbonFlag && !storeProduceInfo.jl_no) {
+      Toast.show({
+        text: 'Please enter JL Number',
+        ...AlertMesg[0],
+      });
+      return;
+    }
     if (storeProduceInfo.plotSize == '') {
       Toast.show({time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0]});
     } else if (!storeProduceInfo.productionProcess.value) {
@@ -782,7 +796,7 @@ const ProduceInfoUpdate = () => {
       getItem('storePersnolInfo_data'),
       getItem('storeProduceInfo_data'),
       getItem('produceVariety'),
-       getItem('carbon_status'),
+      getItem('carbon_status'),
     ]);
     setCarbonStatus(carbonStatus);
     const dbName = storeSignup_data.company.dbname;
@@ -1229,6 +1243,7 @@ const ProduceInfoUpdate = () => {
                         setstoreProduceInfo({...storeProduceInfo, daagNo: item})
                       }
                       value={storeProduceInfo.daagNo}
+                      required={carbonFlag === true}
                     />
                     <InputTextForm
                       label={t('khatian_no')}
@@ -1241,33 +1256,34 @@ const ProduceInfoUpdate = () => {
                       value={storeProduceInfo.khatianNo}
                     />
                     {carbonFlag == true ? (
-                                        <InputTextForm
-                                          label={t('JL No')}
-                                          onChangeText={item =>
-                                            setstoreProduceInfo({
-                                              ...storeProduceInfo,
-                                              jl_no: item,
-                                            })
-                                          }
-                                          value={storeProduceInfo.jl_no}
-                                        />
-                                      ) : (
-                                        <></>
-                                      )}
-                                      {carbonFlag == true ? (
-                                        <InputTextForm
-                                          label={t('Mouja Name')}
-                                          onChangeText={item =>
-                                            setstoreProduceInfo({
-                                              ...storeProduceInfo,
-                                              mouja: item,
-                                            })
-                                          }
-                                          value={storeProduceInfo.mouja}
-                                        />
-                                      ) : (
-                                        <></>
-                                      )}
+                      <InputTextForm
+                        label={t('JL No')}
+                        onChangeText={item =>
+                          setstoreProduceInfo({
+                            ...storeProduceInfo,
+                            jl_no: item,
+                          })
+                        }
+                        value={storeProduceInfo.jl_no}
+                        required={carbonFlag === true}
+                      />
+                    ) : (
+                      <></>
+                    )}
+                    {carbonFlag == true ? (
+                      <InputTextForm
+                        label={t('Mouja Name')}
+                        onChangeText={item =>
+                          setstoreProduceInfo({
+                            ...storeProduceInfo,
+                            mouja: item,
+                          })
+                        }
+                        value={storeProduceInfo.mouja}
+                      />
+                    ) : (
+                      <></>
+                    )}
                     <InputTextForm
                       label={t('no_of_plants')}
                       onChangeText={item =>

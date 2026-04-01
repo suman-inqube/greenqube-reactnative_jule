@@ -1136,7 +1136,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                     <DropdownForm
                       label={t('per_month_quarter_year')}
                       data={config.pensionParMonthData}
-                      onChangeText={handleFrequencyChange}
+                      onChange={handleFrequencyChange}
                       val={farmerData.frequency}
                     />
                   </>

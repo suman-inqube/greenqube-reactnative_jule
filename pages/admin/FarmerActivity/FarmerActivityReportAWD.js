@@ -102,7 +102,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
   } = useContext(userCreateContext);
   var watchId, watchIdSaveData;
   const {dbname, lan_id, token, user_id} = loginUser_data;
-    const [isAfterToday, setIsAfterToday] = useState(false);
+  const [isAfterToday, setIsAfterToday] = useState(false);
   const {problemPlotAgainstFarmer, plotAll, setplotAll} = plotHook(
     dbname,
     lan_id,
@@ -183,8 +183,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
   const [pipeLatLong, setPipeLatLong] = useState([]);
   const [overdueAct, setOverdueAct] = useState([]);
   const [lastAct, setLastAct] = useState();
-   const [minDateGap, setMinDateGap] = useState();
-    const [lastPerfromedDate, setLastPerfromedDate] = useState('');
+  const [minDateGap, setMinDateGap] = useState();
+  const [lastPerfromedDate, setLastPerfromedDate] = useState('');
   const [upcomingAct, setUpcomingAct] = useState('');
   const [scheduleInfo, setScheduleInfo] = useState({
     lastAct: '',
@@ -531,7 +531,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
     // else {
     //   var response = await getItem('produceAgainstPlot' + relId.value);
     // }
-
+    console.log('response1111', response);
     if (response) {
       const latandlongArr =
         response?.data?.data?.land_info?.agri_land_user_latlongs?.map(
@@ -663,6 +663,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
           );
           setproductionStageAll(dataArray);
         }
+        console.log('activityScheduleAPI', activitySchedule);
         if (activitySchedule.status == 200) {
           if (
             activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
@@ -1278,7 +1279,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
             'activityInfo' + farmerID + CropType + CropName + item.value,
             response,
           );
-           setMinDateGap(response?.data?.data?.rows[0]?.activity?.min_gap);
+          setMinDateGap(response?.data?.data?.rows[0]?.activity?.min_gap);
         } else {
           var response = await getItem(
             'activityInfo' + farmerID + CropType + CropName + item.value,
@@ -1309,8 +1310,9 @@ const FarmerActivityReportAWD = ({navigation}) => {
           value: '',
           latlongs: {},
         });
-        if (response.data.data.count > 0) {
+        console.log('response', response);
 
+        if (response.data.data.count > 0) {
           response.data.data.rows.forEach(element => {
             const monthNames = [
               'January',
@@ -1406,10 +1408,10 @@ const FarmerActivityReportAWD = ({navigation}) => {
         latlongs: {},
       });
       console.log('uu11=');
-       setIsAfterToday(true);
-       const tenDaysAgo = new Date();
-       tenDaysAgo.setDate(today.getDate() - 10);
-       setLastPerfromedDate(tenDaysAgo);
+      setIsAfterToday(true);
+      const tenDaysAgo = new Date();
+      tenDaysAgo.setDate(today.getDate() - 10);
+      setLastPerfromedDate(tenDaysAgo);
 
       const PipeListDetailsRes = await getUniquePipeNames(
         dbname,
@@ -1616,12 +1618,13 @@ const FarmerActivityReportAWD = ({navigation}) => {
 
       // console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
       // console.log('field_type1233', pipe_fieldType.current);
-      if (pipe_fieldType.current === 1) {
-        const isPipeInstall = await checkPipeDistance(lat, lon);
-        if (!isPipeInstall) {
-          return;
-        }
-      }
+
+      // if (pipe_fieldType.current === 1) {
+      //   const isPipeInstall = await checkPipeDistance(lat, lon);
+      //   if (!isPipeInstall) {
+      //     return;
+      //   }
+      // }
 
       const options = {
         mediaType: 'photo',
@@ -1796,123 +1799,105 @@ const FarmerActivityReportAWD = ({navigation}) => {
   );
 
   const handleActivityPipe = async scannedValue => {
-      if (!scannedValue) return;
-      if (saveData.field_type == 'add') {
-  
-        try{
-          const scanedData = await axiosGet(
-            ROUTES.GET.UNIQUE_SCAN_CODE({
-              unique_id: scannedValue,
-            }),
-            token,
-            {information: `${dbname},${lan_id},${farmerID}`},
-            '',
-            'pipeQrDetails',
-          );
-           if (scanedData?.status == 200) {
-            
-            setPipeNumber(scannedValue);
-           
-          }else if (scanedData?.status == 409) {
-             console.log(
-              'pipe data555=',
-              JSON.stringify(scanedData),
-            );
-           Toast.show({
-                time: 3,
-                text: `QR Code is already registered with activity pipe.`,
-                ...AlertMesg[0],
-              });
-           
-          }
-        }catch (error){
-   console.log(
-              'pipe data555=',
-              JSON.stringify(error),
-            );
-           Toast.show({
-                time: 3,
-                text: `QR Code is already registered with activity pipe.`,
-                ...AlertMesg[0],
-              });
-           
-          
-  
-        }
-  
-          
-  
-  
-        // setPipeNumber(scannedValue);
-      } else {
-        const matchedPipe = PipeListDetailsArr.find(
-          item =>
-            item?.label?.toString().trim().toLowerCase() ===
-            scannedValue.toString().trim().toLowerCase(),
+    if (!scannedValue) return;
+    if (saveData.field_type == 'add') {
+      try {
+        const scanedData = await axiosGet(
+          ROUTES.GET.UNIQUE_SCAN_CODE({
+            unique_id: scannedValue,
+          }),
+          token,
+          {information: `${dbname},${lan_id},${farmerID}`},
+          '',
+          'pipeQrDetails',
         );
-  
-        if (matchedPipe) {
-         
-  
-          const isNotEmpty = value =>
-            value !== null && value !== undefined && String(value).trim() !== '';
-          if (isNotEmpty(matchedPipe.lastActivityPerfromDate)) {
-            const compareDate = new Date(matchedPipe.lastActivityPerfromDate);
-            compareDate.setDate(compareDate.getDate() + minDateGap);
-  
-            const today = new Date();
-            const afterToday = compareDate > today;
-  
-            setLastPerfromedDate(compareDate);
-            console.log(
-              '2026-02-04 is TODAY',
-              isAfterToday,
-              minDateGap,
-              compareDate,
-              today,
-            );
-            if (compareDate > today) {
-              console.log('2026-02-04 is not TODAY', compareDate);
-              const formattedDate = compareDate.toLocaleDateString('en-GB', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-              });
-              Toast.show({
-                time: 3,
-                text: `Selected activity cannot be submitted before  ${formattedDate}`,
-                ...AlertMesg[0],
-              });
-            
-              setIsAfterToday(false);
-            } else {
-              setIsAfterToday(true);
-              console.log('2026-02-04 is TODAY', compareDate);
-            }
-          } else {
-            const tenDaysAgo = new Date();
-            tenDaysAgo.setDate(today.getDate() - 10);
-  
-            setLastPerfromedDate(tenDaysAgo);
-          }
-          setselectPipeList({
-            ...selectPipeList,
-            value: matchedPipe.value,
-            label: matchedPipe.label,
-            latlongs: matchedPipe.latlongs,
-            lastActivityPerfromDate: matchedPipe.lastActivityPerfromDate,
+        if (scanedData?.status == 200) {
+          setPipeNumber(scannedValue);
+        } else if (scanedData?.status == 409) {
+          console.log('pipe data555=', JSON.stringify(scanedData));
+          Toast.show({
+            time: 3,
+            text: `QR Code is already registered with activity pipe.`,
+            ...AlertMesg[0],
           });
-        } else {
-          // ❌ Not found
-          console.warn('Pipe not found:', scannedValue);
-  
-          Alert.alert(
-            'Invalid Instrument',
-            'Scanned instrument is not available in the plot',
-          );
         }
+      } catch (error) {
+        console.log('pipe data555=', JSON.stringify(error));
+        Toast.show({
+          time: 3,
+          text: `QR Code is already registered with activity pipe.`,
+          ...AlertMesg[0],
+        });
       }
-    };
+
+      // setPipeNumber(scannedValue);
+    } else {
+      const matchedPipe = PipeListDetailsArr.find(
+        item =>
+          item?.label?.toString().trim().toLowerCase() ===
+          scannedValue.toString().trim().toLowerCase(),
+      );
+
+      if (matchedPipe) {
+        const isNotEmpty = value =>
+          value !== null && value !== undefined && String(value).trim() !== '';
+        if (isNotEmpty(matchedPipe.lastActivityPerfromDate)) {
+          const compareDate = new Date(matchedPipe.lastActivityPerfromDate);
+          compareDate.setDate(compareDate.getDate() + minDateGap);
+
+          const today = new Date();
+          const afterToday = compareDate > today;
+
+          setLastPerfromedDate(compareDate);
+          console.log(
+            '2026-02-04 is TODAY',
+            isAfterToday,
+            minDateGap,
+            compareDate,
+            today,
+          );
+          if (compareDate > today) {
+            console.log('2026-02-04 is not TODAY', compareDate);
+            const formattedDate = compareDate.toLocaleDateString('en-GB', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
+            });
+            Toast.show({
+              time: 3,
+              text: `Selected activity cannot be submitted before  ${formattedDate}`,
+              ...AlertMesg[0],
+            });
+
+            setIsAfterToday(false);
+          } else {
+            setIsAfterToday(true);
+            console.log('2026-02-04 is TODAY', compareDate);
+          }
+        } else {
+          const tenDaysAgo = new Date();
+          tenDaysAgo.setDate(today.getDate() - 10);
+
+          setLastPerfromedDate(tenDaysAgo);
+        }
+        setselectPipeList({
+          ...selectPipeList,
+          value: matchedPipe.value,
+          label: matchedPipe.label,
+          latlongs: matchedPipe.latlongs,
+          lastActivityPerfromDate: matchedPipe.lastActivityPerfromDate,
+        });
+      } else {
+        // ❌ Not found
+        console.warn('Pipe not found:', scannedValue);
+
+        Alert.alert(
+          'Invalid Instrument',
+          'Scanned instrument is not available in the plot',
+        );
+      }
+    }
+  };
   const handlegrowth_stage = useCallback(growth_stage => {
     setSaveData(prev => ({...prev, growth_stage: growth_stage.value}));
   }, []);

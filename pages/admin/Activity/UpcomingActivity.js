@@ -1,4 +1,11 @@
-import {View, Text, StyleSheet, FlatList, Dimensions} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
 import React, {
   useState,
   useEffect,
@@ -143,6 +150,21 @@ const UpcomingActivity = () => {
       <>
         {upcomingActivities.length != 0 ? (
           <View style={styles.activityItem}>
+            {/* <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                if (activeTab === 'carbon') {
+                  navigation.navigate('ActivityReportAWD', {
+                    farmer: item?.farmer,
+                    plot: item?.crop?.land_info,
+                  });
+                } else {
+                  navigation.navigate('activityReport', {
+                    farmer: item?.farmer,
+                    plot: item?.crop?.land_info,
+                  });
+                }
+              }}> */}
             {/* Farmer Information */}
             <View style={styles.farmerInfo}>
               <View style={styles.nameRow}>
@@ -159,7 +181,7 @@ const UpcomingActivity = () => {
                 {upcomingActivities[0]?.harvesting_date || 'N/A'}
               </Text>
             </View>
-
+            {/* </TouchableOpacity> */}
             {/* Plot Information */}
             {/* <View style={styles.plotInfo}>
           <Text style={styles.plotStatus}>

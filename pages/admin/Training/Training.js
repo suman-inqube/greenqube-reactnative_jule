@@ -17,11 +17,17 @@ import {Colors} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {axiosGet} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
+import YoutubePlayer from 'react-native-youtube-iframe';
 
 const head = `
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    iframe { width: 100%; }
+    body { margin:0; padding:0; }
+    iframe {
+      width: 100%;
+      height: 220px;
+      border: none;
+    }
   </style>
 `;
 
@@ -42,7 +48,14 @@ const Training = () => {
   const [noticeDetails, setNoticeDetails] = useState([]);
   const [noticeFiles, setNoticeFiles] = useState([]);
   const {width, height} = useWindowDimensions();
+  const formatYouTubeEmbed = html => {
+    if (!html) return '';
 
+    return html.replace(
+      /https:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/g,
+      'https://www.youtube.com/embed/$1',
+    );
+  };
   const detailItem = path => {
     Linking.openURL(path);
   };
@@ -70,7 +83,10 @@ const Training = () => {
       </View>
     );
   };
-
+  const getVideoId = html => {
+    const match = html?.match(/embed\/([a-zA-Z0-9_-]+)/);
+    return match ? match[1] : null;
+  };
   const onPageLoad = async () => {
     const noticeId = route.params;
     if (noticeId) {
@@ -82,7 +98,7 @@ const Training = () => {
         {information: `${dbname},${lan_id}`},
       );
       // noticeDetailsAPI(dbname, lan_id, token, noticeId);
-      console.log('response');
+      console.log('response11', response);
       if (response) {
         setNoticeDetails(response.data.data[0]);
         setNoticeFiles(response.data.data[0].agri_files);
@@ -95,7 +111,7 @@ const Training = () => {
   }, []);
 
   const HandlerGoBack = () => navigation.navigate('TraingList');
-
+  const videoId = getVideoId(noticeDetails?.post_desc);
   return (
     <FarmerDrawerScreenWrapper1>
       <View style={{flex: 1, backgroundColor: Colors.background}}>
@@ -140,7 +156,10 @@ const Training = () => {
 
         {/* WebView Section */}
         <View style={{flex: 1, paddingHorizontal: 7}}>
-          <WebView
+          {videoId && (
+            <YoutubePlayer height={220} play={false} videoId={videoId} />
+          )}
+          {/* <WebView
             style={{flex: 1}}
             originWhitelist={['*']}
             source={{
@@ -148,9 +167,9 @@ const Training = () => {
               <!DOCTYPE html>
               <html>
                 <head>${head}</head>
-                <body style="margin:0;padding:10px;font-size:16px;">
-                  ${noticeDetails?.post_desc}
-                </body>
+               <body>
+  ${formatYouTubeEmbed(noticeDetails?.post_desc)}
+</body>
               </html>
             `,
             }}
@@ -158,7 +177,10 @@ const Training = () => {
             javaScriptEnabled
             domStorageEnabled
             automaticallyAdjustContentInsets={false}
-          />
+            mediaPlaybackRequiresUserAction={false}
+            allowsInlineMediaPlayback={true}
+            mixedContentMode="always"
+          /> */}
         </View>
       </View>
     </FarmerDrawerScreenWrapper1>

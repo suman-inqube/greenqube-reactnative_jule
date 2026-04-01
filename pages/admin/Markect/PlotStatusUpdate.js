@@ -1432,6 +1432,21 @@ const PlotStatusUpdate = () => {
         latlongArr.push({latitude: data?.latitude, longitude: data?.longitude});
       }
     });
+    if (carbonFlag && !farmerData.jl_no) {
+      Toast.show({
+        text: 'Please enter L-Number',
+        ...AlertMesg[0],
+      });
+      return;
+    }
+
+    if (carbonFlag && !farmerData.daag_no) {
+      Toast.show({
+        text: 'Please enter Dag Number',
+        ...AlertMesg[0],
+      });
+      return;
+    }
     if (farmerData.plot_Site_Name == '') {
       Toast.show({text: `${t('please_add_plot_name_first')}`, ...AlertMesg[0]});
     } else if (farmerData.terrainTypeValue == '') {
@@ -2177,6 +2192,7 @@ const PlotStatusUpdate = () => {
                   value={farmerData.daag_no}
                   onChangeText={text => handleAddUserData('daag_no', text)}
                   editable={InputTextFormEdit}
+                  required={carbonFlag === true}
                 />
                 <InputTextForm
                   label={t('khatian_no')}
@@ -2190,23 +2206,24 @@ const PlotStatusUpdate = () => {
                   onChangeText={text => handleAddUserData('plant_number', text)}
                   editable={InputTextFormEdit}
                 />
-                 {carbonFlag == true ? (
-                 <InputTextForm
-                  label={t('JL No')}
-                  value={farmerData.jl_no}
-                  onChangeText={text => handleAddUserData('jl_no', text)}
-                  editable={InputTextFormEdit}
-                />
+                {carbonFlag == true ? (
+                  <InputTextForm
+                    label={t('JL No')}
+                    value={farmerData.jl_no}
+                    onChangeText={text => handleAddUserData('jl_no', text)}
+                    required={carbonFlag === true}
+                    editable={InputTextFormEdit}
+                  />
                 ) : (
                   <></>
                 )}
-                 {carbonFlag == true ? (
-                <InputTextForm
-                  label={t('Mouja Name')}
-                  value={farmerData.mouja}
-                  onChangeText={text => handleAddUserData('mouja', text)}
-                  editable={InputTextFormEdit}
-                />
+                {carbonFlag == true ? (
+                  <InputTextForm
+                    label={t('Mouja Name')}
+                    value={farmerData.mouja}
+                    onChangeText={text => handleAddUserData('mouja', text)}
+                    editable={InputTextFormEdit}
+                  />
                 ) : (
                   <></>
                 )}

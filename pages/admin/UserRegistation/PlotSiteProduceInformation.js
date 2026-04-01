@@ -908,6 +908,25 @@ const PlotSiteProduceInformation = () => {
     setstoreProduceInfoInArray(values);
   };
   const validationData = () => {
+    if (carbonFlag && !storeProduceInfo.jlNo) {
+      Toast.show({
+        time: 3,
+        text: 'Please enter JL Number',
+        ...AlertMesg[0],
+      });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      return false;
+    }
+
+    if (carbonFlag && !storeProduceInfo.daagNo) {
+      Toast.show({
+        time: 3,
+        text: 'Please enter Daag No',
+        ...AlertMesg[0],
+      });
+      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      return false;
+    }
     if (!storeProduceInfo.plotSiteName) {
       Toast.show({
         time: 3,
@@ -1620,6 +1639,7 @@ const PlotSiteProduceInformation = () => {
                   label={t('daag_no')}
                   onChangeText={handelDaagNo}
                   value={storeProduceInfo.daagNo}
+                  required={carbonFlag === true}
                 />
                 <InputTextForm
                   label={t('khatian_no')}
@@ -1636,6 +1656,7 @@ const PlotSiteProduceInformation = () => {
                     label={t('JL No')}
                     onChangeText={handelJLNo}
                     value={storeProduceInfo.jlNo}
+                    required={carbonFlag === true}
                   />
                 ) : (
                   <></>

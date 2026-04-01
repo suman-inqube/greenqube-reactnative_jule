@@ -168,7 +168,23 @@ const PlotListFarmer = () => {
   // HEADER
   // -----------------------------
 
-  const renderCustomHeader = useMemo(() => <CustomHeader t={t} />, [t]);
+  const renderCustomHeader = useMemo(
+    () => (
+      <CustomHeader
+        t={t}
+        HandlerGoBack={() => {
+          if (activeTab === 1) {
+            // 👉 If inside Livelihood → go back to PlotList tab
+            onTabPress(0);
+          } else {
+            // 👉 Default → go to UserList
+            navigation.goBack();
+          }
+        }}
+      />
+    ),
+    [t, activeTab, onTabPress, navigation],
+  );
 
   // -----------------------------
   // RENDER
