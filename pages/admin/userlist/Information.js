@@ -413,6 +413,7 @@ const Information = ({sendDataToParent, farmerID}) => {
       );
 
       const farmerFound = response?.data?.data?.[0];
+      console.log('farmer==', farmerFound);
 
       if (!farmerFound) return;
 
@@ -433,6 +434,11 @@ const Information = ({sendDataToParent, farmerID}) => {
         lan_id,
         farmerFound?.agri_user_addresses?.[0]?.agri_district?.fid,
       );
+
+                const filteredFilesProfile = farmerFound.agri_files.filter(
+                  file => file.term_type === '1',
+                );
+                setSelectedImage(filteredFilesProfile[0]?.file_path);
 
       const values = [...identityProofIdentityPropf];
 

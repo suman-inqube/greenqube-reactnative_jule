@@ -1519,6 +1519,7 @@ const ProduceInfo = () => {
                     }
                     value={storeProduceInfo.daagNo}
                     required={carbonFlag === true}
+                    required={carbonFlag === true}
                   />
                   <InputTextForm
                     label={t('khatian_no')}
@@ -1550,6 +1551,7 @@ const ProduceInfo = () => {
                         })
                       }
                       value={storeProduceInfo.jl_no}
+                      required={carbonFlag === true}
                       required={carbonFlag === true}
                     />
                   ) : (

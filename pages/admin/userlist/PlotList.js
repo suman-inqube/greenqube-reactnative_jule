@@ -105,8 +105,8 @@ const PlotList = () => {
         LandUnitsquare_metre(dbname, lan_id, token),
         // AllFarmerList(),
       ]);
-      console.log('plotsResJSON', JSON.stringify(plotsRes));
-      console.log('plotsRes', plotsRes);
+      // console.log('plotsResJSON', JSON.stringify(plotsRes));
+      // console.log('plotsRes', plotsRes);
 
       if (plotsRes?.status === 200) {
         // console.log('sta==', JSON.stringify(plotsRes?.data));

@@ -1432,9 +1432,10 @@ const PlotStatusUpdate = () => {
         latlongArr.push({latitude: data?.latitude, longitude: data?.longitude});
       }
     });
+
     if (carbonFlag && !farmerData.jl_no) {
       Toast.show({
-        text: 'Please enter L-Number',
+        text: 'Please enter JL-Number',
         ...AlertMesg[0],
       });
       return;
@@ -1442,7 +1443,7 @@ const PlotStatusUpdate = () => {
 
     if (carbonFlag && !farmerData.daag_no) {
       Toast.show({
-        text: 'Please enter Dag Number',
+        text: 'Please enter Daag Number',
         ...AlertMesg[0],
       });
       return;
@@ -2211,8 +2212,8 @@ const PlotStatusUpdate = () => {
                     label={t('JL No')}
                     value={farmerData.jl_no}
                     onChangeText={text => handleAddUserData('jl_no', text)}
-                    required={carbonFlag === true}
                     editable={InputTextFormEdit}
+                    required={carbonFlag === true}
                   />
                 ) : (
                   <></>

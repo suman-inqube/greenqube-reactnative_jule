@@ -728,7 +728,7 @@ const ProduceInfoUpdate = () => {
     const locationEmpty = location.filter(item => item.latitude !== '');
     if (carbonFlag && !storeProduceInfo.daagNo) {
       Toast.show({
-        text: 'Please enter Dag Number',
+        text: 'Please enter Daag Number',
         ...AlertMesg[0],
       });
       return;

@@ -547,6 +547,7 @@ const CreateProblem = ({navigation}) => {
     Keyboard.dismiss();
 
     if (validateForm()) {
+      setIsLoading(true);
       //
       let array = [];
       const formData = new FormData();
@@ -619,7 +620,10 @@ const CreateProblem = ({navigation}) => {
         // );
 
         if (database_res.status === 200) {
+           setIsLoading(false);
           navigation.navigate('ProblemList', {action: 'addData'});
+        }else{
+          setIsLoading(false)
         }
       } else {
         formData.append('farmerID', farmerID);
@@ -1021,7 +1025,11 @@ const CreateProblem = ({navigation}) => {
               />
             </View>
           </ScrollView>
-          <ButtonForm label={t('submit')} onPress={handleSave} />
+          <ButtonForm
+            label={t('submit')}
+            onPress={handleSave}
+            loading={isLoading}
+          />
         </View>
       </Root>
     </FarmerDrawerScreenWrapper1>

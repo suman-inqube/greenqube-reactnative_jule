@@ -1174,9 +1174,10 @@ const FarmerLiveHood = ({
           });
         }
       });
+
       if (carbonFlag && !farmerData.daag_no) {
         Toast.show({
-          text: 'Please enter Dag Number',
+          text: 'Please enter Daag Number',
           ...AlertMesg[0],
         });
         return;
@@ -1188,7 +1189,6 @@ const FarmerLiveHood = ({
         });
         return;
       }
-
       if (farmerData.plot_Site_Name == '') {
         Toast.show({
           text: `${t('please_add_plot_name_first')}`,

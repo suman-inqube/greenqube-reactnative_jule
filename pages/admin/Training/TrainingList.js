@@ -110,6 +110,7 @@ const TrainingList = () => {
 
     if (response.status == 200) {
       if (response?.data?.rows != 0) {
+         console.log('response11', response.data);
         setTrainingList(response.data);
         setItem('userTrainingList', response.data);
       } else {

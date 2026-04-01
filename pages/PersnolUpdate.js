@@ -313,6 +313,201 @@ const PersnolUpdate = () => {
     values[index]['fileName'] = '';
     setIdentityProofIdentityPropf(values);
   };
+  // return (
+  //   <>
+  //     <StatusBar barStyle="light-content" backgroundColor={Colors.green} />
+  //     <View style={styles.container}>
+  //       <View
+  //         style={{
+  //           // height: 100,
+  //           backgroundColor: Colors.green,
+  //           borderBottomLeftRadius: 25,
+  //           borderBottomRightRadius: 25,
+  //           justifyContent: 'flex-end',
+  //         }}>
+  //         <View style={styles.headersContainer}>
+  //           <Text style={styles.headersTitle}>{t('personal_information')}</Text>
+  //         </View>
+  //       </View>
+  //       <View style={{flex: 1, justifyContent: 'center'}}>
+  //         <ScrollView showsVerticalScrollIndicator={false}>
+  //           <View style={{alignItems: 'center'}}>
+  //             <Image
+  //               source={require('../pages/Common/images/logo.png')}
+  //               style={styles.logo}
+  //             />
+  //           </View>
+  //           <View style={{flex: 1}}>
+  //             <View style={styles.firatFormContainer}>
+  //               <View style={styles.profileImg}>
+  //                 <ImagePlaceHolderCircle
+  //                   openImagePicker={openImagePicker}
+  //                   selectedImage={selectedImage}
+  //                 />
+  //               </View>
+  //               <View style={styles.inputContainer}>
+  //                 <InputTextForm
+  //                   label={t('name')}
+  //                   required={true}
+  //                   value={storePersnolInfo.name ?? name}
+  //                   onChangeText={name => {
+  //                     setstorePersnolInfo({...storePersnolInfo, name: name});
+  //                   }}
+  //                 />
+  //                 <View>
+  //                   <Text style={{fontSize: 16, color: '#000'}}>Gender</Text>
+  //                   <RadioForm
+  //                     label={t('farmer_reg_male')}
+  //                     selected={storePersnolInfo.gender === '1'}
+  //                     onSelect={() =>
+  //                       setstorePersnolInfo({...storePersnolInfo, gender: '1'})
+  //                     }
+  //                   />
+  //                   <RadioForm
+  //                     label={t('farmer_reg_female')}
+  //                     selected={storePersnolInfo.gender === '2'}
+  //                     onSelect={() =>
+  //                       setstorePersnolInfo({...storePersnolInfo, gender: '2'})
+  //                     }
+  //                   />
+  //                 </View>
+
+  //                 <View style={{marginBottom: 15}}>
+  //                   <Text style={{fontSize: 16, marginTop: 15, color: '#000'}}>
+  //                     User Type
+  //                   </Text>
+  //                   <RadioForm
+  //                     label={t('grower')}
+  //                     selected={storePersnolInfo.userType === '1'}
+  //                     onSelect={() =>
+  //                       setstorePersnolInfo({
+  //                         ...storePersnolInfo,
+  //                         userType: '1',
+  //                       })
+  //                     }
+  //                   />
+  //                   <RadioForm
+  //                     label={t('small_holder')}
+  //                     selected={storePersnolInfo.userType === '2'}
+  //                     onSelect={() =>
+  //                       setstorePersnolInfo({
+  //                         ...storePersnolInfo,
+  //                         userType: '2',
+  //                       })
+  //                     }
+  //                   />
+  //                   <RadioForm
+  //                     label={t('farm_worker')}
+  //                     selected={storePersnolInfo.userType === '3'}
+  //                     onSelect={() =>
+  //                       setstorePersnolInfo({
+  //                         ...storePersnolInfo,
+  //                         userType: '3',
+  //                       })
+  //                     }
+  //                   />
+  //                 </View>
+
+  //                 <InputTextForm
+  //                   label={t('age')}
+  //                   required={true}
+  //                   value={storePersnolInfo.age ?? age}
+  //                   onChangeText={age => {
+  //                     setstorePersnolInfo({...storePersnolInfo, age: age});
+  //                   }}
+  //                   keyboardType="numeric"
+  //                 />
+
+  //                 <DropdownForm
+  //                   label={t('select_language')}
+  //                   required={true}
+  //                   data={languageData}
+  //                   onChange={item => {
+  //                     handleLanguage(item);
+  //                   }}
+  //                   val={storePersnolInfo.language.label}
+  //                 />
+
+  //                 <DropdownForm
+  //                   label={t('select_state')}
+  //                   required={true}
+  //                   data={stateInfoData}
+  //                   onChange={item => {
+  //                     handleStateInfo(item);
+  //                   }}
+  //                   val={storePersnolInfo.stateInfo.label}
+  //                 />
+
+  //                 <DropdownForm
+  //                   label={t('select_district_county')}
+  //                   required={true}
+  //                   data={districtData}
+  //                   onChange={item => {
+  //                     handleDistrict(item);
+  //                   }}
+  //                   val={storePersnolInfo.district.label}
+  //                 />
+
+  //                 <DropdownForm
+  //                   label={t('select_block_sub_county_upzila')}
+  //                   required={true}
+  //                   data={blockData}
+  //                   onChange={item => {
+  //                     setstorePersnolInfo({...storePersnolInfo, block: item});
+  //                   }}
+  //                   val={storePersnolInfo.block.label}
+  //                 />
+
+  //                 <InputTextForm
+  //                   label={t('enter_address')}
+  //                   value={storePersnolInfo.address ?? address}
+  //                   onChangeText={address => {
+  //                     setstorePersnolInfo({
+  //                       ...storePersnolInfo,
+  //                       address: address,
+  //                     });
+  //                   }}
+  //                 />
+
+  //                 <InputTextForm
+  //                   label={t('valid_pin_code')}
+  //                   value={storePersnolInfo.zip ?? zip}
+  //                   onChangeText={zip => {
+  //                     setstorePersnolInfo({...storePersnolInfo, zip: zip});
+  //                   }}
+  //                   maxLength={6}
+  //                 />
+
+  //                 {/* <ProofAndIdentityPropfComp
+  //               identityProofIdentityPropf={identityProofIdentityPropf}
+  //               t={t}
+  //               title={t('address_proofAndIdentityPropf')}
+  //               handleDocumentSelection={handleDocumentSelection}
+  //               handleDocumentSelectionRemove={handleDocumentSelectionRemove}
+  //             /> */}
+  //                 <ProofAndIdentityPropfComp
+  //                   identityProofIdentityPropf={identityProofIdentityPropf}
+  //                   t={t}
+  //                   title={t('address_proofAndIdentityPropf')}
+  //                   setStateValue={setIdentityProofIdentityPropf}
+  //                   stateValue={identityProofIdentityPropf}
+  //                   disable={true}
+  //                   InputTextFormEdit={true}
+  //                   // photoDeletedValue={photoDeletedValue}
+  //                   // setPhotoDeletedValue={setPhotoDeletedValue}
+  //                   // loginUser_data={loginUser_data}
+  //                 />
+  //               </View>
+  //             </View>
+  //           </View>
+  //         </ScrollView>
+  //       </View>
+  //     </View>
+  //     <ButtonForm label={t('next')} onPress={() => handleSave('Financial')} />
+  //     <Root></Root>
+  //   </>
+  // );
+
   return (
     <SafeAreaView style={{flex: 1}} edges={['top', 'bottom']}>
       <Root>
@@ -386,117 +581,344 @@ const PersnolUpdate = () => {
                           }
                         />
                       </View>
+                      <SafeAreaView style={{flex: 1}} edges={['top', 'bottom']}>
+                        <Root>
+                          <MyErrorBoundary>
+                            <StatusBar
+                              barStyle="light-content"
+                              backgroundColor={Colors.green}
+                            />
+                            <View style={styles.container}>
+                              <View
+                                style={{
+                                  height: 60,
+                                  backgroundColor: Colors.green,
+                                  borderBottomLeftRadius: 25,
+                                  borderBottomRightRadius: 25,
+                                  justifyContent: 'flex-end',
+                                }}>
+                                <View style={styles.headersContainer}>
+                                  <Text style={styles.headersTitle}>
+                                    {t('personal_information')}
+                                  </Text>
+                                </View>
+                              </View>
+                              <View style={{flex: 1, justifyContent: 'center'}}>
+                                <ScrollView
+                                  showsVerticalScrollIndicator={false}>
+                                  <View style={{alignItems: 'center'}}>
+                                    <Image
+                                      source={require('../pages/Common/images/logo.png')}
+                                      style={styles.logo}
+                                    />
+                                  </View>
+                                  <View style={{flex: 1}}>
+                                    <View style={styles.firatFormContainer}>
+                                      <View style={styles.profileImg}>
+                                        <ImagePlaceHolderCircle
+                                          openImagePicker={openImagePicker}
+                                          selectedImage={selectedImage}
+                                        />
+                                      </View>
+                                      <View style={styles.inputContainer}>
+                                        <InputTextForm
+                                          label={t('name')}
+                                          required={true}
+                                          value={storePersnolInfo.name ?? name}
+                                          onChangeText={name => {
+                                            setstorePersnolInfo({
+                                              ...storePersnolInfo,
+                                              name: name,
+                                            });
+                                          }}
+                                        />
+                                        <View>
+                                          <Text
+                                            style={{
+                                              fontSize: 16,
+                                              color: '#000',
+                                            }}>
+                                            Gender
+                                          </Text>
+                                          <RadioForm
+                                            label={t('farmer_reg_male')}
+                                            selected={
+                                              storePersnolInfo.gender === '1'
+                                            }
+                                            onSelect={() =>
+                                              setstorePersnolInfo({
+                                                ...storePersnolInfo,
+                                                gender: '1',
+                                              })
+                                            }
+                                          />
+                                          <RadioForm
+                                            label={t('farmer_reg_female')}
+                                            selected={
+                                              storePersnolInfo.gender === '2'
+                                            }
+                                            onSelect={() =>
+                                              setstorePersnolInfo({
+                                                ...storePersnolInfo,
+                                                gender: '2',
+                                              })
+                                            }
+                                          />
+                                        </View>
 
-                      <View style={{marginBottom: 15}}>
-                        <Text
-                          style={{fontSize: 16, marginTop: 15, color: '#000'}}>
-                          User Type
-                        </Text>
-                        <RadioForm
-                          label={t('grower')}
-                          selected={storePersnolInfo.userType === '1'}
-                          onSelect={() =>
-                            setstorePersnolInfo({
-                              ...storePersnolInfo,
-                              userType: '1',
-                            })
-                          }
-                        />
-                        <RadioForm
-                          label={t('small_holder')}
-                          selected={storePersnolInfo.userType === '2'}
-                          onSelect={() =>
-                            setstorePersnolInfo({
-                              ...storePersnolInfo,
-                              userType: '2',
-                            })
-                          }
-                        />
-                        <RadioForm
-                          label={t('farm_worker')}
-                          selected={storePersnolInfo.userType === '3'}
-                          onSelect={() =>
-                            setstorePersnolInfo({
-                              ...storePersnolInfo,
-                              userType: '3',
-                            })
-                          }
-                        />
-                      </View>
+                                        <View style={{marginBottom: 15}}>
+                                          <Text
+                                            style={{
+                                              fontSize: 16,
+                                              marginTop: 15,
+                                              color: '#000',
+                                            }}>
+                                            User Type
+                                          </Text>
+                                          <RadioForm
+                                            label={t('grower')}
+                                            selected={
+                                              storePersnolInfo.userType === '1'
+                                            }
+                                            onSelect={() =>
+                                              setstorePersnolInfo({
+                                                ...storePersnolInfo,
+                                                userType: '1',
+                                              })
+                                            }
+                                          />
+                                          <RadioForm
+                                            label={t('small_holder')}
+                                            selected={
+                                              storePersnolInfo.userType === '2'
+                                            }
+                                            onSelect={() =>
+                                              setstorePersnolInfo({
+                                                ...storePersnolInfo,
+                                                userType: '2',
+                                              })
+                                            }
+                                          />
+                                          <RadioForm
+                                            label={t('farm_worker')}
+                                            selected={
+                                              storePersnolInfo.userType === '3'
+                                            }
+                                            onSelect={() =>
+                                              setstorePersnolInfo({
+                                                ...storePersnolInfo,
+                                                userType: '3',
+                                              })
+                                            }
+                                          />
+                                        </View>
+                                        <View style={{marginBottom: 15}}>
+                                          <Text
+                                            style={{
+                                              fontSize: 16,
+                                              marginTop: 15,
+                                              color: '#000',
+                                            }}>
+                                            User Type
+                                          </Text>
+                                          <RadioForm
+                                            label={t('grower')}
+                                            selected={
+                                              storePersnolInfo.userType === '1'
+                                            }
+                                            onSelect={() =>
+                                              setstorePersnolInfo({
+                                                ...storePersnolInfo,
+                                                userType: '1',
+                                              })
+                                            }
+                                          />
+                                          <RadioForm
+                                            label={t('small_holder')}
+                                            selected={
+                                              storePersnolInfo.userType === '2'
+                                            }
+                                            onSelect={() =>
+                                              setstorePersnolInfo({
+                                                ...storePersnolInfo,
+                                                userType: '2',
+                                              })
+                                            }
+                                          />
+                                          <RadioForm
+                                            label={t('farm_worker')}
+                                            selected={
+                                              storePersnolInfo.userType === '3'
+                                            }
+                                            onSelect={() =>
+                                              setstorePersnolInfo({
+                                                ...storePersnolInfo,
+                                                userType: '3',
+                                              })
+                                            }
+                                          />
+                                        </View>
 
-                      <InputTextForm
-                        label={t('age')}
-                        required={true}
-                        value={storePersnolInfo.age ?? age}
-                        onChangeText={age => {
-                          setstorePersnolInfo({...storePersnolInfo, age: age});
-                        }}
-                        keyboardType="numeric"
-                      />
+                                        <InputTextForm
+                                          label={t('age')}
+                                          required={true}
+                                          value={storePersnolInfo.age ?? age}
+                                          onChangeText={age => {
+                                            setstorePersnolInfo({
+                                              ...storePersnolInfo,
+                                              age: age,
+                                            });
+                                          }}
+                                          keyboardType="numeric"
+                                        />
+                                        <InputTextForm
+                                          label={t('age')}
+                                          required={true}
+                                          value={storePersnolInfo.age ?? age}
+                                          onChangeText={age => {
+                                            setstorePersnolInfo({
+                                              ...storePersnolInfo,
+                                              age: age,
+                                            });
+                                          }}
+                                          keyboardType="numeric"
+                                        />
 
-                      <DropdownForm
-                        label={t('select_language')}
-                        required={true}
-                        data={languageData}
-                        onChange={item => {
-                          handleLanguage(item);
-                        }}
-                        val={storePersnolInfo.language.label}
-                      />
+                                        <DropdownForm
+                                          label={t('select_language')}
+                                          required={true}
+                                          data={languageData}
+                                          onChange={item => {
+                                            handleLanguage(item);
+                                          }}
+                                          val={storePersnolInfo.language.label}
+                                        />
+                                        <DropdownForm
+                                          label={t('select_language')}
+                                          required={true}
+                                          data={languageData}
+                                          onChange={item => {
+                                            handleLanguage(item);
+                                          }}
+                                          val={storePersnolInfo.language.label}
+                                        />
 
-                      <DropdownForm
-                        label={t('select_state')}
-                        required={true}
-                        data={stateInfoData}
-                        onChange={item => {
-                          handleStateInfo(item);
-                        }}
-                        val={storePersnolInfo.stateInfo.label}
-                      />
+                                        <DropdownForm
+                                          label={t('select_state')}
+                                          required={true}
+                                          data={stateInfoData}
+                                          onChange={item => {
+                                            handleStateInfo(item);
+                                          }}
+                                          val={storePersnolInfo.stateInfo.label}
+                                        />
+                                        <DropdownForm
+                                          label={t('select_state')}
+                                          required={true}
+                                          data={stateInfoData}
+                                          onChange={item => {
+                                            handleStateInfo(item);
+                                          }}
+                                          val={storePersnolInfo.stateInfo.label}
+                                        />
 
-                      <DropdownForm
-                        label={t('select_district_county')}
-                        required={true}
-                        data={districtData}
-                        onChange={item => {
-                          handleDistrict(item);
-                        }}
-                        val={storePersnolInfo.district.label}
-                      />
+                                        <DropdownForm
+                                          label={t('select_district_county')}
+                                          required={true}
+                                          data={districtData}
+                                          onChange={item => {
+                                            handleDistrict(item);
+                                          }}
+                                          val={storePersnolInfo.district.label}
+                                        />
+                                        <DropdownForm
+                                          label={t('select_district_county')}
+                                          required={true}
+                                          data={districtData}
+                                          onChange={item => {
+                                            handleDistrict(item);
+                                          }}
+                                          val={storePersnolInfo.district.label}
+                                        />
 
-                      <DropdownForm
-                        label={t('select_block_sub_county_upzila')}
-                        required={true}
-                        data={blockData}
-                        onChange={item => {
-                          setstorePersnolInfo({
-                            ...storePersnolInfo,
-                            block: item,
-                          });
-                        }}
-                        val={storePersnolInfo.block.label}
-                      />
+                                        <DropdownForm
+                                          label={t(
+                                            'select_block_sub_county_upzila',
+                                          )}
+                                          required={true}
+                                          data={blockData}
+                                          onChange={item => {
+                                            setstorePersnolInfo({
+                                              ...storePersnolInfo,
+                                              block: item,
+                                            });
+                                          }}
+                                          val={storePersnolInfo.block.label}
+                                        />
+                                        <DropdownForm
+                                          label={t(
+                                            'select_block_sub_county_upzila',
+                                          )}
+                                          required={true}
+                                          data={blockData}
+                                          onChange={item => {
+                                            setstorePersnolInfo({
+                                              ...storePersnolInfo,
+                                              block: item,
+                                            });
+                                          }}
+                                          val={storePersnolInfo.block.label}
+                                        />
 
-                      <InputTextForm
-                        label={t('enter_address')}
-                        value={storePersnolInfo.address ?? address}
-                        onChangeText={address => {
-                          setstorePersnolInfo({
-                            ...storePersnolInfo,
-                            address: address,
-                          });
-                        }}
-                      />
+                                        <InputTextForm
+                                          label={t('enter_address')}
+                                          value={
+                                            storePersnolInfo.address ?? address
+                                          }
+                                          onChangeText={address => {
+                                            setstorePersnolInfo({
+                                              ...storePersnolInfo,
+                                              address: address,
+                                            });
+                                          }}
+                                        />
+                                        <InputTextForm
+                                          label={t('enter_address')}
+                                          value={
+                                            storePersnolInfo.address ?? address
+                                          }
+                                          onChangeText={address => {
+                                            setstorePersnolInfo({
+                                              ...storePersnolInfo,
+                                              address: address,
+                                            });
+                                          }}
+                                        />
 
-                      <InputTextForm
-                        label={t('valid_pin_code')}
-                        value={storePersnolInfo.zip ?? zip}
-                        onChangeText={zip => {
-                          setstorePersnolInfo({...storePersnolInfo, zip: zip});
-                        }}
-                        maxLength={6}
-                      />
+                                        <InputTextForm
+                                          label={t('valid_pin_code')}
+                                          value={storePersnolInfo.zip ?? zip}
+                                          onChangeText={zip => {
+                                            setstorePersnolInfo({
+                                              ...storePersnolInfo,
+                                              zip: zip,
+                                            });
+                                          }}
+                                          maxLength={6}
+                                        />
+                                        <InputTextForm
+                                          label={t('valid_pin_code')}
+                                          value={storePersnolInfo.zip ?? zip}
+                                          onChangeText={zip => {
+                                            setstorePersnolInfo({
+                                              ...storePersnolInfo,
+                                              zip: zip,
+                                            });
+                                          }}
+                                          maxLength={6}
+                                        />
 
+                                        {/* <ProofAndIdentityPropfComp
                       {/* <ProofAndIdentityPropfComp
                 identityProofIdentityPropf={identityProofIdentityPropf}
                 t={t}
@@ -504,6 +926,39 @@ const PersnolUpdate = () => {
                 handleDocumentSelection={handleDocumentSelection}
                 handleDocumentSelectionRemove={handleDocumentSelectionRemove}
               /> */}
+                                        <ProofAndIdentityPropfComp
+                                          identityProofIdentityPropf={
+                                            identityProofIdentityPropf
+                                          }
+                                          t={t}
+                                          title={t(
+                                            'address_proofAndIdentityPropf',
+                                          )}
+                                          setStateValue={
+                                            setIdentityProofIdentityPropf
+                                          }
+                                          stateValue={
+                                            identityProofIdentityPropf
+                                          }
+                                          disable={true}
+                                          InputTextFormEdit={true}
+                                          // photoDeletedValue={photoDeletedValue}
+                                          // setPhotoDeletedValue={setPhotoDeletedValue}
+                                          // loginUser_data={loginUser_data}
+                                        />
+                                      </View>
+                                    </View>
+                                  </View>
+                                </ScrollView>
+                              </View>
+                            </View>
+                            <ButtonForm
+                              label={t('next')}
+                              onPress={() => handleSave('Financial')}
+                            />
+                          </MyErrorBoundary>
+                        </Root>
+                      </SafeAreaView>
                       <ProofAndIdentityPropfComp
                         identityProofIdentityPropf={identityProofIdentityPropf}
                         t={t}

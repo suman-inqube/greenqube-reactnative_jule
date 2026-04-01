@@ -325,14 +325,14 @@ const ActivityReportAWD = ({navigation, route}) => {
           {latitude: existingPipe.latitude, longitude: existingPipe.longitude},
         );
 
-        if (distance < 20) {
-          Alert.alert(
-            'Too Close!',
-            `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
-            [{text: 'OK', style: 'cancel'}],
-          );
-          return false;
-        }
+        // if (distance < 20) {
+        //   Alert.alert(
+        //     'Too Close!',
+        //     `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
+        //     [{text: 'OK', style: 'cancel'}],
+        //   );
+        //   return false;
+        // }
       }
       return true;
     } catch (error) {
@@ -1379,6 +1379,8 @@ const ActivityReportAWD = ({navigation, route}) => {
   const handleSave = async () => {
     Keyboard.dismiss();
     if (validateForm()) {
+      setIsLoading(true);
+
       const hasFailed = pipeDetails.some(pipeGroup =>
         pipeGroup[1].some(img => img.status === 'failed'),
       );
@@ -1568,12 +1570,14 @@ const ActivityReportAWD = ({navigation, route}) => {
           setIsLoading(false);
         }
         if (database_res?.status == 200) {
+          setIsLoading(false);
           setPipeDetails([]);
 
           AnalyticsLogEvent('activity_report', 'activity_report');
           navigation.popToTop();
           navigation.navigate('activityList', {action: 'addData'});
         } else if (database_res?.status == 409) {
+          setIsLoading(false);
           setPipeDetails([]);
 
           Toast.show({
@@ -2425,7 +2429,7 @@ const ActivityReportAWD = ({navigation, route}) => {
               setTempImage(null);
               setTempText('');
             }
-          }, 700);
+          }, 1000);
         } catch (error) {
           CustomAlert('Catch Error ', error, true, 'OK');
         } finally {

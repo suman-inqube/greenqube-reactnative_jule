@@ -7,6 +7,7 @@ import {
   Image,
   TextInput,
   BackHandler,
+  Alert,
 } from 'react-native';
 import React, {
   useEffect,
@@ -311,12 +312,19 @@ const RegistationSignUpViwer = () => {
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
-      Toast.show({
-        time: 3,
-        text: error,
-        ...AlertMesg[0],
-      });
-      Toast.show({text: 'Something went wrong', ...AlertMesg[0]});
+      console.log('error==', error);
+      // Alert.alert(
+      //   'Alert',
+      //   error,
+      //   [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+      //   {cancelable: false},
+      // );
+      // Toast.show({
+      //   time: 3,
+      //   text: error,
+      //   ...AlertMesg[0],
+      // });
+      // Toast.show({text: 'Something went wrong', ...AlertMesg[0]});
       setTimeout(() => {
         navigation.dispatch({
           ...CommonActions.reset({
