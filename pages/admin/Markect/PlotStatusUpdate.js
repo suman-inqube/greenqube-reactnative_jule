@@ -1432,6 +1432,22 @@ const PlotStatusUpdate = () => {
         latlongArr.push({latitude: data?.latitude, longitude: data?.longitude});
       }
     });
+
+    if (carbonFlag && !farmerData.jl_no) {
+      Toast.show({
+        text: 'Please enter JL-Number',
+        ...AlertMesg[0],
+      });
+      return;
+    }
+
+    if (carbonFlag && !farmerData.daag_no) {
+      Toast.show({
+        text: 'Please enter Daag Number',
+        ...AlertMesg[0],
+      });
+      return;
+    }
     if (farmerData.plot_Site_Name == '') {
       Toast.show({text: `${t('please_add_plot_name_first')}`, ...AlertMesg[0]});
     } else if (farmerData.terrainTypeValue == '') {
@@ -2177,6 +2193,7 @@ const PlotStatusUpdate = () => {
                   value={farmerData.daag_no}
                   onChangeText={text => handleAddUserData('daag_no', text)}
                   editable={InputTextFormEdit}
+                  required={carbonFlag === true}
                 />
                 <InputTextForm
                   label={t('khatian_no')}
@@ -2196,6 +2213,7 @@ const PlotStatusUpdate = () => {
                   value={farmerData.jl_no}
                   onChangeText={text => handleAddUserData('jl_no', text)}
                   editable={InputTextFormEdit}
+                  required={carbonFlag === true}
                 />
                 ) : (
                   <></>

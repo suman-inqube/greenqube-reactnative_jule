@@ -1,149 +1,174 @@
 import {
   FlatList,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
   Image,
   Linking,
-  Dimensions,
 } from 'react-native';
 import React, {useState, useEffect, useContext} from 'react';
-import {noticeDetailsAPI} from '../../../config/apiHere';
-import {WebView} from 'react-native-webview';
-import {getItem} from '../../../config/getDataFromStorage';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {ScrollView} from 'react-native-gesture-handler';
+import {useRoute} from '@react-navigation/native';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import FormsTitle from '../../Common/FormsTitle';
-
-const head = `
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <style>
-    iframe { width: 100%; }
-  </style>
-`;
+import YoutubePlayer from 'react-native-youtube-iframe';
+import {noticeDetailsAPI} from '../../../config/apiHere';
 
 const FarmerTraining = () => {
-  const {loginUser_data, t, logoImage, topBanner, CustomHeader} =
+  const {loginUser_data, logoImage, topBanner, CustomHeader} =
     useContext(userCreateContext);
+
   const {dbname, lan_id, token} = loginUser_data;
   const route = useRoute();
-  const navigation = useNavigation();
 
-  const [noticeDetails, setNoticeDetails] = useState([]);
+  const [noticeDetails, setNoticeDetails] = useState({});
   const [noticeFiles, setNoticeFiles] = useState([]);
 
-  const {width, height} = Dimensions.get('window');
+  // 🔍 Extract YouTube ID
+  const getVideoId = html => {
+    if (!html) return null;
+
+    let match = html.match(/embed\/([a-zA-Z0-9_-]+)/);
+    if (match) return match[1];
+
+    match = html.match(/v=([a-zA-Z0-9_-]+)/);
+    if (match) return match[1];
+
+    return null;
+  };
+
+  // 📝 Strip HTML
+  const stripHtml = html => html?.replace(/<[^>]*>?/gm, '') || '';
 
   const detailItem = path => {
     Linking.openURL(path);
   };
 
-  const DocumentDisplay = props => {
-    return (
-      <View style={{backgroundColor: 'white'}}>
-        {props.file_ext === 'application/pdf' && (
-          <Image
-            style={{width: '100%', height: 100}}
-            resizeMode="contain"
-            source={require('../../Common/images/icons8-pdf-50.png')}
-          />
-        )}
-        {props.file_ext === 'image/jpeg' || props.file_ext == 'image/png' ? (
-          <Image
-            style={{width: '100%', height: 200}}
-            source={{uri: props.item}}
-          />
-        ) : null}
-        {props.file_ext === 'video/mp4' && (
-          <Image
-            resizeMode="contain"
-            style={{width: '100%', height: 100}}
-            source={require('../../Common/images/icons8-play-100.png')}
-          />
-        )}
-      </View>
-    );
+  const DocumentDisplay = ({item, file_ext}) => {
+    if (file_ext === 'application/pdf') {
+      return (
+        <Image
+          style={styles.icon}
+          resizeMode="contain"
+          source={require('../../Common/images/icons8-pdf-50.png')}
+        />
+      );
+    }
+
+    if (file_ext?.includes('image')) {
+      return <Image style={styles.image} source={{uri: item}} />;
+    }
+
+    if (file_ext === 'video/mp4') {
+      return (
+        <Image
+          resizeMode="contain"
+          style={styles.icon}
+          source={require('../../Common/images/icons8-play-100.png')}
+        />
+      );
+    }
+
+    return null;
   };
+
   const onPageLoad = async () => {
-    const noticeId = route.params;
-    if (noticeId) {
-      const response = await noticeDetailsAPI(dbname, lan_id, token, noticeId);
-      if (response?.status === 200) {
-        setNoticeDetails(response?.data?.data[0]);
-        setNoticeFiles(response?.data?.data[0]?.agri_files || []);
+    try {
+      const noticeId = route.params;
+
+      if (noticeId) {
+        const response = await noticeDetailsAPI(
+          dbname,
+          lan_id,
+          token,
+          noticeId,
+        );
+
+        if (response?.status === 200) {
+          const data = response.data.data[0];
+          setNoticeDetails(data);
+          setNoticeFiles(data.agri_files || []);
+        }
       }
+    } catch (err) {
+      console.log('API Error', err);
     }
   };
+
   useEffect(() => {
     onPageLoad();
   }, []);
+
+  const videoId = getVideoId(noticeDetails?.post_desc);
+  const textContent = stripHtml(noticeDetails?.post_desc);
+
   return (
     <FarmerDrawerScreenWrapper1>
-      <View style={{flex: 1, backgroundColor: 'white'}}>
+      <View style={styles.container}>
         <CustomHeader logoImage={logoImage} topBanner={topBanner} />
-        <FormsTitle title={noticeDetails.post_name} />
-        {/* Horizontal scroll file list */}
-        <View style={{width: '100%', alignItems: 'center'}}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={{width: '100%'}}>
-            <FlatList
-              data={noticeFiles}
-              keyExtractor={item => item.file_id}
-              horizontal
-              renderItem={({item}) => (
-                <TouchableOpacity
-                  style={{
-                    width: 220,
-                    marginHorizontal: 8,
-                    marginBottom: 15,
-                    backgroundColor: '#eaecedff',
-                    padding: 10,
-                    elevation: 3,
-                    borderRadius: 10,
-                    justifyContent: 'center',
-                  }}
-                  onPress={() => detailItem(item.file_path)}>
-                  <TouchableOpacity>
-                    <DocumentDisplay
-                      item={item.file_path}
-                      file_ext={item.file_ext}
-                    />
-                  </TouchableOpacity>
-                </TouchableOpacity>
-              )}
-            />
-          </ScrollView>
-        </View>
 
-        {/* WebView content */}
-        <WebView
-          style={{flex: 1, marginBottom: 10}}
-          originWhitelist={['*']}
-          source={{
-            html: `
-            <!DOCTYPE html>
-            <html>
-              <head>${head}</head> 
-              <body style="margin:0;padding:10px;">
-                ${noticeDetails?.post_desc}
-              </body>
-            </html>
-          `,
-          }}
-          javaScriptEnabled
-          domStorageEnabled
-          allowsFullscreenVideo
-          automaticallyAdjustContentInsets={false}
-          startInLoadingState={true}
+        <FormsTitle title={noticeDetails?.post_name} />
+
+        {/* 📂 Files */}
+        <FlatList
+          data={noticeFiles}
+          keyExtractor={item => item.file_id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{paddingVertical: 10}}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() => detailItem(item.file_path)}>
+              <DocumentDisplay item={item.file_path} file_ext={item.file_ext} />
+            </TouchableOpacity>
+          )}
         />
+
+        {/* 🎥 Video or 📝 Text */}
+        <View style={styles.content}>
+          {videoId ? (
+            <YoutubePlayer height={220} play={false} videoId={videoId} />
+          ) : (
+            <Text style={styles.text}>{textContent}</Text>
+          )}
+        </View>
       </View>
     </FarmerDrawerScreenWrapper1>
   );
 };
 
 export default FarmerTraining;
+
+const styles = {
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  card: {
+    width: 220,
+    marginHorizontal: 8,
+    marginBottom: 15,
+    backgroundColor: '#eaecedff',
+    padding: 10,
+    elevation: 3,
+    borderRadius: 10,
+    justifyContent: 'center',
+  },
+  image: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+  },
+  icon: {
+    width: '100%',
+    height: 100,
+  },
+  content: {
+    padding: 10,
+  },
+  text: {
+    fontSize: 14,
+    color: '#333',
+  },
+};

@@ -272,7 +272,7 @@ const FinancialInformation = () => {
               </Text>
             </View>
             <ScrollView>
-              <View style={{ paddingHorizontal: 20 }}>
+              <View style={{paddingHorizontal: 20}}>
                 <View style={styles.container}>
                   <TouchableOpacity onPress={toggleIdentity}>
                     <View style={styles.headerStyle}>
@@ -310,7 +310,7 @@ const FinancialInformation = () => {
                   </TouchableOpacity>
                   {isIdentity && (
                     <>
-                      <View style={{ marginTop: 10 }}>
+                      <View style={{marginTop: 10}}>
                         <View style={styles.bodyContainer}>
                           <InputTextForm
                             label={t('adhar_no')}
@@ -340,7 +340,7 @@ const FinancialInformation = () => {
                   )}
                 </View>
               </View>
-              <View style={{ paddingHorizontal: 20 }}>
+              <View style={{paddingHorizontal: 20}}>
                 <View style={styles.container}>
                   <TouchableOpacity onPress={toggleBank}>
                     <View style={styles.headerStyle}>
@@ -378,7 +378,7 @@ const FinancialInformation = () => {
                   </TouchableOpacity>
                   {isBank && (
                     <>
-                      <View style={{ marginTop: 10 }}>
+                      <View style={{marginTop: 10}}>
                         <View style={styles.bodyContainer}>
                           <InputTextForm
                             label={t('account_holder_name')}
@@ -413,7 +413,7 @@ const FinancialInformation = () => {
                   )}
                 </View>
               </View>
-              <View style={{ paddingHorizontal: 20 }}>
+              <View style={{paddingHorizontal: 20}}>
                 <View style={styles.container}>
                   <TouchableOpacity onPress={() => togglePension()}>
                     <View style={styles.headerStyle}>
@@ -451,7 +451,7 @@ const FinancialInformation = () => {
                   </TouchableOpacity>
                   {isPension && (
                     <>
-                      <View style={{ marginTop: 10 }}>
+                      <View style={{marginTop: 10}}>
                         <View style={styles.bodyContainer}>
                           <InputTextForm
                             label={t('pension_providing_authority')}
@@ -517,7 +517,6 @@ const FinancialInformation = () => {
                                 pensionAmount: pensionAmount,
                               }))
                             }
-
                             value={storeFinancial.pensionAmount}
                             keyboardType="numeric"
                           />
@@ -530,7 +529,7 @@ const FinancialInformation = () => {
                                 pensionPerMonth: pensionPerMonth,
                               }))
                             }
-                            val={storeFinancial.pensionPerMonth}
+                            val={storeFinancial.pensionPerMonth?.label}
                           />
                         </View>
                       </View>
@@ -538,7 +537,7 @@ const FinancialInformation = () => {
                   )}
                 </View>
               </View>
-              <View style={{ paddingHorizontal: 20 }}>
+              <View style={{paddingHorizontal: 20}}>
                 <View style={styles.container}>
                   <TouchableOpacity onPress={toggleLifeInsurance}>
                     <View style={styles.headerStyle}>
@@ -576,7 +575,7 @@ const FinancialInformation = () => {
                   </TouchableOpacity>
                   {isLifeInsurance && (
                     <>
-                      <View style={{ marginTop: 10 }}>
+                      <View style={{marginTop: 10}}>
                         <View style={styles.bodyContainer}>
                           <InputTextForm
                             label={t('lic_name_of_company')}
@@ -618,7 +617,7 @@ const FinancialInformation = () => {
                 </View>
               </View>
             </ScrollView>
-            <View style={{ backgroundColor: '#D5FFD0' }}>
+            <View style={{backgroundColor: '#D5FFD0'}}>
               <ButtonForm label={t('skip_next')} onPress={handleNavigate} />
             </View>
           </View>

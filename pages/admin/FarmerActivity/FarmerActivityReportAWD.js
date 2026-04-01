@@ -664,6 +664,9 @@ const FarmerActivityReportAWD = ({navigation}) => {
           setproductionStageAll(dataArray);
         }
         if (activitySchedule.status == 200) {
+          console.log('activitySchedule==', activitySchedule?.data?.data);
+          if (activitySchedule?.data?.data.length>0) {
+          
           if (
             activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
           ) {
@@ -742,6 +745,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
               );
             }
           }
+        }
         }
         if (pipeLatLongRes?.status == 200) {
           setIsLoading(false);

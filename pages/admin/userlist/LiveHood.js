@@ -250,8 +250,7 @@ const LiveHood = ({
   const [nearPolSet, setnearPolSet] = useState([]);
   const [nearPolData, setnearPolData] = useState([]);
   const [statuslevel, setstatuslevel] = useState({label: '', value: ''});
-  const [plotStatus, setplotStatus] = useState({label: '', value: ''});
-
+  const [plotStatus, setPlotStatus] = useState({label: '', value: ''});
   const [updateRelId, setupdateRelId] = useState('');
   const [referencelatLong, setreferencelatLong] = useState({
     latitude: 0,
@@ -583,7 +582,7 @@ const LiveHood = ({
         const {count, rows = []} = landUnitSquare_res.data?.data || {};
         setLandUnitsquareMetre(count > 0 ? rows : []);
       }
-      console.log('plotSiteUserLandDetails_res', plotSiteUserLandDetails_res);
+
       if (plotSiteUserLandDetails_res?.status === 200) {
         setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
       }
@@ -799,7 +798,7 @@ const LiveHood = ({
           ]);
         }
         if (cropAndPlotDetails?.status === 200) {
-          // console.log('cropAndPlotDetails==', cropAndPlotDetails?.data?.data);
+          // 
           const data = cropAndPlotDetails?.data?.data || {};
           plotSiteUserLandDetails.map(async (dataLandDetails, index) => {
             if (dataLandDetails?.rel_id == findData.value) {
@@ -816,12 +815,13 @@ const LiveHood = ({
                   {cancelable: false},
                 );
               }
-              setplotStatus(prev => ({
+              console.log('cropAndPlotDetailsstatus==', dataLandDetails);
+
+setPlotStatus(prev => ({
                 ...prev,
                 label: dataLandDetails?.plot_status,
                 value: dataLandDetails?.plot_status,
               }));
-
               setstatuslevel(prev => ({
                 ...prev,
                 label: dataLandDetails?.status_level,
@@ -1382,7 +1382,7 @@ const LiveHood = ({
         end_usg_rm_straw: '',
       }));
     }
-    setSelectedTab('CROP');
+     setSelectedTab('CROP')
   };
 
   const handleseedDatePicker = async item => {
@@ -1479,6 +1479,7 @@ const LiveHood = ({
   // }, []);
 
   const handleCurrentLatLong = useCallback(async index => {
+
     const values = [...location];
     const {latitude, longitude} = (await getItem('fusedLocation')) || {};
 
@@ -1488,7 +1489,7 @@ const LiveHood = ({
     }
     const lat = latitude === '' ? latlong.latitude : latitude;
     const lon = longitude === '' ? latlong.longitude : longitude;
-
+    
     if (
       coords != null &&
       // longitude.toString().length == 10 &&
@@ -1949,6 +1950,22 @@ const LiveHood = ({
           });
         }
       });
+
+      if (carbonFlag && !farmerData.daag_no) {
+        Toast.show({
+          text: 'Please enter Daag Number',
+          ...AlertMesg[0],
+        });
+        return;
+      }
+
+      if (carbonFlag && !farmerData.jl_no) {
+        Toast.show({
+          text: 'Please enter JL Number',
+          ...AlertMesg[0],
+        });
+        return;
+      }
       if (farmerData.plot_Site_Name == '') {
         Toast.show({
           text: `${t('please_add_plot_name_first')}`,
@@ -2390,14 +2407,14 @@ const LiveHood = ({
 
             if (hasSignature || hasCarbonAgreement) {
               if (!historyData) {
-                const carbonRes = await uploadCarbonAgrDocs(
-                  dbname,
-                  lan_id,
-                  token,
-                  farmeruserID,
-                  formdataCarbon,
-                );
-              }
+              const carbonRes = await uploadCarbonAgrDocs(
+                dbname,
+                lan_id,
+                token,
+                farmeruserID,
+                formdataCarbon,
+              );
+            }
             }
           }
           if (!historyData) {
@@ -2452,7 +2469,7 @@ const LiveHood = ({
     setAddPlot(true);
     //basude stop
     setstatuslevel({label: '', value: ''});
-    setplotStatus({label: '', value: ''});
+    setPlotStatus({label: '', value: ''});
     setUserData('addUserData');
     setPlotEdit(true);
     setPolygons(nearPolSet);
@@ -2738,10 +2755,12 @@ const LiveHood = ({
   }, []);
   const [InputTextFormEdit, setInputTextFormEdit] = useState(true);
   useEffect(() => {
+   
     if (
       (harvested === '' && statuslevel.label === '') ||
       statuslevel.label === 'CARBON_DOCUMENTS_SUBMITTED'
     ) {
+     
       setInputTextFormEdit(true);
     } else if (
       statuslevel.label == 'APPROVED' ||
@@ -2749,6 +2768,7 @@ const LiveHood = ({
       statuslevel.label === 'CARBON_DOCUMENTS_APPROVED' ||
       statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
     ) {
+   
       setInputTextFormEdit(false);
     } else if (
       harvested === 'same produce' &&
@@ -2757,16 +2777,19 @@ const LiveHood = ({
         statuslevel.label === 'CARBON_DOCUMENTS_APPROVED' ||
         statuslevel.label === 'CARBON_DOCUMENTS_REJECTED')
     ) {
+     
       setInputTextFormEdit(true);
     } else if (
       harvested == '' &&
       (statuslevel.label === 'PENDING' || statuslevel.label === 'REJECTED')
     ) {
+     
       setInputTextFormEdit(true);
     } else if (
       harvested == 'same produce' &&
       (statuslevel.label === 'PENDING' || statuslevel.label === 'REJECTED')
     ) {
+    
       setInputTextFormEdit(true);
     } else {
       console.log(
@@ -2968,35 +2991,10 @@ const LiveHood = ({
         // Convert age to DD/MM/YYYY format
 
         // Then use it in formData
-        const convertToYYYYMMDD = dob => {
-          if (!dob) return '';
-
-          const cleanDob = dob.replace(/\//g, '-');
-
-          const parts = cleanDob.split('-');
-
-          if (parts.length === 3) {
-            let [d, m, y] = parts;
-
-            // if already YYYY-MM-DD
-            if (y.length === 2 || y.length === 1) {
-              // unlikely case
-              return '';
-            }
-
-            // DD-MM-YYYY → convert
-            if (y.length === 4) {
-              return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
-            }
-          }
-
-          return cleanDob;
-        };
-        const finalDOB = convertToYYYYMMDD(coFarmerDetails.date_of_birth);
-
-        console.log('FINAL DOB SENT (EDIT) =>', finalDOB);
-
-        formdataCofarmers.append('date_of_birth', finalDOB);
+        formdataCofarmers.append(
+          'date_of_birth',
+          coFarmerDetails.date_of_birth,
+        );
         formdataCofarmers.append('gender', coFarmerDetails.gender);
         formdataCofarmers.append('contactNumber', coFarmerDetails.phone);
         if (
@@ -3073,7 +3071,6 @@ const LiveHood = ({
             type: coFarmerDetails.profile?.type,
           });
         }
-        console.log('EDIT DOB RAW =>', coFarmerDetails.date_of_birth);
         addCoFarmerRes = await axiosPost(
           ROUTES.POST.SAVE_CO_FARMERS,
           formdataCofarmers,
@@ -3372,6 +3369,7 @@ const LiveHood = ({
                   value={farmerData.daag_no}
                   onChangeText={handleAddUserDataDaag}
                   editable={InputTextFormEdit}
+                  required={carbonFlag === true}
                 />
 
                 <InputTextForm
@@ -3391,6 +3389,7 @@ const LiveHood = ({
                   <InputTextForm
                     label={t('JL No')}
                     value={farmerData.jl_no}
+                    required={carbonFlag === true}
                     onChangeText={handleAddUserDataJLNo}
                     editable={
                       statuslevel.label == 'APPROVED' ||
@@ -3451,7 +3450,7 @@ const LiveHood = ({
                       // editable={InputTextFormEdit}
                       editable={
                         statuslevel.label == 'APPROVED' ||
-                        statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                         statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
                         statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
                           ? false
                           : true
@@ -3467,8 +3466,7 @@ const LiveHood = ({
                       onChange={handleAddDataUnit}
                       val={farmerData.unit}
                       disable={
-                        plotStatus.label == 'APPROVED' ||
-                        statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                        statuslevel.label == 'APPROVED' ||
                         statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
                           ? true
                           : false
@@ -3528,23 +3526,20 @@ const LiveHood = ({
                     photoDeletedValue={identityPhotoDeletedValue}
                     setPhotoDeletedValue={setIdentityPhotoDeletedValue}
                     loginUser_data={loginUser_data}
-                    status_level={statuslevel.label}
+                    status_level={plotStatus.label}
                     InputTextFormEdit={
-                      statuslevel.label == 'PENDING' ||
-                      statuslevel.label == 'REJECTED'
+                      plotStatus.label == 'PENDING' ||
+                      plotStatus.label == 'REJECTED'
                         ? true
                         : false
                     }
                     disable={
-                      statuslevel.label == 'APPROVED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                      // || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
-                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                      plotStatus.label == 'APPROVED' 
                         ? false
-                        : statuslevel.label == 'PENDING' ||
-                          statuslevel.label == 'REJECTED'
-                        ? false
-                        : true
+                        : plotStatus.label == 'PENDING' ||
+                          plotStatus.label == 'REJECTED'
+                        ? true
+                        : false
                     }
                     marginBottom={navigationBarHeight}
                     allowAddMore={false}
@@ -3898,17 +3893,17 @@ const LiveHood = ({
             )}
           </View>
         </ScrollView>
+        {selectedTab != 'CROP' && (
+          <ButtonForm
+            label={t('Next')}
+            onPress={() => setSelectedTab('CROP')}
+          />
+        )}
         {selectedTab === 'CROP' && (
           <ButtonForm
             label={t('submit')}
             onPress={() => handleUserListUpdate()}
             loading={isLoading}
-          />
-        )}
-        {selectedTab != 'CROP' && (
-          <ButtonForm
-            label={t('Next')}
-            onPress={() => setSelectedTab('CROP')}
           />
         )}
         {selectedTab === 'PLOT' && (

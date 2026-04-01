@@ -1174,6 +1174,21 @@ const FarmerLiveHood = ({
           });
         }
       });
+
+      if (carbonFlag && !farmerData.daag_no) {
+        Toast.show({
+          text: 'Please enter Daag Number',
+          ...AlertMesg[0],
+        });
+        return;
+      }
+      if (carbonFlag && !farmerData.jl_no) {
+        Toast.show({
+          text: 'Please enter JL Number',
+          ...AlertMesg[0],
+        });
+        return;
+      }
       if (farmerData.plot_Site_Name == '') {
         Toast.show({
           text: `${t('please_add_plot_name_first')}`,
@@ -2763,6 +2778,7 @@ const FarmerLiveHood = ({
               <InputTextForm
                 label={t('daag_no')}
                 value={farmerData.daag_no}
+                required={carbonFlag === true}
                 onChangeText={handleAddUserDataDaag}
                 editable={
                   statuslevel.label == 'APPROVED' ||
@@ -2804,6 +2820,7 @@ const FarmerLiveHood = ({
                 <InputTextForm
                   label={t('JL No')}
                   value={farmerData.jl_no}
+                  required={carbonFlag === true}
                   onChangeText={handleAddUserDataJLNo}
                   editable={
                     statuslevel.label == 'APPROVED' ||

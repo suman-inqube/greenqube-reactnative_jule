@@ -1358,6 +1358,8 @@ const ActivityReportAWD = ({navigation}) => {
   const handleSave = async () => {
     Keyboard.dismiss();
     if (validateForm()) {
+      setIsLoading(true);
+      
       const hasFailed = pipeDetails.some(pipeGroup =>
         pipeGroup[1].some(img => img.status === 'failed'),
       );
@@ -1547,12 +1549,14 @@ const ActivityReportAWD = ({navigation}) => {
           setIsLoading(false);
         }
         if (database_res?.status == 200) {
+          setIsLoading(false);
           setPipeDetails([]);
 
           AnalyticsLogEvent('activity_report', 'activity_report');
           navigation.popToTop();
           navigation.navigate('activityList', {action: 'addData'});
         } else if (database_res?.status == 409) {
+          setIsLoading(false);
           setPipeDetails([]);
 
           Toast.show({
@@ -2403,7 +2407,7 @@ const ActivityReportAWD = ({navigation}) => {
               setTempImage(null);
               setTempText('');
             }
-          }, 500);
+          }, 700);
         } catch (error) {
           CustomAlert('Catch Error ', error, true, 'OK');
         } finally {

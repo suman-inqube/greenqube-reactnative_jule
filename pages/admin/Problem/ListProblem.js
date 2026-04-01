@@ -102,7 +102,7 @@ const ListProblem = ({navigation}) => {
         response = await getItem('problemTypeName');
       }
       if (!response?.status === 200) return;
-      const {rows, count} = response?.data?.data || {};
+      const {rows, count} = response?.data || {};
       const totalPage = Math.ceil(count / 20);
       setTotalPages(totalPage);
       setProblemAll(rows);
