@@ -1,4 +1,11 @@
-import {View, Text, StyleSheet, FlatList, Dimensions} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
 import React, {
   useState,
   useEffect,
@@ -142,74 +149,89 @@ const PendingActivity = () => {
     return (
       <>
         {overdueActivities.length != 0 ? (
-          <View View style={styles.activityItem}>
-            {/* Farmer Information */}
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => {
+              if (activeTab === 'carbon') {
+                navigation.navigate('ActivityReportAWD', {
+                  farmer: item?.farmer,
+                  plot: item?.crop?.land_info,
+                });
+              } else {
+                navigation.navigate('activityReport', {
+                  farmer: item?.farmer,
+                  plot: item?.crop?.land_info,
+                });
+              }
+            }}>
+            <View View style={styles.activityItem}>
+              {/* Farmer Information */}
 
-            <View style={styles.farmerInfo}>
-              <View style={styles.nameRow}>
-                <Text style={styles.mainText}>{farmerName}</Text>
-                <Text style={styles.mainText}> {plotName}</Text>
+              <View style={styles.farmerInfo}>
+                <View style={styles.nameRow}>
+                  <Text style={styles.mainText}>{farmerName}</Text>
+                  <Text style={styles.mainText}> {plotName}</Text>
+                </View>
+                <Text style={styles.subText}> {contactNumber}</Text>
+
+                <Text style={styles.activityDate}>
+                  {t('Sowing Date')}:{' '}
+                  {overdueActivities[0]?.sowing_date || 'N/A'}
+                </Text>
+                <Text style={styles.activityDate}>
+                  {t('Hervesting Date')}:{' '}
+                  {overdueActivities[0]?.harvesting_date || 'N/A'}
+                </Text>
               </View>
-              <Text style={styles.subText}> {contactNumber}</Text>
-
-              <Text style={styles.activityDate}>
-                {t('Sowing Date')}: {overdueActivities[0]?.sowing_date || 'N/A'}
-              </Text>
-              <Text style={styles.activityDate}>
-                {t('Hervesting Date')}:{' '}
-                {overdueActivities[0]?.harvesting_date || 'N/A'}
-              </Text>
-            </View>
-            {/* Upcoming Activities */}
-            <View style={styles.activitiesSection}>
-              {/* <Text style={styles.activitiesTitle}>Upcoming Activities:</Text> */}
-              {overdueActivities.length > 0 ? (
-                overdueActivities.map((activity, activityIndex) => (
-                  <View key={activityIndex} style={styles.activityDetail}>
-                    <View style={styles.nameRow}>
-                      <View style={styles.nameContainer}>
-                        <Text
-                          style={styles.activityName}
-                          numberOfLines={2}
-                          ellipsizeMode="tail">
-                          •{' '}
-                          {activity?.activityName?.categoryName ||
-                            'Unknown Activity'}
-                        </Text>
+              {/* Upcoming Activities */}
+              <View style={styles.activitiesSection}>
+                {/* <Text style={styles.activitiesTitle}>Upcoming Activities:</Text> */}
+                {overdueActivities.length > 0 ? (
+                  overdueActivities.map((activity, activityIndex) => (
+                    <View key={activityIndex} style={styles.activityDetail}>
+                      <View style={styles.nameRow}>
+                        <View style={styles.nameContainer}>
+                          <Text
+                            style={styles.activityName}
+                            numberOfLines={2}
+                            ellipsizeMode="tail">
+                            •{' '}
+                            {activity?.activityName?.categoryName ||
+                              'Unknown Activity'}
+                          </Text>
+                        </View>
+                        <View style={styles.daysContainer}>
+                          <Text style={styles.daysUntil}>
+                            {/* because api is sending nagetive value of days_until_start, we are multiplying by -1 */}
+                            {activity?.days_until_start * -1 || 0}{' '}
+                            {t('days to go')}
+                          </Text>
+                        </View>
                       </View>
-                      <View style={styles.daysContainer}>
-                        <Text style={styles.daysUntil}>
-                          {/* because api is sending nagetive value of days_until_start, we are multiplying by -1 */}
-                          {activity?.days_until_start * -1 || 0}{' '}
-                          {t('days to go')}
-                        </Text>
-                      </View>
-                    </View>
-                    {/* <Text style={styles.activityType}>
+                      {/* <Text style={styles.activityType}>
                   Type: {activity?.activityType?.categoryName || 'N/A'}
                 </Text> */}
 
-                    <Text style={styles.activityDate}>
-                      {t('Schedule date')}:{' '}
-                      {new Date(
-                        activity?.activity_start_date,
-                      ).toLocaleDateString('en-GB', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                      })}{' '}
-                      -{' '}
-                      {new Date(activity?.activity_end_date).toLocaleDateString(
-                        'en-GB',
-                        {
+                      <Text style={styles.activityDate}>
+                        {t('Schedule date')}:{' '}
+                        {new Date(
+                          activity?.activity_start_date,
+                        ).toLocaleDateString('en-GB', {
                           day: '2-digit',
                           month: 'short',
                           year: 'numeric',
-                        },
-                      )}
-                    </Text>
+                        })}{' '}
+                        -{' '}
+                        {new Date(
+                          activity?.activity_end_date,
+                        ).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </Text>
 
-                    {/* <Text style={styles.activityDate}>
+                      {/* <Text style={styles.activityDate}>
                       Start:{' '}
                       {new Date(
                         activity?.activity_start_date,
@@ -221,13 +243,14 @@ const PendingActivity = () => {
                         activity?.activity_end_date,
                       ).toLocaleDateString()}
                     </Text> */}
-                  </View>
-                ))
-              ) : (
-                <Text style={styles.noActivities}>No Pending activities</Text>
-              )}
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.noActivities}>No Pending activities</Text>
+                )}
+              </View>
             </View>
-          </View>
+          </TouchableOpacity>
         ) : (
           <></>
         )}

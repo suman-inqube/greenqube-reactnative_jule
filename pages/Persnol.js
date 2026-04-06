@@ -694,6 +694,7 @@ const Persnol = () => {
                       stateValue={identityProofIdentityPropf}
                       disable={true}
                       InputTextFormEdit={true}
+                      farmerName={storePersnolInfo.name}
                     // photoDeletedValue={photoDeletedValue}
                     // setPhotoDeletedValue={setPhotoDeletedValue}
                     // loginUser_data={loginUser_data}

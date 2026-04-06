@@ -1,4 +1,4 @@
-import React, {memo, useCallback, useState} from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,17 +7,17 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import {SPSheet} from '@sekizlipenguen/react-native-popup-confirm-toast';
-// import DocumentPicker, { types } from '@react-native-documents/picker';
-import DocumentPicker, {types, pick} from '@react-native-documents/picker';
-import {createPdf} from 'react-native-images-to-pdf';
+import { SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
+import DocumentPicker, { types, pick } from '@react-native-documents/picker';
+import { createPdf } from 'react-native-images-to-pdf';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import LoadingScreen from './LoadingScreen';
-import {Colors, Fonts} from '../utils/Constants';
+import { Colors, Fonts } from '../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import TextRecognition from '@react-native-ml-kit/text-recognition';
 const PDF_SIZE_LIMIT = 3;
 const ProofAndIdentityPropfComp = ({
   stateValue,
@@ -29,7 +29,9 @@ const ProofAndIdentityPropfComp = ({
   status_level,
   InputTextFormEdit,
   allowAddMore,
+  farmerName="",
 }) => {
+  console.log('farmerName:', farmerName);
   const [loading, setLoading] = useState(false);
   const logFileSize = async (uri, label = '') => {
     try {
@@ -81,7 +83,6 @@ const ProofAndIdentityPropfComp = ({
         if (res.type?.startsWith('image/')) {
           fileUri = await resizeImage(res.uri);
         }
-
         const values = [...stateValue];
         markPhotoDeleted(index, values);
         values[index] = {
@@ -121,7 +122,7 @@ const ProofAndIdentityPropfComp = ({
         'Confirm Deletion',
         'Are you sure you want to delete this document?',
         [
-          {text: 'Cancel', style: 'cancel'},
+          { text: 'Cancel', style: 'cancel' },
           {
             text: 'Delete',
             style: 'destructive',
@@ -155,7 +156,7 @@ const ProofAndIdentityPropfComp = ({
     const fileName = `document_${Date.now()}_compressed.pdf`;
     const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
     return await createPdf({
-      pages: resized.map(uri => ({imagePath: uri})),
+      pages: resized.map(uri => ({ imagePath: uri })),
       outputPath,
     });
   };
@@ -163,7 +164,7 @@ const ProofAndIdentityPropfComp = ({
     async (imageType, index) => {
       setLoading(true);
       try {
-        const {scannedImages, status} = await DocumentScanner.scanDocument({
+        const { scannedImages, status } = await DocumentScanner.scanDocument({
           letUserAdjustCrop: false,
           maxNumDocuments: 1,
           noAutoEnhance: false,
@@ -177,7 +178,7 @@ const ProofAndIdentityPropfComp = ({
         const fileName = `document_${Date.now()}.pdf`;
         const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
         let pdfPath = await createPdf({
-          pages: resized.map(uri => ({imagePath: uri})),
+          pages: resized.map(uri => ({ imagePath: uri })),
           outputPath,
         });
         pdfPath = await compressIfNeeded(pdfPath, scannedImages);
@@ -228,7 +229,7 @@ const ProofAndIdentityPropfComp = ({
     try {
       const exists = await RNFS.exists(filePath);
       if (exists) return FileViewer.open(filePath);
-      const dl = await RNFS.downloadFile({fromUrl: fileUrl, toFile: filePath})
+      const dl = await RNFS.downloadFile({ fromUrl: fileUrl, toFile: filePath })
         .promise;
       if (dl.statusCode === 200) {
         await FileViewer.open(filePath);
@@ -239,7 +240,225 @@ const ProofAndIdentityPropfComp = ({
       Alert.alert('File error', err.message);
     }
   };
-  const ActionSheet = ({data, index, spSheet}) => {
+  const IDPickImage = async (data, index) => {
+    try {
+      if(InputTextFormEdit) {
+      const result = await DocumentScanner.scanDocument({
+        maxNumDocuments: 1,
+        letUserAdjustCrop: true,
+        responseType: "imageFilePath",
+        croppedImageQuality: 100,
+        saveInAppDocument: false,
+      });
+
+      if (result.scannedImages && result.scannedImages.length > 0) {
+        const uri = result.scannedImages[0];
+        scanText(uri, data, index);
+      }
+    }else{
+      const fileUrl = data?.file_path || data?.uri;
+      if (!fileUrl) return;
+      containsHttp(fileUrl)
+        ? await downloadAndOpenFile(fileUrl)
+        : await openFile(fileUrl);
+    }
+    } catch (error) {
+      console.log("SCAN ERROR:", error);
+    }
+  }
+  const scanText = async (uri, data, index) => {
+    try {
+      const result = await TextRecognition.recognize(uri);
+      let extractedLines = [];
+      if (result.blocks && result.blocks.length > 0) {
+        result.blocks.forEach((block) => {
+          block.lines.forEach((line) => {
+            extractedLines.push(line.text);
+          });
+        });
+      }
+      if (extractedLines.length === 0) {
+        extractedLines = result.text
+          .split("\n")
+          .map((line) => line.trim())
+          .filter((line) => line.length > 2);
+      }
+      extractedLines = extractedLines.map((line) =>
+        line.replace(/\s+/g, " ").trim()
+      );
+      // setLines(extractedLines);
+
+      if(extractDocumentType(extractedLines) === true) {
+        extractName(extractedLines, uri, data, index);
+      }
+      // extractAadhaar(extractedLines);
+
+    } catch (error) {
+      console.log("OCR ERROR:", error);
+    }
+  };
+
+  // 🔥 FIXED DOCUMENT TYPE (AADHAAR WORKS NOW)
+  const extractDocumentType = (linesArray) => {
+    let detectedDocType = "";
+    const fullText = linesArray.join(" ").toLowerCase();
+    console.log("FULL TEXT:", fullText);
+    if (
+      fullText.includes("aadhaar") ||
+      fullText.includes("uidai") ||
+      fullText.includes("unique identification authority of india") ||
+      fullText.includes("government of india") ||
+      fullText.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/) ||
+      fullText.match(/\b\d{12}\b/)
+    ) {
+      detectedDocType = "AADHAAR";
+    }
+
+    // PAN
+    // else if (
+    //   fullText.includes("permanent account number") ||
+    //   fullText.match(/[A-Z]{5}[0-9]{4}[A-Z]{1}/)
+    // ) {
+    //   detectedDocType = "PAN";
+    // }
+
+    // Voter ID
+    else if (
+      fullText.includes("election commission") ||
+      fullText.includes("voter") ||
+      fullText.includes("epic")
+    ) {
+      detectedDocType = "VOTER ID";
+    }
+
+    // Driving License
+    // else if (
+    //   fullText.includes("driving licence") ||
+    //   fullText.includes("driving license") ||
+    //   fullText.includes("dl no")
+    // ) {
+    //   detectedDocType = "DRIVING LICENSE";
+    // }
+
+    // Passport
+    // else if (
+    //   fullText.includes("passport") ||
+    //   fullText.includes("republic of india")
+    // ) {
+    //   detectedDocType = "PASSPORT";
+    // }
+    if (detectedDocType == "") {
+      Alert.alert("Document Type Not Detected Aadhaar or Voter ID", "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.");
+      return false;
+    }
+    return true;
+    console.log("DETECTED DOC TYPE:", detectedDocType);
+
+    // setDocType(detectedDocType || "Unknown Document");
+  };
+  // 👤 NAME
+  const extractName = (linesArray, url, data, index) => {
+    let detectedName = "";
+
+    for (let i = 0; i < linesArray.length; i++) {
+      let line = linesArray[i].trim();
+      let lower = line.toLowerCase();
+
+      if (lower.includes("name")) {
+        let parts = line.split(/name[:\s]*/i);
+
+        if (parts.length > 1) {
+          let possibleName = parts[1]
+            .replace(/^[:>\-.\s]+/, "")
+            .trim();
+
+          if (
+            possibleName.length > 2 &&
+            /^[A-Za-z\s]+$/.test(possibleName) &&
+            !possibleName.match(/\d/)
+          ) {
+            detectedName = possibleName;
+            break;
+          }
+        }
+
+        for (let j = i + 1; j <= i + 4 && j < linesArray.length; j++) {
+          let nextLine = linesArray[j]
+            .replace(/^[:>\-.\s]+/, "")
+            .trim();
+
+          if (
+            nextLine.length > 2 &&
+            /^[A-Za-z\s]+$/.test(nextLine) &&
+            !nextLine.toLowerCase().includes("father") &&
+            !nextLine.toLowerCase().includes("husband") &&
+            !nextLine.toLowerCase().includes("sex") &&
+            !nextLine.toLowerCase().includes("government") &&
+            !nextLine.toLowerCase().includes("india") &&
+            !nextLine.toLowerCase().includes("election") &&
+            !nextLine.match(/\d/)
+          ) {
+            detectedName = nextLine;
+            break;
+          }
+        }
+      }
+
+      if (detectedName) break;
+    }
+
+    if (!detectedName) {
+      for (let line of linesArray) {
+        let clean = line.replace(/^[:>\-.\s]+/, "").trim();
+
+        if (
+          clean.length < 3 ||
+          clean.toLowerCase().includes("government") ||
+          clean.toLowerCase().includes("india") ||
+          clean.toLowerCase().includes("election") ||
+          clean.toLowerCase().includes("identity") ||
+          clean.toLowerCase().includes("father") ||
+          clean.toLowerCase().includes("husband") ||
+          clean.toLowerCase().includes("sex") ||
+          clean.match(/\d/)
+        ) continue;
+
+        if (/^[A-Za-z\s]+$/.test(clean)) {
+          detectedName = clean;
+          break;
+        }
+      }
+    }
+    if (detectedName?.toLowerCase().trim() != farmerName?.toLowerCase().trim()) {
+      // Alert.alert("Name Not Detected", "We couldn't extract the name from the document. Please make sure the name is clearly visible and try again.");
+      Alert.alert(
+        "Name Verification Failed",
+        "The farmer's name and the document owner's name do not match. Please check the details and try again."
+      );
+      return ;
+    } else {
+      const values = [...stateValue];
+      markPhotoDeleted(index, values);
+      values[index] = {
+        ...values[index],
+        uri: url,
+        name: url.split('/').pop(),
+        fileName: url.split('/').pop(),
+        type: "image/jpeg",
+        imageType: data?.imageType || 'identity',
+        value: '1',
+        id: '',
+      };
+      setStateValue(values);
+    }
+    // if ("basudev nayak" && detectedName) {
+    //   const score = calculateNameSimilarity(detectedName, targetName);
+    //   setSimilarity(score.toFixed(2));
+    // }
+
+    // setName(detectedName || "Not Found");
+  };
+  const ActionSheet = ({ data, index, spSheet }) => {
     // Alert.alert('Test-1');
     const handleOpen = async () => {
       const fileUrl = data?.file_path || data?.uri;
@@ -282,9 +501,10 @@ const ProofAndIdentityPropfComp = ({
       </>
     );
   };
+
   return (
     <View style={styles.idContainer}>
-      <Text style={[styles.title, {fontSize: 14, marginBottom: 10}]}>
+      <Text style={[styles.title, { fontSize: 14, marginBottom: 10 }]}>
         {title}
       </Text>
       {loading && (
@@ -296,86 +516,90 @@ const ProofAndIdentityPropfComp = ({
         </View>
       )}
       <View style={styles.idItemContainer}>
-        {stateValue?.map((data, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.idItem}
-            onPress={() =>
-              SPSheet.show({
-                component: () => (
-                  <ActionSheet data={data} index={index} spSheet={SPSheet} />
-                ),
-                height: 230,
-              })
-            }>
-            <View
-              style={{
-                borderWidth: 1,
-                borderColor: '#c6c6c68b',
-                borderStyle: 'dotted',
-                justifyContent: 'center',
-                alignItems: 'center',
-                alignSelf: 'center',
-                borderRadius: 8,
-                marginTop: 15,
-                backgroundColor: '#ffffffff',
-                width: '80%',
-                padding: 20,
-              }}>
-              <Text style={styles.itemLabel} numberOfLines={1}>
-                {data?.imageType === 'address'
-                  ? 'Address Proof'
-                  : data?.imageType === 'identity'
-                  ? 'Identity Proof'
-                  : ''}
-              </Text>
+        {stateValue?.map((data, index) => {
+          return (
+            <TouchableOpacity
+              key={index}
+              style={styles.idItem}
+              onPress={() =>
+                data.imageType == "identity" ? IDPickImage(data, index) :
+                  SPSheet.show({
+                    component: () => (
+                      <ActionSheet data={data} index={index} spSheet={SPSheet} />
+                    ),
+                    height: 230,
+                  })
+              }>
               <View
                 style={{
+                  borderWidth: 1,
+                  borderColor: '#c6c6c68b',
+                  borderStyle: 'dotted',
                   justifyContent: 'center',
                   alignItems: 'center',
-
-                  marginHorizontal: 5,
+                  alignSelf: 'center',
+                  borderRadius: 8,
+                  marginTop: 15,
+                  backgroundColor: '#ffffffff',
+                  width: '80%',
+                  padding: 20,
                 }}>
-                {data?.uri ? (
-                  data?.type === 'application/pdf' ? (
-                    <Image
-                      source={require('./images/pdf1.png')}
-                      style={styles.idImage}
-                    />
+                <Text style={styles.itemLabel} numberOfLines={1}>
+                  {data?.imageType === 'address'
+                    ? 'Address Proof'
+                    : data?.imageType === 'identity'
+                      ? 'Identity Proof'
+                      : ''}
+                </Text>
+                <View
+                  style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+
+                    marginHorizontal: 5,
+                  }}>
+                  {data?.uri ? (
+                    data?.type === 'application/pdf' ? (
+                      <Image
+                        source={require('./images/pdf1.png')}
+                        style={styles.idImage}
+                      />
+                    ) : (
+                      <Image source={{ uri: data.uri }} style={styles.idImage} />
+                    )
                   ) : (
-                    <Image source={{uri: data.uri}} style={styles.idImage} />
-                  )
-                ) : (
-                  <Image
-                    source={require('./images/upload-file.png')}
-                    style={styles.idImageUp}
-                  />
-                )}
-              </View>
-              {data?.uri &&
-                !['address', 'identity'].includes(data?.imageType) &&
-                status_level !== 'APPROVED' && (
-                  <TouchableOpacity
-                    onPress={() =>
-                      onHandleDocumentSelectionRemove(index, status_level)
-                    }
-                    style={styles.deleteIcon}>
-                    <View style={{marginTop: 15}}>
-                      {/* Replace the Image with Material Icon in red circle */}
-                      <View style={styles.deleteIconContainer}>
-                        <MaterialIcons name="close" size={15} color="#FFFFFF" />
+                    <Image
+                      source={require('./images/upload-file.png')}
+                      style={styles.idImageUp}
+                    />
+                  )}
+                </View>
+
+                {data?.uri &&
+                  !['address', 'identity'].includes(data?.imageType) &&
+                  status_level !== 'APPROVED' && (
+                    <TouchableOpacity
+                      onPress={() =>
+                        onHandleDocumentSelectionRemove(index, status_level)
+                      }
+                      style={styles.deleteIcon}>
+                      <View style={{ marginTop: 15 }}>
+                        {/* Replace the Image with Material Icon in red circle */}
+                        <View style={styles.deleteIconContainer}>
+                          <MaterialIcons name="close" size={15} color="#FFFFFF" />
+                        </View>
                       </View>
-                    </View>
-                  </TouchableOpacity>
-                )}
-            </View>
-            <View style={{marginBottom: 10}}>
-              <Text style={styles.fileName} numberOfLines={1}>
-                {data?.name || data.file_name}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+                    </TouchableOpacity>
+                  )}
+              </View>
+              <View style={{ marginBottom: 10 }}>
+                <Text style={styles.fileName} numberOfLines={1}>
+                  {data?.name || data.file_name}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )
+        })}
         {allowAddMore && (
           <TouchableOpacity
             style={styles.addButtonWrapper}
@@ -393,7 +617,7 @@ const ProofAndIdentityPropfComp = ({
     </View>
   );
 };
-const ActionButton = ({label, icon, onPress}) => (
+const ActionButton = ({ label, icon, onPress }) => (
   <TouchableOpacity style={styles.actionButton} onPress={onPress}>
     <Image source={icon} style={styles.actionIcon} />
     <Text numberOfLines={1} style={styles.title}>
@@ -478,25 +702,25 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     marginBottom: 15,
   },
-  itemLabel: {fontSize: 12, color: '#605f5fff', textAlign: 'center', margin: 5},
-  fileName: {fontSize: 12, color: '#4c4a4aff', marginTop: 4},
-  deleteIcon: {position: 'absolute', top: -10, right: -5},
-  title: {color: '#000', fontFamily: Fonts.Regular},
+  itemLabel: { fontSize: 12, color: '#605f5fff', textAlign: 'center', margin: 5 },
+  fileName: { fontSize: 12, color: '#4c4a4aff', marginTop: 4 },
+  deleteIcon: { position: 'absolute', top: -10, right: -5 },
+  title: { color: '#000', fontFamily: Fonts.Regular },
   loaderBackdrop: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
   },
-  loaderContainer: {backgroundColor: '#FFF', padding: 15, alignItems: 'center'},
-  loaderText: {marginTop: 10, fontSize: 14, color: '#333'},
+  loaderContainer: { backgroundColor: '#FFF', padding: 15, alignItems: 'center' },
+  loaderText: { marginTop: 10, fontSize: 14, color: '#333' },
   sheetTitle: {
     textAlign: 'center',
     fontSize: 18,
     fontFamily: Fonts.SemiBold,
     marginBottom: 10,
   },
-  sheetRow: {flexDirection: 'row', justifyContent: 'space-around'},
+  sheetRow: { flexDirection: 'row', justifyContent: 'space-around' },
   actionButton: {
     backgroundColor: '#DFE8EF',
     width: 70,
@@ -505,7 +729,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  actionIcon: {width: 30, height: 30},
+  actionIcon: { width: 30, height: 30 },
   deleteIconContainer: {
     width: 20,
     height: 20,

@@ -1,4 +1,4 @@
-import React, {memo, useContext, useState} from 'react';
+import React, { memo, useContext, useState } from 'react';
 import {
   View,
   Text,
@@ -10,26 +10,28 @@ import {
   KeyboardAvoidingView,
   Platform,
   Dimensions,
+  Alert,
 } from 'react-native';
 
-import DocumentPicker, {types, pick} from '@react-native-documents/picker';
+import DocumentPicker, { types, pick } from '@react-native-documents/picker';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import DropdownForm from '../Common/DropdownForm';
-import {Colors} from '../utils/Constants';
-import {Fonts} from '../utils/Constants';
-import {resizeImage} from '../utils/imageUtils';
+import { Colors } from '../utils/Constants';
+import { Fonts } from '../utils/Constants';
+import { resizeImage } from '../utils/imageUtils';
 import ImagePlaceHolderCircle from '../Common/ImagePlaceHolderCircle';
 import RadioForm from '../Common/RadioForm';
 import DatePickerComp from '../Common/DatePickerComp';
-import {userCreateContext} from '../Context/usersCreateContext';
-import {formatToDDMMYYYY, getAgeLimitDates} from '../utils/helpers';
+import { userCreateContext } from '../Context/usersCreateContext';
+import { formatToDDMMYYYY, getAgeLimitDates } from '../utils/helpers';
 import InputTextForm from '../Common/InputTextForm';
-const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
-
+import TextRecognition from "@react-native-ml-kit/text-recognition";
+import DocumentScanner from "react-native-document-scanner-plugin";
 function CoFarmerComponent({
   title = 'Co-Farmer Details',
   coFarmerDetails,
@@ -40,41 +42,249 @@ function CoFarmerComponent({
   unit_valueArr,
   landAreaUnit,
 }) {
-  const {minimumDate, maximumDate} = getAgeLimitDates();
+  const { minimumDate, maximumDate } = getAgeLimitDates();
   const [newDate, setnewDate] = useState(new Date());
   const [penCycleStart, setopenCycleStart] = useState(false);
   const handleGovtIdPick = async fieldName => {
     try {
-      const [res] = await pick({
-        presentationStyle: 'fullScreen',
-        type: [types.pdf, types.images],
+      // const [res] = await pick({
+      //   presentationStyle: 'fullScreen',
+      //   type: [types.pdf, types.images],
+      // });
+      // let fileUri = res.uri;
+      // if (res.type?.startsWith('image/')) {
+      //   fileUri = await resizeImage(res.uri);
+      // }
+      // setCoFarmerDetails(prev => ({
+      //   ...prev,
+      //   [fieldName]: {
+      //     uri: fileUri,
+      //     name: res.name,
+      //     fileName: res.name,
+      //     type: res.type,
+      //   },
+      // }));
+      const result = await DocumentScanner.scanDocument({
+        maxNumDocuments: 1,
+        letUserAdjustCrop: true,
+        responseType: "imageFilePath",
+        croppedImageQuality: 100,
+        saveInAppDocument: false,
       });
-      let fileUri = res.uri;
-      if (res.type?.startsWith('image/')) {
-        fileUri = await resizeImage(res.uri);
+
+      if (result.scannedImages && result.scannedImages.length > 0) {
+        const uri = result.scannedImages[0];
+        scanText(uri,fieldName);
       }
-      setCoFarmerDetails(prev => ({
-        ...prev,
-        [fieldName]: {
-          uri: fileUri,
-          name: res.name,
-          fileName: res.name,
-          type: res.type,
-        },
-      }));
     } catch (err) {
       if (DocumentPicker.isCancel(err)) return;
       console.error('Picker Error:', err);
     }
+  };
+  // 🔍 OCR
+  const scanText = async (uri,fieldName) => {
+    try {
+      const result = await TextRecognition.recognize(uri);
+
+      let extractedLines = [];
+
+      if (result.blocks && result.blocks.length > 0) {
+        result.blocks.forEach((block) => {
+          block.lines.forEach((line) => {
+            extractedLines.push(line.text);
+          });
+        });
+      }
+
+      if (extractedLines.length === 0) {
+        extractedLines = result.text
+          .split("\n")
+          .map((line) => line.trim())
+          .filter((line) => line.length > 2);
+      }
+
+      extractedLines = extractedLines.map((line) =>
+        line.replace(/\s+/g, " ").trim()
+      );
+      if (extractDocumentType(extractedLines) === true) {
+        extractName(extractedLines,uri,fieldName);
+      }
+
+    } catch (error) {
+      console.log("OCR ERROR:", error);
+    }
+  };
+    const extractName = (linesArray,uri,fieldName) => {
+    let detectedName = "";
+
+    for (let i = 0; i < linesArray.length; i++) {
+      let line = linesArray[i].trim();
+      let lower = line.toLowerCase();
+
+      if (lower.includes("name")) {
+        let parts = line.split(/name[:\s]*/i);
+
+        if (parts.length > 1) {
+          let possibleName = parts[1]
+            .replace(/^[:>\-.\s]+/, "")
+            .trim();
+
+          if (
+            possibleName.length > 2 &&
+            /^[A-Za-z\s]+$/.test(possibleName) &&
+            !possibleName.match(/\d/)
+          ) {
+            detectedName = possibleName;
+            break;
+          }
+        }
+
+        for (let j = i + 1; j <= i + 4 && j < linesArray.length; j++) {
+          let nextLine = linesArray[j]
+            .replace(/^[:>\-.\s]+/, "")
+            .trim();
+
+          if (
+            nextLine.length > 2 &&
+            /^[A-Za-z\s]+$/.test(nextLine) &&
+            !nextLine.toLowerCase().includes("father") &&
+            !nextLine.toLowerCase().includes("husband") &&
+            !nextLine.toLowerCase().includes("sex") &&
+            !nextLine.toLowerCase().includes("government") &&
+            !nextLine.toLowerCase().includes("india") &&
+            !nextLine.toLowerCase().includes("election") &&
+            !nextLine.match(/\d/)
+          ) {
+            detectedName = nextLine;
+            break;
+          }
+        }
+      }
+
+      if (detectedName) break;
+    }
+
+    if (!detectedName) {
+      for (let line of linesArray) {
+        let clean = line.replace(/^[:>\-.\s]+/, "").trim();
+
+        if (
+          clean.length < 3 ||
+          clean.toLowerCase().includes("government") ||
+          clean.toLowerCase().includes("india") ||
+          clean.toLowerCase().includes("election") ||
+          clean.toLowerCase().includes("identity") ||
+          clean.toLowerCase().includes("father") ||
+          clean.toLowerCase().includes("husband") ||
+          clean.toLowerCase().includes("sex") ||
+          clean.match(/\d/)
+        ) continue;
+
+        if (/^[A-Za-z\s]+$/.test(clean)) {
+          detectedName = clean;
+          break;
+        }
+      }
+    }
+    const normalize = (str = "") =>
+  str.toLowerCase().replace(/\s+/g, "").trim();
+    console.log("DETECTED NAME:", detectedName);
+    console.log("FARMER NAME:", coFarmerDetails.name);
+    console.log("COMPARE:", detectedName?.toLowerCase().trim(), coFarmerDetails.name?.toLowerCase().trim());
+//     if (detectedName?.toLowerCase().trim()  != coFarmerDetails.name?.toLowerCase().trim() ) {
+//  Alert.alert(
+//         "Name Verification Failed",
+//         "The farmer's name and the document owner's name do not match. Please check the details and try again."
+//       );
+//       return;
+//     }else{
+  if (
+  normalize(detectedName) !== normalize(coFarmerDetails.name)
+) {
+  Alert.alert(
+    "Name Verification Failed",
+    "The farmer's name does not match the Aadhaar or Voter ID.\n\nPlease upload a clear document where the name is clearly visible and matches exactly."
+  );
+}else{
+
+  
+      setCoFarmerDetails(prev => ({
+        ...prev,
+        [fieldName]: {
+          uri: uri,
+          name: uri.split('/').pop(),
+          fileName: uri.split('/').pop(),
+          type: "image/jpeg",
+        },
+      }));
+    }
+
+    // setName(detectedName || "Not Found");
+  };
+  const extractDocumentType = (linesArray) => {
+    let detectedDocType = "";
+    const fullText = linesArray.join(" ").toLowerCase();
+    console.log("FULL TEXT:", fullText);
+    if (
+      fullText.includes("aadhaar") ||
+      fullText.includes("uidai") ||
+      fullText.includes("unique identification authority of india") ||
+      fullText.includes("government of india") ||
+      fullText.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/) ||
+      fullText.match(/\b\d{12}\b/)
+    ) {
+      detectedDocType = "AADHAAR";
+    }
+
+    // PAN
+    // else if (
+    //   fullText.includes("permanent account number") ||
+    //   fullText.match(/[A-Z]{5}[0-9]{4}[A-Z]{1}/)
+    // ) {
+    //   detectedDocType = "PAN";
+    // }
+
+    // Voter ID
+    else if (
+      fullText.includes("election commission") ||
+      fullText.includes("voter") ||
+      fullText.includes("epic")
+    ) {
+      detectedDocType = "VOTER ID";
+    }
+
+    // Driving License
+    // else if (
+    //   fullText.includes("driving licence") ||
+    //   fullText.includes("driving license") ||
+    //   fullText.includes("dl no")
+    // ) {
+    //   detectedDocType = "DRIVING LICENSE";
+    // }
+
+    // Passport
+    // else if (
+    //   fullText.includes("passport") ||
+    //   fullText.includes("republic of india")
+    // ) {
+    //   detectedDocType = "PASSPORT";
+    // }
+    if (detectedDocType == "") {
+      Alert.alert("Document Type Not Detected Aadhaar or Voter ID", "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.");
+      return false;
+    }
+    return true;
+    console.log("DETECTED DOC TYPE:", detectedDocType);
+
+    // setDocType(detectedDocType || "Unknown Document");
   };
   const openFile = async file => {
     try {
       let path = file.uri;
 
       if (file.uri.startsWith('http')) {
-        const localPath = `${RNFS.DocumentDirectoryPath}/${
-          file.name || Date.now()
-        }`;
+        const localPath = `${RNFS.DocumentDirectoryPath}/${file.name || Date.now()
+          }`;
         await RNFS.downloadFile({
           fromUrl: file.uri,
           toFile: localPath,
@@ -82,7 +292,7 @@ function CoFarmerComponent({
         path = localPath;
       }
 
-      await FileViewer.open(path, {showOpenWithDialog: true});
+      await FileViewer.open(path, { showOpenWithDialog: true });
     } catch (e) {
       Alert.alert('Error', 'Unable to open document');
     }
@@ -273,7 +483,7 @@ function CoFarmerComponent({
               <></>
             )}
             {coFarmerDetails.type == '' ? (
-              <View style={{marginBottom: 15, paddingHorizontal: 10}}>
+              <View style={{ marginBottom: 15, paddingHorizontal: 10 }}>
                 <Text style={styles.label}>Gender</Text>
                 <RadioForm
                   label={'Male'}
@@ -411,7 +621,7 @@ function CoFarmerComponent({
                   <View style={styles.uploadedContainer}>
                     {coFarmerDetails.idProof.type?.startsWith('image/') ? (
                       <Image
-                        source={{uri: coFarmerDetails.idProof.uri}}
+                        source={{ uri: coFarmerDetails.idProof.uri }}
                         style={styles.previewImage}
                       />
                     ) : (
@@ -457,7 +667,7 @@ function CoFarmerComponent({
             {/* Land Area */}
             {coFarmerDetails.type == '' ? (
               <>
-                <View style={[styles.inputGroup, {marginTop: 12}]}>
+                <View style={[styles.inputGroup, { marginTop: 12 }]}>
                   <View style={styles.labelContainer}>
                     {/* <MaterialIcons name="landscape" size={16} color="#10b981" /> */}
                     <Text style={styles.label}>Land Area</Text>
@@ -511,10 +721,9 @@ function CoFarmerComponent({
                       }
                       setCoFarmerDetails(prev => ({
                         ...prev,
-                        convertedLandArea: `${
-                          Number(selectUnitValue) *
+                        convertedLandArea: `${Number(selectUnitValue) *
                           Number(coFarmerDetails.landArea)
-                        }`,
+                          }`,
                         unit: item.label,
                         unitValue: item.value,
                         UnitValueNum: UnitValueNum,
@@ -525,7 +734,7 @@ function CoFarmerComponent({
                 </View>
 
                 {/* Converted Land Area */}
-                <View style={[styles.inputGroup, {marginTop: -20}]}>
+                <View style={[styles.inputGroup, { marginTop: -20 }]}>
                   <View style={styles.labelContainer}>
                     {/* <MaterialIcons name="calculate" size={16} color="#10b981" /> */}
                     <Text style={styles.label}>Converted Land Area</Text>
@@ -657,7 +866,7 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     elevation: 4,
     shadowColor: '#10b981',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -855,7 +1064,7 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     elevation: 4,
     shadowColor: '#10b981',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.4,
     shadowRadius: 6,
   },
@@ -921,7 +1130,7 @@ const styles = StyleSheet.create({
     gap: 8,
     elevation: 6,
     shadowColor: '#10b981',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 10,
   },

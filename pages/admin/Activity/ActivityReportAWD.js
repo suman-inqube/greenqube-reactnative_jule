@@ -79,7 +79,8 @@ import {isWithin20Meters} from '../../Common/calculateAreaFun';
 import ScannerModal from '../../Common/ScannerModal';
 import {Camera} from 'react-native-vision-camera';
 import {getItem, removeItem} from '../../../config/getDataFromStorage';
-const ActivityReportAWD = ({navigation}) => {
+const ActivityReportAWD = ({navigation, route}) => {
+  const {farmer, plot} = route?.params || {};
   const isScanningRef = useRef(false);
   const lastScannedRef = useRef(null);
   //GQR-67
@@ -267,6 +268,24 @@ const ActivityReportAWD = ({navigation}) => {
     // date.setDate(date.getDate() - minDateGap);
     return date;
   }, [minDateGap]);
+  useEffect(() => {
+    if (farmer && plot) {
+      const farmerObj = {
+        label: farmer?.userName,
+        value: farmer?.user_id,
+        phone: farmer?.contactNumber,
+      };
+
+      handleResultSelect(farmerObj);
+
+      setTimeout(() => {
+        handlePlot({
+          label: plot?.plot_no,
+          value: plot?.rel_id,
+        });
+      }, 500);
+    }
+  }, [farmer, plot]);
   const checkPipeDistance = async (currentLat, currentLon) => {
     try {
       // Get fresh coordinates each time this function is called
@@ -1359,7 +1378,7 @@ const ActivityReportAWD = ({navigation}) => {
     Keyboard.dismiss();
     if (validateForm()) {
       setIsLoading(true);
-      
+
       const hasFailed = pipeDetails.some(pipeGroup =>
         pipeGroup[1].some(img => img.status === 'failed'),
       );
@@ -1493,14 +1512,14 @@ const ActivityReportAWD = ({navigation}) => {
               longitude,
             });
             if (distances < 10) {
-            database_res = await addPrevPipeActivity(
-              dbname,
-              lan_id,
-              token,
-              farmerID,
-              formData,
-              1,
-            );
+              database_res = await addPrevPipeActivity(
+                dbname,
+                lan_id,
+                token,
+                farmerID,
+                formData,
+                1,
+              );
             } else {
               Toast.show({
                 text: t('You are not in your exact pipe location'),
@@ -1894,7 +1913,7 @@ const ActivityReportAWD = ({navigation}) => {
 
   const handleActivityPipe = async scannedValue => {
     if (!scannedValue) return;
-     setPipeNumber('');
+    setPipeNumber('');
 
     if (saveData.field_type == 'add') {
       if (isScanningRef.current) return;
@@ -1904,16 +1923,16 @@ const ActivityReportAWD = ({navigation}) => {
       lastScannedRef.current = scannedValue;
 
       try {
-
         const scanedData = await axiosGet(
           ROUTES.GET.UNIQUE_SCAN_CODE({
             unique_id: scannedValue,
           }),
           token,
           {information: `${dbname},${lan_id},${farmerID}`},
-          '','pipeQrDetails'
+          '',
+          'pipeQrDetails',
         );
-         console.log('pi value111=', JSON.stringify(scanedData));
+        console.log('pi value111=', JSON.stringify(scanedData));
         if (scanedData?.status == 200) {
           setPipeNumber(scannedValue);
         } else if (scanedData?.status == 409) {
@@ -2301,7 +2320,7 @@ const ActivityReportAWD = ({navigation}) => {
   const [tempText, setTempText] = useState('');
   const watermarkViewRef = useRef(null);
   const TakePhoto = useCallback(
-    async replaceImgKey => {
+    async (replaceImgKey, coords) => {
       const {latitude, longitude} = coords || {};
       let latlong;
       if (!latitude || !longitude) {
@@ -2312,6 +2331,7 @@ const ActivityReportAWD = ({navigation}) => {
       const lon = longitude || latlong?.longitude || 0;
       // console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
       // console.log('field_type1233', pipe_fieldType.current);
+
       if (pipe_fieldType.current === 1) {
         const isPipeInstall = await checkPipeDistance(lat, lon);
         if (!isPipeInstall) {
@@ -2356,7 +2376,7 @@ const ActivityReportAWD = ({navigation}) => {
             minute: '2-digit',
             second: '2-digit',
           }).format(timestamp);
-
+          console.log('formattedDate', formattedDate);
           const watermarkText = `${formattedDate}\nLat: ${lat}, Lon: ${lon}`;
 
           setTempImage(asset.uri);
@@ -2407,7 +2427,7 @@ const ActivityReportAWD = ({navigation}) => {
               setTempImage(null);
               setTempText('');
             }
-          }, 700);
+          }, 1000);
         } catch (error) {
           CustomAlert('Catch Error ', error, true, 'OK');
         } finally {
@@ -2469,6 +2489,7 @@ const ActivityReportAWD = ({navigation}) => {
                   outofRange={outofRange}
                   pipeLatLong={pipeLatLong}
                   replaceImgKey={replaceImgKey}
+                  userLocationPriority="high"
                 />
               )}
               <CustomHeader

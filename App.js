@@ -46,6 +46,7 @@ function AppContent() {
             ref={navigationRef}
             onReady={() => {
               routeNameRef.current = navigationRef.getCurrentRoute()?.name;
+              console.log('Initial Route:', routeNameRef.current);
             }}
             onStateChange={() => {
               const previousRouteName = routeNameRef.current;
