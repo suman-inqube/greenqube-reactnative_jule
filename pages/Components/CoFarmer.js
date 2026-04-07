@@ -47,23 +47,6 @@ function CoFarmerComponent({
   const [penCycleStart, setopenCycleStart] = useState(false);
   const handleGovtIdPick = async fieldName => {
     try {
-      // const [res] = await pick({
-      //   presentationStyle: 'fullScreen',
-      //   type: [types.pdf, types.images],
-      // });
-      // let fileUri = res.uri;
-      // if (res.type?.startsWith('image/')) {
-      //   fileUri = await resizeImage(res.uri);
-      // }
-      // setCoFarmerDetails(prev => ({
-      //   ...prev,
-      //   [fieldName]: {
-      //     uri: fileUri,
-      //     name: res.name,
-      //     fileName: res.name,
-      //     type: res.type,
-      //   },
-      // }));
       const result = await DocumentScanner.scanDocument({
         maxNumDocuments: 1,
         letUserAdjustCrop: true,
@@ -74,231 +57,70 @@ function CoFarmerComponent({
 
       if (result.scannedImages && result.scannedImages.length > 0) {
         const uri = result.scannedImages[0];
-        scanText(uri, fieldName);
+        try {
+          try {
+            const result = await TextRecognition.recognize(uri);
+            const rawText = result.text;
+            const normalizedOCR = rawText.toLowerCase().replace(/\s/g, "").trim();
+            const cleanedOCR = cleanText(rawText);
+            const isNameFound = cleanedOCR.includes(cleanText(coFarmerDetails?.name?.toLowerCase()?.replace(/\s/g, "")));
+            if (!coFarmerDetails?.name?.includes(" ")) {
+              Alert.alert(
+                "Name Format Warning",
+                "Please enter your full name (First and Last name separated by a space)"
+              );
+              return;
+            }
+            let documentType = "Unknown Document";
+            if (
+              normalizedOCR.includes("uidai") ||
+              normalizedOCR.includes("governmentofindia") ||
+              /\d{12}/.test(normalizedOCR)
+            ) {
+              documentType = "Aadhaar Card";
+            }
+            else if (
+              normalizedOCR.includes("electioncommissionofindia") ||
+              normalizedOCR.includes("elector") ||
+              /[a-z]{3}\d{7}/.test(normalizedOCR)
+            ) {
+              documentType = "Voter Card";
+            }
+            if (documentType == "Unknown Document") {
+              Alert.alert("Document Type Not Detected", "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.");
+              return;
+            } else {
+              if (!isNameFound) {
+                Alert.alert(
+                  "Name Verification Failed",
+                  "The farmer's name and the document owner's name do not match."
+                );
+              } else {
+                setCoFarmerDetails(prev => ({
+                  ...prev,
+                  [fieldName]: {
+                    uri: uri,
+                    name: uri.split('/').pop(),
+                    fileName: uri.split('/').pop(),
+                    type: "image/jpeg",
+                  },
+                }));
+              }
+            }
+          } catch (error) {
+            Alert.alert("Error", "Text recognition failed. Please try again.");
+          }
+        } catch (err) {
+          Alert.alert("Error", "An error occurred while processing the document. Please try again.");
+        }
       }
     } catch (err) {
       if (DocumentPicker.isCancel(err)) return;
       console.error('Picker Error:', err);
     }
   };
-  // 🔍 OCR
-  const scanText = async (uri, fieldName) => {
-    try {
-      const result = await TextRecognition.recognize(uri);
-
-      let extractedLines = [];
-
-      if (result.blocks && result.blocks.length > 0) {
-        result.blocks.forEach((block) => {
-          block.lines.forEach((line) => {
-            extractedLines.push(line.text);
-          });
-        });
-      }
-
-      if (extractedLines.length === 0) {
-        extractedLines = result.text
-          .split("\n")
-          .map((line) => line.trim())
-          .filter((line) => line.length > 2);
-      }
-
-      extractedLines = extractedLines.map((line) =>
-        line.replace(/\s+/g, " ").trim()
-      );
-      if (extractDocumentType(extractedLines) === true) {
-        extractName(extractedLines, uri, fieldName);
-      }
-
-    } catch (error) {
-      console.log("OCR ERROR:", error);
-    }
-  };
-  const extractName = (linesArray, uri, fieldName) => {
-
-    // 🔥 CLEAN TEXT
-    const cleanText = (text) => {
-      return text.replace(/^[:>\-.\s]+/, "").trim();
-    };
-
-    // 🔥 FIX OCR JOINED WORDS (AbhishekKumar → Abhishek Kumar)
-    const fixJoinedWords = (text) => {
-      return text.replace(/([a-z])([A-Z])/g, "$1 $2");
-    };
-
-    // 🔥 VALID NAME CHECK
-    const isValidName = (text) => {
-      const lower = text.toLowerCase();
-
-      return (
-        text.length > 2 &&
-        /^[A-Za-z\s]+$/.test(text) &&
-        !text.match(/\d/) &&
-        !lower.includes("father") &&
-        !lower.includes("husband") &&
-        !lower.includes("mother") &&
-        !lower.includes("sex") &&
-        !lower.includes("male") &&
-        !lower.includes("female") &&
-        !lower.includes("government") &&
-        !lower.includes("india") &&
-        !lower.includes("election") &&
-        !lower.includes("identity")
-      );
-    };
-
-    // 🔥 REMOVE DUPLICATE WORDS (Singh Singh → Singh)
-    const normalize = (str = "") => {
-      return str
-        .toLowerCase()
-        .replace(/[^a-z\s]/g, "")
-        .split(" ")
-        .filter((w, i, arr) => arr.indexOf(w) === i)
-        .join("");
-    };
-
-    let candidates = [];
-
-    console.log("EXTRACTED LINES:", JSON.stringify(linesArray));
-
-    for (let i = 0; i < linesArray.length; i++) {
-      let line = linesArray[i].trim();
-      let lower = line.toLowerCase();
-
-      // ✅ FIX: ONLY TARGET CORRECT NAME LABELS
-      if (
-        lower.includes("elector") ||
-        lower === "name" ||
-        lower.startsWith("name:")
-      ) {
-
-        // 🔥 CASE 1: SAME LINE
-        let parts = line.split(/name[:\s]*/i);
-
-        if (parts.length > 1) {
-          let possibleName = fixJoinedWords(cleanText(parts[1]));
-
-          if (isValidName(possibleName)) {
-            candidates.push(possibleName);
-          }
-        }
-
-        // 🔥 CASE 2: LOOK AHEAD (OCR SHIFT FIX)
-        for (let j = i + 1; j <= i + 5 && j < linesArray.length; j++) {
-          let nextLine = fixJoinedWords(cleanText(linesArray[j]));
-
-          if (isValidName(nextLine)) {
-            candidates.push(nextLine);
-          }
-        }
-      }
-    }
-
-    // ✅ FALLBACK
-    if (candidates.length === 0) {
-      for (let line of linesArray) {
-        let clean = fixJoinedWords(cleanText(line));
-
-        if (isValidName(clean)) {
-          candidates.push(clean);
-        }
-      }
-    }
-
-    // 🔥 MAIN FIX: PICK LONGEST NAME
-    let detectedName = "";
-    if (candidates.length > 0) {
-      detectedName = candidates.sort((a, b) => b.length - a.length)[0];
-    }
-
-    // ✅ FINAL CLEAN
-    detectedName = detectedName.replace(/\s+/g, " ").trim();
-
-    console.log("DETECTED NAME:", detectedName);
-    console.log("FARMER NAME:", coFarmerDetails.name);
-
-    // 🔥 SMART MATCH (duplicate + flexible)
-    const cleanDetected = normalize(detectedName);
-    const cleanFarmer = normalize(coFarmerDetails.name);
-
-    if (
-      !cleanFarmer.includes(cleanDetected) &&
-      !cleanDetected.includes(cleanFarmer)
-    ) {
-      Alert.alert(
-        "Name Verification Failed",
-        "The farmer's name does not match the Aadhaar or Voter ID.\n\nPlease upload a clear document where the name is clearly visible and matches."
-      );
-      return;
-    }
-
-    // ✅ SUCCESS
-    setCoFarmerDetails(prev => ({
-      ...prev,
-      [fieldName]: {
-        uri: uri,
-        name: uri.split('/').pop(),
-        fileName: uri.split('/').pop(),
-        type: "image/jpeg",
-      },
-    }));
-  };
-  const extractDocumentType = (linesArray) => {
-    let detectedDocType = "";
-    const fullText = linesArray.join(" ").toLowerCase();
-    console.log("FULL TEXT:", fullText);
-    if (
-      fullText.includes("aadhaar") ||
-      fullText.includes("uidai") ||
-      fullText.includes("unique identification authority of india") ||
-      fullText.includes("government of india") ||
-      fullText.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/) ||
-      fullText.match(/\b\d{12}\b/)
-    ) {
-      detectedDocType = "AADHAAR";
-    }
-
-    // PAN
-    // else if (
-    //   fullText.includes("permanent account number") ||
-    //   fullText.match(/[A-Z]{5}[0-9]{4}[A-Z]{1}/)
-    // ) {
-    //   detectedDocType = "PAN";
-    // }
-
-    // Voter ID
-    else if (
-      fullText.includes("election commission") ||
-      fullText.includes("voter") ||
-      fullText.includes("epic")
-    ) {
-      detectedDocType = "VOTER ID";
-    }
-
-    // Driving License
-    // else if (
-    //   fullText.includes("driving licence") ||
-    //   fullText.includes("driving license") ||
-    //   fullText.includes("dl no")
-    // ) {
-    //   detectedDocType = "DRIVING LICENSE";
-    // }
-
-    // Passport
-    // else if (
-    //   fullText.includes("passport") ||
-    //   fullText.includes("republic of india")
-    // ) {
-    //   detectedDocType = "PASSPORT";
-    // }
-    if (detectedDocType == "") {
-      Alert.alert("Document Type Not Detected Aadhaar or Voter ID", "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.");
-      return false;
-    }
-    return true;
-    console.log("DETECTED DOC TYPE:", detectedDocType);
-
-    // setDocType(detectedDocType || "Unknown Document");
+  const cleanText = (text) => {
+    return text.toLowerCase().replace(/[^a-z0-9]/g, "");
   };
   const openFile = async file => {
     try {

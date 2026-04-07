@@ -253,7 +253,64 @@ const ProofAndIdentityPropfComp = ({
 
         if (result.scannedImages && result.scannedImages.length > 0) {
           const uri = result.scannedImages[0];
-          scanText(uri, data, index);
+          // scanText(uri, data, index);
+          try {
+            const result = await TextRecognition.recognize(uri);
+            const rawText = result.text;
+            const normalizedOCR = rawText.toLowerCase().replace(/\s/g, "").trim();
+            const cleanedOCR = cleanText(rawText);
+            const isNameFound = cleanedOCR.includes(cleanText(farmerName?.toLowerCase()?.replace(/\s/g, "")));
+            if (!farmerName?.includes(" ")) {
+              Alert.alert(
+                "Name Format Warning",
+                "Please enter your full name (First and Last name separated by a space)"
+              );
+              return;
+            }
+            let documentType = "Unknown Document";
+            if (
+              normalizedOCR.includes("uidai") ||
+              normalizedOCR.includes("governmentofindia") ||
+              /\d{12}/.test(normalizedOCR)
+            ) {
+              documentType = "Aadhaar Card";
+            }
+            else if (
+              normalizedOCR.includes("electioncommissionofindia") ||
+              normalizedOCR.includes("elector") ||
+              /[a-z]{3}\d{7}/.test(normalizedOCR)
+            ) {
+              documentType = "Voter Card";
+            }
+            if (documentType == "Unknown Document") {
+              Alert.alert("Document Type Not Detected", "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.");
+              return;
+            } else {
+              if (!isNameFound) {
+                Alert.alert(
+                  "Name Verification Failed",
+                  "The farmer's name and the document owner's name do not match."
+                );
+              } else {
+                const values = [...stateValue];
+                markPhotoDeleted(index, values);
+                values[index] = {
+                  ...values[index],
+                  uri: uri,
+                  name: uri.split('/').pop(),
+                  fileName: uri.split('/').pop(),
+                  type: "image/jpeg",
+                  imageType: data?.imageType || 'identity',
+                  value: '1',
+                  id: '',
+                };
+
+                setStateValue(values);
+              }
+            }
+          } catch (error) {
+            Alert.alert("Error", "Text recognition failed. Please try again.");
+          }
         }
       } else {
         const fileUrl = data?.file_path || data?.uri;
@@ -266,224 +323,54 @@ const ProofAndIdentityPropfComp = ({
       console.log("SCAN ERROR:", error);
     }
   }
-  const scanText = async (uri, data, index) => {
-    try {
-      const result = await TextRecognition.recognize(uri);
-      let extractedLines = [];
-      if (result.blocks && result.blocks.length > 0) {
-        result.blocks.forEach((block) => {
-          block.lines.forEach((line) => {
-            extractedLines.push(line.text);
-          });
-        });
-      }
-      if (extractedLines.length === 0) {
-        extractedLines = result.text
-          .split("\n")
-          .map((line) => line.trim())
-          .filter((line) => line.length > 2);
-      }
-      extractedLines = extractedLines.map((line) =>
-        line.replace(/\s+/g, " ").trim()
-      );
-      // setLines(extractedLines);
 
-      if (extractDocumentType(extractedLines) === true) {
-        extractName(extractedLines, uri, data, index);
-      }
-      // extractAadhaar(extractedLines);
 
-    } catch (error) {
-      console.log("OCR ERROR:", error);
-    }
-  };
-
-  // 🔥 FIXED DOCUMENT TYPE (AADHAAR WORKS NOW)
-  const extractDocumentType = (linesArray) => {
-    let detectedDocType = "";
-    const fullText = linesArray.join(" ").toLowerCase();
-    console.log("FULL TEXT:", fullText);
-    if (
-      fullText.includes("aadhaar") ||
-      fullText.includes("uidai") ||
-      fullText.includes("unique identification authority of india") ||
-      fullText.includes("government of india") ||
-      fullText.match(/\b\d{4}\s?\d{4}\s?\d{4}\b/) ||
-      fullText.match(/\b\d{12}\b/)
-    ) {
-      detectedDocType = "AADHAAR";
-    }
-
-    // PAN
-    // else if (
-    //   fullText.includes("permanent account number") ||
-    //   fullText.match(/[A-Z]{5}[0-9]{4}[A-Z]{1}/)
-    // ) {
-    //   detectedDocType = "PAN";
-    // }
-
-    // Voter ID
-    else if (
-      fullText.includes("election commission") ||
-      fullText.includes("voter") ||
-      fullText.includes("epic")
-    ) {
-      detectedDocType = "VOTER ID";
-    }
-
-    // Driving License
-    // else if (
-    //   fullText.includes("driving licence") ||
-    //   fullText.includes("driving license") ||
-    //   fullText.includes("dl no")
-    // ) {
-    //   detectedDocType = "DRIVING LICENSE";
-    // }
-
-    // Passport
-    // else if (
-    //   fullText.includes("passport") ||
-    //   fullText.includes("republic of india")
-    // ) {
-    //   detectedDocType = "PASSPORT";
-    // }
-    if (detectedDocType == "") {
-      Alert.alert("Document Type Not Detected Aadhaar or Voter ID", "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.");
-      return false;
-    }
-    return true;
-    console.log("DETECTED DOC TYPE:", detectedDocType);
-
-    // setDocType(detectedDocType || "Unknown Document");
-  };
-  // 🔥 CLEAN TEXT
   const cleanText = (text) => {
-    return text.replace(/^[:>\-.\s]+/, "").trim();
+    return text.toLowerCase().replace(/[^a-z0-9]/g, "");
   };
 
-  // 🔥 FIX OCR JOINED WORDS (AbhishekKumar → Abhishek Kumar)
-  const fixJoinedWords = (text) => {
-    return text.replace(/([a-z])([A-Z])/g, "$1 $2");
-  };
-
-  // 🔥 VALID NAME CHECK
-  const isValidName = (text) => {
-    const lower = text.toLowerCase();
-
-    return (
-      text.length > 2 &&
-      /^[A-Za-z\s]+$/.test(text) &&
-      !text.match(/\d/) &&
-      !lower.includes("father") &&
-      !lower.includes("husband") &&
-      !lower.includes("mother") &&
-      !lower.includes("sex") &&
-      !lower.includes("male") &&
-      !lower.includes("female") &&
-      !lower.includes("government") &&
-      !lower.includes("india") &&
-      !lower.includes("election") &&
-      !lower.includes("identity")
-    );
-  };
-
-  // 🔥 REMOVE DUPLICATE WORDS (Singh Singh → Singh)
-  const normalizeName = (name) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z\s]/g, "")
-      .split(" ")
-      .filter((word, index, arr) => arr.indexOf(word) === index)
-      .join("");
-  };
-
-  // 🔥 MAIN FUNCTION
-  const extractName = (linesArray, url, data, index) => {
-    console.log("EXTRACTED LINES:", JSON.stringify(linesArray));
-
-    let candidates = [];
-
-    for (let i = 0; i < linesArray.length; i++) {
-      let rawLine = linesArray[i].trim();
-      let lower = rawLine.toLowerCase();
-
-      // ✅ TARGET NAME LABELS ONLY
-      if (
-        lower.includes("elector") ||   // voter
-        lower.startsWith("name")       // aadhaar / DL
-      ) {
-
-        // 🔥 CASE 1: SAME LINE
-        let parts = rawLine.split(/name[:\s]*/i);
-        if (parts.length > 1) {
-          let baseName = fixJoinedWords(cleanText(parts[1]));
-          if (isValidName(baseName)) {
-            candidates.push(baseName);
-          }
-        }
-
-        // 🔥 CASE 2: LOOK AHEAD (OCR SHIFT FIX)
-        for (let j = i + 1; j <= i + 5 && j < linesArray.length; j++) {
-          let nextLine = fixJoinedWords(cleanText(linesArray[j]));
-
-          if (isValidName(nextLine)) {
-            candidates.push(nextLine);
-          }
-        }
-      }
-    }
-
-    // ✅ FALLBACK (if no label found)
-    if (candidates.length === 0) {
-      for (let line of linesArray) {
-        let clean = fixJoinedWords(cleanText(line));
-        if (isValidName(clean)) {
-          candidates.push(clean);
-        }
-      }
-    }
-
-    // 🔥 PICK LONGEST NAME (avoid "Singh")
-    let detectedName = "";
-    if (candidates.length > 0) {
-      detectedName = candidates.sort((a, b) => b.length - a.length)[0];
-    }
-
-    // ✅ FINAL CLEAN
-    detectedName = detectedName.replace(/\s+/g, " ").trim();
-
-    console.log("✅ DETECTED NAME:", detectedName, "////", farmerName);
-
-    // 🔥 SMART MATCH (REMOVE DUPLICATES + FLEXIBLE MATCH)
-    const cleanDetected = normalizeName(detectedName);
-    const cleanFarmer = normalizeName(farmerName);
-
-    if (
-      !cleanFarmer.includes(cleanDetected) &&
-      !cleanDetected.includes(cleanFarmer)
-    ) {
-      Alert.alert(
-        "Name Verification Failed",
-        "The farmer's name and the document owner's name do not match."
-      );
-      return;
-    }
-
-    // ✅ SUCCESS
-    const values = [...stateValue];
-    markPhotoDeleted(index, values);
-    values[index] = {
-      ...values[index],
-      uri: url,
-      name: url.split('/').pop(),
-      fileName: url.split('/').pop(),
-      type: "image/jpeg",
-      imageType: data?.imageType || 'identity',
-      value: '1',
-      id: '',
+  const ActionSheetID = ({ data, index, spSheet }) => {
+    // Alert.alert('Test-1');
+    const handleOpen = async () => {
+      const fileUrl = data?.file_path || data?.uri;
+      if (!fileUrl) return;
+      containsHttp(fileUrl)
+        ? await downloadAndOpenFile(fileUrl)
+        : await openFile(fileUrl);
+      spSheet.hide();
     };
-
-    setStateValue(values);
+    return (
+      <>
+        <Text style={styles.sheetTitle}>Attach Document</Text>
+        <View style={styles.sheetRow}>
+          {InputTextFormEdit && (
+            <>
+              <ActionButton
+                label="Scanner"
+                icon={require('../Common/images/scan.png')}
+                onPress={() => {
+                  IDPickImage(data, index);
+                  spSheet.hide();
+                }}
+              />
+              {/* <ActionButton
+                label="Gallery"
+                icon={require('../Common/images/gallery.png')}
+                onPress={() => {
+                  onHandleDocumentSelection(data?.imageType, index);
+                  spSheet.hide();
+                }}
+              /> */}
+            </>
+          )}
+          <ActionButton
+            label="View"
+            icon={require('../Common/images/view.png')}
+            onPress={handleOpen}
+          />
+        </View>
+      </>
+    );
   };
   const ActionSheet = ({ data, index, spSheet }) => {
     // Alert.alert('Test-1');
@@ -549,7 +436,12 @@ const ProofAndIdentityPropfComp = ({
               key={index}
               style={styles.idItem}
               onPress={() =>
-                data.imageType == "identity" ? IDPickImage(data, index) :
+                data.imageType == "identity" ? SPSheet.show({
+                  component: () => (
+                    <ActionSheetID data={data} index={index} spSheet={SPSheet} />
+                  ),
+                  height: 230,
+                }) :
                   SPSheet.show({
                     component: () => (
                       <ActionSheet data={data} index={index} spSheet={SPSheet} />
