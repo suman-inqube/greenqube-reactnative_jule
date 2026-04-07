@@ -8,15 +8,15 @@ import {
   Alert,
   StatusBar,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import DropdownForm from './Common/DropdownForm';
 import Logo from './Common/Logo';
 import ImagePlaceHolderCircle from './Common/ImagePlaceHolderCircle';
 import InputTextForm from './Common/InputTextForm';
 import RadioForm from './Common/RadioForm';
 import ButtonForm from './Common/ButtonForm';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import MyErrorBoundary from './Common/MyErrorBoundary';
 import {
   blockDataListAPI,
@@ -24,21 +24,21 @@ import {
   languageDataListAPI,
   stateInfoDataListAPI,
 } from '../config/apiHere';
-import {getItem, setItem} from '../config/getDataFromStorage';
-import {isNotEmpty} from './Common/ValidationFunctions';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {Root, Popup, Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
-import {AlertMesg} from './Common/ToastAlert';
-import {useTranslation} from 'react-i18next';
-import DocumentPicker, {types} from '@react-native-documents/picker';
+import { getItem, setItem } from '../config/getDataFromStorage';
+import { isNotEmpty } from './Common/ValidationFunctions';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { Root, Popup, Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
+import { AlertMesg } from './Common/ToastAlert';
+import { useTranslation } from 'react-i18next';
+import DocumentPicker, { types } from '@react-native-documents/picker';
 import ProofAndIdentityPropfComp from './Common/ProofAndIdentityPropfComp';
-import {Colors, Fonts} from './utils/Constants';
+import { Colors, Fonts } from './utils/Constants';
 
 const PersnolUpdate = () => {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const route = useRoute();
-  const {pagename} = route.params;
+  const { pagename } = route.params;
   const [dbName, setdbName] = useState();
   const [languageData, setlanguageData] = useState([]);
   const [stateInfoData, setstateInfoData] = useState([]);
@@ -59,8 +59,8 @@ const PersnolUpdate = () => {
     img: '',
   });
   const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
-    {uri: '', name: '', type: '', fileName: '', imageType: 'address'},
-    {uri: '', name: '', type: '', fileName: '', imageType: 'identity'},
+    { uri: '', name: '', type: '', fileName: '', imageType: 'address' },
+    { uri: '', name: '', type: '', fileName: '', imageType: 'identity' },
   ]);
   let languageDataList = async dbname => {
     // console.log(dbname);
@@ -82,7 +82,7 @@ const PersnolUpdate = () => {
   };
 
   const handleLanguage = language => {
-    setstorePersnolInfo({...storePersnolInfo, language: language});
+    setstorePersnolInfo({ ...storePersnolInfo, language: language });
     stateInfoDataList(dbName, language);
   };
 
@@ -104,7 +104,7 @@ const PersnolUpdate = () => {
     }
   };
   const handleStateInfo = stateInfo => {
-    setstorePersnolInfo({...storePersnolInfo, stateInfo: stateInfo});
+    setstorePersnolInfo({ ...storePersnolInfo, stateInfo: stateInfo });
     districtDataList(dbName, storePersnolInfo.language, stateInfo);
   };
 
@@ -127,7 +127,7 @@ const PersnolUpdate = () => {
   };
 
   const handleDistrict = district => {
-    setstorePersnolInfo({...storePersnolInfo, district: district});
+    setstorePersnolInfo({ ...storePersnolInfo, district: district });
     blockDataList(dbName, storePersnolInfo.language, district);
   };
   let blockDataList = async (dbName, language, district) => {
@@ -216,7 +216,7 @@ const PersnolUpdate = () => {
     };
     if (validateForm()) {
       await setItem('storePersnolInfo_data', newstorePersnolInfo);
-      navigation.navigate(pagename, {pagename: 'ProduceInfo'});
+      navigation.navigate(pagename, { pagename: 'ProduceInfo' });
     }
   };
   const onPageLoad = async () => {
@@ -504,7 +504,7 @@ const PersnolUpdate = () => {
   // );
 
   return (
-    <SafeAreaView style={{flex: 1}} edges={['top', 'bottom']}>
+    <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
       <Root>
         <MyErrorBoundary>
           <StatusBar barStyle="light-content" backgroundColor={Colors.green} />
@@ -523,15 +523,15 @@ const PersnolUpdate = () => {
                 </Text>
               </View>
             </View>
-            <View style={{flex: 1, justifyContent: 'center'}}>
+            <View style={{ flex: 1, justifyContent: 'center' }}>
               <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={{alignItems: 'center'}}>
+                <View style={{ alignItems: 'center' }}>
                   <Image
                     source={require('../pages/Common/images/logo.png')}
                     style={styles.logo}
                   />
                 </View>
-                <View style={{flex: 1}}>
+                <View style={{ flex: 1 }}>
                   <View style={styles.firatFormContainer}>
                     <View style={styles.profileImg}>
                       <ImagePlaceHolderCircle
@@ -549,10 +549,23 @@ const PersnolUpdate = () => {
                             ...storePersnolInfo,
                             name: name,
                           });
+                          const values = [...identityProofIdentityPropf];
+                          values[1] = {
+                            ...values[1],
+                            uri: "",
+                            name: "",
+                            fileName: "",
+                            type: "image/jpeg",
+                            imageType: 'identity',
+                            value: '1',
+                            id: '',
+                          };
+
+                          setIdentityProofIdentityPropf(values);
                         }}
                       />
                       <View>
-                        <Text style={{fontSize: 16, color: '#000'}}>
+                        <Text style={{ fontSize: 16, color: '#000' }}>
                           Gender
                         </Text>
                         <RadioForm
@@ -577,9 +590,9 @@ const PersnolUpdate = () => {
                         />
                       </View>
 
-                      <View style={{marginBottom: 15}}>
+                      <View style={{ marginBottom: 15 }}>
                         <Text
-                          style={{fontSize: 16, marginTop: 15, color: '#000'}}>
+                          style={{ fontSize: 16, marginTop: 15, color: '#000' }}>
                           User Type
                         </Text>
                         <RadioForm
@@ -619,7 +632,7 @@ const PersnolUpdate = () => {
                         required={true}
                         value={storePersnolInfo.age ?? age}
                         onChangeText={age => {
-                          setstorePersnolInfo({...storePersnolInfo, age: age});
+                          setstorePersnolInfo({ ...storePersnolInfo, age: age });
                         }}
                         keyboardType="numeric"
                       />
@@ -682,7 +695,7 @@ const PersnolUpdate = () => {
                         label={t('valid_pin_code')}
                         value={storePersnolInfo.zip ?? zip}
                         onChangeText={zip => {
-                          setstorePersnolInfo({...storePersnolInfo, zip: zip});
+                          setstorePersnolInfo({ ...storePersnolInfo, zip: zip });
                         }}
                         maxLength={6}
                       />
@@ -703,9 +716,9 @@ const PersnolUpdate = () => {
                         disable={true}
                         InputTextFormEdit={true}
                         farmerName={storePersnolInfo.name}
-                        // photoDeletedValue={photoDeletedValue}
-                        // setPhotoDeletedValue={setPhotoDeletedValue}
-                        // loginUser_data={loginUser_data}
+                      // photoDeletedValue={photoDeletedValue}
+                      // setPhotoDeletedValue={setPhotoDeletedValue}
+                      // loginUser_data={loginUser_data}
                       />
                     </View>
                   </View>
@@ -773,7 +786,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
     elevation: 5, // For Android shadow
     shadowColor: '#000', // For iOS shadow
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
     justifyContent: 'center',

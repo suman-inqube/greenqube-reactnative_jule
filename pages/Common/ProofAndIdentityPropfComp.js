@@ -29,7 +29,7 @@ const ProofAndIdentityPropfComp = ({
   status_level,
   InputTextFormEdit,
   allowAddMore,
-  farmerName="",
+  farmerName = "",
 }) => {
   console.log('farmerName:', farmerName);
   const [loading, setLoading] = useState(false);
@@ -242,26 +242,26 @@ const ProofAndIdentityPropfComp = ({
   };
   const IDPickImage = async (data, index) => {
     try {
-      if(InputTextFormEdit) {
-      const result = await DocumentScanner.scanDocument({
-        maxNumDocuments: 1,
-        letUserAdjustCrop: true,
-        responseType: "imageFilePath",
-        croppedImageQuality: 100,
-        saveInAppDocument: false,
-      });
+      if (InputTextFormEdit) {
+        const result = await DocumentScanner.scanDocument({
+          maxNumDocuments: 1,
+          letUserAdjustCrop: true,
+          responseType: "imageFilePath",
+          croppedImageQuality: 100,
+          saveInAppDocument: false,
+        });
 
-      if (result.scannedImages && result.scannedImages.length > 0) {
-        const uri = result.scannedImages[0];
-        scanText(uri, data, index);
+        if (result.scannedImages && result.scannedImages.length > 0) {
+          const uri = result.scannedImages[0];
+          scanText(uri, data, index);
+        }
+      } else {
+        const fileUrl = data?.file_path || data?.uri;
+        if (!fileUrl) return;
+        containsHttp(fileUrl)
+          ? await downloadAndOpenFile(fileUrl)
+          : await openFile(fileUrl);
       }
-    }else{
-      const fileUrl = data?.file_path || data?.uri;
-      if (!fileUrl) return;
-      containsHttp(fileUrl)
-        ? await downloadAndOpenFile(fileUrl)
-        : await openFile(fileUrl);
-    }
     } catch (error) {
       console.log("SCAN ERROR:", error);
     }
@@ -288,7 +288,7 @@ const ProofAndIdentityPropfComp = ({
       );
       // setLines(extractedLines);
 
-      if(extractDocumentType(extractedLines) === true) {
+      if (extractDocumentType(extractedLines) === true) {
         extractName(extractedLines, uri, data, index);
       }
       // extractAadhaar(extractedLines);
@@ -356,107 +356,134 @@ const ProofAndIdentityPropfComp = ({
 
     // setDocType(detectedDocType || "Unknown Document");
   };
-  // 👤 NAME
+  // 🔥 CLEAN TEXT
+  const cleanText = (text) => {
+    return text.replace(/^[:>\-.\s]+/, "").trim();
+  };
+
+  // 🔥 FIX OCR JOINED WORDS (AbhishekKumar → Abhishek Kumar)
+  const fixJoinedWords = (text) => {
+    return text.replace(/([a-z])([A-Z])/g, "$1 $2");
+  };
+
+  // 🔥 VALID NAME CHECK
+  const isValidName = (text) => {
+    const lower = text.toLowerCase();
+
+    return (
+      text.length > 2 &&
+      /^[A-Za-z\s]+$/.test(text) &&
+      !text.match(/\d/) &&
+      !lower.includes("father") &&
+      !lower.includes("husband") &&
+      !lower.includes("mother") &&
+      !lower.includes("sex") &&
+      !lower.includes("male") &&
+      !lower.includes("female") &&
+      !lower.includes("government") &&
+      !lower.includes("india") &&
+      !lower.includes("election") &&
+      !lower.includes("identity")
+    );
+  };
+
+  // 🔥 REMOVE DUPLICATE WORDS (Singh Singh → Singh)
+  const normalizeName = (name) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z\s]/g, "")
+      .split(" ")
+      .filter((word, index, arr) => arr.indexOf(word) === index)
+      .join("");
+  };
+
+  // 🔥 MAIN FUNCTION
   const extractName = (linesArray, url, data, index) => {
-    let detectedName = "";
+    console.log("EXTRACTED LINES:", JSON.stringify(linesArray));
+
+    let candidates = [];
 
     for (let i = 0; i < linesArray.length; i++) {
-      let line = linesArray[i].trim();
-      let lower = line.toLowerCase();
+      let rawLine = linesArray[i].trim();
+      let lower = rawLine.toLowerCase();
 
-      if (lower.includes("name")) {
-        let parts = line.split(/name[:\s]*/i);
+      // ✅ TARGET NAME LABELS ONLY
+      if (
+        lower.includes("elector") ||   // voter
+        lower.startsWith("name")       // aadhaar / DL
+      ) {
 
+        // 🔥 CASE 1: SAME LINE
+        let parts = rawLine.split(/name[:\s]*/i);
         if (parts.length > 1) {
-          let possibleName = parts[1]
-            .replace(/^[:>\-.\s]+/, "")
-            .trim();
-
-          if (
-            possibleName.length > 2 &&
-            /^[A-Za-z\s]+$/.test(possibleName) &&
-            !possibleName.match(/\d/)
-          ) {
-            detectedName = possibleName;
-            break;
+          let baseName = fixJoinedWords(cleanText(parts[1]));
+          if (isValidName(baseName)) {
+            candidates.push(baseName);
           }
         }
 
-        for (let j = i + 1; j <= i + 4 && j < linesArray.length; j++) {
-          let nextLine = linesArray[j]
-            .replace(/^[:>\-.\s]+/, "")
-            .trim();
+        // 🔥 CASE 2: LOOK AHEAD (OCR SHIFT FIX)
+        for (let j = i + 1; j <= i + 5 && j < linesArray.length; j++) {
+          let nextLine = fixJoinedWords(cleanText(linesArray[j]));
 
-          if (
-            nextLine.length > 2 &&
-            /^[A-Za-z\s]+$/.test(nextLine) &&
-            !nextLine.toLowerCase().includes("father") &&
-            !nextLine.toLowerCase().includes("husband") &&
-            !nextLine.toLowerCase().includes("sex") &&
-            !nextLine.toLowerCase().includes("government") &&
-            !nextLine.toLowerCase().includes("india") &&
-            !nextLine.toLowerCase().includes("election") &&
-            !nextLine.match(/\d/)
-          ) {
-            detectedName = nextLine;
-            break;
+          if (isValidName(nextLine)) {
+            candidates.push(nextLine);
           }
         }
       }
-
-      if (detectedName) break;
     }
 
-    if (!detectedName) {
+    // ✅ FALLBACK (if no label found)
+    if (candidates.length === 0) {
       for (let line of linesArray) {
-        let clean = line.replace(/^[:>\-.\s]+/, "").trim();
-
-        if (
-          clean.length < 3 ||
-          clean.toLowerCase().includes("government") ||
-          clean.toLowerCase().includes("india") ||
-          clean.toLowerCase().includes("election") ||
-          clean.toLowerCase().includes("identity") ||
-          clean.toLowerCase().includes("father") ||
-          clean.toLowerCase().includes("husband") ||
-          clean.toLowerCase().includes("sex") ||
-          clean.match(/\d/)
-        ) continue;
-
-        if (/^[A-Za-z\s]+$/.test(clean)) {
-          detectedName = clean;
-          break;
+        let clean = fixJoinedWords(cleanText(line));
+        if (isValidName(clean)) {
+          candidates.push(clean);
         }
       }
     }
-    if (detectedName?.toLowerCase().trim() != farmerName?.toLowerCase().trim()) {
-      // Alert.alert("Name Not Detected", "We couldn't extract the name from the document. Please make sure the name is clearly visible and try again.");
+
+    // 🔥 PICK LONGEST NAME (avoid "Singh")
+    let detectedName = "";
+    if (candidates.length > 0) {
+      detectedName = candidates.sort((a, b) => b.length - a.length)[0];
+    }
+
+    // ✅ FINAL CLEAN
+    detectedName = detectedName.replace(/\s+/g, " ").trim();
+
+    console.log("✅ DETECTED NAME:", detectedName, "////", farmerName);
+
+    // 🔥 SMART MATCH (REMOVE DUPLICATES + FLEXIBLE MATCH)
+    const cleanDetected = normalizeName(detectedName);
+    const cleanFarmer = normalizeName(farmerName);
+
+    if (
+      !cleanFarmer.includes(cleanDetected) &&
+      !cleanDetected.includes(cleanFarmer)
+    ) {
       Alert.alert(
         "Name Verification Failed",
-        "The farmer's name and the document owner's name do not match. Please check the details and try again."
+        "The farmer's name and the document owner's name do not match."
       );
-      return ;
-    } else {
-      const values = [...stateValue];
-      markPhotoDeleted(index, values);
-      values[index] = {
-        ...values[index],
-        uri: url,
-        name: url.split('/').pop(),
-        fileName: url.split('/').pop(),
-        type: "image/jpeg",
-        imageType: data?.imageType || 'identity',
-        value: '1',
-        id: '',
-      };
-      setStateValue(values);
+      return;
     }
-    // if ("basudev nayak" && detectedName) {
-    //   const score = calculateNameSimilarity(detectedName, targetName);
-    //   setSimilarity(score.toFixed(2));
-    // }
 
-    // setName(detectedName || "Not Found");
+    // ✅ SUCCESS
+    const values = [...stateValue];
+    markPhotoDeleted(index, values);
+    values[index] = {
+      ...values[index],
+      uri: url,
+      name: url.split('/').pop(),
+      fileName: url.split('/').pop(),
+      type: "image/jpeg",
+      imageType: data?.imageType || 'identity',
+      value: '1',
+      id: '',
+    };
+
+    setStateValue(values);
   };
   const ActionSheet = ({ data, index, spSheet }) => {
     // Alert.alert('Test-1');

@@ -74,7 +74,7 @@ function CoFarmerComponent({
 
       if (result.scannedImages && result.scannedImages.length > 0) {
         const uri = result.scannedImages[0];
-        scanText(uri,fieldName);
+        scanText(uri, fieldName);
       }
     } catch (err) {
       if (DocumentPicker.isCancel(err)) return;
@@ -82,7 +82,7 @@ function CoFarmerComponent({
     }
   };
   // 🔍 OCR
-  const scanText = async (uri,fieldName) => {
+  const scanText = async (uri, fieldName) => {
     try {
       const result = await TextRecognition.recognize(uri);
 
@@ -107,119 +107,141 @@ function CoFarmerComponent({
         line.replace(/\s+/g, " ").trim()
       );
       if (extractDocumentType(extractedLines) === true) {
-        extractName(extractedLines,uri,fieldName);
+        extractName(extractedLines, uri, fieldName);
       }
 
     } catch (error) {
       console.log("OCR ERROR:", error);
     }
   };
-    const extractName = (linesArray,uri,fieldName) => {
-    let detectedName = "";
+  const extractName = (linesArray, uri, fieldName) => {
+
+    // 🔥 CLEAN TEXT
+    const cleanText = (text) => {
+      return text.replace(/^[:>\-.\s]+/, "").trim();
+    };
+
+    // 🔥 FIX OCR JOINED WORDS (AbhishekKumar → Abhishek Kumar)
+    const fixJoinedWords = (text) => {
+      return text.replace(/([a-z])([A-Z])/g, "$1 $2");
+    };
+
+    // 🔥 VALID NAME CHECK
+    const isValidName = (text) => {
+      const lower = text.toLowerCase();
+
+      return (
+        text.length > 2 &&
+        /^[A-Za-z\s]+$/.test(text) &&
+        !text.match(/\d/) &&
+        !lower.includes("father") &&
+        !lower.includes("husband") &&
+        !lower.includes("mother") &&
+        !lower.includes("sex") &&
+        !lower.includes("male") &&
+        !lower.includes("female") &&
+        !lower.includes("government") &&
+        !lower.includes("india") &&
+        !lower.includes("election") &&
+        !lower.includes("identity")
+      );
+    };
+
+    // 🔥 REMOVE DUPLICATE WORDS (Singh Singh → Singh)
+    const normalize = (str = "") => {
+      return str
+        .toLowerCase()
+        .replace(/[^a-z\s]/g, "")
+        .split(" ")
+        .filter((w, i, arr) => arr.indexOf(w) === i)
+        .join("");
+    };
+
+    let candidates = [];
+
+    console.log("EXTRACTED LINES:", JSON.stringify(linesArray));
 
     for (let i = 0; i < linesArray.length; i++) {
       let line = linesArray[i].trim();
       let lower = line.toLowerCase();
 
-      if (lower.includes("name")) {
+      // ✅ FIX: ONLY TARGET CORRECT NAME LABELS
+      if (
+        lower.includes("elector") ||
+        lower === "name" ||
+        lower.startsWith("name:")
+      ) {
+
+        // 🔥 CASE 1: SAME LINE
         let parts = line.split(/name[:\s]*/i);
 
         if (parts.length > 1) {
-          let possibleName = parts[1]
-            .replace(/^[:>\-.\s]+/, "")
-            .trim();
+          let possibleName = fixJoinedWords(cleanText(parts[1]));
 
-          if (
-            possibleName.length > 2 &&
-            /^[A-Za-z\s]+$/.test(possibleName) &&
-            !possibleName.match(/\d/)
-          ) {
-            detectedName = possibleName;
-            break;
+          if (isValidName(possibleName)) {
+            candidates.push(possibleName);
           }
         }
 
-        for (let j = i + 1; j <= i + 4 && j < linesArray.length; j++) {
-          let nextLine = linesArray[j]
-            .replace(/^[:>\-.\s]+/, "")
-            .trim();
+        // 🔥 CASE 2: LOOK AHEAD (OCR SHIFT FIX)
+        for (let j = i + 1; j <= i + 5 && j < linesArray.length; j++) {
+          let nextLine = fixJoinedWords(cleanText(linesArray[j]));
 
-          if (
-            nextLine.length > 2 &&
-            /^[A-Za-z\s]+$/.test(nextLine) &&
-            !nextLine.toLowerCase().includes("father") &&
-            !nextLine.toLowerCase().includes("husband") &&
-            !nextLine.toLowerCase().includes("sex") &&
-            !nextLine.toLowerCase().includes("government") &&
-            !nextLine.toLowerCase().includes("india") &&
-            !nextLine.toLowerCase().includes("election") &&
-            !nextLine.match(/\d/)
-          ) {
-            detectedName = nextLine;
-            break;
+          if (isValidName(nextLine)) {
+            candidates.push(nextLine);
           }
         }
       }
-
-      if (detectedName) break;
     }
 
-    if (!detectedName) {
+    // ✅ FALLBACK
+    if (candidates.length === 0) {
       for (let line of linesArray) {
-        let clean = line.replace(/^[:>\-.\s]+/, "").trim();
+        let clean = fixJoinedWords(cleanText(line));
 
-        if (
-          clean.length < 3 ||
-          clean.toLowerCase().includes("government") ||
-          clean.toLowerCase().includes("india") ||
-          clean.toLowerCase().includes("election") ||
-          clean.toLowerCase().includes("identity") ||
-          clean.toLowerCase().includes("father") ||
-          clean.toLowerCase().includes("husband") ||
-          clean.toLowerCase().includes("sex") ||
-          clean.match(/\d/)
-        ) continue;
-
-        if (/^[A-Za-z\s]+$/.test(clean)) {
-          detectedName = clean;
-          break;
+        if (isValidName(clean)) {
+          candidates.push(clean);
         }
       }
     }
-    const normalize = (str = "") =>
-  str.toLowerCase().replace(/\s+/g, "").trim();
+
+    // 🔥 MAIN FIX: PICK LONGEST NAME
+    let detectedName = "";
+    if (candidates.length > 0) {
+      detectedName = candidates.sort((a, b) => b.length - a.length)[0];
+    }
+
+    // ✅ FINAL CLEAN
+    detectedName = detectedName.replace(/\s+/g, " ").trim();
+
     console.log("DETECTED NAME:", detectedName);
     console.log("FARMER NAME:", coFarmerDetails.name);
-    console.log("COMPARE:", detectedName?.toLowerCase().trim(), coFarmerDetails.name?.toLowerCase().trim());
-//     if (detectedName?.toLowerCase().trim()  != coFarmerDetails.name?.toLowerCase().trim() ) {
-//  Alert.alert(
-//         "Name Verification Failed",
-//         "The farmer's name and the document owner's name do not match. Please check the details and try again."
-//       );
-//       return;
-//     }else{
-  if (
-  normalize(detectedName) !== normalize(coFarmerDetails.name)
-) {
-  Alert.alert(
-    "Name Verification Failed",
-    "The farmer's name does not match the Aadhaar or Voter ID.\n\nPlease upload a clear document where the name is clearly visible and matches exactly."
-  );
-}else{
 
-  
-      setCoFarmerDetails(prev => ({
-        ...prev,
-        [fieldName]: {
-          uri: uri,
-          name: uri.split('/').pop(),
-          fileName: uri.split('/').pop(),
-          type: "image/jpeg",
-        },
-      }));
+    // 🔥 SMART MATCH (duplicate + flexible)
+    const cleanDetected = normalize(detectedName);
+    const cleanFarmer = normalize(coFarmerDetails.name);
+
+    if (
+      !cleanFarmer.includes(cleanDetected) &&
+      !cleanDetected.includes(cleanFarmer)
+    ) {
+      Alert.alert(
+        "Name Verification Failed",
+        "The farmer's name does not match the Aadhaar or Voter ID.\n\nPlease upload a clear document where the name is clearly visible and matches."
+      );
+      return;
     }
 
-    // setName(detectedName || "Not Found");
+    // ✅ SUCCESS
+    setCoFarmerDetails(prev => ({
+      ...prev,
+      [fieldName]: {
+        uri: uri,
+        name: uri.split('/').pop(),
+        fileName: uri.split('/').pop(),
+        type: "image/jpeg",
+      },
+    }));
   };
   const extractDocumentType = (linesArray) => {
     let detectedDocType = "";
@@ -359,11 +381,21 @@ function CoFarmerComponent({
                 <TextInput
                   placeholder="Enter farmer's full name"
                   value={coFarmerDetails.name}
-                  onChangeText={text =>
+                  onChangeText={text => {
                     setCoFarmerDetails(prev => ({
                       ...prev,
                       name: text,
                     }))
+                    setCoFarmerDetails(prev => ({
+                      ...prev,
+                      ["idProof"]: {
+                        uri: "",
+                        name: "",
+                        fileName: "",
+                        type: "image/jpeg",
+                      },
+                    }));
+                  }
                   }
                   style={styles.input}
                   placeholderTextColor="#9ca3af"
