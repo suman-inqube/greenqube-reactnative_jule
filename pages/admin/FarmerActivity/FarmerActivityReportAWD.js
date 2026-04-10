@@ -74,7 +74,8 @@ import {ROUTES} from '../../utils/Routes';
 import {Camera} from 'react-native-vision-camera';
 import {getItem, removeItem} from '../../../config/getDataFromStorage';
 import {axiosGet, axiosPost} from '../../utils/api';
-const FarmerActivityReportAWD = ({navigation}) => {
+const FarmerActivityReportAWD = ({navigation, route}) => {
+  const {farmer, plot} = route?.params || {};
   const today = new Date();
   const tenDaysAgo = new Date();
   tenDaysAgo.setDate(today.getDate() - 10);
@@ -114,6 +115,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [location, setLocation] = useState(null);
+  const [isPrefilling, setIsPrefilling] = useState(false);
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [searchFarmerName, setSearchFarmerName] = useState('');
@@ -129,6 +131,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
   const [cycleStartDate, srtCycleStartDate] = useState(false);
   const [activityPreDate, setActivityPreDate] = useState(false);
   const [cycleDtartDate, setCycleStartDate] = useState('');
+  const [isDisabled, setIsDisabled] = useState(false);
+
   const [activityInfoReadio, setactivityInfoReadio] = useState({
     activityPreFormDate: 'regular',
   });
@@ -663,90 +667,68 @@ const FarmerActivityReportAWD = ({navigation}) => {
           );
           setproductionStageAll(dataArray);
         }
-        console.log('activityScheduleAPI', activitySchedule);
-        if (activitySchedule.status == 200) {
-          console.log('activitySchedule==', activitySchedule?.data?.data);
-          if (activitySchedule?.data?.data.length>0) {
-          
-          if (
-            activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
-          ) {
-            var lastData =
-              activitySchedule?.data?.data?.lastActivity?.activityName
-                ?.categoryName +
+        console.log('activityScheduleAPI', JSON.stringify(activitySchedule));
+        if (activitySchedule?.status === 200) {
+          const data = activitySchedule?.data?.data;
+
+          // 🔥 RESET FIRST
+          setLastAct('');
+          setUpcomingAct('');
+          setOverdueAct([]);
+
+          // ======================
+          // ✅ LAST ACTIVITY
+          // ======================
+          if (data?.lastActivity && data?.lastActivity !== 'No Last Activity') {
+            const last = data.lastActivity;
+
+            const lastData =
+              last?.activityName?.categoryName +
               ' (' +
-              formatDate(
-                activitySchedule?.data?.data?.lastActivity?.act_start_date,
-              ) +
+              formatDate(last?.act_start_date) +
               ' - ' +
-              formatDate(
-                activitySchedule?.data?.data?.lastActivity?.act_to_date,
-              ) +
+              formatDate(last?.act_to_date) +
               ')';
+
             setLastAct(lastData);
           }
-          if (activitySchedule?.data?.data?.otherActivities.length > 0) {
-            activitySchedule?.data?.data?.otherActivities.forEach(function (
-              element,
-            ) {
-              var overdueData;
-              if (element?.days_until_start < 0) {
-                overdueData =
-                  element?.activityName.categoryName +
+
+          // ======================
+          // ✅ OTHER ACTIVITIES
+          // ======================
+          if (data?.otherActivities && data.otherActivities.length > 0) {
+            // 🔴 OVERDUE
+            data.otherActivities.forEach(item => {
+              if (item?.days_until_start < 0) {
+                const overdueData =
+                  item?.activityName?.categoryName +
                   ' (' +
-                  formatDate(element?.activity_start_date) +
+                  formatDate(item?.activity_start_date) +
                   ' - ' +
-                  formatDate(element?.activity_end_date) +
+                  formatDate(item?.activity_end_date) +
                   ')';
-                setOverdueAct(prevItems => [...prevItems, overdueData]);
+
+                setOverdueAct(prev => [...prev, overdueData]);
               }
             });
-            const upcomingActivity =
-              activitySchedule?.data?.data?.otherActivities?.find(
-                item => item.days_until_start >= 0,
-              );
-            if (upcomingActivity != undefined) {
-              const monthNames = [
-                'January',
-                'February',
-                'March',
-                'April',
-                'May',
-                'June',
-                'July',
-                'August',
-                'September',
-                'October',
-                'November',
-                'December',
-              ];
-              const cycleDate =
-                data.crop_cycl_start_date == null ||
-                data.crop_cycl_start_date == '2004-02-29'
-                  ? data.sowing_date
-                  : data.crop_cycl_start_date;
-              const sdate = new Date(cycleDate);
-              sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
-              const smonth = monthNames[sdate.getMonth()];
-              const sday = sdate.getDate();
-              const syear = sdate.getFullYear();
-              const startDate = `${smonth} ${sday}, ${syear}`;
-              const edate = new Date(cycleDate);
-              edate.setDate(edate.getDate() + upcomingActivity.days_to);
-              const emonth = monthNames[edate.getMonth()];
-              const eday = edate.getDate();
-              const eyear = edate.getFullYear();
-              const endDate = `${emonth} ${eday}, ${eyear}`;
-              const startDateEndDate = `${startDate}-${endDate}`;
-              setUpcomingAct(
-                upcomingActivity?.activityName?.categoryName +
-                  ' (' +
-                  startDateEndDate +
-                  ')',
-              );
+
+            // 🟢 UPCOMING (only first one)
+            const upcoming = data.otherActivities.find(
+              item => item.days_until_start >= 0,
+            );
+
+            if (upcoming) {
+              const upcomingData =
+                upcoming?.activityName?.categoryName +
+                ' (' +
+                formatDate(upcoming?.activity_start_date) +
+                ' - ' +
+                formatDate(upcoming?.activity_end_date) +
+                ')';
+
+              setUpcomingAct(upcomingData);
             }
           }
-        }
         }
         if (pipeLatLongRes?.status == 200) {
           setIsLoading(false);
@@ -1516,6 +1498,55 @@ const FarmerActivityReportAWD = ({navigation}) => {
   useEffect(() => {
     onPageLoad();
   }, [isOnline]);
+  // IMPROVED useEffect - Pre-fill when navigating from PlotWiseMap
+  useEffect(() => {
+    if (farmer && plot) {
+      setIsDisabled(true);
+
+      const farmerObj = {
+        label: farmer?.userName || '',
+        value: farmer?.user_id,
+        phone: farmer?.contactNumber || '',
+      };
+
+      // Synchronous updates first
+      setSearchFarmerName(farmerObj);
+      setSearchFarmerPhone(farmer?.contactNumber || '');
+      setfarmerID(farmer?.user_id);
+
+      setSaveData(prev => ({
+        ...prev,
+        user_id: farmer?.user_id || '',
+        plot_id: '',
+        plot_Name: '',
+      }));
+
+      // Async pre-filling with loading state
+      const prefillData = async () => {
+        setIsPrefilling(true);
+        try {
+          // Small delay to let farmer state settle before calling handlePlot
+          setTimeout(async () => {
+            await handlePlot({
+              label: plot?.plot_no,
+              value: plot?.rel_id,
+            });
+          }, 300);
+        } catch (error) {
+          console.error('Prefill error:', error);
+          CrashlyticsRecordError(
+            error,
+            'FarmerActivityReportAWD',
+            'prefillData',
+          );
+        } finally {
+          setIsPrefilling(false);
+        }
+      };
+
+      prefillData();
+    }
+  }, [farmer, plot]);
   const handleHarvested = async data => {
     if (data == 'Yes') {
       navigation.navigate('FarmerLiveHood');
@@ -1608,7 +1639,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
     setModalVisibleMap(true);
   }, []);
   const TakePhoto = useCallback(
-    async replaceImgKey => {
+    async (replaceImgKey, coords) => {
       const {latitude, longitude} = coords || {};
       let latlong;
 
@@ -1720,7 +1751,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
               setTempImage(null);
               setTempText('');
             }
-          }, 500);
+          }, 1200);
         } catch (error) {
           console.error('TakePhoto Error:', error);
         } finally {
@@ -2012,6 +2043,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
                       required={true}
                       onChange={handlePlot}
                       val={saveData.plot_id}
+                      disable={isDisabled}
                     />
 
                     {showingMenu ? (
@@ -2469,7 +2501,14 @@ const FarmerActivityReportAWD = ({navigation}) => {
                 />
               )}
               <View style={{marginTop: 10}}>
-                <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+                <View style={{marginTop: 10}}>
+                  <ButtonForm
+                    label={t('submit')}
+                    onPress={() => handleSave()}
+                    loading={isLoading || isPrefilling}
+                    disabled={isLoading || isPrefilling}
+                  />
+                </View>
               </View>
               <Root></Root>
             </View>

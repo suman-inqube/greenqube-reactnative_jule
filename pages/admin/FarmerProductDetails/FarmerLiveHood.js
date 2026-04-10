@@ -98,7 +98,6 @@ const FarmerLiveHood = ({
     ButtonForm,
     coords,
   } = useContext(userCreateContext);
-
   const [maxStartDate, setMaxStartDate] = useState(new Date());
   const [minStartDate, setMinStartDate] = useState(new Date());
   const [maxHarvestDate, setMaxHarvestDate] = useState(new Date());
@@ -3034,6 +3033,8 @@ const FarmerLiveHood = ({
                       ? false
                       : true
                   }
+                  farmerName={loginUser_data?.userName}
+                  
                 />
               </View>
               {area != 0 && area != null && (

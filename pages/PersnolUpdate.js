@@ -554,6 +554,19 @@ const PersnolUpdate = () => {
                             ...storePersnolInfo,
                             name: name,
                           });
+                          const values = [...identityProofIdentityPropf];
+                          values[1] = {
+                            ...values[1],
+                            uri: '',
+                            name: '',
+                            fileName: '',
+                            type: 'image/jpeg',
+                            imageType: 'identity',
+                            value: '1',
+                            id: '',
+                          };
+
+                          setIdentityProofIdentityPropf(values);
                         }}
                       />
                       <View>
@@ -712,65 +725,7 @@ const PersnolUpdate = () => {
                                             }
                                           />
                                         </View>
-                                        <View style={{marginBottom: 15}}>
-                                          <Text
-                                            style={{
-                                              fontSize: 16,
-                                              marginTop: 15,
-                                              color: '#000',
-                                            }}>
-                                            User Type
-                                          </Text>
-                                          <RadioForm
-                                            label={t('grower')}
-                                            selected={
-                                              storePersnolInfo.userType === '1'
-                                            }
-                                            onSelect={() =>
-                                              setstorePersnolInfo({
-                                                ...storePersnolInfo,
-                                                userType: '1',
-                                              })
-                                            }
-                                          />
-                                          <RadioForm
-                                            label={t('small_holder')}
-                                            selected={
-                                              storePersnolInfo.userType === '2'
-                                            }
-                                            onSelect={() =>
-                                              setstorePersnolInfo({
-                                                ...storePersnolInfo,
-                                                userType: '2',
-                                              })
-                                            }
-                                          />
-                                          <RadioForm
-                                            label={t('farm_worker')}
-                                            selected={
-                                              storePersnolInfo.userType === '3'
-                                            }
-                                            onSelect={() =>
-                                              setstorePersnolInfo({
-                                                ...storePersnolInfo,
-                                                userType: '3',
-                                              })
-                                            }
-                                          />
-                                        </View>
 
-                                        <InputTextForm
-                                          label={t('age')}
-                                          required={true}
-                                          value={storePersnolInfo.age ?? age}
-                                          onChangeText={age => {
-                                            setstorePersnolInfo({
-                                              ...storePersnolInfo,
-                                              age: age,
-                                            });
-                                          }}
-                                          keyboardType="numeric"
-                                        />
                                         <InputTextForm
                                           label={t('age')}
                                           required={true}
@@ -895,17 +850,6 @@ const PersnolUpdate = () => {
                                           }}
                                         />
 
-                                        <InputTextForm
-                                          label={t('valid_pin_code')}
-                                          value={storePersnolInfo.zip ?? zip}
-                                          onChangeText={zip => {
-                                            setstorePersnolInfo({
-                                              ...storePersnolInfo,
-                                              zip: zip,
-                                            });
-                                          }}
-                                          maxLength={6}
-                                        />
                                         <InputTextForm
                                           label={t('valid_pin_code')}
                                           value={storePersnolInfo.zip ?? zip}
@@ -967,6 +911,7 @@ const PersnolUpdate = () => {
                         stateValue={identityProofIdentityPropf}
                         disable={true}
                         InputTextFormEdit={true}
+                        farmerName={storePersnolInfo.name}
                         // photoDeletedValue={photoDeletedValue}
                         // setPhotoDeletedValue={setPhotoDeletedValue}
                         // loginUser_data={loginUser_data}

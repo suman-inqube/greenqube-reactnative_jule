@@ -1,4 +1,4 @@
-import React, {memo, useContext, useState} from 'react';
+import React, { memo, useContext, useState } from 'react';
 import {
   View,
   Text,
@@ -10,26 +10,28 @@ import {
   KeyboardAvoidingView,
   Platform,
   Dimensions,
+  Alert,
 } from 'react-native';
 
-import DocumentPicker, {types, pick} from '@react-native-documents/picker';
+import DocumentPicker, { types, pick } from '@react-native-documents/picker';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import DropdownForm from '../Common/DropdownForm';
-import {Colors} from '../utils/Constants';
-import {Fonts} from '../utils/Constants';
-import {resizeImage} from '../utils/imageUtils';
+import { Colors } from '../utils/Constants';
+import { Fonts } from '../utils/Constants';
+import { resizeImage } from '../utils/imageUtils';
 import ImagePlaceHolderCircle from '../Common/ImagePlaceHolderCircle';
 import RadioForm from '../Common/RadioForm';
 import DatePickerComp from '../Common/DatePickerComp';
-import {userCreateContext} from '../Context/usersCreateContext';
-import {formatToDDMMYYYY, getAgeLimitDates} from '../utils/helpers';
+import { userCreateContext } from '../Context/usersCreateContext';
+import { formatToDDMMYYYY, getAgeLimitDates } from '../utils/helpers';
 import InputTextForm from '../Common/InputTextForm';
-const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
-
+import TextRecognition from "@react-native-ml-kit/text-recognition";
+import DocumentScanner from "react-native-document-scanner-plugin";
 function CoFarmerComponent({
   title = 'Co-Farmer Details',
   coFarmerDetails,
@@ -40,41 +42,93 @@ function CoFarmerComponent({
   unit_valueArr,
   landAreaUnit,
 }) {
-  const {minimumDate, maximumDate} = getAgeLimitDates();
+  const { minimumDate, maximumDate } = getAgeLimitDates();
   const [newDate, setnewDate] = useState(new Date());
   const [penCycleStart, setopenCycleStart] = useState(false);
   const handleGovtIdPick = async fieldName => {
     try {
-      const [res] = await pick({
-        presentationStyle: 'fullScreen',
-        type: [types.pdf, types.images],
+      const result = await DocumentScanner.scanDocument({
+        maxNumDocuments: 1,
+        letUserAdjustCrop: true,
+        responseType: "imageFilePath",
+        croppedImageQuality: 100,
+        saveInAppDocument: false,
       });
-      let fileUri = res.uri;
-      if (res.type?.startsWith('image/')) {
-        fileUri = await resizeImage(res.uri);
+
+      if (result.scannedImages && result.scannedImages.length > 0) {
+        const uri = result.scannedImages[0];
+        try {
+          try {
+            const result = await TextRecognition.recognize(uri);
+            const rawText = result.text;
+            const normalizedOCR = rawText.toLowerCase().replace(/\s/g, "").trim();
+            const cleanedOCR = cleanText(rawText);
+            const isNameFound = cleanedOCR.includes(cleanText(coFarmerDetails?.name?.toLowerCase()?.replace(/\s/g, "")));
+            if (!coFarmerDetails?.name?.includes(" ")) {
+              Alert.alert(
+                "Name Format Warning",
+                "Please enter your full name (First and Last name separated by a space)"
+              );
+              return;
+            }
+            let documentType = "Unknown Document";
+            if (
+              normalizedOCR.includes("uidai") ||
+              normalizedOCR.includes("governmentofindia") ||
+              /\d{12}/.test(normalizedOCR)
+            ) {
+              documentType = "Aadhaar Card";
+            }
+            else if (
+              normalizedOCR.includes("electioncommissionofindia") ||
+              normalizedOCR.includes("elector") ||
+              /[a-z]{3}\d{7}/.test(normalizedOCR)
+            ) {
+              documentType = "Voter Card";
+            }
+            if (documentType == "Unknown Document") {
+              Alert.alert("Document Type Not Detected", "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.");
+              return;
+            } else {
+              if (!isNameFound) {
+                Alert.alert(
+                  "Name Verification Failed",
+                  "The farmer's name and the document owner's name do not match."
+                );
+              } else {
+                setCoFarmerDetails(prev => ({
+                  ...prev,
+                  [fieldName]: {
+                    uri: uri,
+                    name: uri.split('/').pop(),
+                    fileName: uri.split('/').pop(),
+                    type: "image/jpeg",
+                  },
+                }));
+              }
+            }
+          } catch (error) {
+            Alert.alert("Error", "Text recognition failed. Please try again.");
+          }
+        } catch (err) {
+          Alert.alert("Error", "An error occurred while processing the document. Please try again.");
+        }
       }
-      setCoFarmerDetails(prev => ({
-        ...prev,
-        [fieldName]: {
-          uri: fileUri,
-          name: res.name,
-          fileName: res.name,
-          type: res.type,
-        },
-      }));
     } catch (err) {
       if (DocumentPicker.isCancel(err)) return;
       console.error('Picker Error:', err);
     }
+  };
+  const cleanText = (text) => {
+    return text.toLowerCase().replace(/[^a-z0-9]/g, "");
   };
   const openFile = async file => {
     try {
       let path = file.uri;
 
       if (file.uri.startsWith('http')) {
-        const localPath = `${RNFS.DocumentDirectoryPath}/${
-          file.name || Date.now()
-        }`;
+        const localPath = `${RNFS.DocumentDirectoryPath}/${file.name || Date.now()
+          }`;
         await RNFS.downloadFile({
           fromUrl: file.uri,
           toFile: localPath,
@@ -82,7 +136,7 @@ function CoFarmerComponent({
         path = localPath;
       }
 
-      await FileViewer.open(path, {showOpenWithDialog: true});
+      await FileViewer.open(path, { showOpenWithDialog: true });
     } catch (e) {
       Alert.alert('Error', 'Unable to open document');
     }
@@ -149,11 +203,21 @@ function CoFarmerComponent({
                 <TextInput
                   placeholder="Enter farmer's full name"
                   value={coFarmerDetails.name}
-                  onChangeText={text =>
+                  onChangeText={text => {
                     setCoFarmerDetails(prev => ({
                       ...prev,
                       name: text,
                     }))
+                    setCoFarmerDetails(prev => ({
+                      ...prev,
+                      ["idProof"]: {
+                        uri: "",
+                        name: "",
+                        fileName: "",
+                        type: "image/jpeg",
+                      },
+                    }));
+                  }
                   }
                   style={styles.input}
                   placeholderTextColor="#9ca3af"
@@ -273,7 +337,7 @@ function CoFarmerComponent({
               <></>
             )}
             {coFarmerDetails.type == '' ? (
-              <View style={{marginBottom: 15, paddingHorizontal: 10}}>
+              <View style={{ marginBottom: 15, paddingHorizontal: 10 }}>
                 <Text style={styles.label}>Gender</Text>
                 <RadioForm
                   label={'Male'}
@@ -411,7 +475,7 @@ function CoFarmerComponent({
                   <View style={styles.uploadedContainer}>
                     {coFarmerDetails.idProof.type?.startsWith('image/') ? (
                       <Image
-                        source={{uri: coFarmerDetails.idProof.uri}}
+                        source={{ uri: coFarmerDetails.idProof.uri }}
                         style={styles.previewImage}
                       />
                     ) : (
@@ -457,7 +521,7 @@ function CoFarmerComponent({
             {/* Land Area */}
             {coFarmerDetails.type == '' ? (
               <>
-                <View style={[styles.inputGroup, {marginTop: 12}]}>
+                <View style={[styles.inputGroup, { marginTop: 12 }]}>
                   <View style={styles.labelContainer}>
                     {/* <MaterialIcons name="landscape" size={16} color="#10b981" /> */}
                     <Text style={styles.label}>Land Area</Text>
@@ -511,10 +575,9 @@ function CoFarmerComponent({
                       }
                       setCoFarmerDetails(prev => ({
                         ...prev,
-                        convertedLandArea: `${
-                          Number(selectUnitValue) *
+                        convertedLandArea: `${Number(selectUnitValue) *
                           Number(coFarmerDetails.landArea)
-                        }`,
+                          }`,
                         unit: item.label,
                         unitValue: item.value,
                         UnitValueNum: UnitValueNum,
@@ -525,7 +588,7 @@ function CoFarmerComponent({
                 </View>
 
                 {/* Converted Land Area */}
-                <View style={[styles.inputGroup, {marginTop: -20}]}>
+                <View style={[styles.inputGroup, { marginTop: -20 }]}>
                   <View style={styles.labelContainer}>
                     {/* <MaterialIcons name="calculate" size={16} color="#10b981" /> */}
                     <Text style={styles.label}>Converted Land Area</Text>
@@ -657,7 +720,7 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     elevation: 4,
     shadowColor: '#10b981',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -855,7 +918,7 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     elevation: 4,
     shadowColor: '#10b981',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.4,
     shadowRadius: 6,
   },
@@ -921,7 +984,7 @@ const styles = StyleSheet.create({
     gap: 8,
     elevation: 6,
     shadowColor: '#10b981',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 10,
   },

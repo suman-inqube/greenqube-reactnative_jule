@@ -51,7 +51,8 @@ import {isWithin20Meters} from '../../Common/calculateAreaFun';
 import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {captureRef} from 'react-native-view-shot';
-const FarmerActivityReport = ({navigation}) => {
+const FarmerActivityReport = ({navigation, route}) => {
+  const {farmer, plot} = route?.params || {};
   const today = new Date();
 
   // 7 days ago
@@ -104,6 +105,8 @@ const FarmerActivityReport = ({navigation}) => {
   const [cycleStartDate, srtCycleStartDate] = useState(false);
   const [activityPreDate, setActivityPreDate] = useState(false);
   const [cycleDtartDate, setCycleStartDate] = useState('');
+  const [isDisabled, setIsDisabled] = useState(false);
+
   const [activityInfoReadio, setactivityInfoReadio] = useState({
     activityPreFormDate: 'regular',
   });
@@ -545,6 +548,8 @@ const FarmerActivityReport = ({navigation}) => {
           act_start_date: '',
           act_ref: '',
           act_master_id: '',
+          latitude: latitude,
+          longitude: longitude,
         });
         setsinglePlot(response?.data?.data);
         setCropType(response?.data.data?.crop_type.fid);
@@ -584,7 +589,7 @@ const FarmerActivityReport = ({navigation}) => {
           );
           setproductionStageAll(dataArray);
         }
-
+        console.log('activitySchedule', JSON.stringify(activitySchedule));
         if (activitySchedule.status == 200) {
           if (
             activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
@@ -964,12 +969,20 @@ const FarmerActivityReport = ({navigation}) => {
 
   const handleActivityPattern = item => {
     setactivityInfoReadio({...activityInfoReadio, activityPreFormDate: item});
-    setSaveData({...saveData, act_pattern: item});
+    // setSaveData({...saveData, act_pattern: item});
     if (item === 'schedule') {
       setisActiveMenu(true);
     } else {
       setisActiveMenu(false);
     }
+     const {latitude, longitude} = coords || {};
+
+     setSaveData({
+       ...saveData,
+       act_pattern: item,
+       latitude: latitude,
+       longitude: longitude,
+     });
   };
   const handleActivityType = async item => {
     if (isOnline) {
@@ -1130,6 +1143,27 @@ const FarmerActivityReport = ({navigation}) => {
     });
     onPageLoad();
   }, [isOnline]);
+  useEffect(() => {
+    if (farmer && plot) {
+      // ✅ Set farmer directly
+      setSearchFarmerName({
+        label: farmer?.userName,
+        value: farmer?.user_id,
+      });
+
+      setSearchFarmerPhone(farmer?.contactNumber);
+      setIsDisabled(true);
+      setfarmerID(farmer?.user_id);
+
+      // ✅ Trigger full flow via plot
+      setTimeout(() => {
+        handlePlot({
+          label: plot?.plot_no,
+          value: plot?.rel_id,
+        });
+      }, 500);
+    }
+  }, [farmer, plot]);
   const cancelRecord = async item => {
     await audioRecorderPlayer.stopPlayer();
     if (item == 'firstItem') {
@@ -1252,6 +1286,7 @@ const FarmerActivityReport = ({navigation}) => {
                   required={true}
                   onChange={relId => handlePlot(relId)}
                   val={saveData.plot_id}
+                  disable={isDisabled}
                 />
 
                 {showingMenu ? (

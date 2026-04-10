@@ -233,7 +233,6 @@ const Dashboard = ({navigation}) => {
         usefulInfoList,
         activitySchedule: [], // slow data later
       }));
-      console.log('usefulInfoList', usefulInfoList);
       setIsLoading(prev => ({...prev, initial: false}));
       loadSlowApis({dbname, lan_id, token, user_id});
     } catch (error) {
@@ -301,11 +300,6 @@ const Dashboard = ({navigation}) => {
       }));
 
       setIsLoading(prev => ({...prev, slowData: false}));
-
-      console.log('CARBON RAW', carbonRes.value);
-      console.log('USER RAW', userRes.value);
-      console.log('CARBON PARSED', carbonActivities);
-      console.log('USER PARSED', userActivities);
     } catch (error) {
       setIsLoading(prev => ({...prev, slowData: false}));
       Toast?.show({

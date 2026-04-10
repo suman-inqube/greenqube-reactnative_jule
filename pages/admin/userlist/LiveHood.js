@@ -115,7 +115,7 @@ const LiveHood = ({
   //GQR-65
   const navigation = useNavigation();
   const route = useRoute();
-  const {farmeruserID, agri_land_user_rels} = route.params;
+  const {farmeruserID, agri_land_user_rels,userName} = route.params;
   const [polygons, setPolygons] = useState([]);
   const [newPolygon, setNewPolygon] = useState([]);
   const [editing, setEditing] = useState(false);
@@ -3002,6 +3002,7 @@ const LiveHood = ({
             type: coFarmerDetails.addressProof?.type,
           });
         }
+    
         if (coFarmerDetails.idProof != null && coFarmerDetails.idProof != '') {
           formdataCofarmers.append(`farmer_identity`, {
             uri: coFarmerDetails.idProof?.uri,
@@ -3052,7 +3053,7 @@ const LiveHood = ({
             type: coFarmerDetails.addressProof?.type,
           });
         }
-        if (coFarmerDetails.idProof != null && coFarmerDetails.idProof != '') {
+        if (coFarmerDetails.idProof?.uri != null && coFarmerDetails.idProof?.uri != '') {
           formdataCofarmers.append(`farmer_identity_1`, {
             uri: coFarmerDetails.idProof?.uri,
             name: coFarmerDetails.idProof?.name,
@@ -3100,6 +3101,7 @@ const LiveHood = ({
       }
       setIsLoading(false);
     } catch (error) {
+      console.log('Error in handleAddCoFarmer', error);
       setIsLoading(false);
 
       Toast.show({
@@ -3311,7 +3313,7 @@ const LiveHood = ({
           }}
           showsVerticalScrollIndicator={false}>
           <View style={{marginBottom: 40}}>
-            {statuslevel.label == 'REJECTED' && (
+            {plotStatus.label == 'REJECTED' && (
               <View
                 style={{
                   paddingVertical: 10,
@@ -3328,7 +3330,7 @@ const LiveHood = ({
                     fontFamily: 'Poppins-Regular',
                     fontSize: 14,
                   }}>
-                  {dataProps?.comment}
+                  {dataProps?.plot_status_comment}
                 </Text>
               </View>
             )}
@@ -3538,6 +3540,7 @@ const LiveHood = ({
                     }
                     marginBottom={navigationBarHeight}
                     allowAddMore={false}
+                    farmerName={userName}
                   />
                 </View>
 

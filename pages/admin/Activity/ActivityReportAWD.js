@@ -123,7 +123,10 @@ const ActivityReportAWD = ({navigation, route}) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [showingMenu, setShowingMenu] = useState(false);
+  const [isPrefilling, setIsPrefilling] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
+
   const [searchFarmerName, setSearchFarmerName] = useState({
     label: '',
     value: '',
@@ -268,24 +271,50 @@ const ActivityReportAWD = ({navigation, route}) => {
     // date.setDate(date.getDate() - minDateGap);
     return date;
   }, [minDateGap]);
+  // NEW useEffect - Pre-fill when coming from PlotWiseMap
   useEffect(() => {
     if (farmer && plot) {
+      setIsDisabled(true);
+      console.log('farmer', farmer);
       const farmerObj = {
-        label: farmer?.userName,
+        label: farmer?.userName || '',
         value: farmer?.user_id,
-        phone: farmer?.contactNumber,
+        phone: farmer?.contactNumber || '',
       };
 
-      // ✅ Step 1: auto select farmer (same as manual)
-      handleResultSelect(farmerObj);
+      // Immediately update UI and saveData (synchronous)
+      setSearchFarmerName(farmerObj);
+      setFarmerID(farmer?.user_id);
 
-      // ✅ Step 2: wait for farmer → then select plot
-      setTimeout(() => {
-        handlePlot({
-          label: plot?.plot_no,
-          value: plot?.rel_id,
-        });
-      }, 500);
+      setSaveData(prev => ({
+        ...prev,
+        user_id: farmer?.user_id,
+        plot_id: '',
+        plot_Name: '',
+      }));
+
+      // Run async pre-filling
+      const prefillData = async () => {
+        setIsPrefilling(true); // ← New state (add this state first)
+        try {
+          await handleResultSelect(farmerObj);
+
+          // Small delay to let states like plotAll settle
+          setTimeout(() => {
+            handlePlot({
+              label: plot?.plot_no,
+              value: plot?.rel_id,
+            });
+          }, 400);
+        } catch (error) {
+          console.error('Prefill error:', error);
+          CrashlyticsRecordError(error, 'ActivityReportAWD', 'prefillData');
+        } finally {
+          setIsPrefilling(false);
+        }
+      };
+
+      prefillData();
     }
   }, [farmer, plot]);
   const checkPipeDistance = async (currentLat, currentLon) => {
@@ -325,14 +354,14 @@ const ActivityReportAWD = ({navigation, route}) => {
           {latitude: existingPipe.latitude, longitude: existingPipe.longitude},
         );
 
-        // if (distance < 20) {
-        //   Alert.alert(
-        //     'Too Close!',
-        //     `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
-        //     [{text: 'OK', style: 'cancel'}],
-        //   );
-        //   return false;
-        // }
+        if (distance < 20) {
+          Alert.alert(
+            'Too Close!',
+            `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
+            [{text: 'OK', style: 'cancel'}],
+          );
+          return false;
+        }
       }
       return true;
     } catch (error) {
@@ -1259,7 +1288,7 @@ const ActivityReportAWD = ({navigation, route}) => {
   //   return true;
   // };
   const validateForm = () => {
-    if (!saveData.user_id) {
+    if (!saveData.user_id && !searchFarmerName.value) {
       Toast.show({
         time: 2,
         text: `${t('please_enter_farmer_name')}`,
@@ -1418,7 +1447,7 @@ const ActivityReportAWD = ({navigation, route}) => {
           uri: `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`,
         });
       }
-      formData.append('user_id', saveData.user_id);
+      formData.append('user_id', farmerID);
       formData.append('plot_id', saveData.plot_id);
       formData.append('crop_name', saveData.crop_name);
       formData.append('crop_season', saveData.crop_season);
@@ -1498,6 +1527,7 @@ const ActivityReportAWD = ({navigation, route}) => {
       var database_res;
       if (isOnline) {
         if (saveData.field_type == 'add') {
+          console.log('DDDDD', JSON.stringify(formData), farmerID);
           database_res = await addUserPipeActivity(
             dbname,
             lan_id,
@@ -2322,7 +2352,7 @@ const ActivityReportAWD = ({navigation, route}) => {
   const [tempText, setTempText] = useState('');
   const watermarkViewRef = useRef(null);
   const TakePhoto = useCallback(
-    async replaceImgKey => {
+    async (replaceImgKey, coords) => {
       const {latitude, longitude} = coords || {};
       let latlong;
       if (!latitude || !longitude) {
@@ -2334,12 +2364,12 @@ const ActivityReportAWD = ({navigation, route}) => {
       // console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
       // console.log('field_type1233', pipe_fieldType.current);
 
-      // if (pipe_fieldType.current === 1) {
-      //   const isPipeInstall = await checkPipeDistance(lat, lon);
-      //   if (!isPipeInstall) {
-      //     return;
-      //   }
-      // }
+      if (pipe_fieldType.current === 1) {
+        const isPipeInstall = await checkPipeDistance(lat, lon);
+        if (!isPipeInstall) {
+          return;
+        }
+      }
       const options = {
         mediaType: 'photo',
         includeBase64: true,
@@ -2429,7 +2459,7 @@ const ActivityReportAWD = ({navigation, route}) => {
               setTempImage(null);
               setTempText('');
             }
-          }, 1000);
+          }, 1200);
         } catch (error) {
           CustomAlert('Catch Error ', error, true, 'OK');
         } finally {
@@ -2491,6 +2521,7 @@ const ActivityReportAWD = ({navigation, route}) => {
                   outofRange={outofRange}
                   pipeLatLong={pipeLatLong}
                   replaceImgKey={replaceImgKey}
+                  userLocationPriority="high"
                 />
               )}
               <CustomHeader
@@ -2574,6 +2605,7 @@ const ActivityReportAWD = ({navigation, route}) => {
                     required={true}
                     onChange={handleResultSelect}
                     val={searchFarmerName?.label}
+                    disable={isDisabled}
                   />
                   <InputTextForm
                     label={t('farmer_number')}
@@ -2587,6 +2619,7 @@ const ActivityReportAWD = ({navigation, route}) => {
                     required={true}
                     onChange={handlePlot}
                     val={saveData.plot_Name}
+                    disable={isDisabled}
                   />
                   {showingMenu ? (
                     nameVarityStartEnd.name != '' ? (
@@ -2951,7 +2984,8 @@ const ActivityReportAWD = ({navigation, route}) => {
               <ButtonForm
                 label={t('submit')}
                 onPress={() => handleSave()}
-                loading={isLoading}
+                loading={isLoading || isPrefilling}
+                disabled={isLoading || isPrefilling}
               />
             </View>
           </SecurityWrapper>

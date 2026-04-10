@@ -360,6 +360,19 @@ export const ROUTES = {
     USER_ACTIVITY_DETAILS_V3: ({uact_id = ''}) =>
       `ioRoute/userActivityDetails_v3?uact_id=${uact_id}`,
     DETAILS_V2: ({user_id = ''}) => `loginSignupRoute/detailsv2/${user_id}`,
+    PLOT_VIEW_MAP: ({
+      createdBy = '',
+      latitude = '',
+      longitude = '',
+      distance = '10000',
+      state = '',
+      district = '',
+      subdivision = '',
+    }) =>
+      `loanEntityRoute/polygonList_v2?pageNo=1&pageLimit=500&createdBy=${createdBy}&latitude=${latitude}&longitude=${longitude}&distance=${distance}&state=${state}&district=${district}&subdivision=${subdivision}`,
+
+    PLOT_MAP_DETAILS: ({user_id = '', land_unit_id = ''}) =>
+      `loanEntityRoute/polygonDetails_v2?user_id=${user_id}&land_unit_id=${land_unit_id}`,
   },
 
   PUT: {

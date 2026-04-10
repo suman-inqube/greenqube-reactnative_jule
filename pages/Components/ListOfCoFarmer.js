@@ -41,6 +41,8 @@ import PaginationNav from '../../pages/Components/PaginationNav';
 import {userCreateContext} from '../../pages/Context/usersCreateContext';
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
+import TextRecognition from "@react-native-ml-kit/text-recognition";
+import DocumentScanner from "react-native-document-scanner-plugin";
 const Button = memo(({label, onPress, disabled}) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -384,32 +386,84 @@ const ListOfCoFarmer = ({
     [status],
   );
 
-  const pickFile = useCallback(async fieldName => {
+  const pickFile = useCallback(async (fieldName, userName) => {
     try {
-      const [res] = await pick({
-        presentationStyle: 'fullScreen',
-        type: [types.pdf, types.images],
+      const result = await DocumentScanner.scanDocument({
+        maxNumDocuments: 1,
+        letUserAdjustCrop: true,
+        responseType: "imageFilePath",
+        croppedImageQuality: 100,
+        saveInAppDocument: false,
       });
-      let fileUri = res.uri;
-      if (res.type?.startsWith('image/')) {
-        fileUri = await resizeImage(res.uri);
+
+      if (result.scannedImages && result.scannedImages.length > 0) {
+        const uri = result.scannedImages[0];
+        try {
+          try {
+            const result = await TextRecognition.recognize(uri);
+            const rawText = result.text;
+            const normalizedOCR = rawText.toLowerCase().replace(/\s/g, "").trim();
+            const cleanedOCR = cleanText(rawText);
+            const isNameFound = cleanedOCR.includes(cleanText(userName?.toLowerCase()?.replace(/\s/g, "")));
+            if (!userName?.includes(" ")) {
+              Alert.alert(
+                "Name Format Warning",
+                "Please enter your full name (First and Last name separated by a space)"
+              );
+              return;
+            }
+            let documentType = "Unknown Document";
+            if (
+              normalizedOCR.includes("uidai") ||
+              normalizedOCR.includes("governmentofindia") ||
+              /\d{12}/.test(normalizedOCR)
+            ) {
+              documentType = "Aadhaar Card";
+            }
+            else if (
+              normalizedOCR.includes("electioncommissionofindia") ||
+              normalizedOCR.includes("elector") ||
+              /[a-z]{3}\d{7}/.test(normalizedOCR)
+            ) {
+              documentType = "Voter Card";
+            }
+            if (documentType == "Unknown Document") {
+              Alert.alert("Document Type Not Detected", "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.");
+              return;
+            } else {
+              if (!isNameFound) {
+                Alert.alert(
+                  "Name Verification Failed",
+                  "The farmer's name and the document owner's name do not match."
+                );
+              } else {
+                setCoFarmerDetails(prev => ({
+                  ...prev,
+                  [fieldName]: {
+                    uri: uri,
+                    name: uri.split('/').pop(),
+                    fileName: uri.split('/').pop(),
+                    type: "image/jpeg",
+                  },
+                }));
+              }
+            }
+          } catch (error) {
+            console.error("Text Recognition Error:", error);
+            Alert.alert("Error", "Text recognition failed. Please try again.");
+          }
+        } catch (err) {
+          Alert.alert("Error", "An error occurred while processing the document. Please try again.");
+        }
       }
-      if (res) {
-        setCoFarmer(prev => ({
-          ...prev,
-          [fieldName]: {
-            uri: fileUri,
-            name: res.name,
-            fileName: res.name,
-            type: res.type,
-          },
-        }));
-      }
-    } catch (error) {
-      console.log('Pick error:', error);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) return;
+      console.error('Picker Error:', err);
     }
   }, []);
-
+  const cleanText = (text) => {
+    return text.toLowerCase().replace(/[^a-z0-9]/g, "");
+  };
   const onSave = useCallback(async () => {
     try {
       setIsSubmit(true);
@@ -803,7 +857,7 @@ const ListOfCoFarmer = ({
                             styles.uploadBox,
                             coFarmer.idProof && styles.uploadBoxFilled,
                           ]}
-                          onPress={() => pickFile('idProof')}
+                          onPress={() => pickFile('idProof',item?.coFInfo?.userName)}
                           activeOpacity={0.7}>
                           {coFarmer.idProof?.uri ? (
                             <>

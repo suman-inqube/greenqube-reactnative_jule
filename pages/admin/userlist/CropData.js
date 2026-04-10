@@ -170,7 +170,7 @@ const CropData = ({
                   fontSize: 24,
                   marginBottom: 10,
                 }}>
-                Amendmenats & Inputs
+                Amendments & Inputs
               </Text>
               <View>
                 {amendmentTypes.map(option => (

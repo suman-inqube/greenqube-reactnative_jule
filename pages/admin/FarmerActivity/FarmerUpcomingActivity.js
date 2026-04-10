@@ -1,4 +1,11 @@
-import {View, Text, StyleSheet, FlatList, Dimensions} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
 import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {Colors, Fonts} from '../../utils/Constants';
@@ -82,73 +89,91 @@ const FarmerUpcomingActivity = () => {
     return (
       <>
         {upcomingActivities.length != 0 ? (
-          <View style={styles.activityItem}>
-            {/* Farmer Information */}
-            <View style={styles.farmerInfo}>
-              <Text style={styles.mainText}> {plotName}</Text>
-              <Text style={styles.activityDate}>
-                {t('Sowing Date')} {upcomingActivities[0]?.sowing_date || 'N/A'}
-              </Text>
-              <Text style={styles.activityDate}>
-                Hervesting Date:{' '}
-                {upcomingActivities[0]?.harvesting_date || 'N/A'}
-              </Text>
-            </View>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => {
+              if (activeTab === 'carbon') {
+                navigation.navigate('FarmerActivityReportAWD', {
+                  farmer: item?.farmer,
+                  plot: item?.crop?.land_info,
+                });
+              } else {
+                navigation.navigate('FarmerActivityReport', {
+                  farmer: item?.farmer,
+                  plot: item?.crop?.land_info,
+                });
+              }
+            }}>
+            <View style={styles.activityItem}>
+              {/* Farmer Information */}
+              <View style={styles.farmerInfo}>
+                <Text style={styles.mainText}> {plotName}</Text>
+                <Text style={styles.activityDate}>
+                  {t('Sowing Date')}{' '}
+                  {upcomingActivities[0]?.sowing_date || 'N/A'}
+                </Text>
+                <Text style={styles.activityDate}>
+                  Hervesting Date:{' '}
+                  {upcomingActivities[0]?.harvesting_date || 'N/A'}
+                </Text>
+              </View>
 
-            {/* Plot Information */}
-            {/* <View style={styles.plotInfo}>
+              {/* Plot Information */}
+              {/* <View style={styles.plotInfo}>
           <Text style={styles.plotStatus}>
             Status: {item?.crop?.land_info?.plot_status || 'N/A'}
           </Text>
         </View> */}
 
-            {/* Upcoming Activities */}
-            <View style={styles.activitiesSection}>
-              {/* <Text style={styles.activitiesTitle}>Upcoming Activities:</Text> */}
-              {upcomingActivities.length > 0 ? (
-                upcomingActivities.map((activity, activityIndex) => (
-                  <View key={activityIndex} style={styles.activityDetail}>
-                    <View style={styles.nameRow}>
-                      <Text style={styles.activityName}>
-                        •{' '}
-                        {activity?.activityName?.categoryName ||
-                          'Unknown Activity'}
-                      </Text>
-                      <Text style={styles.daysUntil}>
-                        {activity?.days_until_start || 0} days to go
-                      </Text>
-                    </View>
+              {/* Upcoming Activities */}
+              <View style={styles.activitiesSection}>
+                {/* <Text style={styles.activitiesTitle}>Upcoming Activities:</Text> */}
+                {upcomingActivities.length > 0 ? (
+                  upcomingActivities.map((activity, activityIndex) => (
+                    <View key={activityIndex} style={styles.activityDetail}>
+                      <View style={styles.nameRow}>
+                        <Text style={styles.activityName}>
+                          •{' '}
+                          {activity?.activityName?.categoryName ||
+                            'Unknown Activity'}
+                        </Text>
+                        <Text style={styles.daysUntil}>
+                          {activity?.days_until_start || 0} days to go
+                        </Text>
+                      </View>
 
-                    {/* <Text style={styles.activityType}>
+                      {/* <Text style={styles.activityType}>
                   Type: {activity?.activityType?.categoryName || 'N/A'}
                 </Text> */}
 
-                    <Text style={styles.activityDate}>
-                      Schedule date:{' '}
-                      {new Date(
-                        activity?.activity_start_date,
-                      ).toLocaleDateString('en-GB', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                      })}{' '}
-                      -{' '}
-                      {new Date(activity?.activity_end_date).toLocaleDateString(
-                        'en-GB',
-                        {
+                      <Text style={styles.activityDate}>
+                        Schedule date:{' '}
+                        {new Date(
+                          activity?.activity_start_date,
+                        ).toLocaleDateString('en-GB', {
                           day: '2-digit',
                           month: 'short',
                           year: 'numeric',
-                        },
-                      )}
-                    </Text>
-                  </View>
-                ))
-              ) : (
-                <Text style={styles.noActivities}>No upcoming activities</Text>
-              )}
+                        })}{' '}
+                        -{' '}
+                        {new Date(
+                          activity?.activity_end_date,
+                        ).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.noActivities}>
+                    No upcoming activities
+                  </Text>
+                )}
+              </View>
             </View>
-          </View>
+          </TouchableOpacity>
         ) : (
           <></>
         )}

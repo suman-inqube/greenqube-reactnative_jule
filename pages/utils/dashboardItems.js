@@ -1,13 +1,13 @@
 const getDashboardItems = (t, navigateToPages) => [
   {
     text: t('register_nfarmer'),
-    // imageurl: require('../Common/images/register_farmer.png'),
+
     imageurl: require('../Common/images/f_registration.png'),
     onpress: () => navigateToPages('PersonalInformation'),
   },
   {
     text: t('farmer_list'),
-    // imageurl: require('../Common/images/farmer_list.png'),
+
     imageurl: require('../Common/images/user_list2.png'),
     onpress: () => navigateToPages('userList'),
   },
@@ -18,34 +18,40 @@ const getDashboardItems = (t, navigateToPages) => [
   },
   {
     text: t('crop_prob_far_dash'),
-    // imageurl: require('../Common/images/raise_problem_only.png'),
+
     imageurl: require('../Common/images/problem2.png'),
     onpress: () => navigateToPages('ProblemList'),
   },
   {
     text: t('acti_report_far_dash'),
-    // imageurl: require('../Common/images/activity_report_only.png'),
+
     imageurl: require('../Common/images/activity2.png'),
 
     onpress: () => navigateToPages('activityList'),
   },
   {
+    text: t('Map View'),
+
+    imageurl: require('../Common/images/pin.png'),
+
+    onpress: () => navigateToPages('PlotWiseMap'),
+  },
+  {
     text: t('agri_inputs_ninquiry_far_dash'),
     imageurl: require('../Common/images/input1.png'),
 
-    // imageurl: require('../Common/images/input_inqu_only.png'),
     onpress: () => navigateToPages('InputList'),
   },
   {
     text: t('agri_output_far_dash'),
-    // imageurl: require('../Common/images/dash_sale_your_product.png'),
+
     imageurl: require('../Common/images/output1.png'),
     onpress: () => navigateToPages('OutPutList'),
   },
 
   {
     text: t('useful_ninformation_dash'),
-    // imageurl: require('../Common/images/dash_useful_information.png'),
+
     imageurl: require('../Common/images/information1.png'),
 
     onpress: () => navigateToPages('UsefulInformationList'),
@@ -55,47 +61,47 @@ const getDashboardItems = (t, navigateToPages) => [
 const getDashboardFarmerItems = (t, navigateToPages) => [
   {
     text: t('crop_prob_far_dash'),
-    // imageurl: require('../Common/images/raise_problem_only.png'),
+
     imageurl: require('../Common/images/problem2.png'),
     onpress: () => navigateToPages('FarmerListProblem'),
   },
   {
     text: t('acti_report_far_dash'),
-    // imageurl: require('../Common/images/activity_report_only.png'),
+
     imageurl: require('../Common/images/activity2.png'),
     onpress: () => navigateToPages('FarmerActivityList'),
   },
   {
     text: t('agri_inputs_ninquiry_far_dash'),
-    // imageurl: require('../Common/images/input_inqu_only.png'),
+
     imageurl: require('../Common/images/input1.png'),
 
     onpress: () => navigateToPages('FarmerInputList'),
   },
   {
     text: t('agri_output_far_dash'),
-    // imageurl: require('../Common/images/dash_sale_your_product.png'),
+
     imageurl: require('../Common/images/output1.png'),
 
     onpress: () => navigateToPages('FarmerViewPast'),
   },
   {
     text: t('weather_nadvisory_far_dash'),
-    // imageurl: require('../Common/images/dash_weather_advisory.png'),
+
     imageurl: require('../Common/images/weather1.png'),
 
     onpress: () => navigateToPages('Weather'),
   },
   {
     text: t('useful_ninformation_far_dash'),
-    // imageurl: require('../Common/images/dash_sale_your_product.png'),
+
     imageurl: require('../Common/images/information1.png'),
 
     onpress: () => navigateToPages('FarmerUsefulInformationList'),
   },
   {
     text: t('training_support'),
-    // imageurl: require('../Common/images/training_support_green.png'),
+
     imageurl: require('../Common/images/traning1.png'),
 
     onpress: () => navigateToPages('FarmerTrainingList'),

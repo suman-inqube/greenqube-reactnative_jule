@@ -870,6 +870,7 @@ const FarmerProfile = ({sendDataToParent, farmerID}) => {
                       loginUser_data={loginUser_data}
                       disable={true}
                       InputTextFormEdit={true}
+                      farmerName={farmerData.userName}
                     />
                   </View>
                 </View>
