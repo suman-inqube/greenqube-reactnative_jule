@@ -74,7 +74,8 @@ import {ROUTES} from '../../utils/Routes';
 import {Camera} from 'react-native-vision-camera';
 import {getItem, removeItem} from '../../../config/getDataFromStorage';
 import {axiosGet, axiosPost} from '../../utils/api';
-const FarmerActivityReportAWD = ({navigation}) => {
+const FarmerActivityReportAWD = ({navigation, route}) => {
+  const {farmer, plot} = route?.params || {};
   const today = new Date();
   const tenDaysAgo = new Date();
   tenDaysAgo.setDate(today.getDate() - 10);
@@ -102,7 +103,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
   } = useContext(userCreateContext);
   var watchId, watchIdSaveData;
   const {dbname, lan_id, token, user_id} = loginUser_data;
-    const [isAfterToday, setIsAfterToday] = useState(false);
+  const [isAfterToday, setIsAfterToday] = useState(false);
   const {problemPlotAgainstFarmer, plotAll, setplotAll} = plotHook(
     dbname,
     lan_id,
@@ -114,6 +115,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [location, setLocation] = useState(null);
+  const [isPrefilling, setIsPrefilling] = useState(false);
   const [showingMenu, setShowingMenu] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [searchFarmerName, setSearchFarmerName] = useState('');
@@ -129,6 +131,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
   const [cycleStartDate, srtCycleStartDate] = useState(false);
   const [activityPreDate, setActivityPreDate] = useState(false);
   const [cycleDtartDate, setCycleStartDate] = useState('');
+  const [isDisabled, setIsDisabled] = useState(false);
+
   const [activityInfoReadio, setactivityInfoReadio] = useState({
     activityPreFormDate: 'regular',
   });
@@ -183,8 +187,8 @@ const FarmerActivityReportAWD = ({navigation}) => {
   const [pipeLatLong, setPipeLatLong] = useState([]);
   const [overdueAct, setOverdueAct] = useState([]);
   const [lastAct, setLastAct] = useState();
-   const [minDateGap, setMinDateGap] = useState();
-    const [lastPerfromedDate, setLastPerfromedDate] = useState('');
+  const [minDateGap, setMinDateGap] = useState();
+  const [lastPerfromedDate, setLastPerfromedDate] = useState('');
   const [upcomingAct, setUpcomingAct] = useState('');
   const [scheduleInfo, setScheduleInfo] = useState({
     lastAct: '',
@@ -531,7 +535,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
     // else {
     //   var response = await getItem('produceAgainstPlot' + relId.value);
     // }
-
+    console.log('response1111', response);
     if (response) {
       const latandlongArr =
         response?.data?.data?.land_info?.agri_land_user_latlongs?.map(
@@ -663,89 +667,68 @@ const FarmerActivityReportAWD = ({navigation}) => {
           );
           setproductionStageAll(dataArray);
         }
-        if (activitySchedule.status == 200) {
-          console.log('activitySchedule==', activitySchedule?.data?.data);
-          if (activitySchedule?.data?.data.length>0) {
-          
-          if (
-            activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
-          ) {
-            var lastData =
-              activitySchedule?.data?.data?.lastActivity?.activityName
-                ?.categoryName +
+        console.log('activityScheduleAPI', JSON.stringify(activitySchedule));
+        if (activitySchedule?.status === 200) {
+          const data = activitySchedule?.data?.data;
+
+          // 🔥 RESET FIRST
+          setLastAct('');
+          setUpcomingAct('');
+          setOverdueAct([]);
+
+          // ======================
+          // ✅ LAST ACTIVITY
+          // ======================
+          if (data?.lastActivity && data?.lastActivity !== 'No Last Activity') {
+            const last = data.lastActivity;
+
+            const lastData =
+              last?.activityName?.categoryName +
               ' (' +
-              formatDate(
-                activitySchedule?.data?.data?.lastActivity?.act_start_date,
-              ) +
+              formatDate(last?.act_start_date) +
               ' - ' +
-              formatDate(
-                activitySchedule?.data?.data?.lastActivity?.act_to_date,
-              ) +
+              formatDate(last?.act_to_date) +
               ')';
+
             setLastAct(lastData);
           }
-          if (activitySchedule?.data?.data?.otherActivities.length > 0) {
-            activitySchedule?.data?.data?.otherActivities.forEach(function (
-              element,
-            ) {
-              var overdueData;
-              if (element?.days_until_start < 0) {
-                overdueData =
-                  element?.activityName.categoryName +
+
+          // ======================
+          // ✅ OTHER ACTIVITIES
+          // ======================
+          if (data?.otherActivities && data.otherActivities.length > 0) {
+            // 🔴 OVERDUE
+            data.otherActivities.forEach(item => {
+              if (item?.days_until_start < 0) {
+                const overdueData =
+                  item?.activityName?.categoryName +
                   ' (' +
-                  formatDate(element?.activity_start_date) +
+                  formatDate(item?.activity_start_date) +
                   ' - ' +
-                  formatDate(element?.activity_end_date) +
+                  formatDate(item?.activity_end_date) +
                   ')';
-                setOverdueAct(prevItems => [...prevItems, overdueData]);
+
+                setOverdueAct(prev => [...prev, overdueData]);
               }
             });
-            const upcomingActivity =
-              activitySchedule?.data?.data?.otherActivities?.find(
-                item => item.days_until_start >= 0,
-              );
-            if (upcomingActivity != undefined) {
-              const monthNames = [
-                'January',
-                'February',
-                'March',
-                'April',
-                'May',
-                'June',
-                'July',
-                'August',
-                'September',
-                'October',
-                'November',
-                'December',
-              ];
-              const cycleDate =
-                data.crop_cycl_start_date == null ||
-                data.crop_cycl_start_date == '2004-02-29'
-                  ? data.sowing_date
-                  : data.crop_cycl_start_date;
-              const sdate = new Date(cycleDate);
-              sdate.setDate(sdate.getDate() + upcomingActivity.days_from);
-              const smonth = monthNames[sdate.getMonth()];
-              const sday = sdate.getDate();
-              const syear = sdate.getFullYear();
-              const startDate = `${smonth} ${sday}, ${syear}`;
-              const edate = new Date(cycleDate);
-              edate.setDate(edate.getDate() + upcomingActivity.days_to);
-              const emonth = monthNames[edate.getMonth()];
-              const eday = edate.getDate();
-              const eyear = edate.getFullYear();
-              const endDate = `${emonth} ${eday}, ${eyear}`;
-              const startDateEndDate = `${startDate}-${endDate}`;
-              setUpcomingAct(
-                upcomingActivity?.activityName?.categoryName +
-                  ' (' +
-                  startDateEndDate +
-                  ')',
-              );
+
+            // 🟢 UPCOMING (only first one)
+            const upcoming = data.otherActivities.find(
+              item => item.days_until_start >= 0,
+            );
+
+            if (upcoming) {
+              const upcomingData =
+                upcoming?.activityName?.categoryName +
+                ' (' +
+                formatDate(upcoming?.activity_start_date) +
+                ' - ' +
+                formatDate(upcoming?.activity_end_date) +
+                ')';
+
+              setUpcomingAct(upcomingData);
             }
           }
-        }
         }
         if (pipeLatLongRes?.status == 200) {
           setIsLoading(false);
@@ -1282,7 +1265,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
             'activityInfo' + farmerID + CropType + CropName + item.value,
             response,
           );
-           setMinDateGap(response?.data?.data?.rows[0]?.activity?.min_gap);
+          setMinDateGap(response?.data?.data?.rows[0]?.activity?.min_gap);
         } else {
           var response = await getItem(
             'activityInfo' + farmerID + CropType + CropName + item.value,
@@ -1313,8 +1296,9 @@ const FarmerActivityReportAWD = ({navigation}) => {
           value: '',
           latlongs: {},
         });
-        if (response.data.data.count > 0) {
+        console.log('response', response);
 
+        if (response.data.data.count > 0) {
           response.data.data.rows.forEach(element => {
             const monthNames = [
               'January',
@@ -1410,10 +1394,10 @@ const FarmerActivityReportAWD = ({navigation}) => {
         latlongs: {},
       });
       console.log('uu11=');
-       setIsAfterToday(true);
-       const tenDaysAgo = new Date();
-       tenDaysAgo.setDate(today.getDate() - 10);
-       setLastPerfromedDate(tenDaysAgo);
+      setIsAfterToday(true);
+      const tenDaysAgo = new Date();
+      tenDaysAgo.setDate(today.getDate() - 10);
+      setLastPerfromedDate(tenDaysAgo);
 
       const PipeListDetailsRes = await getUniquePipeNames(
         dbname,
@@ -1514,6 +1498,55 @@ const FarmerActivityReportAWD = ({navigation}) => {
   useEffect(() => {
     onPageLoad();
   }, [isOnline]);
+  // IMPROVED useEffect - Pre-fill when navigating from PlotWiseMap
+  useEffect(() => {
+    if (farmer && plot) {
+      setIsDisabled(true);
+
+      const farmerObj = {
+        label: farmer?.userName || '',
+        value: farmer?.user_id,
+        phone: farmer?.contactNumber || '',
+      };
+
+      // Synchronous updates first
+      setSearchFarmerName(farmerObj);
+      setSearchFarmerPhone(farmer?.contactNumber || '');
+      setfarmerID(farmer?.user_id);
+
+      setSaveData(prev => ({
+        ...prev,
+        user_id: farmer?.user_id || '',
+        plot_id: '',
+        plot_Name: '',
+      }));
+
+      // Async pre-filling with loading state
+      const prefillData = async () => {
+        setIsPrefilling(true);
+        try {
+          // Small delay to let farmer state settle before calling handlePlot
+          setTimeout(async () => {
+            await handlePlot({
+              label: plot?.plot_no,
+              value: plot?.rel_id,
+            });
+          }, 300);
+        } catch (error) {
+          console.error('Prefill error:', error);
+          CrashlyticsRecordError(
+            error,
+            'FarmerActivityReportAWD',
+            'prefillData',
+          );
+        } finally {
+          setIsPrefilling(false);
+        }
+      };
+
+      prefillData();
+    }
+  }, [farmer, plot]);
   const handleHarvested = async data => {
     if (data == 'Yes') {
       navigation.navigate('FarmerLiveHood');
@@ -1606,7 +1639,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
     setModalVisibleMap(true);
   }, []);
   const TakePhoto = useCallback(
-    async replaceImgKey => {
+    async (replaceImgKey, coords) => {
       const {latitude, longitude} = coords || {};
       let latlong;
 
@@ -1620,12 +1653,13 @@ const FarmerActivityReportAWD = ({navigation}) => {
 
       // console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
       // console.log('field_type1233', pipe_fieldType.current);
-      if (pipe_fieldType.current === 1) {
-        const isPipeInstall = await checkPipeDistance(lat, lon);
-        if (!isPipeInstall) {
-          return;
-        }
-      }
+
+      // if (pipe_fieldType.current === 1) {
+      //   const isPipeInstall = await checkPipeDistance(lat, lon);
+      //   if (!isPipeInstall) {
+      //     return;
+      //   }
+      // }
 
       const options = {
         mediaType: 'photo',
@@ -1717,7 +1751,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
               setTempImage(null);
               setTempText('');
             }
-          }, 500);
+          }, 1200);
         } catch (error) {
           console.error('TakePhoto Error:', error);
         } finally {
@@ -1800,123 +1834,105 @@ const FarmerActivityReportAWD = ({navigation}) => {
   );
 
   const handleActivityPipe = async scannedValue => {
-      if (!scannedValue) return;
-      if (saveData.field_type == 'add') {
-  
-        try{
-          const scanedData = await axiosGet(
-            ROUTES.GET.UNIQUE_SCAN_CODE({
-              unique_id: scannedValue,
-            }),
-            token,
-            {information: `${dbname},${lan_id},${farmerID}`},
-            '',
-            'pipeQrDetails',
-          );
-           if (scanedData?.status == 200) {
-            
-            setPipeNumber(scannedValue);
-           
-          }else if (scanedData?.status == 409) {
-             console.log(
-              'pipe data555=',
-              JSON.stringify(scanedData),
-            );
-           Toast.show({
-                time: 3,
-                text: `QR Code is already registered with activity pipe.`,
-                ...AlertMesg[0],
-              });
-           
-          }
-        }catch (error){
-   console.log(
-              'pipe data555=',
-              JSON.stringify(error),
-            );
-           Toast.show({
-                time: 3,
-                text: `QR Code is already registered with activity pipe.`,
-                ...AlertMesg[0],
-              });
-           
-          
-  
-        }
-  
-          
-  
-  
-        // setPipeNumber(scannedValue);
-      } else {
-        const matchedPipe = PipeListDetailsArr.find(
-          item =>
-            item?.label?.toString().trim().toLowerCase() ===
-            scannedValue.toString().trim().toLowerCase(),
+    if (!scannedValue) return;
+    if (saveData.field_type == 'add') {
+      try {
+        const scanedData = await axiosGet(
+          ROUTES.GET.UNIQUE_SCAN_CODE({
+            unique_id: scannedValue,
+          }),
+          token,
+          {information: `${dbname},${lan_id},${farmerID}`},
+          '',
+          'pipeQrDetails',
         );
-  
-        if (matchedPipe) {
-         
-  
-          const isNotEmpty = value =>
-            value !== null && value !== undefined && String(value).trim() !== '';
-          if (isNotEmpty(matchedPipe.lastActivityPerfromDate)) {
-            const compareDate = new Date(matchedPipe.lastActivityPerfromDate);
-            compareDate.setDate(compareDate.getDate() + minDateGap);
-  
-            const today = new Date();
-            const afterToday = compareDate > today;
-  
-            setLastPerfromedDate(compareDate);
-            console.log(
-              '2026-02-04 is TODAY',
-              isAfterToday,
-              minDateGap,
-              compareDate,
-              today,
-            );
-            if (compareDate > today) {
-              console.log('2026-02-04 is not TODAY', compareDate);
-              const formattedDate = compareDate.toLocaleDateString('en-GB', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-              });
-              Toast.show({
-                time: 3,
-                text: `Selected activity cannot be submitted before  ${formattedDate}`,
-                ...AlertMesg[0],
-              });
-            
-              setIsAfterToday(false);
-            } else {
-              setIsAfterToday(true);
-              console.log('2026-02-04 is TODAY', compareDate);
-            }
-          } else {
-            const tenDaysAgo = new Date();
-            tenDaysAgo.setDate(today.getDate() - 10);
-  
-            setLastPerfromedDate(tenDaysAgo);
-          }
-          setselectPipeList({
-            ...selectPipeList,
-            value: matchedPipe.value,
-            label: matchedPipe.label,
-            latlongs: matchedPipe.latlongs,
-            lastActivityPerfromDate: matchedPipe.lastActivityPerfromDate,
+        if (scanedData?.status == 200) {
+          setPipeNumber(scannedValue);
+        } else if (scanedData?.status == 409) {
+          console.log('pipe data555=', JSON.stringify(scanedData));
+          Toast.show({
+            time: 3,
+            text: `QR Code is already registered with activity pipe.`,
+            ...AlertMesg[0],
           });
-        } else {
-          // ❌ Not found
-          console.warn('Pipe not found:', scannedValue);
-  
-          Alert.alert(
-            'Invalid Instrument',
-            'Scanned instrument is not available in the plot',
-          );
         }
+      } catch (error) {
+        console.log('pipe data555=', JSON.stringify(error));
+        Toast.show({
+          time: 3,
+          text: `QR Code is already registered with activity pipe.`,
+          ...AlertMesg[0],
+        });
       }
-    };
+
+      // setPipeNumber(scannedValue);
+    } else {
+      const matchedPipe = PipeListDetailsArr.find(
+        item =>
+          item?.label?.toString().trim().toLowerCase() ===
+          scannedValue.toString().trim().toLowerCase(),
+      );
+
+      if (matchedPipe) {
+        const isNotEmpty = value =>
+          value !== null && value !== undefined && String(value).trim() !== '';
+        if (isNotEmpty(matchedPipe.lastActivityPerfromDate)) {
+          const compareDate = new Date(matchedPipe.lastActivityPerfromDate);
+          compareDate.setDate(compareDate.getDate() + minDateGap);
+
+          const today = new Date();
+          const afterToday = compareDate > today;
+
+          setLastPerfromedDate(compareDate);
+          console.log(
+            '2026-02-04 is TODAY',
+            isAfterToday,
+            minDateGap,
+            compareDate,
+            today,
+          );
+          if (compareDate > today) {
+            console.log('2026-02-04 is not TODAY', compareDate);
+            const formattedDate = compareDate.toLocaleDateString('en-GB', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
+            });
+            Toast.show({
+              time: 3,
+              text: `Selected activity cannot be submitted before  ${formattedDate}`,
+              ...AlertMesg[0],
+            });
+
+            setIsAfterToday(false);
+          } else {
+            setIsAfterToday(true);
+            console.log('2026-02-04 is TODAY', compareDate);
+          }
+        } else {
+          const tenDaysAgo = new Date();
+          tenDaysAgo.setDate(today.getDate() - 10);
+
+          setLastPerfromedDate(tenDaysAgo);
+        }
+        setselectPipeList({
+          ...selectPipeList,
+          value: matchedPipe.value,
+          label: matchedPipe.label,
+          latlongs: matchedPipe.latlongs,
+          lastActivityPerfromDate: matchedPipe.lastActivityPerfromDate,
+        });
+      } else {
+        // ❌ Not found
+        console.warn('Pipe not found:', scannedValue);
+
+        Alert.alert(
+          'Invalid Instrument',
+          'Scanned instrument is not available in the plot',
+        );
+      }
+    }
+  };
   const handlegrowth_stage = useCallback(growth_stage => {
     setSaveData(prev => ({...prev, growth_stage: growth_stage.value}));
   }, []);
@@ -2027,6 +2043,7 @@ const FarmerActivityReportAWD = ({navigation}) => {
                       required={true}
                       onChange={handlePlot}
                       val={saveData.plot_id}
+                      disable={isDisabled}
                     />
 
                     {showingMenu ? (
@@ -2484,7 +2501,14 @@ const FarmerActivityReportAWD = ({navigation}) => {
                 />
               )}
               <View style={{marginTop: 10}}>
-                <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+                <View style={{marginTop: 10}}>
+                  <ButtonForm
+                    label={t('submit')}
+                    onPress={() => handleSave()}
+                    loading={isLoading || isPrefilling}
+                    disabled={isLoading || isPrefilling}
+                  />
+                </View>
               </View>
               <Root></Root>
             </View>

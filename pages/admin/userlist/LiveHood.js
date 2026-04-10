@@ -115,7 +115,7 @@ const LiveHood = ({
   //GQR-65
   const navigation = useNavigation();
   const route = useRoute();
-  const {farmeruserID, agri_land_user_rels} = route.params;
+  const {farmeruserID, agri_land_user_rels,userName} = route.params;
   const [polygons, setPolygons] = useState([]);
   const [newPolygon, setNewPolygon] = useState([]);
   const [editing, setEditing] = useState(false);
@@ -3007,6 +3007,7 @@ setPlotStatus(prev => ({
             type: coFarmerDetails.addressProof?.type,
           });
         }
+    
         if (coFarmerDetails.idProof != null && coFarmerDetails.idProof != '') {
           formdataCofarmers.append(`farmer_identity`, {
             uri: coFarmerDetails.idProof?.uri,
@@ -3057,7 +3058,7 @@ setPlotStatus(prev => ({
             type: coFarmerDetails.addressProof?.type,
           });
         }
-        if (coFarmerDetails.idProof != null && coFarmerDetails.idProof != '') {
+        if (coFarmerDetails.idProof?.uri != null && coFarmerDetails.idProof?.uri != '') {
           formdataCofarmers.append(`farmer_identity_1`, {
             uri: coFarmerDetails.idProof?.uri,
             name: coFarmerDetails.idProof?.name,
@@ -3105,6 +3106,7 @@ setPlotStatus(prev => ({
       }
       setIsLoading(false);
     } catch (error) {
+      console.log('Error in handleAddCoFarmer', error);
       setIsLoading(false);
 
       Toast.show({
@@ -3316,7 +3318,7 @@ setPlotStatus(prev => ({
           }}
           showsVerticalScrollIndicator={false}>
           <View style={{marginBottom: 40}}>
-            {statuslevel.label == 'REJECTED' && (
+            {plotStatus.label == 'REJECTED' && (
               <View
                 style={{
                   paddingVertical: 10,
@@ -3333,7 +3335,7 @@ setPlotStatus(prev => ({
                     fontFamily: 'Poppins-Regular',
                     fontSize: 14,
                   }}>
-                  {dataProps?.comment}
+                  {dataProps?.plot_status_comment}
                 </Text>
               </View>
             )}
@@ -3543,6 +3545,7 @@ setPlotStatus(prev => ({
                     }
                     marginBottom={navigationBarHeight}
                     allowAddMore={false}
+                    farmerName={userName}
                   />
                 </View>
 

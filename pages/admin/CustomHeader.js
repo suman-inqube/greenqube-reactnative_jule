@@ -183,6 +183,7 @@ const CustomHeader = memo(
         FarmerPendingActivity: t('Pending Activity'),
         ActivityPlotWise: t(' Plot & Season wise Activity'),
         FarmerActivityPlotWise: t(' Plot & Season wise Activity'),
+        PlotWiseMap: t(' Map View'),
       }),
 
       [t],

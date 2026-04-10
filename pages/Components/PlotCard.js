@@ -20,6 +20,7 @@ const PlotCard = memo(
   }) => {
     const {showBottomSheet} = useBottomSheet();
     const navigation = useNavigation();
+    // console.log(JSON.stringify(item));
 
     const handleOpenHistory = useCallback(() => {
       showBottomSheet(
@@ -136,9 +137,11 @@ const PlotCard = memo(
                 </View>
               </View>
 
-              {item?.status_level === 'REJECTED' && (
+              {item?.plot_status === 'REJECTED' && (
                 <View style={styles.rejectBox}>
-                  <Text style={styles.rejectText}>{item?.comment}</Text>
+                  <Text style={styles.rejectText}>
+                    {item?.plot_status_comment}
+                  </Text>
                 </View>
               )}
             </>

@@ -1,4 +1,12 @@
-import {View, Text, StyleSheet, FlatList, Dimensions} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
+
 import React, {
   useState,
   useEffect,
@@ -138,28 +146,42 @@ const UpcomingActivity = () => {
     const contactNumber = item?.farmer?.contactNumber || 'N/A';
 
     const upcomingActivities = item?.upcomingActivities || [];
-
     return (
       <>
         {upcomingActivities.length != 0 ? (
           <View style={styles.activityItem}>
-            {/* Farmer Information */}
-            <View style={styles.farmerInfo}>
-              <View style={styles.nameRow}>
-                <Text style={styles.mainText}>{farmerName}</Text>
-                <Text style={styles.mainText}> {plotName}</Text>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                if (activeTab === 'carbon') {
+                  navigation.navigate('ActivityReportAWD', {
+                    farmer: item?.farmer,
+                    plot: item?.crop?.land_info,
+                  });
+                } else {
+                  navigation.navigate('activityReport', {
+                    farmer: item?.farmer,
+                    plot: item?.crop?.land_info,
+                  });
+                }
+              }}>
+              {/* Farmer Information */}
+              <View style={styles.farmerInfo}>
+                <View style={styles.nameRow}>
+                  <Text style={styles.mainText}>{farmerName}</Text>
+                  <Text style={styles.mainText}> {plotName}</Text>
+                </View>
+                <Text style={styles.subText}> {contactNumber}</Text>
+                <Text style={styles.activityDate}>
+                  {t('Sowing Date')} :{' '}
+                  {upcomingActivities[0]?.sowing_date || 'N/A'}
+                </Text>
+                <Text style={styles.activityDate}>
+                  {t('Hervesting Date')} :{' '}
+                  {upcomingActivities[0]?.harvesting_date || 'N/A'}
+                </Text>
               </View>
-              <Text style={styles.subText}> {contactNumber}</Text>
-              <Text style={styles.activityDate}>
-                {t('Sowing Date')} :{' '}
-                {upcomingActivities[0]?.sowing_date || 'N/A'}
-              </Text>
-              <Text style={styles.activityDate}>
-                {t('Hervesting Date')} :{' '}
-                {upcomingActivities[0]?.harvesting_date || 'N/A'}
-              </Text>
-            </View>
-
+            </TouchableOpacity>
             {/* Plot Information */}
             {/* <View style={styles.plotInfo}>
           <Text style={styles.plotStatus}>

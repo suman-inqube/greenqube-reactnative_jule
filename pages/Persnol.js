@@ -466,9 +466,9 @@ const Persnol = () => {
   };
   return (
     <SafeAreaProvider>
-       <SafeAreaView
-             style={{flex: 1, backgroundColor: '#1d3122'}}
-             edges={['top', 'right', 'bottom', 'left']}>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: '#1d3122' }}
+        edges={['top', 'right', 'bottom', 'left']}>
         <StatusBar barStyle="light-content" backgroundColor={Colors.green} />
         <View style={styles.container}>
           <View
@@ -526,6 +526,19 @@ const Persnol = () => {
                       value={storePersnolInfo.name ?? name}
                       onChangeText={name => {
                         setstorePersnolInfo({ ...storePersnolInfo, name: name });
+                        const values = [...identityProofIdentityPropf];
+                        values[1] = {
+                          ...values[1],
+                          uri: "",
+                          name: "",
+                          fileName: "",
+                          type: "image/jpeg",
+                          imageType: 'identity',
+                          value: '1',
+                          id: '',
+                        };
+
+                        setIdentityProofIdentityPropf(values);
                       }}
                     />
                     <View>
@@ -694,6 +707,7 @@ const Persnol = () => {
                       stateValue={identityProofIdentityPropf}
                       disable={true}
                       InputTextFormEdit={true}
+                      farmerName={storePersnolInfo.name}
                     // photoDeletedValue={photoDeletedValue}
                     // setPhotoDeletedValue={setPhotoDeletedValue}
                     // loginUser_data={loginUser_data}

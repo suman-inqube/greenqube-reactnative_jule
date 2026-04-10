@@ -40,6 +40,7 @@ const Market = lazy(() => import('./Markect/Market'));
 const PlotStatusUpdate = lazy(() => import('./Markect/PlotStatusUpdate'));
 const UpcomingActivity = lazy(() => import('./Activity/UpcomingActivity'));
 const PendingActivity = lazy(() => import('./Activity/PendingActivity'));
+const PlotWiseMap = lazy(() => import('./MapView/PlotWiseMap'));
 
 const TrainingList = lazy(() => import('./Training/TrainingList'));
 const UsefulInformation = lazy(() =>
@@ -236,6 +237,7 @@ function AdminStack() {
         component={InstrumentWiseActivityDetails}
       />
       <Stack.Screen name="Offline" component={Offline} />
+      <Stack.Screen name="PlotWiseMap" component={PlotWiseMap} />
     </Stack.Navigator>
   );
 }

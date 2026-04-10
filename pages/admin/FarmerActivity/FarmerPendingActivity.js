@@ -1,4 +1,11 @@
-import {View, Text, StyleSheet, FlatList, Dimensions} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
 import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import {Colors, Fonts} from '../../utils/Constants';
@@ -83,75 +90,90 @@ const FarmerPendingActivity = () => {
     return (
       <>
         {overdueActivities.length != 0 ? (
-          <View style={styles.activityItem}>
-            {/* Farmer Information */}
-            <View style={styles.farmerInfo}>
-              {/* <Text style={styles.mainText}>{farmerName}</Text> */}
-              <Text style={styles.mainText}> {plotName}</Text>
-              <Text style={styles.activityDate}>
-                Sowing Date: {overdueActivities[0]?.sowing_date || 'N/A'}
-              </Text>
-              <Text style={styles.activityDate}>
-                Hervesting Date:{' '}
-                {overdueActivities[0]?.harvesting_date || 'N/A'}
-              </Text>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => {
+              if (activeTab === 'carbon') {
+                navigation.navigate('FarmerActivityReportAWD', {
+                  farmer: item?.farmer,
+                  plot: item?.crop?.land_info,
+                });
+              } else {
+                navigation.navigate('FarmerActivityReport', {
+                  farmer: item?.farmer,
+                  plot: item?.crop?.land_info,
+                });
+              }
+            }}>
+            <View style={styles.activityItem}>
+              {/* Farmer Information */}
+              <View style={styles.farmerInfo}>
+                {/* <Text style={styles.mainText}>{farmerName}</Text> */}
+                <Text style={styles.mainText}> {plotName}</Text>
+                <Text style={styles.activityDate}>
+                  Sowing Date: {overdueActivities[0]?.sowing_date || 'N/A'}
+                </Text>
+                <Text style={styles.activityDate}>
+                  Hervesting Date:{' '}
+                  {overdueActivities[0]?.harvesting_date || 'N/A'}
+                </Text>
 
-              {/* <Text style={styles.subText}> {contactNumber}</Text> */}
-            </View>
+                {/* <Text style={styles.subText}> {contactNumber}</Text> */}
+              </View>
 
-            {/* Plot Information */}
-            {/* <View style={styles.plotInfo}>
+              {/* Plot Information */}
+              {/* <View style={styles.plotInfo}>
           <Text style={styles.plotStatus}>
             Status: {item?.crop?.land_info?.plot_status || 'N/A'}
           </Text>
         </View> */}
 
-            {/* Upcoming Activities */}
-            <View style={styles.activitiesSection}>
-              {/* <Text style={styles.activitiesTitle}>Upcoming Activities:</Text> */}
-              {overdueActivities.length > 0 ? (
-                overdueActivities.map((activity, activityIndex) => (
-                  <View key={activityIndex} style={styles.activityDetail}>
-                    <View style={styles.nameRow}>
-                      <Text style={styles.activityName}>
-                        •{' '}
-                        {activity?.activityName?.categoryName ||
-                          'Unknown Activity'}
-                      </Text>
-                      <Text style={styles.daysUntil}>
-                        {activity?.days_until_start * -1 || 0} days ago
-                      </Text>
-                    </View>
-                    {/* <Text style={styles.activityType}>
+              {/* Upcoming Activities */}
+              <View style={styles.activitiesSection}>
+                {/* <Text style={styles.activitiesTitle}>Upcoming Activities:</Text> */}
+                {overdueActivities.length > 0 ? (
+                  overdueActivities.map((activity, activityIndex) => (
+                    <View key={activityIndex} style={styles.activityDetail}>
+                      <View style={styles.nameRow}>
+                        <Text style={styles.activityName}>
+                          •{' '}
+                          {activity?.activityName?.categoryName ||
+                            'Unknown Activity'}
+                        </Text>
+                        <Text style={styles.daysUntil}>
+                          {activity?.days_until_start * -1 || 0} days ago
+                        </Text>
+                      </View>
+                      {/* <Text style={styles.activityType}>
                   Type: {activity?.activityType?.categoryName || 'N/A'}
                 </Text> */}
 
-                    <Text style={styles.activityDate}>
-                      Schedule date:{' '}
-                      {new Date(
-                        activity?.activity_start_date,
-                      ).toLocaleDateString('en-GB', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                      })}{' '}
-                      -{' '}
-                      {new Date(activity?.activity_end_date).toLocaleDateString(
-                        'en-GB',
-                        {
+                      <Text style={styles.activityDate}>
+                        Schedule date:{' '}
+                        {new Date(
+                          activity?.activity_start_date,
+                        ).toLocaleDateString('en-GB', {
                           day: '2-digit',
                           month: 'short',
                           year: 'numeric',
-                        },
-                      )}
-                    </Text>
-                  </View>
-                ))
-              ) : (
-                <Text style={styles.noActivities}>No pending activities</Text>
-              )}
+                        })}{' '}
+                        -{' '}
+                        {new Date(
+                          activity?.activity_end_date,
+                        ).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.noActivities}>No pending activities</Text>
+                )}
+              </View>
             </View>
-          </View>
+          </TouchableOpacity>
         ) : (
           <>
             <Text style={styles.noActivities}>No pending activities</Text>
@@ -164,9 +186,7 @@ const FarmerPendingActivity = () => {
   // Render empty state
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>
-        {'No pending activities found'}
-      </Text>
+      <Text style={styles.emptyText}>{'No pending activities found'}</Text>
     </View>
   );
   onBackPress(() => {

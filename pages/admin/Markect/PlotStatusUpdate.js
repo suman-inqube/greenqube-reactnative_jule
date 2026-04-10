@@ -2367,6 +2367,7 @@ const PlotStatusUpdate = () => {
                         ? false
                         : true
                     }
+                    farmerName={farmer_data?.userName}
                   />
                 </View>
                 {/* {area != 0 && area != null && (

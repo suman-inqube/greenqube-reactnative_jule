@@ -52,6 +52,7 @@ import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {axiosGet, axiosPost} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
+import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
 
 // import useRecorder from '../../utils/useRecorder';
 import {captureRef} from 'react-native-view-shot';
@@ -62,10 +63,54 @@ const audioRecorderPlayer =
   typeof AudioRecorderPlayer === 'function'
     ? new AudioRecorderPlayer()
     : AudioRecorderPlayer;
-const ActivityReport = ({navigation}) => {
+const ActivityReport = ({navigation, route}) => {
+  const {farmer, plot} = route?.params || {};
   //GQR-67
   const today = new Date();
 
+  useEffect(() => {
+    if (farmer && plot) {
+     
+      const farmerObj = {
+        label: farmer?.userName || '',
+        value: farmer?.user_id,
+        phone: farmer?.contactNumber || '',
+      };
+
+      // Synchronous updates
+      setSearchFarmerName(farmerObj.label);
+      setSearchFarmerPhone(farmerObj.phone);
+      setfarmerID(farmer?.user_id);
+      setIsDisabled(true);
+
+      setSaveData(prev => ({
+        ...prev,
+        user_id: farmer?.user_id || '',
+        plot_id: '',
+        plot_Name: '',
+      }));
+
+      // Async pre-filling
+     const prefillData = async () => {
+       setIsPrefilling(true);
+       try {
+         await handleResultSelect(farmerObj);
+
+         await handlePlot({
+           label: plot?.plot_no,
+           value: plot?.rel_id,
+         });
+       } catch (error) {
+         console.error('Prefill error:', error);
+       } finally {
+         setIsPrefilling(false);
+       }
+     };
+
+      prefillData();
+    }
+     onPageLoad();
+  }, [farmer, plot]);
   // 7 days ago
   const tenDaysAgo = new Date();
   tenDaysAgo.setDate(today.getDate() - 10);
@@ -99,6 +144,7 @@ const ActivityReport = ({navigation}) => {
   const [minimumSeletedDate, setMinimumSelectedDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
   const [showingMenu, setShowingMenu] = useState(false);
+  const [isPrefilling, setIsPrefilling] = useState(false);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   // const [farmerData, setfarmerData] = useState([]);
   const [searchFarmerName, setSearchFarmerName] = useState('');
@@ -121,6 +167,8 @@ const ActivityReport = ({navigation}) => {
   const [cycleStartDate, srtCycleStartDate] = useState(false);
   const [activityPreDate, setActivityPreDate] = useState(false);
   const [cycleDtartDate, setCycleStartDate] = useState('');
+  const [isDisabled, setIsDisabled] = useState(false);
+
   const [activityInfoReadio, setactivityInfoReadio] = useState({
     activityPreFormDate: 'regular',
   });
@@ -349,6 +397,12 @@ const ActivityReport = ({navigation}) => {
 
   const handlePlot = async relId => {
     const {latitude, longitude} = coords || {};
+    console.log('plt', latitude);
+    setSaveData({
+      ...saveData,
+      latitude: latitude,
+      longitude: longitude,
+    });
     setIsLoading(true);
     try {
       if (isOnline) {
@@ -439,6 +493,8 @@ const ActivityReport = ({navigation}) => {
             act_start_date: '',
             act_ref: '',
             act_master_id: '',
+            latitude: latitude,
+            longitude: longitude,
           });
           setsinglePlot(response.data.data);
           setCropType(data.crop_type.fid);
@@ -779,7 +835,7 @@ const ActivityReport = ({navigation}) => {
     /////
   };
   const validateForm = () => {
-    if (!saveData.user_id) {
+    if (!saveData.user_id && !farmerID) {
       Toast.show({
         time: 2,
         text: `${t('please_enter_farmer_name')}`,
@@ -894,7 +950,7 @@ const ActivityReport = ({navigation}) => {
       }
       formData.append('latitude', saveData.latitude);
       formData.append('longitude', saveData.longitude);
-      formData.append('user_id', saveData.user_id);
+      formData.append('user_id', farmerID);
       formData.append('plot_id', saveData.plot_id);
       formData.append('crop_name', saveData.crop_name);
       formData.append('crop_variety', saveData.crop_variety);
@@ -923,14 +979,15 @@ const ActivityReport = ({navigation}) => {
         //   false,
         //   {information: `${dbname},${lan_id},${saveData.user_id}`},
         // );
+         console.log('formData', formData);
         const database_res = await activitySaveAPI(
           dbname,
           lan_id,
           token,
-          saveData.user_id,
+          farmerID,
           formData,
         );
-        // console.log('Save', database_res);
+        console.log('Save11', database_res);
         if (database_res?.status == 200) {
           AnalyticsLogEvent('activity_report', 'activity_report');
           navigation.popToTop();
@@ -965,13 +1022,26 @@ const ActivityReport = ({navigation}) => {
     }
   };
   const handleActivityPattern = item => {
+    // console.log('item', item);
+
+    const {latitude, longitude} = coords || {};
+
+    setSaveData({
+      ...saveData,
+      act_pattern: item,
+      latitude: latitude,
+      longitude: longitude,
+    });
+    
+    // setSaveData({...saveData, act_pattern: item});
     setactivityInfoReadio({...activityInfoReadio, activityPreFormDate: item});
-    setSaveData({...saveData, act_pattern: item});
+    
     if (item === 'schedule') {
       setisActiveMenu(true);
     } else {
       setisActiveMenu(false);
     }
+    
   };
   const handleActivityType = async item => {
     let dataArray = [];
@@ -1072,33 +1142,41 @@ const ActivityReport = ({navigation}) => {
       act_master_id: item?.act_master_id,
     });
   };
-  const requestLivePermission = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        Geolocation.getCurrentPosition(data =>
-          setSaveData({
-            ...saveData,
-            latitude: data.coords.latitude,
-            longitude: data.coords.longitude,
-          }),
-        );
-      } else {
-        console.log('Location permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
+  // const requestLivePermission = async () => {
+  //   try {
+  //     const granted = await PermissionsAndroid.request(
+  //       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+  //     );
+  //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //       Geolocation.getCurrentPosition(data =>
+  //         setSaveData({
+  //           ...saveData,
+  //           latitude: data.coords.latitude,
+  //           longitude: data.coords.longitude,
+  //         }),
+  //       );
+  //     } else {
+  //       console.log('Location permission denied');
+  //     }
+  //   } catch (err) {
+  //     console.warn(err);
+  //   }
+  // };
   const onPageLoad = async () => {
-    requestLivePermission();
+    // requestLivePermission();
+
+          var latlong = await getHighAccuracyLocation();
+           setSaveData({
+             ...saveData,
+             latitude: latlong.latitude,
+             longitude: latlong.longitude,
+           });
+         
+           console.log('Error starting1 :', latlong.latitude);
+            console.log('Error starting1 :', latlong.longitude);         
   };
 
-  useEffect(() => {
-    onPageLoad();
-  }, []);
+
   const handleHarvested = async data => {
     if (data == 'Yes') {
       navigation.navigate('activityList');
@@ -1354,6 +1432,7 @@ const ActivityReport = ({navigation}) => {
                   required={true}
                   onChange={relId => handleResultSelect(relId)}
                   val={searchFarmerName}
+                  disable={isDisabled}
                 />
                 <InputTextForm
                   label={t('farmer_number')}
@@ -1367,6 +1446,7 @@ const ActivityReport = ({navigation}) => {
                   required={true}
                   onChange={relId => handlePlot(relId)}
                   val={saveData.plot_Name}
+                  disable={isDisabled}
                 />
                 {showingMenu ? (
                   nameVarityStartEnd.name != '' ? (
@@ -1639,7 +1719,8 @@ const ActivityReport = ({navigation}) => {
               <ButtonForm
                 label={t('submit')}
                 onPress={() => handleSave()}
-                loading={isLoading}
+                loading={isLoading || isPrefilling}
+                disabled={isLoading || isPrefilling}
               />
             </View>
           </View>

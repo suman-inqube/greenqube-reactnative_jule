@@ -89,7 +89,7 @@ const ActivityDetail = () => {
       );
 
       activityDetails = activityDetailsRes?.data?.data;
-
+      console.log('activityDetails', JSON.stringify(activityDetails));
       if (farmerFound?.type == 'user_activity') {
         const activity_files = await axiosGet(
           ROUTES.GET.USER_ACTIVITY_DETAILS({uact_id: farmerFound.uact_id}),
