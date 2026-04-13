@@ -2418,7 +2418,7 @@ const ActivityReportAWD = ({navigation, route}) => {
             try {
               const uri = await captureRef(watermarkViewRef, {
                 format: 'jpg',
-                quality: 1,
+                quality: 2,
                 width: 800,
                 height: 800,
               });
@@ -2459,7 +2459,7 @@ const ActivityReportAWD = ({navigation, route}) => {
               setTempImage(null);
               setTempText('');
             }
-          }, 1200);
+          }, 5000);
         } catch (error) {
           CustomAlert('Catch Error ', error, true, 'OK');
         } finally {
@@ -3252,7 +3252,7 @@ const styles = StyleSheet.create({
   },
   watermarkText: {
     color: '#df2020',
-    fontSize: 12,
+    fontSize: 8,
     fontWeight: 'bold',
     fontFamily: 'Arial',
   },
