@@ -11,9 +11,9 @@ import {
   Keyboard,
   Alert,
   Linking,
-  InteractionManager,
+  InteractionManager, ActivityIndicator
 } from 'react-native';
-import {PermissionsAndroid} from 'react-native';
+import { PermissionsAndroid } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import React, {
   useEffect,
@@ -23,7 +23,7 @@ import React, {
   useRef,
   useMemo,
 } from 'react';
-import {launchCamera} from 'react-native-image-picker';
+import { launchCamera } from 'react-native-image-picker';
 import {
   inputOutputRoutePipeImagesLatLong,
   activityInfoAPI,
@@ -43,7 +43,7 @@ import {
   problemProduceAgainstPlotAPI,
   problemProductionStageAPI,
 } from '../../../config/apiHere';
-import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
+import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import HarvestedModel from '../../Common/HarvestedModel';
 import SoundRecord from '../../Common/SoundRecord';
 import RNFS from 'react-native-fs';
@@ -57,30 +57,31 @@ const audioRecorderPlayer =
     : AudioRecorderPlayer;
 const qs = require('qs');
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {AnalyticsLogEvent} from '../../Analytics';
-import {isPointInPolygon, getDistance} from 'geolib';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { AnalyticsLogEvent } from '../../Analytics';
+import { isPointInPolygon, getDistance } from 'geolib';
 import TakePhotoPipe from '../../Common/TakePhotoPipe';
 import ActivityMap from '../../Common/ActivityMap';
-import {request, PERMISSIONS, RESULTS} from 'react-native-permissions';
-import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
-import {Colors, Fronts} from '../../utils/Constants';
+import { Colors, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {use} from 'i18next';
-import {axiosGet, axiosPost} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
-import {captureRef} from 'react-native-view-shot';
-import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
-import {showAIValidationError} from '../../utils/showAIValidationError';
+import { use } from 'i18next';
+import { axiosGet, axiosPost } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
+import { captureRef } from 'react-native-view-shot';
+import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
+import { showAIValidationError } from '../../utils/showAIValidationError';
 import SecurityWrapper from '../../SecurityCheck/SecurityWrapper';
 import PipeDetailsCard from '../../../Components/PipeDetailsCard';
-import {isWithin20Meters} from '../../Common/calculateAreaFun';
+import { isWithin20Meters } from '../../Common/calculateAreaFun';
 import ScannerModal from '../../Common/ScannerModal';
-import {Camera} from 'react-native-vision-camera';
-import {getItem, removeItem} from '../../../config/getDataFromStorage';
-const ActivityReportAWD = ({navigation, route}) => {
-  const {farmer, plot} = route?.params || {};
+import { Camera } from 'react-native-vision-camera';
+import ImageAnalysisScreen from './ImageAnalysisScreen'
+import { downloadWithCache } from '../../hooks/ModelDownload';
+const ActivityReportAWD = ({ navigation, route }) => {
+  const { farmer, plot } = route?.params || {};
   const isScanningRef = useRef(false);
   const lastScannedRef = useRef(null);
   //GQR-67
@@ -107,7 +108,7 @@ const ActivityReportAWD = ({navigation, route}) => {
     coords,
     farmerData,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   // const { pageNo } = dbLanTokUsr;
   //GQR-67
   const [isAfterToday, setIsAfterToday] = useState(false);
@@ -320,7 +321,7 @@ const ActivityReportAWD = ({navigation, route}) => {
   const checkPipeDistance = async (currentLat, currentLon) => {
     try {
       // Get fresh coordinates each time this function is called
-      const {latitude, longitude} = coords || {};
+      const { latitude, longitude } = coords || {};
       let freshLatLong;
 
       if (!latitude || !longitude) {
@@ -350,15 +351,15 @@ const ActivityReportAWD = ({navigation, route}) => {
 
       for (const existingPipe of allPipes) {
         const distance = getDistance(
-          {latitude: lat, longitude: lon},
-          {latitude: existingPipe.latitude, longitude: existingPipe.longitude},
+          { latitude: lat, longitude: lon },
+          { latitude: existingPipe.latitude, longitude: existingPipe.longitude },
         );
 
         if (distance < 20) {
           Alert.alert(
             'Too Close!',
             `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
-            [{text: 'OK', style: 'cancel'}],
+            [{ text: 'OK', style: 'cancel' }],
           );
           return false;
         }
@@ -395,12 +396,12 @@ const ActivityReportAWD = ({navigation, route}) => {
     setNewPerFromDate(item);
     const effective_date = effective_dates(item);
     setActivityPreFormDate(effective_date);
-    setSaveData({...saveData, act_perform_date: effective_date});
+    setSaveData({ ...saveData, act_perform_date: effective_date });
   };
   const handleResultSelect = useCallback(
     async item => {
       setIsLoading(true);
-      const {label: name, value: currentfarmerId, phone} = item || {};
+      const { label: name, value: currentfarmerId, phone } = item || {};
       // setSearchFarmerPhone(phone);
       // setSelectedName(name);
       // setSearchFarmerName(name);
@@ -413,7 +414,7 @@ const ActivityReportAWD = ({navigation, route}) => {
         phone,
       }));
       setFarmerID(currentfarmerId);
-      setSaveData({...saveData, plot_id: '', plot_Name: ''});
+      setSaveData({ ...saveData, plot_id: '', plot_Name: '' });
       setNameVarityStartEnd({
         ...nameVarityStartEnd,
         name: '',
@@ -428,7 +429,7 @@ const ActivityReportAWD = ({navigation, route}) => {
             farmerID: currentfarmerId,
           }),
           token,
-          {information: `${dbname},${lan_id}`},
+          { information: `${dbname},${lan_id}` },
         );
         // plotAgainstFarmerAPI(
         //   dbname,
@@ -450,7 +451,7 @@ const ActivityReportAWD = ({navigation, route}) => {
           var activityType_res = await axiosGet(
             ROUTES.GET.ACTIVITY_TYPE_AWD(),
             '',
-            {information: `${dbname},${lan_id},${currentfarmerId}`},
+            { information: `${dbname},${lan_id},${currentfarmerId}` },
           );
           // activityTypeAPIAWD(
           //   dbname,
@@ -479,7 +480,7 @@ const ActivityReportAWD = ({navigation, route}) => {
   const handlePlot = useCallback(
     async relId => {
       try {
-        const {latitude, longitude} = coords || {};
+        const { latitude, longitude } = coords || {};
         var latlong;
         if (latitude == '' && longitude == '') {
           latlong = await getHighAccuracyLocation();
@@ -524,7 +525,7 @@ const ActivityReportAWD = ({navigation, route}) => {
                   text: 'OK',
                 },
               ],
-              {cancelable: false},
+              { cancelable: false },
             );
           }
           const latandlongArr =
@@ -536,7 +537,7 @@ const ActivityReportAWD = ({navigation, route}) => {
             );
           if (latandlongArr.length != 0) {
             setPlotPolygon(latandlongArr);
-            const inside = isPointInPolygon({lat, lon}, latandlongArr);
+            const inside = isPointInPolygon({ lat, lon }, latandlongArr);
             if (inside) {
               setOutofRange(true);
               setOutofRangeCheck(true);
@@ -552,12 +553,12 @@ const ActivityReportAWD = ({navigation, route}) => {
             const data = response?.data?.data;
             setShowingMenu(true);
             data.crop_cycl_start_date == null ||
-            data.crop_cycl_start_date == '2004-02-29'
+              data.crop_cycl_start_date == '2004-02-29'
               ? setIsButtonDisabled(false)
               : setIsButtonDisabled(true);
             let cycle_start_date =
               data.crop_cycl_start_date == null ||
-              data.crop_cycl_start_date == '2004-02-29'
+                data.crop_cycl_start_date == '2004-02-29'
                 ? data.sowing_date
                 : data.crop_cycl_start_date;
             setMinimumSelectableDate(new Date(cycle_start_date));
@@ -584,6 +585,7 @@ const ActivityReportAWD = ({navigation, route}) => {
               longitude: lon,
               growth_stage: '',
               act_ref_type: '',
+              act_type: '',
               act_to_date: '',
               act_to_date_label: '',
               act_start_date: '',
@@ -619,7 +621,7 @@ const ActivityReportAWD = ({navigation, route}) => {
                       cropNameID: data.crop_name_id,
                     }),
                     '',
-                    {information: `${dbname},${lan_id}`},
+                    { information: `${dbname},${lan_id}` },
                   ),
                   // productionStageAPI(
                   //   dbname,
@@ -636,7 +638,7 @@ const ActivityReportAWD = ({navigation, route}) => {
                       cu_rel_id: data.cu_rel_id,
                     }),
                     token,
-                    {information: `${dbname},${lan_id}`},
+                    { information: `${dbname},${lan_id}` },
                   ),
                   // activityScheduleAPI(
                   //   dbname,
@@ -655,7 +657,7 @@ const ActivityReportAWD = ({navigation, route}) => {
                       cu_rel_id: data.cu_rel_id,
                     }),
                     '',
-                    {information: `${dbname},${lan_id},${farmerID}`},
+                    { information: `${dbname},${lan_id},${farmerID}` },
                   ),
                   // inputOutputRoutePipeImagesLatLong(
                   //   dbname,
@@ -757,7 +759,7 @@ const ActivityReportAWD = ({navigation, route}) => {
                   //     : cycleDtartDate;
                   const cycleDate =
                     data.crop_cycl_start_date == null ||
-                    data.crop_cycl_start_date == '2004-02-29'
+                      data.crop_cycl_start_date == '2004-02-29'
                       ? data.sowing_date
                       : data.crop_cycl_start_date;
                   const sdate = new Date(cycleDate);
@@ -776,9 +778,9 @@ const ActivityReportAWD = ({navigation, route}) => {
 
                   setUpcomingAct(
                     upcomingActivity?.activityName?.categoryName +
-                      ' (' +
-                      startDateEndDate +
-                      ')',
+                    ' (' +
+                    startDateEndDate +
+                    ')',
                   );
                 }
               }
@@ -1154,9 +1156,9 @@ const ActivityReportAWD = ({navigation, route}) => {
 
             setUpcomingAct(
               upcomingActivity?.activityName?.categoryName +
-                ' (' +
-                startDateEndDate +
-                ')',
+              ' (' +
+              startDateEndDate +
+              ')',
             );
           }
           // console.log(
@@ -1171,122 +1173,7 @@ const ActivityReportAWD = ({navigation, route}) => {
       CrashlyticsRecordError(error, 'ActivityReportAWD', 'setCycleDate');
     }
   };
-  // const validateForm = () => {
-  //   if (!saveData.plot_id) {
-  //     Toast.show({
-  //       time: 2,
-  //       text: t('pl_en_plot_name_first'),
-  //       ...AlertMesg[0],
-  //     });
-  //     return false;
-  //   }
-  //   if (!saveData.cycle_start_date) {
-  //     Toast.show({
-  //       time: 2,
-  //       text: t('please_select_sowing_date_first'),
-  //       ...AlertMesg[0],
-  //     });
-  //     return false;
-  //   }
-  //   if (!saveData.growth_stage) {
-  //     Toast.show({
-  //       time: 2,
-  //       text: t('please_select_growth_stage'),
-  //       ...AlertMesg[0],
-  //     });
-  //     return false;
-  //   }
-  //   if (isButtonDisabled == false) {
-  //     Toast.show({
-  //       time: 2,
-  //       text: t('please_select_sowing_date_first'),
-  //       ...AlertMesg[0],
-  //     });
-  //     return false;
-  //   }
-  //   if (saveData.act_pattern === 'schedule') {
-  //     if (!saveData.act_ref_type) {
-  //       Toast.show({
-  //         time: 2,
-  //         text: t('Please_enter_activity_type'),
-  //         ...AlertMesg[0],
-  //       });
-  //       return false;
-  //     }
-  //     if (!saveData.act_ref) {
-  //       Toast.show({
-  //         time: 2,
-  //         text: t('Please_enter_activity'),
-  //         ...AlertMesg[0],
-  //       });
-  //       return false;
-  //     }
-  //   }
 
-  //   if (saveData.field_type == 'add') {
-  //     if (pipeDetails.length == 0) {
-  //       Toast.show({
-  //         time: 2,
-  //         text: t('Please add pipe properly'),
-  //         ...AlertMesg[0],
-  //       });
-  //       return false;
-  //     }
-  //   }
-  //   if (saveData.field_type == 'select') {
-  //     if (selectPipeList.value == '') {
-  //       Toast.show({
-  //         time: 2,
-  //         text: t('Please select pipe'),
-  //         ...AlertMesg[0],
-  //       });
-  //       return false;
-  //     }
-  //     if (
-  //       selectedImagePipe?.firstItem == '' ||
-  //       selectedImagePipe?.secondItem == ''
-  //     ) {
-  //       Toast.show({
-  //         time: 2,
-  //         text: t('Please enter pipe image'),
-  //         ...AlertMesg[0],
-  //       });
-  //       return false;
-  //     }
-  //   }
-  //   if (!saveData.act_perform_date) {
-  //     Toast.show({
-  //       time: 2,
-  //       text: t('Please_enter_perform_date'),
-  //       ...AlertMesg[0],
-  //     });
-  //     return false;
-  //   }
-  //   if (!saveData.latitude) {
-  //     Toast.show({
-  //       time: 2,
-  //       text: t('gpsalertdialogmessage'),
-  //       ...AlertMesg[0],
-  //     });
-  //     return false;
-  //   }
-  //   if (!cycleDtartDate && !isButtonDisabled) {
-  //     Toast.show({ text: t('please_select_sowing_date_first'), ...AlertMesg[0] });
-  //     return false;
-  //   }
-
-  //   if (!isGeoFence) {
-  //     Toast.show({ text: 'Plot is not geofenced ', ...AlertMesg[0] });
-
-  //     return;
-  //   }
-  //   if (!outofRangeCheck) {
-  //     Toast.show({ text: 'You are out of range', ...AlertMesg[0] });
-
-  //     return;
-  //   }
-  //   return true;
-  // };
   const validateForm = () => {
     if (!saveData.user_id && !searchFarmerName.value) {
       Toast.show({
@@ -1389,16 +1276,16 @@ const ActivityReportAWD = ({navigation, route}) => {
       return false;
     }
     if (!cycleDtartDate && !isButtonDisabled) {
-      Toast.show({text: t('please_select_sowing_date_first'), ...AlertMesg[0]});
+      Toast.show({ text: t('please_select_sowing_date_first'), ...AlertMesg[0] });
       return false;
     }
     if (!isGeoFence) {
-      Toast.show({text: 'Plot is not geofenced ', ...AlertMesg[0]});
+      Toast.show({ text: 'Plot is not geofenced ', ...AlertMesg[0] });
       // Alert.alert('You are out of range');
       return;
     }
     if (!outofRangeCheck) {
-      Toast.show({text: 'You are out of range', ...AlertMesg[0]});
+      Toast.show({ text: 'You are out of range', ...AlertMesg[0] });
       // Alert.alert('You are out of range');
       return;
     }
@@ -1509,7 +1396,7 @@ const ActivityReportAWD = ({navigation, route}) => {
             });
           });
           const pipe_data = [
-            {pipe_id: selectPipeList.value, latlong: pipe_lattlong},
+            { pipe_id: selectPipeList.value, latlong: pipe_lattlong },
           ];
           if (pipe_lattlong.length != 0) {
             formData.append('existing_pipe_ids', JSON.stringify(pipe_data));
@@ -1527,7 +1414,6 @@ const ActivityReportAWD = ({navigation, route}) => {
       var database_res;
       if (isOnline) {
         if (saveData.field_type == 'add') {
-          console.log('DDDDD', JSON.stringify(formData), farmerID);
           database_res = await addUserPipeActivity(
             dbname,
             lan_id,
@@ -1538,7 +1424,7 @@ const ActivityReportAWD = ({navigation, route}) => {
           );
         } else {
           if (coords != null) {
-            const {latitude, longitude} = coords || {};
+            const { latitude, longitude } = coords || {};
             const distances = getDistance(selectPipeList.latlongs, {
               latitude,
               longitude,
@@ -1559,7 +1445,7 @@ const ActivityReportAWD = ({navigation, route}) => {
               });
             }
           } else {
-            Toast.show({text: t('Location not found'), ...AlertMesg[0]});
+            Toast.show({ text: t('Location not found'), ...AlertMesg[0] });
           }
         }
         if (database_res?.status === 400) {
@@ -1605,7 +1491,7 @@ const ActivityReportAWD = ({navigation, route}) => {
 
           AnalyticsLogEvent('activity_report', 'activity_report');
           navigation.popToTop();
-          navigation.navigate('activityList', {action: 'addData'});
+          navigation.navigate('activityList', { action: 'addData' });
         } else if (database_res?.status == 409) {
           setIsLoading(false);
           setPipeDetails([]);
@@ -1628,7 +1514,7 @@ const ActivityReportAWD = ({navigation, route}) => {
           await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
         }
         navigation.popToTop();
-        navigation.navigate('activityList', {action: 'addData'});
+        navigation.navigate('activityList', { action: 'addData' });
       }
     }
     setIsLoading(false);
@@ -1646,7 +1532,7 @@ const ActivityReportAWD = ({navigation, route}) => {
               actTypeID: item.value,
             }),
             token,
-            {information: `${dbname},${lan_id},${farmerID}`},
+            { information: `${dbname},${lan_id},${farmerID}` },
           );
           //  response =await activityInfoAPI(
           //   dbname,
@@ -1657,10 +1543,6 @@ const ActivityReportAWD = ({navigation, route}) => {
           //   CropName,
           //   item.value,
           // );
-          console.log(
-            'activityInfo',
-            JSON.stringify(response?.data?.data?.rows[0]?.activity?.min_gap),
-          );
           if (response?.status == 200) {
             setMinDateGap(response?.data?.data?.rows[0]?.activity?.min_gap);
             // checkDate(response?.data?.data?.rows[0]?.activity?.min_gap)
@@ -1684,6 +1566,7 @@ const ActivityReportAWD = ({navigation, route}) => {
           act_ref: '',
           act_master_id: '',
           act_ref_type: item.value,
+          act_type: item.label,
           field_type: '',
         }));
         setSelectedImagePipe(prev => ({
@@ -1775,7 +1658,7 @@ const ActivityReportAWD = ({navigation, route}) => {
           act_name_fid: item?.act_master_id,
         }),
         token,
-        {information: `${dbname},${lan_id},${farmerID}`},
+        { information: `${dbname},${lan_id},${farmerID}` },
       );
       setIsAfterToday(true);
       setMinDateAct(true);
@@ -1832,7 +1715,7 @@ const ActivityReportAWD = ({navigation, route}) => {
             act_name_fid: item?.act_master_id,
           }),
           token,
-          {information: `${dbname},${lan_id},${farmerID}`},
+          { information: `${dbname},${lan_id},${farmerID}` },
         );
         // getUniquePipeNames(
         //   dbname,
@@ -1938,7 +1821,7 @@ const ActivityReportAWD = ({navigation, route}) => {
 
         setLastPerfromedDate(tenDaysAgo);
       }
-      setselectPipeList({...selectPipeList, label, value, latlongs: latlongs});
+      setselectPipeList({ ...selectPipeList, label, value, latlongs: latlongs });
     },
     [minDateGap, selectPipeList],
   );
@@ -1960,7 +1843,7 @@ const ActivityReportAWD = ({navigation, route}) => {
             unique_id: scannedValue,
           }),
           token,
-          {information: `${dbname},${lan_id},${farmerID}`},
+          { information: `${dbname},${lan_id},${farmerID}` },
           '',
           'pipeQrDetails',
         );
@@ -2056,19 +1939,88 @@ const ActivityReportAWD = ({navigation, route}) => {
       }
     }
   };
+  //   const runDownload = async () => {
+  //   try {
+  //     const res = await downloadWithCache({
+  //       onProgress: (p) => {Alert.alert(p)},
+  //       onStage: (s) => console.log('Stage:', s),
+  //     });
+
+  //     if (!res.updated) {
+  //       console.log('🚀 Already up to date');
+  //     } else {
+  //       console.log('✅ Updated!');
+  //     }
+
+  //   } catch (e) {
+
+  //     console.log('ERROR:', e.message);
+  //   }
+  // };
+  // Add these states in your ModelDownload component
+  const [showProgress, setShowProgress] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [stageMessage, setStageMessage] = useState('');
+
+  // Then use this improved runDownload:
+  const runDownload = async () => {
+    
+    setShowProgress(true);
+    setProgress(0);
+    setStageMessage('Starting...');
+
+    try {
+      const res = await downloadWithCache({
+        onProgress: (p) => {
+          setProgress(p);
+        },
+        onStage: (s, data) => {
+          const messages = {
+            checking: '🔍 Checking for updates...',
+            downloading: '⬇️ Downloading model...',
+            resuming: '⏳ Resuming download...',
+            extracting: '📂 Extracting files... Please wait',
+            cleaning: '🧹 Cleaning up...',
+            complete: '✅ Download completed!',
+            not_modified: '✨ Model is already up to date!',
+          };
+
+          setStageMessage(messages[s] || s);
+
+          if (s === 'complete' || s === 'not_modified') {
+            setProgress(100);
+          }
+        },
+      });
+
+      if (!res.updated) {
+        setStageMessage('✨ Model is already up to date!');
+      } else {
+        setStageMessage('🎉 Model downloaded successfully!');
+      }
+
+    } catch (e) {
+      console.log('ERROR:', e.message);
+      setStageMessage(`❌ Error: ${e.message}`);
+    } finally {
+      // Auto close progress after 2 seconds
+      setTimeout(() => {
+        setShowProgress(false);
+      }, 2000);
+    }
+  };
   const onPageLoad = async () => {
     try {
       const QRFlag = await getItem('pipeQR');
       setPipeQR(QRFlag);
-      console.log('QRFlag==', getItem('pipeQR'));
-      const {latitude, longitude} = coords || {};
+      const { latitude, longitude } = coords || {};
       var latlong;
       if (latitude == '' && longitude == '') {
         latlong = await getHighAccuracyLocation();
       }
       const lat = latitude === '' ? latlong.latitude : latitude;
       const lon = longitude === '' ? latlong.longitude : longitude;
-      setDefaultLatLon({latitude: lat, longitude: lon, accuracy: 10});
+      setDefaultLatLon({ latitude: lat, longitude: lon, accuracy: 10 });
       setSaveData(prev => ({
         ...prev,
         act_pattern: 'schedule',
@@ -2092,6 +2044,7 @@ const ActivityReportAWD = ({navigation, route}) => {
     })();
     const task = InteractionManager.runAfterInteractions(() => {
       onPageLoad();
+      runDownload();
       // startWatchingLocation();
     });
     return () => {
@@ -2189,7 +2142,7 @@ const ActivityReportAWD = ({navigation, route}) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
+      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
@@ -2202,7 +2155,7 @@ const ActivityReportAWD = ({navigation, route}) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({isLoggingIn: false, result: result});
+      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
@@ -2293,7 +2246,7 @@ const ActivityReportAWD = ({navigation, route}) => {
         setPipeDetails([
           ...pipeDetails,
           [
-            {pipe_name: pipeNumber},
+            { pipe_name: pipeNumber },
             [
               {
                 imageURL: selectedImagePipe.firstItem,
@@ -2353,119 +2306,116 @@ const ActivityReportAWD = ({navigation, route}) => {
   const watermarkViewRef = useRef(null);
   const TakePhoto = useCallback(
     async (replaceImgKey, coords) => {
-      const {latitude, longitude} = coords || {};
+      // console.log("aaa",saveData.act_type)
+      const { latitude, longitude } = coords || {};
       let latlong;
       if (!latitude || !longitude) {
         latlong = await getHighAccuracyLocation();
       }
-
       const lat = latitude || latlong?.latitude || 0;
       const lon = longitude || latlong?.longitude || 0;
-      // console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
-      // console.log('field_type1233', pipe_fieldType.current);
-
       if (pipe_fieldType.current === 1) {
         const isPipeInstall = await checkPipeDistance(lat, lon);
         if (!isPipeInstall) {
           return;
         }
       }
-      const options = {
-        mediaType: 'photo',
-        includeBase64: true,
-        maxHeight: 800,
-        maxWidth: 800,
-        includeExtra: true,
-      };
+      setModalVisibleMap(false);
+      setAIModalVisible(true);
+      setMapLatLon({
+        latitude: lat,
+        longitude: lon
+      })
+      // const options = {
+      //   mediaType: 'photo',
+      //   includeBase64: true,
+      //   maxHeight: 800,
+      //   maxWidth: 800,
+      //   includeExtra: true,
+      // };
 
-      launchCamera(options, async response => {
-        try {
-          if (!response) {
-            CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
-            return;
-          }
-          if (response.didCancel) {
-            CustomAlert('Error_Cancel', 'User cancelled camera', true, 'OK');
-            return;
-          }
-          if (response.errorCode) {
-            CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
-            return;
-          }
+      // launchCamera(options, async response => {
+      //   try {
+      //     if (!response) {
+      //       CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
+      //       return;
+      //     }
+      //     if (response.didCancel) {
+      //       CustomAlert('Error_Cancel', 'User cancelled camera', true, 'OK');
+      //       return;
+      //     }
+      //     if (response.errorCode) {
+      //       CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
+      //       return;
+      //     }
 
-          const asset = response.assets?.[0];
-          if (!asset?.uri) {
-            CustomAlert('Error', 'No image captured', true, 'OK');
-            return;
-          }
-
-          const timestamp = Date.now();
-          const formattedDate = new Intl.DateTimeFormat('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-          }).format(timestamp);
-          console.log('formattedDate', formattedDate);
-          const watermarkText = `${formattedDate}\nLat: ${lat}, Lon: ${lon}`;
-
-          setTempImage(asset.uri);
-          setTempText(watermarkText);
-
-          setTimeout(async () => {
-            try {
-              const uri = await captureRef(watermarkViewRef, {
-                format: 'jpg',
-                quality: 2,
-                width: 800,
-                height: 800,
-              });
-              const fileName = asset.fileName || `photo_${timestamp}.jpg`;
-              const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-              await RNFS.copyFile(uri, destPath);
-
-              setTempImage(null);
-              setTempText('');
-              if (replaceImgKey.arrayPosition === '') {
-                setSelectedImagePipe(prev => ({
-                  ...prev,
-                  [cameraItem]: `file://${destPath}`,
-                  [`${cameraItem}fileName`]: fileName,
-                  [`${cameraItem}Lat`]: lat,
-                  [`${cameraItem}Long`]: lon,
-                }));
-              } else {
-                const {arrayPosition, imgPosition} = replaceImgKey;
-                setPipeDetails(prev => {
-                  const updated = JSON.parse(JSON.stringify(prev));
-                  const currentImage = updated[arrayPosition][1][imgPosition];
-                  updated[arrayPosition][1][imgPosition] = {
-                    ...currentImage,
-                    imageURL: `file://${destPath}`,
-                    imageName: fileName,
-                    status: '',
-                    lat,
-                    lon,
-                  };
-                  return updated;
-                });
-              }
-              setModalVisibleMap(false);
-              console.log('Watermarked image saved:', destPath);
-            } catch (error) {
-              console.log('Capture Error:', error);
-              setTempImage(null);
-              setTempText('');
-            }
-          }, 5000);
-        } catch (error) {
-          CustomAlert('Catch Error ', error, true, 'OK');
-        } finally {
-          setModalVisibleMap(false);
-        }
-      });
+      //     const asset = response.assets?.[0];
+      //     if (!asset?.uri) {
+      //       CustomAlert('Error', 'No image captured', true, 'OK');
+      //       return;
+      //     }
+      //     const timestamp = Date.now();
+      //     const formattedDate = new Intl.DateTimeFormat('en-US', {
+      //       year: 'numeric',
+      //       month: '2-digit',
+      //       day: '2-digit',
+      //       hour: '2-digit',
+      //       minute: '2-digit',
+      //       second: '2-digit',
+      //     }).format(timestamp);
+      //     const watermarkText = `${formattedDate}\nLat: ${lat}, Lon: ${lon}`;
+      //     setTempImage(asset.uri);
+      //     setTempText(watermarkText);
+      //     setTimeout(async () => {
+      //       try {
+      //         const uri = await captureRef(watermarkViewRef, {
+      //           format: 'jpg',
+      //           quality: 2,
+      //           width: 800,
+      //           height: 800,
+      //         });
+      //         const fileName = asset.fileName || `photo_${timestamp}.jpg`;
+      //         const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+      //         await RNFS.copyFile(uri, destPath);
+      //         setTempImage(null);
+      //         setTempText('');
+      //         if (replaceImgKey.arrayPosition === '') {
+      //           setSelectedImagePipe(prev => ({
+      //             ...prev,
+      //             [cameraItem]: `file://${destPath}`,
+      //             [`${cameraItem}fileName`]: fileName,
+      //             [`${cameraItem}Lat`]: lat,
+      //             [`${cameraItem}Long`]: lon,
+      //           }));
+      //         } else {
+      //           const { arrayPosition, imgPosition } = replaceImgKey;
+      //           setPipeDetails(prev => {
+      //             const updated = JSON.parse(JSON.stringify(prev));
+      //             const currentImage = updated[arrayPosition][1][imgPosition];
+      //             updated[arrayPosition][1][imgPosition] = {
+      //               ...currentImage,
+      //               imageURL: `file://${destPath}`,
+      //               imageName: fileName,
+      //               status: '',
+      //               lat,
+      //               lon,
+      //             };
+      //             return updated;
+      //           });
+      //         }
+      //         console.log('Watermarked image saved:', destPath);
+      //       } catch (error) {
+      //         console.log('Capture Error:', error);
+      //         setTempImage(null);
+      //         setTempText('');
+      //       }
+      //     }, 5000);
+      //   } catch (error) {
+      //     CustomAlert('Catch Error ', error, true, 'OK');
+      //   } finally {
+      //     setModalVisibleMap(false);
+      //   }
+      // });
     },
     [
       cameraItem,
@@ -2485,72 +2435,105 @@ const ActivityReportAWD = ({navigation, route}) => {
     setModalVisibleMap(true);
   };
   const handlegrowth_stage = useCallback(growth_stage => {
-    setSaveData(prev => ({...prev, growth_stage: growth_stage.value}));
+    setSaveData(prev => ({ ...prev, growth_stage: growth_stage.value }));
   }, []);
   const handleact_desc = useCallback(act_desc => {
-    setSaveData(prev => ({...prev, act_desc: act_desc}));
+    setSaveData(prev => ({ ...prev, act_desc: act_desc }));
   }, []);
   const handlematerial_used = useCallback(material_used => {
-    setSaveData(prev => ({...prev, material_used: material_used}));
+    setSaveData(prev => ({ ...prev, material_used: material_used }));
   }, []);
   const handlewater_used = useCallback(water_used => {
-    setSaveData(prev => ({...prev, water_used: water_used}));
+    setSaveData(prev => ({ ...prev, water_used: water_used }));
   }, []);
   const handlepower_used = useCallback(power_used => {
-    setSaveData(prev => ({...prev, power_used: power_used}));
+    setSaveData(prev => ({ ...prev, power_used: power_used }));
   }, []);
   const pipeEdit = _index => {
     const values = [...pipeDetails];
     values.splice(_index, 1);
     setPipeDetails(values);
   };
+  const [AIModalVisible, setAIModalVisible] = useState(false);
+  const [mapLatLon, setMapLatLon] = useState(null);
   return (
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
         <Root>
           <SecurityWrapper coords={coords}>
             <View style={styles.container}>
-              {modalVisibleMap && (
-                <ActivityMap
-                  modalVisibleMap={modalVisibleMap}
-                  setModalVisibleMap={setModalVisibleMap}
-                  plotPolygon={plotPolygon}
-                  TakePhoto={TakePhoto}
-                  location={coords.latitude == '' ? dafaultLatLon : coords}
-                  setOutOfRange={setOutofRange}
-                  outofRange={outofRange}
-                  pipeLatLong={pipeLatLong}
-                  replaceImgKey={replaceImgKey}
-                  userLocationPriority="high"
-                />
-              )}
               <CustomHeader
                 path="activityList"
                 logoImage={logoImage}
                 topBanner={topBanner}
               />
-              {scan && (
-                <ScannerModal
-                  onScan={value => handleActivityPipe(value)}
-                  onClose={() => setScan(false)}
+              {showProgress ? (
+                <View style={styles.progressOverlay}>
+                  <View style={styles.progressCard}>
+                    <ActivityIndicator size="large" color="#4A90E2" />
+                    <Text style={styles.stageText}>{stageMessage}</Text>
+                    <Text style={styles.progressText}>{progress}%</Text>
+
+                    <View style={styles.progressBarContainer}>
+                      <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
+                    </View>
+                  </View>
+                </View>
+              ) : <>
+              {AIModalVisible&&(<ImageAnalysisScreen
+                AIModalVisible={AIModalVisible}
+                mapLatLon={mapLatLon}
+                setAIModalVisible={setAIModalVisible}
+                setTempImage={setTempImage}
+                tempImage={tempImage}
+                setTempText={setTempText}
+                setSelectedImagePipe={setSelectedImagePipe}
+                setPipeDetails={setPipeDetails}
+                watermarkViewRef={watermarkViewRef}
+                act_type={saveData?.act_type}
+                tempText={tempText}
+                replaceImgKey={replaceImgKey}
+                cameraItem={cameraItem}
+              />)}
+                {/* <TouchableOpacity onPress={()=>downloadModels()}><Text>AAAAAAAAAAAA</Text></TouchableOpacity> */}
+                {modalVisibleMap && (
+                  <ActivityMap
+                    modalVisibleMap={modalVisibleMap}
+                    setModalVisibleMap={setModalVisibleMap}
+                    plotPolygon={plotPolygon}
+                    TakePhoto={TakePhoto}
+                    location={coords.latitude == '' ? dafaultLatLon : coords}
+                    setOutOfRange={setOutofRange}
+                    outofRange={outofRange}
+                    pipeLatLong={pipeLatLong}
+                    replaceImgKey={replaceImgKey}
+                    userLocationPriority="high"
+                    setMapLatLon={setMapLatLon}
+                  />
+                )}
+
+                {scan && (
+                  <ScannerModal
+                    onScan={value => handleActivityPipe(value)}
+                    onClose={() => setScan(false)}
+                  />
+                )}
+                <DatePickerComp
+                  openDate={cycleStartDate}
+                  newDate={newFromDate}
+                  setOpenDate={srtCycleStartDate}
+                  handleDatePicker={handleDatePicker}
+                  minimumDate={minimumSelectableDate}
                 />
-              )}
-              <DatePickerComp
-                openDate={cycleStartDate}
-                newDate={newFromDate}
-                setOpenDate={srtCycleStartDate}
-                handleDatePicker={handleDatePicker}
-                minimumDate={minimumSelectableDate}
-              />
-              <DatePickerComp
-                openDate={activityPreDate}
-                newDate={newFromDate}
-                setOpenDate={setActivityPreDate}
-                handleDatePicker={handleDatePicker2}
-                minimumDate={lastPerfromedDate}
-                maximumDate={today}
-              />
-              {/* <DatePickerComp
+                <DatePickerComp
+                  openDate={activityPreDate}
+                  newDate={newFromDate}
+                  setOpenDate={setActivityPreDate}
+                  handleDatePicker={handleDatePicker2}
+                  minimumDate={lastPerfromedDate}
+                  maximumDate={today}
+                />
+                {/* <DatePickerComp
                 openDate={activityPreDate}
                 newDate={newFromDate}
                 setOpenDate={setActivityPreDate}
@@ -2558,353 +2541,336 @@ const ActivityReportAWD = ({navigation, route}) => {
                 minimumDate={checkDate(minDateGap)}
                 maximumDate={today}
               /> */}
-              {modalVisibleRecordFirstItem ? (
-                <SoundRecord
-                  modalVisibleRecord={modalVisibleRecordFirstItem}
-                  setModalVisibleRecord={setModalVisibleRecordFirstItem}
-                  onStartRecordFirstItem={onStartRecordFirstItem}
-                  onStopRecordFirstItem={onStopRecordFirstItem}
-                  soundRecord={soundRecordFirstItem}
-                />
-              ) : null}
-              {modalVisibleRecordSecoundItem ? (
-                <SoundRecord
-                  modalVisibleRecord={modalVisibleRecordSecoundItem}
-                  setModalVisibleRecord={setModalVisibleRecordSecoundItem}
-                  onStartRecordFirstItem={onStartRecordSecoundItem}
-                  onStopRecordFirstItem={onStopRecordSecoundItem}
-                  soundRecord={soundRecordSecoundItem}
-                />
-              ) : null}
-              {modalVisibleRecordThirdItem ? (
-                <SoundRecord
-                  modalVisibleRecord={modalVisibleRecordThirdItem}
-                  setModalVisibleRecord={setModalVisibleRecordThirdItem}
-                  onStartRecordFirstItem={onStartRecordThirdItem}
-                  onStopRecordFirstItem={onStopRecordThirdItem}
-                  soundRecord={soundRecordThirdItem}
-                />
-              ) : null}
-              {modalVisible && (
-                <HarvestedModel
-                  setModalVisible={setModalVisible}
-                  modalVisible={modalVisible}
-                  handleHarvested={handleHarvested}
-                />
-              )}
-              {isLoading && (
-                <View style={styles.loadingScreen}>
-                  <LoadingScreen />
-                </View>
-              )}
-              <ScrollView>
-                <View style={styles.fromContainer}>
-                  <DropdownForm
-                    label={t('farmer_name')}
-                    data={farmerData?.[0]}
-                    required={true}
-                    onChange={handleResultSelect}
-                    val={searchFarmerName?.label}
-                    disable={isDisabled}
+                {modalVisibleRecordFirstItem ? (
+                  <SoundRecord
+                    modalVisibleRecord={modalVisibleRecordFirstItem}
+                    setModalVisibleRecord={setModalVisibleRecordFirstItem}
+                    onStartRecordFirstItem={onStartRecordFirstItem}
+                    onStopRecordFirstItem={onStopRecordFirstItem}
+                    soundRecord={soundRecordFirstItem}
                   />
-                  <InputTextForm
-                    label={t('farmer_number')}
-                    required={true}
-                    value={searchFarmerName?.phone}
-                    editable={false}
+                ) : null}
+                {modalVisibleRecordSecoundItem ? (
+                  <SoundRecord
+                    modalVisibleRecord={modalVisibleRecordSecoundItem}
+                    setModalVisibleRecord={setModalVisibleRecordSecoundItem}
+                    onStartRecordFirstItem={onStartRecordSecoundItem}
+                    onStopRecordFirstItem={onStopRecordSecoundItem}
+                    soundRecord={soundRecordSecoundItem}
                   />
-                  <DropdownForm
-                    label={t('select_plot')}
-                    data={plotAll}
-                    required={true}
-                    onChange={handlePlot}
-                    val={saveData.plot_Name}
-                    disable={isDisabled}
+                ) : null}
+                {modalVisibleRecordThirdItem ? (
+                  <SoundRecord
+                    modalVisibleRecord={modalVisibleRecordThirdItem}
+                    setModalVisibleRecord={setModalVisibleRecordThirdItem}
+                    onStartRecordFirstItem={onStartRecordThirdItem}
+                    onStopRecordFirstItem={onStopRecordThirdItem}
+                    soundRecord={soundRecordThirdItem}
                   />
-                  {showingMenu ? (
-                    nameVarityStartEnd.name != '' ? (
-                      <View style={styles.plotSiteContainer}>
-                        <View style={styles.plotSiteContainerItem}>
-                          <Text style={styles.label}>{t('crop_name')}</Text>
-                          <Text style={styles.value}>
-                            {nameVarityStartEnd.name}
-                          </Text>
-                        </View>
-                        <View style={styles.plotSiteContainerItem}>
-                          <Text style={styles.label}>{t('crop_veriety')}</Text>
-                          <Text style={styles.value}>
-                            {nameVarityStartEnd.varity.substring(0, 12)}
-                          </Text>
-                        </View>
-                        <View style={styles.plotSiteContainerItem}>
-                          <Text style={styles.label}>{t('showing_date')}</Text>
-                          <Text style={styles.value}>
-                            {formatDateToMMDDYYYY(
-                              nameVarityStartEnd.cycleStarts,
-                            )}
-                          </Text>
-                        </View>
-                        <View style={styles.plotSiteContainerItem}>
-                          <Text style={styles.label}>
-                            {t('harvesting_date_auto_calculated')}
-                          </Text>
-                          <Text style={styles.value}>
-                            {formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}
-                          </Text>
-                        </View>
-                      </View>
-                    ) : null
-                  ) : null}
-                  <DropdownForm
-                    label={t('growth_stage')}
-                    required={true}
-                    data={productionStageAll}
-                    onChange={handlegrowth_stage}
-                    val={saveData.growth_stage}
+                ) : null}
+                {modalVisible && (
+                  <HarvestedModel
+                    setModalVisible={setModalVisible}
+                    modalVisible={modalVisible}
+                    handleHarvested={handleHarvested}
                   />
-                  <View style={{marginBottom: 15}}>
-                    <Text style={styles.title}>
-                      {t('pick_crop_cycle_start_date')}
-                    </Text>
-                    <View style={styles.cycleContainer}>
-                      <TouchableOpacity
-                        style={styles.cycleContainerDate}
-                        disabled={isButtonDisabled}
-                        onPress={() => srtCycleStartDate(true)}>
-                        <View style={{width: '80%'}}>
-                          <Text style={styles.title}>
-                            {cycleDtartDate == ''
-                              ? saveData.cycle_start_date
-                              : cycleDtartDate}
-                          </Text>
-                        </View>
-                        <Image
-                          source={require('../../Common/images/calendar.png')}
-                          style={{width: 20, height: 20}}
-                        />
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={[
-                          styles.cycleContainerStartDate,
-                          {
-                            backgroundColor: isButtonDisabled
-                              ? '#EBEBE4'
-                              : 'green',
-                          },
-                        ]}
-                        disabled={isButtonDisabled}
-                        onPress={() => setCycleDate()}>
-                        <Text
-                          style={[
-                            styles.titleDate,
-                            {color: isButtonDisabled ? '#000' : '#FFF'},
-                          ]}>
-                          {t('set_the_crop_cycle_start_date')}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
+                )}
+                {isLoading && (
+                  <View style={styles.loadingScreen}>
+                    <LoadingScreen />
                   </View>
-
-                  {isActiveMenu ? (
-                    <>
-                      <DropdownForm
-                        label={t('activity_type')}
-                        required={true}
-                        data={activityTypeAll}
-                        onChange={handleActivityType}
-                        val={saveData.act_ref_type}
-                      />
-                      <DropdownForm
-                        label={t('select_activity')}
-                        required={true}
-                        data={activityInfoAll}
-                        onChange={handleActivityInfo}
-                        val={saveData.act_to_date_label}
-                      />
-
-                      {lastAct ? (
+                )}
+                <ScrollView>
+                  <View style={styles.fromContainer}>
+                    <DropdownForm
+                      label={t('farmer_name')}
+                      data={farmerData?.[0]}
+                      required={true}
+                      onChange={handleResultSelect}
+                      val={searchFarmerName?.label}
+                      disable={isDisabled}
+                    />
+                    <InputTextForm
+                      label={t('farmer_number')}
+                      required={true}
+                      value={searchFarmerName?.phone}
+                      editable={false}
+                    />
+                    <DropdownForm
+                      label={t('select_plot')}
+                      data={plotAll}
+                      required={true}
+                      onChange={handlePlot}
+                      val={saveData.plot_Name}
+                      disable={isDisabled}
+                    />
+                    {showingMenu ? (
+                      nameVarityStartEnd.name != '' ? (
                         <View style={styles.plotSiteContainer}>
-                          <View style={styles.detailRow}>
-                            <Text style={styles.label}>Last activity</Text>
-                            <View style={styles.bulletPointContainer}>
-                              <Text style={styles.bulletPoint}>•</Text>
-                              <Text style={[styles.value1, styles.leftAlign]}>
-                                {lastAct}
-                              </Text>
-                            </View>
+                          <View style={styles.plotSiteContainerItem}>
+                            <Text style={styles.label}>{t('crop_name')}</Text>
+                            <Text style={styles.value}>
+                              {nameVarityStartEnd.name}
+                            </Text>
+                          </View>
+                          <View style={styles.plotSiteContainerItem}>
+                            <Text style={styles.label}>{t('crop_veriety')}</Text>
+                            <Text style={styles.value}>
+                              {nameVarityStartEnd.varity.substring(0, 12)}
+                            </Text>
+                          </View>
+                          <View style={styles.plotSiteContainerItem}>
+                            <Text style={styles.label}>{t('showing_date')}</Text>
+                            <Text style={styles.value}>
+                              {formatDateToMMDDYYYY(
+                                nameVarityStartEnd.cycleStarts,
+                              )}
+                            </Text>
+                          </View>
+                          <View style={styles.plotSiteContainerItem}>
+                            <Text style={styles.label}>
+                              {t('harvesting_date_auto_calculated')}
+                            </Text>
+                            <Text style={styles.value}>
+                              {formatDateToMMDDYYYY(nameVarityStartEnd.cycleEnd)}
+                            </Text>
                           </View>
                         </View>
-                      ) : null}
+                      ) : null
+                    ) : null}
+                    <DropdownForm
+                      label={t('growth_stage')}
+                      required={true}
+                      data={productionStageAll}
+                      onChange={handlegrowth_stage}
+                      val={saveData.growth_stage}
+                    />
+                    <View style={{ marginBottom: 15 }}>
+                      <Text style={styles.title}>
+                        {t('pick_crop_cycle_start_date')}
+                      </Text>
+                      <View style={styles.cycleContainer}>
+                        <TouchableOpacity
+                          style={styles.cycleContainerDate}
+                          disabled={isButtonDisabled}
+                          onPress={() => srtCycleStartDate(true)}>
+                          <View style={{ width: '80%' }}>
+                            <Text style={styles.title}>
+                              {cycleDtartDate == ''
+                                ? saveData.cycle_start_date
+                                : cycleDtartDate}
+                            </Text>
+                          </View>
+                          <Image
+                            source={require('../../Common/images/calendar.png')}
+                            style={{ width: 20, height: 20 }}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[
+                            styles.cycleContainerStartDate,
+                            {
+                              backgroundColor: isButtonDisabled
+                                ? '#EBEBE4'
+                                : 'green',
+                            },
+                          ]}
+                          disabled={isButtonDisabled}
+                          onPress={() => setCycleDate()}>
+                          <Text
+                            style={[
+                              styles.titleDate,
+                              { color: isButtonDisabled ? '#000' : '#FFF' },
+                            ]}>
+                            {t('set_the_crop_cycle_start_date')}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
 
-                      {overdueAct.length > 0 ? (
-                        <View style={styles.plotSiteContainer}>
-                          <View style={styles.detailRow}>
-                            <Text style={styles.label}>Due Activities</Text>
-                            {overdueAct.map((act, index) => (
-                              <View
-                                key={index}
-                                style={styles.bulletPointContainer}>
+                    {isActiveMenu ? (
+                      <>
+                        <DropdownForm
+                          label={t('activity_type')}
+                          required={true}
+                          data={activityTypeAll}
+                          onChange={handleActivityType}
+                          val={saveData.act_ref_type}
+                        />
+                        <DropdownForm
+                          label={t('select_activity')}
+                          required={true}
+                          data={activityInfoAll}
+                          onChange={handleActivityInfo}
+                          val={saveData.act_to_date_label}
+                        />
+
+                        {lastAct ? (
+                          <View style={styles.plotSiteContainer}>
+                            <View style={styles.detailRow}>
+                              <Text style={styles.label}>Last activity</Text>
+                              <View style={styles.bulletPointContainer}>
                                 <Text style={styles.bulletPoint}>•</Text>
-                                <Text
-                                  key={index}
-                                  style={[styles.value1, styles.leftAlign]}>
-                                  {act}
+                                <Text style={[styles.value1, styles.leftAlign]}>
+                                  {lastAct}
                                 </Text>
                               </View>
-                            ))}
-                          </View>
-                        </View>
-                      ) : null}
-
-                      {upcomingAct ? (
-                        <View style={styles.plotSiteContainer}>
-                          <View style={styles.detailRow}>
-                            <Text style={styles.label}>Upcoming activity</Text>
-                            <View style={styles.bulletPointContainer}>
-                              <Text style={styles.bulletPoint}>•</Text>
-                              <Text style={[styles.value1, styles.leftAlign]}>
-                                {upcomingAct}
-                              </Text>
                             </View>
                           </View>
-                        </View>
-                      ) : null}
+                        ) : null}
 
-                      {saveData.field_type != '' &&
-                        // activityPattern
-                        saveData.field_type != null && (
-                          <View
-                            style={{
-                              borderWidth: 0.5,
-                              borderColor: Colors.useGreen,
-                              borderRadius: 8,
-                              padding: 10,
-                            }}>
-                            <Text
-                              style={[
-                                styles.title,
-                                {
-                                  marginHorizontal: 5,
-                                  marginBottom: 5,
-                                  color: 'red',
-                                  fontFamily: 'Poppins-Regular',
-                                },
-                              ]}>
-                              {t('Enter Pipe Detail')}
-                            </Text>
-                            <View>
-                              {pipeQR == 1 ? (
-                                saveData.field_type == 'add' ? (
-                                  <View
-                                    style={{marginVertical: 30, height: 45}}>
-                                    <TouchableOpacity
-                                      activeOpacity={0.8}
-                                      style={styles.pipeInputScan}
-                                      onPress={() => {
-                                        setScan(true);
-                                      }}>
-                                      <View style={styles.inputWrapper}>
-                                        <InputTextForm
-                                          label={t('Enter Instrument Name')}
-                                          editable={false}
-                                          required={true}
-                                          value={pipeNumber}
-                                        />
-                                      </View>
-
-                                      <Image
-                                        source={require('../../Common/images/scan.png')}
-                                        style={styles.icon}
-                                        resizeMode="contain"
-                                      />
-                                    </TouchableOpacity>
-                                  </View>
-                                ) : (
-                                  <View
-                                    style={{marginVertical: 30, height: 45}}>
-                                    <TouchableOpacity
-                                      activeOpacity={0.8}
-                                      style={styles.pipeInputScan}
-                                      onPress={() => {
-                                        setScan(true);
-                                      }}>
-                                      <View style={styles.inputWrapper}>
-                                        <InputTextForm
-                                          label={t('Enter Instrument Name')}
-                                          editable={false}
-                                          required={true}
-                                          value={selectPipeList.label}
-                                        />
-                                      </View>
-
-                                      <Image
-                                        source={require('../../Common/images/scan.png')}
-                                        style={styles.icon}
-                                        resizeMode="contain"
-                                      />
-                                    </TouchableOpacity>
-                                  </View>
-                                )
-                              ) : saveData.field_type == 'add' ? (
-                                <InputTextForm
-                                  label={t('Enter Instrument Name')}
-                                  required={true}
-                                  value={pipeNumber}
-                                  onChangeText={handleActivityPipeNumber}
-                                />
-                              ) : (
-                                <DropdownForm
-                                  label={t('Instrument')}
-                                  required={true}
-                                  data={PipeListDetailsArr}
-                                  onChange={handleActivityPipeManual}
-                                  val={selectPipeList.label}
-                                />
-                              )}
-                              <View style={styles.hiddenContainer}>
-                                {tempImage && (
-                                  <View
-                                    ref={watermarkViewRef}
-                                    style={styles.watermarkView}
-                                    collapsable={false}>
-                                    <Image
-                                      source={{uri: tempImage}}
-                                      style={styles.watermarkImage}
-                                      resizeMode="cover"
-                                    />
-                                    <View style={styles.watermarkTextContainer}>
-                                      <Text style={styles.watermarkText}>
-                                        {tempText}
-                                      </Text>
-                                    </View>
-                                  </View>
-                                )}
-                              </View>
-                              <TakePhotoPipe
-                                openImagePicker={openImagePickerPipe}
-                                selectedImage={selectedImagePipe}
-                                title={t('Take a photo')}
-                                color="red"
-                              />
-                              {saveData.field_type == 'add' && (
-                                <TouchableOpacity
-                                  style={{
-                                    alignSelf: 'flex-end',
-                                    paddingVertical: 10,
-                                    paddingHorizontal: 20,
-                                    backgroundColor: 'green',
-                                    borderRadius: 50,
-                                  }}
-                                  onPress={() =>
-                                    addMorePipe(saveData.field_type)
-                                  }>
-                                  <Text style={{color: '#FFF'}}>
-                                    Save and Add Instrument
+                        {overdueAct.length > 0 ? (
+                          <View style={styles.plotSiteContainer}>
+                            <View style={styles.detailRow}>
+                              <Text style={styles.label}>Due Activities</Text>
+                              {overdueAct.map((act, index) => (
+                                <View
+                                  key={index}
+                                  style={styles.bulletPointContainer}>
+                                  <Text style={styles.bulletPoint}>•</Text>
+                                  <Text
+                                    key={index}
+                                    style={[styles.value1, styles.leftAlign]}>
+                                    {act}
                                   </Text>
-                                </TouchableOpacity>
-                              )}
-                              {saveData.field_type == 'select' &&
-                                pipeDetails.length == 0 && (
+                                </View>
+                              ))}
+                            </View>
+                          </View>
+                        ) : null}
+
+                        {upcomingAct ? (
+                          <View style={styles.plotSiteContainer}>
+                            <View style={styles.detailRow}>
+                              <Text style={styles.label}>Upcoming activity</Text>
+                              <View style={styles.bulletPointContainer}>
+                                <Text style={styles.bulletPoint}>•</Text>
+                                <Text style={[styles.value1, styles.leftAlign]}>
+                                  {upcomingAct}
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                        ) : null}
+
+                        {saveData.field_type != '' &&
+                          // activityPattern
+                          saveData.field_type != null && (
+                            <View
+                              style={{
+                                borderWidth: 0.5,
+                                borderColor: Colors.useGreen,
+                                borderRadius: 8,
+                                padding: 10,
+                              }}>
+                              <Text
+                                style={[
+                                  styles.title,
+                                  {
+                                    marginHorizontal: 5,
+                                    marginBottom: 5,
+                                    color: 'red',
+                                    fontFamily: 'Poppins-Regular',
+                                  },
+                                ]}>
+                                {t('Enter Pipe Detail')}
+                              </Text>
+                              <View>
+                                {pipeQR == 1 ? (
+                                  saveData.field_type == 'add' ? (
+                                    <View
+                                      style={{ marginVertical: 30, height: 45 }}>
+                                      <TouchableOpacity
+                                        activeOpacity={0.8}
+                                        style={styles.pipeInputScan}
+                                        onPress={() => {
+                                          setScan(true);
+                                        }}>
+                                        <View style={styles.inputWrapper}>
+                                          <InputTextForm
+                                            label={t('Enter Instrument Name')}
+                                            editable={false}
+                                            required={true}
+                                            value={pipeNumber}
+                                          />
+                                        </View>
+
+                                        <Image
+                                          source={require('../../Common/images/scan.png')}
+                                          style={styles.icon}
+                                          resizeMode="contain"
+                                        />
+                                      </TouchableOpacity>
+                                    </View>
+                                  ) : (
+                                    <View
+                                      style={{ marginVertical: 30, height: 45 }}>
+                                      <TouchableOpacity
+                                        activeOpacity={0.8}
+                                        style={styles.pipeInputScan}
+                                        onPress={() => {
+                                          setScan(true);
+                                        }}>
+                                        <View style={styles.inputWrapper}>
+                                          <InputTextForm
+                                            label={t('Enter Instrument Name')}
+                                            editable={false}
+                                            required={true}
+                                            value={selectPipeList.label}
+                                          />
+                                        </View>
+
+                                        <Image
+                                          source={require('../../Common/images/scan.png')}
+                                          style={styles.icon}
+                                          resizeMode="contain"
+                                        />
+                                      </TouchableOpacity>
+                                    </View>
+                                  )
+                                ) : saveData.field_type == 'add' ? (
+                                  <InputTextForm
+                                    label={t('Enter Instrument Name')}
+                                    required={true}
+                                    value={pipeNumber}
+                                    onChangeText={handleActivityPipeNumber}
+                                  />
+                                ) : (
+                                  <DropdownForm
+                                    label={t('Instrument')}
+                                    required={true}
+                                    data={PipeListDetailsArr}
+                                    onChange={handleActivityPipeManual}
+                                    val={selectPipeList.label}
+                                  />
+                                )}
+                                <View style={styles.hiddenContainer}>
+                                  {tempImage && (
+                                    <View
+                                      ref={watermarkViewRef}
+                                      style={styles.watermarkView}
+                                      collapsable={false}>
+                                      <Image
+                                        source={{ uri: tempImage }}
+                                        style={styles.watermarkImage}
+                                        resizeMode="cover"
+                                      />
+                                      <View style={styles.watermarkTextContainer}>
+                                        <Text style={styles.watermarkText}>
+                                          {tempText}
+                                        </Text>
+                                      </View>
+                                    </View>
+                                  )}
+                                </View>
+                                <TakePhotoPipe
+                                  openImagePicker={openImagePickerPipe}
+                                  selectedImage={selectedImagePipe}
+                                  title={t('Take a photo')}
+                                  color="red"
+                                  act_type={saveData?.act_type}
+                                />
+                                {saveData.field_type == 'add' && (
                                   <TouchableOpacity
                                     style={{
                                       alignSelf: 'flex-end',
@@ -2916,77 +2882,98 @@ const ActivityReportAWD = ({navigation, route}) => {
                                     onPress={() =>
                                       addMorePipe(saveData.field_type)
                                     }>
-                                    <Text style={{color: '#FFF'}}>
-                                      Save and Update Instrument
+                                    <Text style={{ color: '#FFF' }}>
+                                      Save and Add Instrument
                                     </Text>
                                   </TouchableOpacity>
                                 )}
+                                {saveData.field_type == 'select' &&
+                                  pipeDetails.length == 0 && (
+                                    <TouchableOpacity
+                                      style={{
+                                        alignSelf: 'flex-end',
+                                        paddingVertical: 10,
+                                        paddingHorizontal: 20,
+                                        backgroundColor: 'green',
+                                        borderRadius: 50,
+                                      }}
+                                      onPress={() =>
+                                        addMorePipe(saveData.field_type)
+                                      }>
+                                      <Text style={{ color: '#FFF' }}>
+                                        Save and Update Instrument
+                                      </Text>
+                                    </TouchableOpacity>
+                                  )}
 
-                              <PipeDetailsCard
-                                pipeDetails={pipeDetails}
-                                pipeEdit={pipeEdit}
-                                TakePhotoFailed={TakePhotoFailed}
-                              />
+                                <PipeDetailsCard
+                                  pipeDetails={pipeDetails}
+                                  pipeEdit={pipeEdit}
+                                  TakePhotoFailed={TakePhotoFailed}
+                                />
+                              </View>
                             </View>
-                          </View>
-                        )}
-                    </>
-                  ) : (
-                    ''
-                  )}
-                  <View style={{marginBottom: 15, marginTop: 10}}>
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                      <Text
-                        style={{
-                          fontFamily: 'Poppins-Regular',
-                          fontSize: 15,
-                          color: '#4e4e4e',
+                          )}
+                      </>
+                    ) : (
+                      ''
+                    )}
+                    <View style={{ marginBottom: 15, marginTop: 10 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text
+                          style={{
+                            fontFamily: 'Poppins-Regular',
+                            fontSize: 15,
+                            color: '#4e4e4e',
+                          }}>
+                          {t('pick_activity_perform_date')}
+                        </Text>
+                        <Text style={styles.requiredStar}> *</Text>
+                      </View>
+                      <TouchableOpacity
+                        disabled={!isAfterToday}
+                        style={styles.activityPerFromDate}
+                        onPress={() => {
+                          setActivityPreDate(true);
                         }}>
-                        {t('pick_activity_perform_date')}
-                      </Text>
-                      <Text style={styles.requiredStar}> *</Text>
+                        <Text style={styles.title}>{activityPreFormDate}</Text>
+                        <Image
+                          source={require('../../Common/images/calendar.png')}
+                          style={{ width: 20, height: 20 }}
+                        />
+                      </TouchableOpacity>
                     </View>
-                    <TouchableOpacity
-                      disabled={!isAfterToday}
-                      style={styles.activityPerFromDate}
-                      onPress={() => {
-                        setActivityPreDate(true);
-                      }}>
-                      <Text style={styles.title}>{activityPreFormDate}</Text>
-                      <Image
-                        source={require('../../Common/images/calendar.png')}
-                        style={{width: 20, height: 20}}
-                      />
-                    </TouchableOpacity>
+                    <InputTextForm
+                      label={t('your_comm_')}
+                      value={saveData.act_desc}
+                      onChangeText={handleact_desc}
+                    />
+                    <InputTextForm
+                      label={t('material_used')}
+                      value={saveData.material_used}
+                      onChangeText={handlematerial_used}
+                    />
+                    <InputTextForm
+                      label={t('water_used')}
+                      value={saveData.water_used}
+                      onChangeText={handlewater_used}
+                    />
+                    <InputTextForm
+                      label={t('power_used')}
+                      value={saveData.power_used}
+                      onChangeText={handlepower_used}
+                    />
                   </View>
-                  <InputTextForm
-                    label={t('your_comm_')}
-                    value={saveData.act_desc}
-                    onChangeText={handleact_desc}
-                  />
-                  <InputTextForm
-                    label={t('material_used')}
-                    value={saveData.material_used}
-                    onChangeText={handlematerial_used}
-                  />
-                  <InputTextForm
-                    label={t('water_used')}
-                    value={saveData.water_used}
-                    onChangeText={handlewater_used}
-                  />
-                  <InputTextForm
-                    label={t('power_used')}
-                    value={saveData.power_used}
-                    onChangeText={handlepower_used}
-                  />
-                </View>
-              </ScrollView>
-              <ButtonForm
-                label={t('submit')}
-                onPress={() => handleSave()}
-                loading={isLoading || isPrefilling}
-                disabled={isLoading || isPrefilling}
-              />
+                </ScrollView>
+                <ButtonForm
+                  label={t('submit')}
+                  onPress={() => handleSave()}
+                  loading={isLoading || isPrefilling}
+                  disabled={isLoading || isPrefilling}
+                /></>
+
+              }
+
             </View>
           </SecurityWrapper>
         </Root>
@@ -3116,7 +3103,7 @@ const styles = StyleSheet.create({
     borderLeftColor: Colors.borderGreen,
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
@@ -3290,5 +3277,64 @@ const styles = StyleSheet.create({
   },
   galleryWrapper: {
     marginTop: 20,
+  },
+
+    // ==================== PROGRESS OVERLAY (Premium Look) ====================
+  progressOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+
+  progressCard: {
+    width: '85%',
+    maxWidth: 340,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 20,
+  },
+
+  stageText: {
+    fontSize: 16.5,
+    fontWeight: '600',
+    color: '#34495E',
+    textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 12,
+    lineHeight: 23,
+  },
+
+  progressText: {
+    fontSize: 36,
+    fontWeight: '700',
+    color: '#4A90E2',
+    marginBottom: 20,
+  },
+
+  progressBarContainer: {
+    width: '100%',
+    height: 11,
+    backgroundColor: '#ECF0F1',
+    borderRadius: 999,
+    overflow: 'hidden',
+  },
+
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#4A90E2',
+    borderRadius: 999,
   },
 });
