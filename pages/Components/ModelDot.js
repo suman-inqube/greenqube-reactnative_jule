@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { Fonts } from '../utils/Constants'
 const ModelDot = ({ loaded, label, loading }) => {
     return (
         <View style={styles.modelDot}>
@@ -21,8 +22,9 @@ const styles = StyleSheet.create({
         borderRadius: 4,
     },
     dotLabel: {
-        fontSize: 12,
+        fontSize: 11,
         color: '#9CA3AF',
         fontWeight: '500',
+        fontFamily:Fonts.Medium,
     }
 })

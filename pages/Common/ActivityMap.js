@@ -349,7 +349,7 @@ const ActivityMap = ({
             onPress={() => TakePhoto(replaceImgKey, userLocation)}>
             <Text style={styles.captureIcon}>📷</Text>
           </TouchableOpacity>
-        )}
+         )}
         {selectedMarker && (
           <View style={styles.markerInfo}>
             <Text

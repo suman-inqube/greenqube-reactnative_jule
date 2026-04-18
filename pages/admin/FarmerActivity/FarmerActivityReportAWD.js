@@ -7,7 +7,7 @@ import {
   ScrollView,
   Dimensions,
   Alert,
-  Keyboard,
+  Keyboard,ActivityIndicator
 } from 'react-native';
 import {PermissionsAndroid} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
@@ -74,6 +74,9 @@ import {ROUTES} from '../../utils/Routes';
 import {Camera} from 'react-native-vision-camera';
 import {getItem, removeItem} from '../../../config/getDataFromStorage';
 import {axiosGet, axiosPost} from '../../utils/api';
+import {MODELS,loadModelFromAssets} from '../Activity/ImageAnalysisScreen'
+import ImageAnalysisScreen from '../Activity/ImageAnalysisScreen'
+import { downloadWithCache } from '../../hooks/ModelDownload';
 const FarmerActivityReportAWD = ({navigation, route}) => {
   const {farmer, plot} = route?.params || {};
   const today = new Date();
@@ -100,9 +103,11 @@ const FarmerActivityReportAWD = ({navigation, route}) => {
     isOnline,
     LoadingScreen,
     coords,
+    dbLanTokUsr
   } = useContext(userCreateContext);
   var watchId, watchIdSaveData;
   const {dbname, lan_id, token, user_id} = loginUser_data;
+    const { ai_camera_pipe_image, ai_camera_id_proof} = dbLanTokUsr;
   const [isAfterToday, setIsAfterToday] = useState(false);
   const {problemPlotAgainstFarmer, plotAll, setplotAll} = plotHook(
     dbname,
@@ -239,6 +244,33 @@ const FarmerActivityReportAWD = ({navigation, route}) => {
   const [scan, setScan] = useState(false);
   const [pipeQR, setPipeQR] = useState(1);
   const pipe_fieldType = useRef(2);
+
+
+  const [AIModalVisible, setAIModalVisible] = useState(false);
+  const [mapLatLon, setMapLatLon] = useState(null);
+  const [sessions, setSessions] = useState({
+    clarity: null,
+    obstacle: null,
+    pipe: null,
+    soil: null,
+    ruler: null
+  }); //
+  const [modelStatus, setModelStatus] = useState({
+    clarity: false,
+    obstacle: false,
+    pipe: false,
+    soil: false,
+    ruler: false
+  });//
+  const [modelLoading, setModelLoading] = useState({
+    clarity: false,
+    obstacle: false,
+    pipe: false,
+    soil: false,
+    ruler: false
+  });//
+  const [loadProgress, setLoadProgress] = useState(''); //
+  const [loadingModels, setLoadingModels] = useState(true);
   // const checkPipeDistance = (currentLat, currentLon) => {
   //   try {
   //     console.error('pipeLatLong', pipeLatLong);
@@ -1497,7 +1529,95 @@ const FarmerActivityReportAWD = ({navigation, route}) => {
   };
   useEffect(() => {
     onPageLoad();
+     if(ai_camera_pipe_image==1) {
+         runDownload();
+
+       }
   }, [isOnline]);
+  useEffect(() => {
+    if(ai_camera_pipe_image!=1) return
+  let isMounted = true;
+  let timeouts = [];
+  let loadedSessions = {};
+
+  const loadAllModels = async () => {
+    try {
+      setLoadingModels(true);
+
+      for (const model of MODELS) {
+        if (!isMounted) return;
+
+        setModelLoading(prev => ({
+          ...prev,
+          [model.key]: true,
+        }));
+
+        setLoadProgress(`Loading ${model.label} model...`);
+
+        try {
+          let session = await loadModelFromAssets(model.file);
+
+          loadedSessions[model.key] = session;
+
+          setSessions(prev => ({
+            ...prev,
+            [model.key]: session,
+          }));
+
+          setModelStatus(prev => ({
+            ...prev,
+            [model.key]: true,
+          }));
+        } catch (e) {
+          setModelStatus(prev => ({
+            ...prev,
+            [model.key]: false,
+          }));
+        } finally {
+          setModelLoading(prev => ({
+            ...prev,
+            [model.key]: false,
+          }));
+        }
+
+        await new Promise(resolve => {
+          const id = setTimeout(resolve, 200);
+          timeouts.push(id);
+        });
+      }
+
+      setLoadingModels(false);
+      setLoadProgress('All models loaded');
+
+      const id = setTimeout(() => {
+        setLoadProgress('');
+      }, 1500);
+
+      timeouts.push(id);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  loadAllModels();
+
+  // ONLY BACK / SCREEN EXIT unload
+  return () => {
+    console.log('🗑 Back pressed => unload models');
+
+    isMounted = false;
+
+    timeouts.forEach(clearTimeout);
+
+    Object.values(loadedSessions).forEach(session => {
+      try {
+        session?.release?.();
+      } catch (e) {}
+    });
+
+    loadedSessions = {};
+  };
+}, []);
   // IMPROVED useEffect - Pre-fill when navigating from PlotWiseMap
   useEffect(() => {
     if (farmer && plot) {
@@ -1640,129 +1760,122 @@ const FarmerActivityReportAWD = ({navigation, route}) => {
   }, []);
   const TakePhoto = useCallback(
     async (replaceImgKey, coords) => {
-      const {latitude, longitude} = coords || {};
+      // console.log("aaa",saveData.act_type)
+      const { latitude, longitude } = coords || {};
       let latlong;
-
-      // If coords are empty, fetch current location
       if (!latitude || !longitude) {
         latlong = await getHighAccuracyLocation();
       }
-
       const lat = latitude || latlong?.latitude || 0;
       const lon = longitude || latlong?.longitude || 0;
-
-      // console.log('field_type', JSON.stringify(activityInfoAll[0].field_type));
-      // console.log('field_type1233', pipe_fieldType.current);
-
-      // if (pipe_fieldType.current === 1) {
-      //   const isPipeInstall = await checkPipeDistance(lat, lon);
-      //   if (!isPipeInstall) {
-      //     return;
-      //   }
-      // }
-
+      if (pipe_fieldType.current === 1) {
+        const isPipeInstall = await checkPipeDistance(lat, lon);
+        if (!isPipeInstall) {
+          return;
+        }
+      }
+      setModalVisibleMap(false);
+      setAIModalVisible(true);
+      setMapLatLon({
+        latitude: lat,
+        longitude: lon
+      })
       const options = {
         mediaType: 'photo',
         includeBase64: true,
         maxHeight: 800,
         maxWidth: 800,
+        includeExtra: true,
       };
 
-      launchCamera(options, async response => {
-        try {
-          if (!response) {
-            CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
-            return;
-          }
-          if (response.didCancel) {
-            console.log('User cancelled camera');
-            return;
-          }
-          if (response.errorCode) {
-            console.log('Camera Error:', response.errorMessage);
-            return;
-          }
+      // launchCamera(options, async response => {
+      //   try {
+      //     if (!response) {
+      //       CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
+      //       return;
+      //     }
+      //     if (response.didCancel) {
+      //       CustomAlert('Error_Cancel', 'User cancelled camera', true, 'OK');
+      //       return;
+      //     }
+      //     if (response.errorCode) {
+      //       CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
+      //       return;
+      //     }
 
-          const asset = response.assets?.[0];
-          if (!asset?.uri) {
-            CustomAlert('Error', 'No image captured', true, 'OK');
-            return;
-          }
-
-          const timestamp = Date.now();
-
-          // ✅ Combine Date-Time + Lat-Long in watermark text
-          const dateTime = new Intl.DateTimeFormat('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-          }).format(timestamp);
-
-          const watermarkText = `${dateTime}\nLat: ${lat}, Lon: ${lon}`;
-
-          // Set temporary image and text for watermark view
-          setTempImage(asset.uri);
-          setTempText(watermarkText);
-          setTimeout(async () => {
-            try {
-              const uri = await captureRef(watermarkViewRef, {
-                format: 'jpg',
-                quality: 2,
-                width: 800,
-                height: 800,
-              });
-              const fileName = asset.fileName || `photo_${timestamp}.jpg`;
-              const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-              await RNFS.copyFile(uri, destPath);
-              const path = destPath;
-              setTempImage(null);
-              setTempText('');
-              if (replaceImgKey.arrayPosition === '') {
-                setSelectedImagePipe(prev => ({
-                  ...prev,
-                  [cameraItem]: `file://${path}`,
-                  [`${cameraItem}fileName`]: fileName,
-                  [`${cameraItem}Lat`]: lat,
-                  [`${cameraItem}Long`]: lon,
-                }));
-              } else {
-                const {arrayPosition, imgPosition} = replaceImgKey;
-                setPipeDetails(prev => {
-                  const updated = JSON.parse(JSON.stringify(prev));
-                  const currentImage = updated[arrayPosition][1][imgPosition];
-                  updated[arrayPosition][1][imgPosition] = {
-                    ...currentImage,
-                    imageURL: `file://${destPath}`,
-                    imageName: fileName,
-                    status: '',
-                    lat,
-                    lon,
-                  };
-                  return updated;
-                });
-              }
-              setModalVisibleMap(false);
-              console.log('✅ Watermarked image saved:', path);
-            } catch (error) {
-              console.error('Capture Error:', error);
-              setTempImage(null);
-              setTempText('');
-            }
-          }, 1200);
-        } catch (error) {
-          console.error('TakePhoto Error:', error);
-        } finally {
-          setModalVisibleMap(false);
-        }
-      });
+      //     const asset = response.assets?.[0];
+      //     if (!asset?.uri) {
+      //       CustomAlert('Error', 'No image captured', true, 'OK');
+      //       return;
+      //     }
+      //     const timestamp = Date.now();
+      //     const formattedDate = new Intl.DateTimeFormat('en-US', {
+      //       year: 'numeric',
+      //       month: '2-digit',
+      //       day: '2-digit',
+      //       hour: '2-digit',
+      //       minute: '2-digit',
+      //       second: '2-digit',
+      //     }).format(timestamp);
+      //     const watermarkText = `${formattedDate}\nLat: ${lat}, Lon: ${lon}`;
+      //     setTempImage(asset.uri);
+      //     setTempText(watermarkText);
+      //     setTimeout(async () => {
+      //       try {
+      //         const uri = await captureRef(watermarkViewRef, {
+      //           format: 'jpg',
+      //           quality: 2,
+      //           width: 800,
+      //           height: 800,
+      //         });
+      //         const fileName = asset.fileName || `photo_${timestamp}.jpg`;
+      //         const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+      //         await RNFS.copyFile(uri, destPath);
+      //         setTempImage(null);
+      //         setTempText('');
+      //         if (replaceImgKey.arrayPosition === '') {
+      //           setSelectedImagePipe(prev => ({
+      //             ...prev,
+      //             [cameraItem]: `file://${destPath}`,
+      //             [`${cameraItem}fileName`]: fileName,
+      //             [`${cameraItem}Lat`]: lat,
+      //             [`${cameraItem}Long`]: lon,
+      //           }));
+      //         } else {
+      //           const { arrayPosition, imgPosition } = replaceImgKey;
+      //           setPipeDetails(prev => {
+      //             const updated = JSON.parse(JSON.stringify(prev));
+      //             const currentImage = updated[arrayPosition][1][imgPosition];
+      //             updated[arrayPosition][1][imgPosition] = {
+      //               ...currentImage,
+      //               imageURL: `file://${destPath}`,
+      //               imageName: fileName,
+      //               status: '',
+      //               lat,
+      //               lon,
+      //             };
+      //             return updated;
+      //           });
+      //         }
+      //         console.log('Watermarked image saved:', destPath);
+      //       } catch (error) {
+      //         console.log('Capture Error:', error);
+      //         setTempImage(null);
+      //         setTempText('');
+      //       }
+      //     }, 5000);
+      //   } catch (error) {
+      //     CustomAlert('Catch Error ', error, true, 'OK');
+      //   } finally {
+      //     setModalVisibleMap(false);
+      //   }
+      // });
     },
     [
       cameraItem,
       setSelectedImagePipe,
       setModalVisibleMap,
+      pipeLatLong,
       replaceImgKey,
       TakePhotoFailed,
       coords,
@@ -1948,12 +2061,103 @@ const FarmerActivityReportAWD = ({navigation, route}) => {
   const handlepower_used = useCallback(power_used => {
     setSaveData(prev => ({...prev, power_used: power_used}));
   }, []);
+  const [showProgress, setShowProgress] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [stageMessage, setStageMessage] = useState('');
+
+  // Then use this improved runDownload:
+  const runDownload = async () => {
+
+    setShowProgress(true);
+    setProgress(0);
+    setStageMessage('Starting...');
+
+    try {
+      const res = await downloadWithCache({
+        onProgress: (p) => {
+          setProgress(p);
+        },
+        onStage: (s, data) => {
+          const messages = {
+            checking: '🔍 Checking for updates...',
+            downloading: '⬇️ Downloading model...',
+            resuming: '⏳ Resuming download...',
+            extracting: '📂 Extracting files... Please wait',
+            cleaning: '🧹 Cleaning up...',
+            complete: '✅ Download completed!',
+            not_modified: '✨ Model is already up to date!',
+          };
+
+          setStageMessage(messages[s] || s);
+
+          if (s === 'complete' || s === 'not_modified') {
+            setProgress(100);
+          }
+        },
+      });
+
+      if (!res.updated) {
+        setStageMessage('✨ Model is already up to date!');
+      } else {
+        setStageMessage('🎉 Model downloaded successfully!');
+      }
+
+    } catch (e) {
+      console.log('ERROR:', e.message);
+      setStageMessage(`❌ Error: ${e.message}`);
+    } finally {
+      // Auto close progress after 2 seconds
+      setTimeout(() => {
+        setShowProgress(false);
+      }, 2000);
+    }
+  };
   return (
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
         <Root>
           <SecurityWrapper coords={coords}>
             <View style={styles.container}>
+               {showProgress ? (
+                <View style={styles.progressOverlay}>
+                  <View style={styles.progressCard}>
+                    <ActivityIndicator size="large" color="#4A90E2" />
+                    <Text style={styles.stageText}>{stageMessage}</Text>
+                    <Text style={styles.progressText}>{progress}%</Text>
+
+                    <View style={styles.progressBarContainer}>
+                      <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
+                    </View>
+                  </View>
+                </View>
+              ) :
+                <>
+                  {AIModalVisible && (<ImageAnalysisScreen
+                    AIModalVisible={AIModalVisible}
+                    mapLatLon={mapLatLon}
+                    setAIModalVisible={setAIModalVisible}
+                    setTempImage={setTempImage}
+                    tempImage={tempImage}
+                    setTempText={setTempText}
+                    setSelectedImagePipe={setSelectedImagePipe}
+                    setPipeDetails={setPipeDetails}
+                    watermarkViewRef={watermarkViewRef}
+                    act_type={saveData?.act_type}
+                    tempText={tempText}
+                    replaceImgKey={replaceImgKey}
+                    cameraItem={cameraItem}
+                    sessions={sessions}
+                    setSessions={setSessions}
+                    modelStatus={modelStatus}
+                    setModelStatus={setModelStatus}
+                    modelLoading={modelLoading}
+                    setModelLoading={setModelLoading}
+                    loadProgress={loadProgress}
+                    setLoadProgress={setLoadProgress}
+                    loadingModels={loadingModels}
+                    setLoadingModels={setLoadingModels}
+                    ai_camera_pipe_image={ai_camera_pipe_image}
+                  />)}
               {modalVisibleMap && (
                 <ActivityMap
                   modalVisibleMap={modalVisibleMap}
@@ -1965,6 +2169,7 @@ const FarmerActivityReportAWD = ({navigation, route}) => {
                   outofRange={outofRange}
                   pipeLatLong={pipeLatLong}
                   replaceImgKey={replaceImgKey}
+                   setMapLatLon={setMapLatLon}
                 />
               )}
               <CustomHeader
@@ -2510,6 +2715,8 @@ const FarmerActivityReportAWD = ({navigation, route}) => {
                   />
                 </View>
               </View>
+              </>
+}
               <Root></Root>
             </View>
           </SecurityWrapper>
@@ -2842,5 +3049,63 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     marginLeft: 10,
+  },
+  // ==================== PROGRESS OVERLAY (Premium Look) ====================
+  progressOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+
+  progressCard: {
+    width: '85%',
+    maxWidth: 340,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 20,
+  },
+
+  stageText: {
+    fontSize: 16.5,
+    fontWeight: '600',
+    color: '#34495E',
+    textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 12,
+    lineHeight: 23,
+  },
+
+  progressText: {
+    fontSize: 36,
+    fontWeight: '700',
+    color: '#4A90E2',
+    marginBottom: 20,
+  },
+
+  progressBarContainer: {
+    width: '100%',
+    height: 11,
+    backgroundColor: '#ECF0F1',
+    borderRadius: 999,
+    overflow: 'hidden',
+  },
+
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#4A90E2',
+    borderRadius: 999,
   },
 });

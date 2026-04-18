@@ -41,84 +41,85 @@ function CoFarmerComponent({
   unitAll,
   unit_valueArr,
   landAreaUnit,
+  ai_camera_id_proof="0"
 }) {
   const { minimumDate, maximumDate } = getAgeLimitDates();
   const [newDate, setnewDate] = useState(new Date());
   const [penCycleStart, setopenCycleStart] = useState(false);
-  // const handleGovtIdPick = async fieldName => {
-  //   try {
-  //     const result = await DocumentScanner.scanDocument({
-  //       maxNumDocuments: 1,
-  //       letUserAdjustCrop: true,
-  //       responseType: "imageFilePath",
-  //       croppedImageQuality: 100,
-  //       saveInAppDocument: false,
-  //     });
+  const handleGovtIdPickTextRecognition = async fieldName => {
+    try {
+      const result = await DocumentScanner.scanDocument({
+        maxNumDocuments: 1,
+        letUserAdjustCrop: true,
+        responseType: "imageFilePath",
+        croppedImageQuality: 100,
+        saveInAppDocument: false,
+      });
 
-  //     if (result.scannedImages && result.scannedImages.length > 0) {
-  //       const uri = result.scannedImages[0];
-  //       try {
-  //         try {
-  //           const result = await TextRecognition.recognize(uri);
-  //           const rawText = result.text;
-  //           const normalizedOCR = rawText.toLowerCase().replace(/\s/g, "").trim();
-  //           const cleanedOCR = cleanText(rawText);
-  //           const isNameFound = cleanedOCR.includes(cleanText(coFarmerDetails?.name?.toLowerCase()?.replace(/\s/g, "")));
-  //           if (!coFarmerDetails?.name?.includes(" ")) {
-  //             Alert.alert(
-  //               "Name Format Warning",
-  //               "Please enter your full name (First and Last name separated by a space)"
-  //             );
-  //             return;
-  //           }
-  //           let documentType = "Unknown Document";
-  //           if (
-  //             normalizedOCR.includes("uidai") ||
-  //             normalizedOCR.includes("governmentofindia") ||
-  //             /\d{12}/.test(normalizedOCR)
-  //           ) {
-  //             documentType = "Aadhaar Card";
-  //           }
-  //           else if (
-  //             normalizedOCR.includes("electioncommissionofindia") ||
-  //             normalizedOCR.includes("elector") ||
-  //             /[a-z]{3}\d{7}/.test(normalizedOCR)
-  //           ) {
-  //             documentType = "Voter Card";
-  //           }
-  //           if (documentType == "Unknown Document") {
-  //             Alert.alert("Document Type Not Detected", "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.");
-  //             return;
-  //           } else {
-  //             if (!isNameFound) {
-  //               Alert.alert(
-  //                 "Name Verification Failed",
-  //                 "The farmer's name and the document owner's name do not match."
-  //               );
-  //             } else {
-  //               setCoFarmerDetails(prev => ({
-  //                 ...prev,
-  //                 [fieldName]: {
-  //                   uri: uri,
-  //                   name: uri.split('/').pop(),
-  //                   fileName: uri.split('/').pop(),
-  //                   type: "image/jpeg",
-  //                 },
-  //               }));
-  //             }
-  //           }
-  //         } catch (error) {
-  //           Alert.alert("Error", "Text recognition failed. Please try again.");
-  //         }
-  //       } catch (err) {
-  //         Alert.alert("Error", "An error occurred while processing the document. Please try again.");
-  //       }
-  //     }
-  //   } catch (err) {
-  //     if (DocumentPicker.isCancel(err)) return;
-  //     console.error('Picker Error:', err);
-  //   }
-  // };
+      if (result.scannedImages && result.scannedImages.length > 0) {
+        const uri = result.scannedImages[0];
+        try {
+          try {
+            const result = await TextRecognition.recognize(uri);
+            const rawText = result.text;
+            const normalizedOCR = rawText.toLowerCase().replace(/\s/g, "").trim();
+            const cleanedOCR = cleanText(rawText);
+            const isNameFound = cleanedOCR.includes(cleanText(coFarmerDetails?.name?.toLowerCase()?.replace(/\s/g, "")));
+            if (!coFarmerDetails?.name?.includes(" ")) {
+              Alert.alert(
+                "Name Format Warning",
+                "Please enter your full name (First and Last name separated by a space)"
+              );
+              return;
+            }
+            let documentType = "Unknown Document";
+            if (
+              normalizedOCR.includes("uidai") ||
+              normalizedOCR.includes("governmentofindia") ||
+              /\d{12}/.test(normalizedOCR)
+            ) {
+              documentType = "Aadhaar Card";
+            }
+            else if (
+              normalizedOCR.includes("electioncommissionofindia") ||
+              normalizedOCR.includes("elector") ||
+              /[a-z]{3}\d{7}/.test(normalizedOCR)
+            ) {
+              documentType = "Voter Card";
+            }
+            if (documentType == "Unknown Document") {
+              Alert.alert("Document Type Not Detected", "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.");
+              return;
+            } else {
+              if (!isNameFound) {
+                Alert.alert(
+                  "Name Verification Failed",
+                  "The farmer's name and the document owner's name do not match."
+                );
+              } else {
+                setCoFarmerDetails(prev => ({
+                  ...prev,
+                  [fieldName]: {
+                    uri: uri,
+                    name: uri.split('/').pop(),
+                    fileName: uri.split('/').pop(),
+                    type: "image/jpeg",
+                  },
+                }));
+              }
+            }
+          } catch (error) {
+            Alert.alert("Error", "Text recognition failed. Please try again.");
+          }
+        } catch (err) {
+          Alert.alert("Error", "An error occurred while processing the document. Please try again.");
+        }
+      }
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) return;
+      console.error('Picker Error:', err);
+    }
+  };
   const cleanText = (text) => {
     return text.toLowerCase().replace(/[^a-z0-9]/g, "");
   };
@@ -493,7 +494,7 @@ function CoFarmerComponent({
                 onPress={() =>
                   coFarmerDetails.idProof?.uri
                     ? openFile(coFarmerDetails.idProof)
-                    : handleGovtIdPick('idProof')
+                    : ai_camera_id_proof=="1"?handleGovtIdPickTextRecognition('idProof'):handleGovtIdPick('idProof')
                 }>
                 {coFarmerDetails.idProof?.uri ? (
                   <View style={styles.uploadedContainer}>
@@ -512,14 +513,14 @@ function CoFarmerComponent({
                     {/* VIEW ICON */}
                     <TouchableOpacity
                       style={styles.viewBadge}
-                      onPress={() => openFile(coFarmerDetails.idProof)}>
+                      onPress={() => ai_camera_id_proof=="1"?handleGovtIdPickTextRecognition('idProof'):openFile(coFarmerDetails.idProof)}>
                       <MaterialIcons name="visibility" size={18} color="#fff" />
                     </TouchableOpacity>
 
                     {/* REPLACE ICON */}
                     <TouchableOpacity
                       style={styles.replaceBadge}
-                      onPress={() => handleGovtIdPick('idProof')}>
+                      onPress={() =>ai_camera_id_proof=="1"?handleGovtIdPickTextRecognition('idProof'): handleGovtIdPick('idProof')}>
                       <Feather name="refresh-cw" size={16} color="#fff" />
                     </TouchableOpacity>
                   </View>

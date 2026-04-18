@@ -59,6 +59,7 @@ const Information = ({sendDataToParent, farmerID}) => {
     RadioForm,
     effective_dates,
     loginUser_data,
+    dbLanTokUsr
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, FcmUserToken, owner} = loginUser_data;
   //GQR-66
@@ -1014,6 +1015,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                 disable={true}
                 InputTextFormEdit={true}
                 farmerName={farmerData.userName}
+                   ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
               />
 
               <View

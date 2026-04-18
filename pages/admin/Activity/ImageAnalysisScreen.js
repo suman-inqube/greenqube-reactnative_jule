@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   StatusBar,
-  Modal,Alert
+  Modal, Alert
 } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import AIResultCard from '../../Components/AIResultCard';
@@ -23,6 +23,8 @@ import { Buffer } from 'buffer';
 global.Buffer = Buffer;
 import ModelDot from '../../Components/ModelDot';
 import { captureRef } from 'react-native-view-shot';
+import { Fonts } from '../../utils/Constants';
+import CustomAlert from '../../Common/CustomAlert';
 export const MODELS = [
   {
     key: 'clarity',
@@ -154,260 +156,49 @@ const ImageAnalysisScreen = ({
   tempImage,
   tempText,
   replaceImgKey,
-  cameraItem
+  cameraItem,
+  sessions,
+  setSessions,
+  modelStatus,
+  setModelStatus,
+  modelLoading,
+  setModelLoading,
+  loadProgress,
+  setLoadProgress,
+  loadingModels,
+  setLoadingModels,
+  ai_camera_pipe_image
 }) => {
-  const [sessions, setSessions] = useState({
-    clarity: null,
-    obstacle: null,
-    pipe: null,
-    soil: null,
-    ruler: null
-  });
-  const [modelStatus, setModelStatus] = useState({
-    clarity: false,
-    obstacle: false,
-    pipe: false,
-    soil: false,
-    ruler: false
-  });
-  const [modelLoading, setModelLoading] = useState({
-    clarity: false,
-    obstacle: false,
-    pipe: false,
-    soil: false,
-    ruler: false
-  });
+  // const [sessions, setSessions] = useState({
+  //   clarity: null,
+  //   obstacle: null,
+  //   pipe: null,
+  //   soil: null,
+  //   ruler: null
+  // }); //
+  // const [modelStatus, setModelStatus] = useState({
+  //   clarity: false,
+  //   obstacle: false,
+  //   pipe: false,
+  //   soil: false,
+  //   ruler: false
+  // });//
+  // const [modelLoading, setModelLoading] = useState({
+  //   clarity: false,
+  //   obstacle: false,
+  //   pipe: false,
+  //   soil: false,
+  //   ruler: false
+  // });//
+  const [isReady, setisReady] = useState(false);
   const [image, setImage] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [loadingModels, setLoadingModels] = useState(true);
-  const [loadProgress, setLoadProgress] = useState('');
+
+  // const [loadProgress, setLoadProgress] = useState(''); //
 
   const headerFade = useRef(new Animated.Value(0)).current;
 
-  // ── Load only required models first, optional models after analysis ──
-  // useEffect(() => {
-  //   Animated.timing(headerFade, { toValue: 1, duration: 800, useNativeDriver: true }).start();
-
-  //   const loadRequiredModels = async () => {
-  //     setLoadingModels(true);
-
-  //     // Load required models (clarity, obstacle, pipe)
-  //     const requiredModels = MODELS.filter(m => m.required === true);
-  //     for (const model of requiredModels) {
-  //       setModelLoading(prev => ({ ...prev, [model.key]: true }));
-  //       setLoadProgress(`Loading ${model.label} model...`);
-
-  //       try {
-  //         const session = await loadModelFromAssets(model.file);
-  //         setSessions(prev => ({ ...prev, [model.key]: session }));
-  //         setModelStatus(prev => ({ ...prev, [model.key]: true }));
-  //         // console.log(`✅ ${model.label} model loaded`);
-  //         await new Promise(resolve => setTimeout(resolve, 300));
-  //       } catch (e) {
-  //         // console.error(`❌ Failed to load ${model.label}:`, e);
-  //         setModelStatus(prev => ({ ...prev, [model.key]: false }));
-  //         Alert.alert('Error', `Failed to load ${model.label} model. App may not function correctly.`);
-  //       } finally {
-  //         setModelLoading(prev => ({ ...prev, [model.key]: false }));
-  //       }
-  //     }
-
-  //     setLoadProgress('Core models loaded!');
-  //     setLoadingModels(false);
-  //     setTimeout(() => setLoadProgress(''), 2000);
-
-  //     // Load optional models in background after a delay
-  //     setTimeout(() => {
-  //       loadOptionalModels();
-  //     }, 3000);
-  //   };
-
-  //   const loadOptionalModels = async () => {
-  //     // console.log('Loading optional models in background...');
-  //     const optionalModels = MODELS.filter(m => m.required === false);
-
-  //     for (const model of optionalModels) {
-  //       // Check if quantized file exists, fallback to simplified if needed
-  //       let fileToLoad = model.file;
-
-  //       setModelLoading(prev => ({ ...prev, [model.key]: true }));
-  //       setLoadProgress(`Loading ${model.label} model (optional)...`);
-
-  //       try {
-  //         // Try quantized first
-  //         let session;
-  //         try {
-  //           session = await loadModelFromAssets(fileToLoad);
-  //         } catch (e) {
-  //           // If quantized fails, try simplified
-  //           if (fileToLoad.includes('quantized')) {
-  //             // console.log(`Quantized model failed, trying simplified for ${model.key}...`);
-  //             const fallbackFile = model.file.replace('_quantized', '_simplified');
-  //             try {
-  //               session = await loadModelFromAssets(fallbackFile);
-  //               // console.log(`✅ Loaded fallback simplified model for ${model.label}`);
-  //             } catch (fallbackErr) {
-  //               throw fallbackErr;
-  //             }
-  //           } else {
-  //             throw e;
-  //           }
-  //         }
-
-  //         setSessions(prev => ({ ...prev, [model.key]: session }));
-  //         setModelStatus(prev => ({ ...prev, [model.key]: true }));
-  //         // console.log(`✅ ${model.label} model loaded`);
-  //         await new Promise(resolve => setTimeout(resolve, 500));
-  //       } catch (e) {
-  //         console.error(`❌ Failed to load ${model.label}:`, e);
-  //         setModelStatus(prev => ({ ...prev, [model.key]: false }));
-  //       } finally {
-  //         setModelLoading(prev => ({ ...prev, [model.key]: false }));
-  //         setLoadProgress('');
-  //       }
-  //     }
-  //   };
-
-  //   loadRequiredModels();
-  // }, []);
-useEffect(() => {
-  let timeouts = []; // Array to store all timeout IDs
-  let isMounted = true; // Flag to prevent state updates after unmount
-
-  Animated.timing(headerFade, { toValue: 1, duration: 800, useNativeDriver: true }).start();
-
-  const loadRequiredModels = async () => {
-    if (!isMounted) return;
-    
-    setLoadingModels(true);
-
-    // Load required models (clarity, obstacle, pipe)
-    const requiredModels = MODELS.filter(m => m.required === true);
-    
-    for (const model of requiredModels) {
-      if (!isMounted) break;
-      
-      setModelLoading(prev => ({ ...prev, [model.key]: true }));
-      setLoadProgress(`Loading ${model.label} model...`);
-
-      try {
-        const session = await loadModelFromAssets(model.file);
-        
-        if (!isMounted) break;
-        
-        setSessions(prev => ({ ...prev, [model.key]: session }));
-        setModelStatus(prev => ({ ...prev, [model.key]: true }));
-        
-        // Store timeout for cleanup
-        await new Promise(resolve => {
-          const id = setTimeout(resolve, 300);
-          timeouts.push(id);
-        });
-      } catch (e) {
-        if (!isMounted) break;
-        
-        setModelStatus(prev => ({ ...prev, [model.key]: false }));
-        Alert.alert('Error', `Failed to load ${model.label} model. App may not function correctly.`);
-      } finally {
-        if (isMounted) {
-          setModelLoading(prev => ({ ...prev, [model.key]: false }));
-        }
-      }
-    }
-
-    if (!isMounted) return;
-
-    setLoadProgress('Core models loaded!');
-    setLoadingModels(false);
-    
-    // Store timeout for clearing progress message
-    const id1 = setTimeout(() => {
-      if (isMounted) {
-        setLoadProgress('');
-      }
-    }, 2000);
-    timeouts.push(id1);
-
-    // Load optional models in background after a delay
-    const id2 = setTimeout(() => {
-      if (isMounted) {
-        loadOptionalModels();
-      }
-    }, 3000);
-    timeouts.push(id2);
-  };
-
-  const loadOptionalModels = async () => {
-    if (!isMounted) return;
-    
-    const optionalModels = MODELS.filter(m => m.required === false);
-
-    for (const model of optionalModels) {
-      if (!isMounted) break;
-      
-      let fileToLoad = model.file;
-
-      setModelLoading(prev => ({ ...prev, [model.key]: true }));
-      setLoadProgress(`Loading ${model.label} model (optional)...`);
-
-      try {
-        let session;
-        try {
-          session = await loadModelFromAssets(fileToLoad);
-        } catch (e) {
-          if (fileToLoad.includes('quantized')) {
-            const fallbackFile = model.file.replace('_quantized', '_simplified');
-            try {
-              session = await loadModelFromAssets(fallbackFile);
-            } catch (fallbackErr) {
-              throw fallbackErr;
-            }
-          } else {
-            throw e;
-          }
-        }
-
-        if (!isMounted) break;
-
-        setSessions(prev => ({ ...prev, [model.key]: session }));
-        setModelStatus(prev => ({ ...prev, [model.key]: true }));
-        
-        // Store timeout for delay
-        await new Promise(resolve => {
-          const id = setTimeout(resolve, 500);
-          timeouts.push(id);
-        });
-      } catch (e) {
-        if (!isMounted) break;
-        console.error(`❌ Failed to load ${model.label}:`, e);
-        setModelStatus(prev => ({ ...prev, [model.key]: false }));
-      } finally {
-        if (isMounted) {
-          setModelLoading(prev => ({ ...prev, [model.key]: false }));
-          
-          // Clear progress after optional models
-          const id = setTimeout(() => {
-            if (isMounted) {
-              setLoadProgress('');
-            }
-          }, 1000);
-          timeouts.push(id);
-        }
-      }
-    }
-  };
-
-  // Start loading models
-  loadRequiredModels();
-
-  // Cleanup function to clear all timeouts when component unmounts
-  return () => {
-    isMounted = false;
-    timeouts.forEach(clearTimeout);
-    timeouts = [];
-  };
-}, []);
   // ── Pick from gallery ──
   const pickImage = () => {
     launchImageLibrary({ mediaType: 'photo', quality: 1 }, res => {
@@ -417,254 +208,115 @@ useEffect(() => {
       setLoading(false);
     });
   };
-
+  let timeoutId = null;
   // ── Take photo ──
-  const takePhoto = () => {
-    launchCamera({ mediaType: 'photo', quality: 1 }, res => {
-      if (res.didCancel || !res.assets) return;
-      setImage(res.assets[0]);
+  const takePhoto = async () => {
+    const options = {
+      mediaType: 'photo',
+      includeBase64: true,
+      maxHeight: 800,
+      maxWidth: 800,
+      includeExtra: true,
+    };
+    launchCamera({ options, mediaType: 'photo', quality: 1 }, async response => {
+      if (response.didCancel || !response.assets) return;
       setResult(null);
       setLoading(false);
+      // clear old timeout first
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      setImage(response.assets[0]);
+      if (ai_camera_pipe_image != "1") {
+        try {
+          if (!response) {
+            CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
+            return;
+          }
+          if (response.didCancel) {
+            CustomAlert('Error_Cancel', 'User cancelled camera', true, 'OK');
+            return;
+          }
+          if (response.errorCode) {
+            CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
+            return;
+          }
+
+          const asset = response.assets?.[0];
+          if (!asset?.uri) {
+            CustomAlert('Error', 'No image captured', true, 'OK');
+            return;
+          }
+          const { latitude: lat, longitude: lon } = mapLatLon || { lat: 'N/A', lon: 'N/A' };
+          console.log('Captured image with location:', { lat, lon });
+          const timestamp = Date.now();
+          const formattedDate = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }).format(timestamp);
+          const watermarkText = `${formattedDate}\nLat: ${lat}, Lon: ${lon}`;
+          setTempImage(asset.uri);
+          setTempText(watermarkText);
+          timeoutId = setTimeout(async () => {
+            try {
+              const uri = await captureRef(watermarkViewRef, {
+                format: 'jpg',
+                quality: 2,
+                width: 800,
+                height: 800,
+              });
+              const fileName = asset.fileName || `photo_${timestamp}.jpg`;
+              const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+              await RNFS.copyFile(uri, destPath);
+              setTempImage(null);
+              setTempText('');
+              if (replaceImgKey.arrayPosition === '') {
+                setSelectedImagePipe(prev => ({
+                  ...prev,
+                  [cameraItem]: `file://${destPath}`,
+                  [`${cameraItem}fileName`]: fileName,
+                  [`${cameraItem}Lat`]: lat,
+                  [`${cameraItem}Long`]: lon,
+                }));
+              } else {
+                const { arrayPosition, imgPosition } = replaceImgKey;
+                setPipeDetails(prev => {
+                  const updated = JSON.parse(JSON.stringify(prev));
+                  const currentImage = updated[arrayPosition][1][imgPosition];
+                  updated[arrayPosition][1][imgPosition] = {
+                    ...currentImage,
+                    imageURL: `file://${destPath}`,
+                    imageName: fileName,
+                    status: '',
+                    lat,
+                    lon,
+                  };
+                  return updated;
+                });
+              }
+              setisReady(true);
+              clearTimeout(timeoutId);
+              timeoutId = null;
+            } catch (error) {
+              console.log('Capture Error:', error);
+              setTempImage(null);
+              setTempText('');
+            }
+          }, 5000);
+        } catch (error) {
+          CustomAlert('Catch Error ', error, true, 'OK');
+        } finally {
+          setResult(null);
+          setLoading(false);
+        }
+      }
     });
   };
-
-  // ── Run inference ──
-  // const runAnalysis = async () => {
-  //   const { clarity, obstacle, pipe } = sessions;
-
-  //   if (!image) {
-  //     Alert.alert('No Image', 'Please select or capture an image first.');
-  //     return;
-  //   }
-
-  //   if (!clarity || !obstacle || !pipe) {
-  //     Alert.alert('Models Loading', 'Please wait for core models to finish loading.');
-  //     return;
-  //   }
-
-  //   setLoading(true);
-  //   setResult(null);
-
-  //   let tensor = null;
-  //   try {
-  //     tensor = await imageToTensor(image.uri);
-  //     console.log('✅ Tensor created');
-
-  //     // ✅ SEQUENTIAL (NOT Promise.all)
-  //     const cOut = await clarity.run({
-  //       [clarity.inputNames[0]]: tensor,
-  //     });
-
-  //     const oOut = await obstacle.run({
-  //       [obstacle.inputNames[0]]: tensor,
-  //     });
-
-  //     const pOut = await pipe.run({
-  //       [pipe.inputNames[0]]: tensor,
-  //     });
-
-  //     const cLogits = Array.from(cOut[clarity.outputNames[0]].data);
-  //     const oLogits = Array.from(oOut[obstacle.outputNames[0]].data);
-  //     const pLogits = Array.from(pOut[pipe.outputNames[0]].data);
-
-  //     const clarityResult = predict(cLogits, 'Clear', 'Not Clear');
-  //     const obstacleResult = predict(oLogits, 'Obstacle Present', 'No Obstacle');
-  //     const pipeResult = predict(pLogits, 'Pipe Present', 'No Pipe');
-
-  //     let soilResult = null;
-  //     let rulerResult = null;
-  //     if (act_type != "Pipe Installation") {
-  //       if (sessions.soil) {
-  //         try {
-  //           const sOut = await sessions.soil.run({
-  //             [sessions.soil.inputNames[0]]: tensor,
-  //           });
-  //           const sLogits = Array.from(
-  //             sOut[sessions.soil.outputNames[0]].data
-  //           );
-  //           soilResult = predict(sLogits, 'Soil Visible', 'No Soil');
-  //         } catch (e) {
-  //           console.error('Soil model failed:', e);
-  //         }
-  //       }
-
-  //       if (sessions.ruler) {
-  //         try {
-  //           const rOut = await sessions.ruler.run({
-  //             [sessions.ruler.inputNames[0]]: tensor,
-  //           });
-  //           const rLogits = Array.from(
-  //             rOut[sessions.ruler.outputNames[0]].data
-  //           );
-  //           rulerResult = predict(rLogits, 'Ruler Present', 'No Ruler');
-  //         } catch (e) {
-  //           console.error('Ruler model failed:', e);
-  //         }
-  //       }
-  //       setLoading(false);
-  //     }
-  //     setResult({
-  //       clarity: clarityResult,
-  //       obstacle: obstacleResult,
-  //       pipe: pipeResult,
-  //       soil: soilResult,
-  //       ruler: rulerResult
-  //     });
-  //     const { latitude: lat, longitude: lon } = mapLatLon || { lat: 'N/A', lon: 'N/A' };
-  //     if (act_type == "Pipe Installation") {
-  //       if (clarityResult.isPositive && pipeResult.isPositive && !obstacleResult.isPositive) {
-  //         const timestamp = Date.now();
-  //         const formattedDate = new Intl.DateTimeFormat('en-US', {
-  //           year: 'numeric',
-  //           month: '2-digit',
-  //           day: '2-digit',
-  //           hour: '2-digit',
-  //           minute: '2-digit',
-  //           second: '2-digit',
-  //         }).format(timestamp);
-  //         const watermarkText = `${formattedDate}\nLat: ${lat}, Lon: ${lon}`;
-  //         setTempImage(image.uri);
-  //         setTempText(watermarkText);
-  //         setTimeout(async () => {
-  //           try {
-  //             if (!watermarkViewRef || !watermarkViewRef.current) {
-  //               console.error('watermarkViewRef is not available');
-  //               setTempImage(null);
-  //               setTempText('');
-  //               return;
-  //             }
-  //             const uri = await captureRef(watermarkViewRef, {
-  //               format: 'jpg',
-  //               quality: 2,
-  //               width: 800,
-  //               height: 800,
-  //             });
-  //             const fileName = image.fileName || `photo_${timestamp}.jpg`;
-  //             const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-  //             await RNFS.copyFile(uri, destPath);
-  //             setTempImage(null);
-  //             setTempText('');
-  //             if (replaceImgKey.arrayPosition === '') {
-  //               setSelectedImagePipe(prev => ({
-  //                 ...prev,
-  //                 [cameraItem]: `file://${destPath}`,
-  //                 [`${cameraItem}fileName`]: fileName,
-  //                 [`${cameraItem}Lat`]: lat,
-  //                 [`${cameraItem}Long`]: lon,
-  //               }));
-  //             } else {
-  //               const { arrayPosition, imgPosition } = replaceImgKey;
-  //               setPipeDetails(prev => {
-  //                 const updated = JSON.parse(JSON.stringify(prev));
-  //                 const currentImage = updated[arrayPosition][1][imgPosition];
-  //                 updated[arrayPosition][1][imgPosition] = {
-  //                   ...currentImage,
-  //                   imageURL: `file://${destPath}`,
-  //                   imageName: fileName,
-  //                   status: '',
-  //                   lat,
-  //                   lon,
-  //                 };
-  //                 return updated;
-  //               });
-  //             }
-  //             console.log('Watermarked image saved:', destPath);
-  //           } catch (error) {
-  //             console.log('Capture Error:', error);
-  //             setTempImage(null);
-  //             setTempText('');
-  //           }
-  //         }, 5000);
-  //       } else {
-  //         Alert.alert('Analysis Result', 'Conditions may not be ideal for pipe installation. Please review the results.');
-  //       }
-
-  //     } else {
-  //       if (clarityResult.isPositive && pipeResult.isPositive && !obstacleResult.isPositive && soilResult?.isPositive && rulerResult?.isPositive) {
-  //         const timestamp = Date.now();
-  //         const formattedDate = new Intl.DateTimeFormat('en-US', {
-  //           year: 'numeric',
-  //           month: '2-digit',
-  //           day: '2-digit',
-  //           hour: '2-digit',
-  //           minute: '2-digit',
-  //           second: '2-digit',
-  //         }).format(timestamp);
-  //         const watermarkText = `${formattedDate}\nLat: ${lat}, Lon: ${lon}`;
-  //         setTempImage(image.uri);
-  //         setTempText(watermarkText);
-  //         setTimeout(async () => {
-  //           try {
-  //             if (!watermarkViewRef || !watermarkViewRef.current) {
-  //               console.error('watermarkViewRef is not available');
-  //               setTempImage(null);
-  //               setTempText('');
-  //               return;
-  //             }
-  //             const uri = await captureRef(watermarkViewRef, {
-  //               format: 'jpg',
-  //               quality: 2,
-  //               width: 800,
-  //               height: 800,
-  //             });
-  //             const fileName = image.fileName || `photo_${timestamp}.jpg`;
-  //             const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-  //             await RNFS.copyFile(uri, destPath);
-  //             setTempImage(null);
-  //             setTempText('');
-  //             if (replaceImgKey.arrayPosition === '') {
-  //               setSelectedImagePipe(prev => ({
-  //                 ...prev,
-  //                 [cameraItem]: `file://${destPath}`,
-  //                 [`${cameraItem}fileName`]: fileName,
-  //                 [`${cameraItem}Lat`]: lat,
-  //                 [`${cameraItem}Long`]: lon,
-  //               }));
-  //             } else {
-  //               const { arrayPosition, imgPosition } = replaceImgKey;
-  //               setPipeDetails(prev => {
-  //                 const updated = JSON.parse(JSON.stringify(prev));
-  //                 const currentImage = updated[arrayPosition][1][imgPosition];
-  //                 updated[arrayPosition][1][imgPosition] = {
-  //                   ...currentImage,
-  //                   imageURL: `file://${destPath}`,
-  //                   imageName: fileName,
-  //                   status: '',
-  //                   lat,
-  //                   lon,
-  //                 };
-  //                 return updated;
-  //               });
-  //             }
-  //             console.log('Watermarked image saved:', destPath);
-  //           } catch (error) {
-  //             console.log('Capture Error:', error);
-  //             setTempImage(null);
-  //             setTempText('');
-  //           }
-  //         }, 5000);
-  //       } else {
-  //         Alert.alert('Analysis Result', 'Some conditions may not be ideal. Please review the results for details.');
-  //       }
-  //     }
-  //     setLoading(false);
-  //     console.log('Results set to state', image);
-  //   } catch (e) {
-  //     setLoading(false);
-  //     console.error('Inference error:', e);
-  //     Alert.alert('Analysis Failed', e.message);
-  //   } finally {
-  //     // ✅ CRITICAL MEMORY CLEANUP
-  //     if (tensor) {
-  //       tensor.data = null;
-  //       tensor = null;
-  //     }
-
-  //     global.gc && global.gc();
-
-  //     setLoading(false);
-  //   }
-  // };
   const runAnalysis = async () => {
     const { clarity, obstacle, pipe } = sessions;
     let timeoutId = null;
@@ -711,7 +363,7 @@ useEffect(() => {
 
       let soilResult = null;
       let rulerResult = null;
-      if (act_type != "Pipe Installation" || cameraItem=="secondItem") {
+      if (act_type != "Pipe Installation" || cameraItem == "secondItem") {
         if (sessions.soil) {
           try {
             const sOut = await sessions.soil.run({
@@ -846,11 +498,11 @@ useEffect(() => {
       };
 
       // Check conditions and save image if applicable
-      if (act_type == "Pipe Installation" || cameraItem=="secondItem") {
+      if (act_type == "Pipe Installation" || cameraItem == "secondItem") {
         if (clarityResult.isPositive && pipeResult.isPositive && !obstacleResult.isPositive) {
           try {
             await saveWatermarkedImage();
-               setAIModalVisible(false);
+            setAIModalVisible(false);
           } catch (error) {
             console.error('Failed to save watermarked image:', error);
             Alert.alert('Save Failed', 'Could not save the watermarked image');
@@ -862,7 +514,7 @@ useEffect(() => {
         if (clarityResult.isPositive && pipeResult.isPositive && !obstacleResult.isPositive && soilResult?.isPositive && rulerResult?.isPositive) {
           try {
             await saveWatermarkedImage();
-               setAIModalVisible(false);
+            setAIModalVisible(false);
           } catch (error) {
             console.error('Failed to save watermarked image:', error);
             Alert.alert('Save Failed', 'Could not save the watermarked image');
@@ -930,13 +582,41 @@ useEffect(() => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <Animated.View style={[styles.header, { opacity: headerFade }]}>
-            <Text style={styles.headerEyebrow}>ONNX · EfficientNet-B0</Text>
-            <Text style={styles.headerTitle}>Pipe Analyzer</Text>
-            <Text style={styles.headerSub}>AI-powered pipe inspection</Text>
-          </Animated.View>
+          {ai_camera_pipe_image == "1" ?
+            <Animated.View style={[styles.header]}>
+              <Text style={styles.headerTitle}>Pipe Analyzer</Text>
+              <Text style={styles.headerSub}>AI-powered pipe inspection</Text>
+            </Animated.View> : <View style={{ marginTop: 100 }} />}
 
-          <View style={styles.modelStatusContainer}>
+          <TouchableOpacity
+            style={styles.imageArea}
+            // onPress={pickImage}
+            onPress={takePhoto}
+            activeOpacity={0.85}
+          >
+            {image ? (
+              <Image source={{ uri: image.uri }} style={styles.previewImage} />
+            ) : (
+              <View style={styles.imagePlaceholder}>
+                <Text style={styles.placeholderIcon}>📷</Text>
+                {/* <Text style={styles.placeholderText}>Tap to select image</Text> */}
+                <Text style={styles.placeholderSub}>Use camera button below</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          <View style={styles.buttonRow}>
+            {/* <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={pickImage}>
+              <Text style={styles.btnIcon}>🖼</Text>
+              <Text style={styles.btnSecondaryText}>Gallery</Text>
+            </TouchableOpacity> */}
+
+            <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={takePhoto}>
+              <Text style={styles.btnIcon}>📸</Text>
+              <Text style={styles.btnSecondaryText}>Camera</Text>
+            </TouchableOpacity>
+          </View>
+          {ai_camera_pipe_image == 1 && <><View style={styles.modelStatusContainer}>
             <View style={styles.modelStatusRow}>
               {MODELS.map(m => (
                 <ModelDot
@@ -954,56 +634,40 @@ useEffect(() => {
               </View>
             )}
           </View>
-
-          <TouchableOpacity
-            style={styles.imageArea}
-            onPress={pickImage}
-            activeOpacity={0.85}
-          >
-            {image ? (
-              <Image source={{ uri: image.uri }} style={styles.previewImage} />
-            ) : (
-              <View style={styles.imagePlaceholder}>
-                <Text style={styles.placeholderIcon}>📷</Text>
-                {/* <Text style={styles.placeholderText}>Tap to select image</Text> */}
-                <Text style={styles.placeholderSub}>Use camera button below</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={pickImage}>
-              <Text style={styles.btnIcon}>🖼</Text>
-              <Text style={styles.btnSecondaryText}>Gallery</Text>
+            <TouchableOpacity
+              style={[
+                styles.btn,
+                styles.btnPrimary,
+                (!image || !coreModelsReady || loading) && styles.btnDisabled,
+              ]}
+              onPress={runAnalysis}
+              disabled={!image || !coreModelsReady || loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <>
+                  <Text style={styles.btnIcon}>🔍</Text>
+                  <Text style={styles.btnPrimaryText}>
+                    {!coreModelsReady ? 'Loading Models…' : 'Run Analysis'}
+                  </Text>
+                </>
+              )}
             </TouchableOpacity>
-
-            <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={takePhoto}>
-              <Text style={styles.btnIcon}>📸</Text>
-              <Text style={styles.btnSecondaryText}>Camera</Text>
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity
-            style={[
-              styles.btn,
-              styles.btnPrimary,
-              (!image || !coreModelsReady || loading) && styles.btnDisabled,
-            ]}
-            onPress={runAnalysis}
-            disabled={!image || !coreModelsReady || loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <>
-                <Text style={styles.btnIcon}>🔍</Text>
-                <Text style={styles.btnPrimaryText}>
-                  {!coreModelsReady ? 'Loading Models…' : 'Run Analysis'}
-                </Text>
-              </>
-            )}
-          </TouchableOpacity>
-
+          </>
+          }
+          { ai_camera_pipe_image != 1  && (
+              <TouchableOpacity onPress={() => setAIModalVisible(false)} style={[
+                styles.btn,
+                styles.btnPrimary,
+                (!isReady) && styles.btnDisabled
+              ]}
+                disabled={!isReady}
+              >
+                <Text  style={styles.btnPrimaryText}>Done</Text>
+              </TouchableOpacity>
+            )
+          }
           {result && (
             <View style={styles.resultsSection}>
               <Text style={styles.resultsTitle}>Analysis Results</Text>
@@ -1035,7 +699,7 @@ useEffect(() => {
                 delay={200}
                 unavailable={false}
               />
-              {act_type != "Pipe Installation" && cameraItem=="firstItem"?(
+              {act_type != "Pipe Installation" && cameraItem == "firstItem" ? (
                 <>
                   <AIResultCard
                     icon="🌱"
@@ -1056,7 +720,7 @@ useEffect(() => {
                     unavailable={!result.ruler}
                   />
                 </>
-              ):<></>}
+              ) : <></>}
             </View>
           )}
 
@@ -1100,15 +764,20 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#FFFFFF',
     marginBottom: 4,
+    textAlign: 'center',
+    fontFamily: Fonts.Medium,
   },
   headerSub: {
     fontSize: 14,
     color: '#9CA3AF',
+    textAlign: 'center',
+    fontFamily: Fonts.Medium,
   },
   modelStatusContainer: {
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#1A1A1A',
+    justifyContent: 'center',
   },
   modelStatusRow: {
     flexDirection: 'row',
@@ -1159,6 +828,7 @@ const styles = StyleSheet.create({
   placeholderSub: {
     fontSize: 12,
     color: '#6B7280',
+    fontFamily: Fonts.Medium,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -1184,6 +854,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#1F2937',
     borderWidth: 1,
     borderColor: '#374151',
+    // alignContent: 'center',
+    // justifyContent: 'center'
   },
   btnDisabled: {
     opacity: 0.5,
@@ -1195,11 +867,13 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: Fonts.Medium,
   },
   btnSecondaryText: {
     color: '#D1D5DB',
     fontSize: 16,
     fontWeight: '500',
+    fontFamily: Fonts.Medium,
   },
   resultsSection: {
     marginTop: 8,

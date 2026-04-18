@@ -3,10 +3,10 @@ import { unzip } from 'react-native-zip-archive';
 import AsyncStorage from 'react-native-encrypted-storage';
 import NetInfo from '@react-native-community/netinfo';
 
-const API_URL = 'http://188.166.254.225:8000/download';
+const API_URL = 'http://188.166.254.225:8000/download';   // ← Change to HTTPS if possible!
 
-const TIMEOUT_MS = 8 * 60 * 1000; // 8 minutes
-const MAX_RETRIES = 3;
+const TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes (increased slightly)
+const MAX_RETRIES = 4;             // increased a bit
 
 const STORAGE_KEYS = {
   LAST_MODIFIED: '@last_modified',
@@ -23,7 +23,7 @@ const checkInternet = async () => {
 };
 
 // =======================================
-// FETCH WITH TIMEOUT
+// FETCH WITH TIMEOUT (for check only)
 // =======================================
 const fetchWithTimeout = async (url, options = {}, timeout = TIMEOUT_MS) => {
   const controller = new AbortController();
@@ -60,7 +60,6 @@ const checkForUpdate = async (savedLastModified) => {
   }
 
   const lastModified = response.headers.get('last-modified');
-
   console.log('🆕 Server Last-Modified:', lastModified);
 
   return {
@@ -70,59 +69,86 @@ const checkForUpdate = async (savedLastModified) => {
 };
 
 // =======================================
-// STEP 2: DOWNLOAD WITH RETRY + RESUME
+// STEP 2: DOWNLOAD WITH RETRY + RESUME + TIMEOUTS
 // =======================================
 const downloadZip = async (zipPath, onProgress) => {
   let attempt = 0;
 
   while (attempt < MAX_RETRIES) {
     try {
-      console.log(`⬇️ Download attempt ${attempt + 1}`);
+      console.log(`⬇️ Download attempt ${attempt + 1}/${MAX_RETRIES}`);
+
+      // Clean very small / likely corrupt file
+      if (await RNFS.exists(zipPath)) {
+        const stats = await RNFS.stat(zipPath);
+        if (stats.size < 5000) {  // less than 5KB → probably failed early
+          console.log('🧹 Removing tiny/corrupt partial zip');
+          await RNFS.unlink(zipPath);
+        }
+      }
 
       const exists = await RNFS.exists(zipPath);
-      let headers = {};
+      const headers = {};
 
       if (exists) {
         const stats = await RNFS.stat(zipPath);
-        headers['Range'] = `bytes=${stats.size}-`;
-        console.log('🔁 Resuming from:', stats.size);
+        if (stats.size > 0) {
+          headers['Range'] = `bytes=${stats.size}-`;
+          console.log(`🔁 Resuming from ${stats.size} bytes`);
+        }
       }
 
       const download = RNFS.downloadFile({
         fromUrl: API_URL,
         toFile: zipPath,
         headers,
-
         background: true,
         discretionary: true,
 
+        // ← These two are critical for large files on Android
+        connectionTimeout: 30000,   // 30 seconds to establish connection
+        readTimeout: 120000,        // 2 minutes for reading data (important for 100MB)
+
         progress: (res) => {
-          const percent =
-            res.contentLength > 0
-              ? (res.bytesWritten / res.contentLength) * 100
-              : 0;
-
-          onProgress(Math.floor(percent));
+          const percent = res.contentLength > 0
+            ? Math.floor((res.bytesWritten / res.contentLength) * 100)
+            : 0;
+          onProgress(percent);
         },
-
         progressDivider: 1,
       });
 
       const result = await download.promise;
 
+      console.log(`✅ Download finished - Status: ${result.statusCode}, Bytes: ${result.bytesWritten}`);
+
       if (result.statusCode === 200 || result.statusCode === 206) {
-        console.log('✅ Download success');
         return;
       }
 
       throw new Error(`HTTP ${result.statusCode}`);
     } catch (error) {
       attempt++;
-      console.log(`❌ Retry ${attempt}:`, error.message);
+      console.log(`❌ Attempt ${attempt} failed:`, error.message || error);
+
+      // Clean partial file before next retry (except on last attempt)
+      if (attempt < MAX_RETRIES && await RNFS.exists(zipPath)) {
+        try {
+          const stats = await RNFS.stat(zipPath);
+          if (stats.size < 100000) { // < 100KB → likely bad
+            await RNFS.unlink(zipPath);
+          }
+        } catch (e) {}
+      }
 
       if (attempt >= MAX_RETRIES) {
         throw error;
       }
+
+      // Exponential backoff
+      const backoff = Math.min(5000 * Math.pow(2, attempt - 1), 30000);
+      console.log(`⏳ Waiting ${backoff / 1000}s before retry...`);
+      await new Promise(resolve => setTimeout(resolve, backoff));
     }
   }
 };
@@ -135,7 +161,7 @@ const safeUnzip = async (zipPath, extractPath) => {
     await unzip(zipPath, extractPath);
     console.log('✅ Unzip complete');
   } catch (err) {
-    console.log('❌ Unzip failed (corrupt zip)');
+    console.log('❌ Unzip failed (possibly corrupt zip)');
     throw new Error('Zip extraction failed');
   }
 };
@@ -151,25 +177,15 @@ export const downloadWithCache = async ({
   const extractPath = RNFS.DocumentDirectoryPath;
 
   try {
-    // ===============================
     // 0. INTERNET CHECK
-    // ===============================
     await checkInternet();
 
-    // ===============================
     // 1. GET SAVED LAST-MODIFIED
-    // ===============================
-    const savedLastModified = await AsyncStorage.getItem(
-      STORAGE_KEYS.LAST_MODIFIED
-    );
-
+    const savedLastModified = await AsyncStorage.getItem(STORAGE_KEYS.LAST_MODIFIED);
     console.log('📦 Saved Last-Modified:', savedLastModified);
 
-    // ===============================
     // 2. CHECK UPDATE
-    // ===============================
     onStage('checking');
-
     const check = await checkForUpdate(savedLastModified);
 
     if (!check.updated) {
@@ -178,44 +194,31 @@ export const downloadWithCache = async ({
       return { updated: false };
     }
 
-    // ===============================
-    // 3. CLEAN OLD ZIP (ONLY IF CORRUPT)
-    // ===============================
+    // 3. CLEAN OLD TINY ZIP
     if (await RNFS.exists(zipPath)) {
       const stats = await RNFS.stat(zipPath);
       if (stats.size < 1000) {
-        console.log('🧹 Removing corrupt zip');
+        console.log('🧹 Removing corrupt tiny zip');
         await RNFS.unlink(zipPath);
       }
     }
 
-    // ===============================
     // 4. DOWNLOAD
-    // ===============================
     onStage('downloading');
     await downloadZip(zipPath, onProgress);
 
-    // ===============================
     // 5. UNZIP
-    // ===============================
     onStage('extracting');
     await safeUnzip(zipPath, extractPath);
 
-    // ===============================
     // 6. DELETE ZIP
-    // ===============================
     if (await RNFS.exists(zipPath)) {
       await RNFS.unlink(zipPath);
     }
 
-    // ===============================
     // 7. SAVE LAST-MODIFIED
-    // ===============================
     if (check.lastModified) {
-      await AsyncStorage.setItem(
-        STORAGE_KEYS.LAST_MODIFIED,
-        check.lastModified
-      );
+      await AsyncStorage.setItem(STORAGE_KEYS.LAST_MODIFIED, check.lastModified);
     }
 
     onStage('complete');
@@ -225,12 +228,15 @@ export const downloadWithCache = async ({
       lastModified: check.lastModified,
     };
   } catch (error) {
-    console.error('❌ FINAL ERROR:', error);
+    console.error('❌ FINAL ERROR:', error.message || error);
 
-    if (await RNFS.exists(zipPath)) {
-      await RNFS.unlink(zipPath);
-    }
+    // Clean up partial zip on any final failure
+    try {
+      if (await RNFS.exists(zipPath)) {
+        await RNFS.unlink(zipPath);
+      }
+    } catch (e) {}
 
-    throw error;
+    throw error;   // re-throw so you can show error UI
   }
 };

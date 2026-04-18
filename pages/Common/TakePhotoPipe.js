@@ -41,9 +41,9 @@ const TakePhotoPipe = ({ openImagePicker, selectedImage, title, color, act_type 
           )}
           {
             act_type != "Pipe Installation" && <Text style={{
-              color: '#666262',
-              fontFamily: Fonts.Light,   fontSize: 12,
-            }}>Pipe image width ruler</Text>
+              color: '#666363',
+              fontFamily: Fonts.Medium,   fontSize: 11,
+            }}>Pipe image with ruler</Text>
           }
         </TouchableOpacity>
         <TouchableOpacity
@@ -70,9 +70,8 @@ const TakePhotoPipe = ({ openImagePicker, selectedImage, title, color, act_type 
           )}
           {
             act_type != "Pipe Installation" && <Text style={{
-               color: '#666262',
-              fontFamily: Fonts.Light,
-              fontSize: 12,
+                color: '#666363',
+              fontFamily: Fonts.Medium,   fontSize: 11,
             }}>Normal pipe image</Text>
           }
         </TouchableOpacity>
