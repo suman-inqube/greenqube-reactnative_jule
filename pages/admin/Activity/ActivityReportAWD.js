@@ -2586,6 +2586,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
                     tempImage={tempImage}
                     setTempText={setTempText}
                     setSelectedImagePipe={setSelectedImagePipe}
+                    selectedImagePipe={selectedImagePipe}
                     setPipeDetails={setPipeDetails}
                     watermarkViewRef={watermarkViewRef}
                     act_type={saveData?.act_type}

@@ -167,8 +167,10 @@ const ImageAnalysisScreen = ({
   setLoadProgress,
   loadingModels,
   setLoadingModels,
-  ai_camera_pipe_image
+  ai_camera_pipe_image,
+  selectedImagePipe
 }) => {
+
   // const [sessions, setSessions] = useState({
   //   clarity: null,
   //   obstacle: null,
@@ -266,7 +268,7 @@ const ImageAnalysisScreen = ({
             try {
               const uri = await captureRef(watermarkViewRef, {
                 format: 'jpg',
-                quality: 2,
+                quality: 1,
                 width: 800,
                 height: 800,
               });
@@ -275,7 +277,7 @@ const ImageAnalysisScreen = ({
               await RNFS.copyFile(uri, destPath);
               setTempImage(null);
               setTempText('');
-              if (replaceImgKey.arrayPosition === '') {
+              if (replaceImgKey?.arrayPosition === '') {
                 setSelectedImagePipe(prev => ({
                   ...prev,
                   [cameraItem]: `file://${destPath}`,
@@ -284,7 +286,7 @@ const ImageAnalysisScreen = ({
                   [`${cameraItem}Long`]: lon,
                 }));
               } else {
-                const { arrayPosition, imgPosition } = replaceImgKey;
+                const { arrayPosition, imgPosition } = replaceImgKey || {};
                 setPipeDetails(prev => {
                   const updated = JSON.parse(JSON.stringify(prev));
                   const currentImage = updated[arrayPosition][1][imgPosition];
@@ -317,6 +319,7 @@ const ImageAnalysisScreen = ({
       }
     });
   };
+
   const runAnalysis = async () => {
     const { clarity, obstacle, pipe } = sessions;
     let timeoutId = null;
@@ -326,18 +329,94 @@ const ImageAnalysisScreen = ({
       Alert.alert('No Image', 'Please select or capture an image first.');
       return;
     }
-
     if (!clarity || !obstacle || !pipe) {
       Alert.alert('Models Loading', 'Please wait for core models to finish loading.');
       return;
     }
-
     setLoading(true);
     setResult(null);
-
     let tensor = null;
     try {
-      tensor = await imageToTensor(image.uri);
+
+      const saveWatermarkedImage = async () => {
+        return new Promise(async (resolve, reject) => {
+          if (isCancelled) {
+            reject(new Error('Operation cancelled'));
+            return;
+          }
+          const { latitude: lat, longitude: lon } = mapLatLon || { lat: 'N/A', lon: 'N/A' };
+          const timestamp = Date.now();
+
+          const formattedDate = new Intl.DateTimeFormat('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+          }).format(timestamp);
+
+          const watermarkText = `${formattedDate}\nLat: ${lat}, Lon: ${lon}`;
+
+          // ✅ SAFE URI (important after crop-picker)
+          const imageUri =
+            typeof image?.uri === 'string'
+              ? image.uri
+              : image?.path;
+
+          setTempImage(imageUri);
+          setTempText(watermarkText);
+
+          timeoutId = setTimeout(async () => {
+            try {
+              if (isCancelled) {
+                setTempImage(null);
+                setTempText('');
+                reject(new Error('Operation cancelled'));
+                return;
+              }
+
+              const uri = await captureRef(watermarkViewRef, {
+                format: 'jpg',
+                quality: 1,
+                width: 800,
+                height: 800,
+              });
+
+              const fileName = image.fileName || `photo_${timestamp}.jpg`;
+              const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+
+              await RNFS.copyFile(uri, destPath);
+
+              setTempImage(null);
+              setTempText('');
+
+              console.log('Watermarked image saved:', destPath);
+
+              // ✅ RETURN EVERYTHING
+              resolve({
+                path: destPath,
+                fileName,
+                lat,
+                lon,
+                // cameraItem,
+                // replaceImgKey,
+              });
+
+            } catch (error) {
+              console.log('Capture Error:', error);
+              setTempImage(null);
+              setTempText('');
+              reject(error);
+            }
+          }, 2000);
+        });
+      };
+      const imgWatermark = await saveWatermarkedImage();
+      const { path, fileName, lat, lon } = imgWatermark || {};
+
+      console.log("imgWatermark", `file://${imgWatermark?.path}`, image.uri)
+      tensor = await imageToTensor(`file://${imgWatermark?.path}`);
       console.log('✅ Tensor created');
 
       // ✅ SEQUENTIAL (NOT Promise.all)
@@ -391,6 +470,7 @@ const ImageAnalysisScreen = ({
             console.error('Ruler model failed:', e);
           }
         }
+
       }
 
       setResult({
@@ -400,127 +480,78 @@ const ImageAnalysisScreen = ({
         soil: soilResult,
         ruler: rulerResult
       });
-
-      const { latitude: lat, longitude: lon } = mapLatLon || { lat: 'N/A', lon: 'N/A' };
-
-      // Helper function to save watermarked image
-      const saveWatermarkedImage = async () => {
-        return new Promise(async (resolve, reject) => {
-          if (isCancelled) {
-            reject(new Error('Operation cancelled'));
-            return;
-          }
-
-          const timestamp = Date.now();
-          const formattedDate = new Intl.DateTimeFormat('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-          }).format(timestamp);
-          const watermarkText = `${formattedDate}\nLat: ${lat}, Lon: ${lon}`;
-          setTempImage(image.uri);
-          setTempText(watermarkText);
-
-          timeoutId = setTimeout(async () => {
-            try {
-              if (isCancelled) {
-                setTempImage(null);
-                setTempText('');
-                reject(new Error('Operation cancelled'));
-                return;
-              }
-
-              if (!watermarkViewRef || !watermarkViewRef.current) {
-                console.error('watermarkViewRef is not available');
-                setTempImage(null);
-                setTempText('');
-                reject(new Error('Watermark view not available'));
-                return;
-              }
-
-              const uri = await captureRef(watermarkViewRef, {
-                format: 'jpg',
-                quality: 2,
-                width: 800,
-                height: 800,
-              });
-
-              if (isCancelled) {
-                setTempImage(null);
-                setTempText('');
-                reject(new Error('Operation cancelled'));
-                return;
-              }
-
-              const fileName = image.fileName || `photo_${timestamp}.jpg`;
-              const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-              await RNFS.copyFile(uri, destPath);
-              setTempImage(null);
-              setTempText('');
-
-              if (replaceImgKey.arrayPosition === '') {
-                setSelectedImagePipe(prev => ({
-                  ...prev,
-                  [cameraItem]: `file://${destPath}`,
-                  [`${cameraItem}fileName`]: fileName,
-                  [`${cameraItem}Lat`]: lat,
-                  [`${cameraItem}Long`]: lon,
-                }));
-              } else {
-                const { arrayPosition, imgPosition } = replaceImgKey;
-                setPipeDetails(prev => {
-                  const updated = JSON.parse(JSON.stringify(prev));
-                  const currentImage = updated[arrayPosition][1][imgPosition];
-                  updated[arrayPosition][1][imgPosition] = {
-                    ...currentImage,
-                    imageURL: `file://${destPath}`,
-                    imageName: fileName,
-                    status: '',
-                    lat,
-                    lon,
-                  };
-                  return updated;
-                });
-              }
-              console.log('Watermarked image saved:', destPath);
-              resolve(destPath);
-            } catch (error) {
-              console.log('Capture Error:', error);
-              setTempImage(null);
-              setTempText('');
-              reject(error);
-            }
-          }, 5000);
-        });
-      };
-
       // Check conditions and save image if applicable
       if (act_type == "Pipe Installation" || cameraItem == "secondItem") {
         if (clarityResult.isPositive && pipeResult.isPositive && !obstacleResult.isPositive) {
           try {
-            await saveWatermarkedImage();
+            // await saveWatermarkedImage();
+            if (replaceImgKey?.arrayPosition === '') {
+              setSelectedImagePipe(prev => ({
+                ...prev,
+                [cameraItem]: `file://${path}`,
+                [`${cameraItem}fileName`]: fileName,
+                [`${cameraItem}Lat`]: lat,
+                [`${cameraItem}Long`]: lon,
+              }));
+            } else {
+              const { arrayPosition, imgPosition } = replaceImgKey || {};
+              setPipeDetails(prev => {
+                const updated = JSON.parse(JSON.stringify(prev));
+                const currentImage = updated[arrayPosition][1][imgPosition];
+                updated[arrayPosition][1][imgPosition] = {
+                  ...currentImage,
+                  imageURL: `file://${path}`,
+                  imageName: fileName,
+                  status: '',
+                  lat,
+                  lon,
+                };
+                return updated;
+              });
+            }
             setAIModalVisible(false);
           } catch (error) {
             console.error('Failed to save watermarked image:', error);
             Alert.alert('Save Failed', 'Could not save the watermarked image');
           }
         } else {
-          Alert.alert('Analysis Result', 'Conditions may not be ideal for pipe installation. Please review the results.');
+          // Alert.alert('Analysis Result', 'Conditions may not be ideal for pipe installation. Please review the results.');
         }
       } else {
         if (clarityResult.isPositive && pipeResult.isPositive && !obstacleResult.isPositive && soilResult?.isPositive && rulerResult?.isPositive) {
           try {
-            await saveWatermarkedImage();
+            // await saveWatermarkedImage();
+            if (replaceImgKey.arrayPosition === '') {
+              setSelectedImagePipe(prev => ({
+                ...prev,
+                [cameraItem]: `file://${path}`,
+                [`${cameraItem}fileName`]: fileName,
+                [`${cameraItem}Lat`]: lat,
+                [`${cameraItem}Long`]: lon,
+              }));
+            } else {
+              const { arrayPosition, imgPosition } = replaceImgKey;
+              setPipeDetails(prev => {
+                const updated = JSON.parse(JSON.stringify(prev));
+                const currentImage = updated[arrayPosition][1][imgPosition];
+                updated[arrayPosition][1][imgPosition] = {
+                  ...currentImage,
+                  imageURL: `file://${path}`,
+                  imageName: fileName,
+                  status: '',
+                  lat,
+                  lon,
+                };
+                return updated;
+              });
+            }
             setAIModalVisible(false);
           } catch (error) {
             console.error('Failed to save watermarked image:', error);
             Alert.alert('Save Failed', 'Could not save the watermarked image');
           }
         } else {
-          Alert.alert('Analysis Result', 'Some conditions may not be ideal. Please review the results for details.');
+          // Alert.alert('Analysis Result', 'Some conditions may not be ideal. Please review the results for details.');
         }
       }
 
@@ -656,17 +687,17 @@ const ImageAnalysisScreen = ({
             </TouchableOpacity>
           </>
           }
-          { ai_camera_pipe_image != 1  && (
-              <TouchableOpacity onPress={() => setAIModalVisible(false)} style={[
-                styles.btn,
-                styles.btnPrimary,
-                (!isReady) && styles.btnDisabled
-              ]}
-                disabled={!isReady}
-              >
-                <Text  style={styles.btnPrimaryText}>Done</Text>
-              </TouchableOpacity>
-            )
+          {ai_camera_pipe_image != 1 && (
+            <TouchableOpacity onPress={() => setAIModalVisible(false)} style={[
+              styles.btn,
+              styles.btnPrimary,
+              (!isReady) && styles.btnDisabled
+            ]}
+              disabled={!isReady}
+            >
+              <Text style={styles.btnPrimaryText}>Done</Text>
+            </TouchableOpacity>
+          )
           }
           {result && (
             <View style={styles.resultsSection}>

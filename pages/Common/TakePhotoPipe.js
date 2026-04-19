@@ -3,6 +3,7 @@ import React, { memo } from 'react';
 import { Fonts } from '../utils/Constants';
 
 const TakePhotoPipe = ({ openImagePicker, selectedImage, title, color, act_type }) => {
+  console.log("selectedImage",JSON.stringify(selectedImage))
   return (
     <>
       <Text
