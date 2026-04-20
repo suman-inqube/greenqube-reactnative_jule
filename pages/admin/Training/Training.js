@@ -46,11 +46,6 @@ const Training = () => {
     return html?.replace(/<[^>]*>?/gm, '') || '';
   };
 
-    return html.replace(
-      /https:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/g,
-      'https://www.youtube.com/embed/$1',
-    );
-  };
   const detailItem = path => {
     Linking.openURL(path);
   };
@@ -82,10 +77,7 @@ const Training = () => {
 
     return null;
   };
-  const getVideoId = html => {
-    const match = html?.match(/embed\/([a-zA-Z0-9_-]+)/);
-    return match ? match[1] : null;
-  };
+
   const onPageLoad = async () => {
     const noticeId = route.params;
 
