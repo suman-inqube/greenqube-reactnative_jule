@@ -333,9 +333,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
   // ==================== useEffect ====================
   useEffect(() => {
     // Only run when loadingModels is true and camera pipe is ready
-    if (!loadingModels) return;
-    if (ai_camera_pipe_image !== 1) return;
-
+    if (ai_camera_pipe_image != 1) return;
     const isMountedRef = { current: true };
     const timeoutsRef = { current: [] };
     const loadedSessionsRef = { current: {} };
@@ -363,7 +361,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
 
       loadedSessionsRef.current = {};
     };
-  }, [loadingModels, ai_camera_pipe_image]);
+  }, [isDownloadAvailable]);
 
   // NEW useEffect - Pre-fill when coming from PlotWiseMap
   useEffect(() => {
