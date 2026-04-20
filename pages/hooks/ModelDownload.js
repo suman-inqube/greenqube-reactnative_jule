@@ -1,242 +1,343 @@
+// ─── useDownload.js ───────────────────────────────────────────────────────────
+import { useState, useEffect, useRef } from 'react';
 import RNFS from 'react-native-fs';
 import { unzip } from 'react-native-zip-archive';
-import AsyncStorage from 'react-native-encrypted-storage';
+import EncryptedStorage from 'react-native-encrypted-storage';
 import NetInfo from '@react-native-community/netinfo';
 
-const API_URL = 'http://188.166.254.225:8000/download';   // ← Change to HTTPS if possible!
+const API_URL = 'http://188.166.254.225:8000/download';
+const ZIP_PATH = `${RNFS.DocumentDirectoryPath}/latest.zip`;
+const EXTRACT_PATH = RNFS.DocumentDirectoryPath;
+const KEY_LAST_MODIFIED = '@last_modified';
+const KEY_DL_STATE = '@download_state';
 
-const TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes (increased slightly)
-const MAX_RETRIES = 4;             // increased a bit
-
-const STORAGE_KEYS = {
-  LAST_MODIFIED: '@last_modified',
+// ─── helpers ─────────────────────────────────────────────────────────────────
+export const formatBytes = (bytes = 0) => {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 };
 
-// =======================================
-// INTERNET CHECK
-// =======================================
-const checkInternet = async () => {
-  const state = await NetInfo.fetch();
-  if (!state.isConnected) {
-    throw new Error('No internet connection');
-  }
+const checkNet = async () => {
+  const s = await NetInfo.fetch();
+  if (!s.isConnected) throw new Error('No internet connection. Please check your network.');
+};
+export const STAGE_LABELS = {
+  idle:       'Ready',
+  checking:   'Checking server…',
+  downloading:'Downloading…',
+  paused:     'Paused',
+  extracting: 'Extracting files…',
+  complete:   'Complete!',
+  failed:     'Failed',
+};
+export const STAGE_COLORS = {
+  idle:       '#888',
+  checking:   '#FF9800',
+  downloading:'#2196F3',
+  paused:     '#FF9800',
+  extracting: '#9C27B0',
+  complete:   '#4CAF50',
+  failed:     '#F44336',
 };
 
-// =======================================
-// FETCH WITH TIMEOUT (for check only)
-// =======================================
-const fetchWithTimeout = async (url, options = {}, timeout = TIMEOUT_MS) => {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal,
-    });
-    clearTimeout(id);
-    return response;
-  } catch (err) {
-    clearTimeout(id);
-    throw err;
-  }
-};
-
-// =======================================
-// STEP 1: CHECK SERVER
-// =======================================
-const checkForUpdate = async (savedLastModified) => {
-  const response = await fetchWithTimeout(API_URL, {
-    method: 'GET',
-    headers: savedLastModified
-      ? { 'If-Modified-Since': savedLastModified }
-      : {},
-  });
-
-  console.log('📡 CHECK STATUS:', response.status);
-
-  if (response.status === 304) {
-    return { updated: false };
+// ─── DownloadManager class ───────────────────────────────────────────────────
+class DownloadManager {
+  constructor() {
+    this._job = null;
+    this._state = {
+      status: 'idle',
+      progress: 0,
+      bytesWritten: 0,
+      totalBytes: 0,
+      lastModified: null,
+    };
+    this._listeners = [];
   }
 
-  const lastModified = response.headers.get('last-modified');
-  console.log('🆕 Server Last-Modified:', lastModified);
+  _emit() {
+    const snap = { ...this._state };
+    this._listeners.forEach(fn => fn(snap));
+  }
 
-  return {
-    updated: true,
-    lastModified,
-  };
-};
+  _set(patch) {
+    this._state = { ...this._state, ...patch };
+    this._emit();
+    this._persist();
+  }
 
-// =======================================
-// STEP 2: DOWNLOAD WITH RETRY + RESUME + TIMEOUTS
-// =======================================
-const downloadZip = async (zipPath, onProgress) => {
-  let attempt = 0;
-
-  while (attempt < MAX_RETRIES) {
+  async _persist() {
     try {
-      console.log(`⬇️ Download attempt ${attempt + 1}/${MAX_RETRIES}`);
+      await EncryptedStorage.setItem(
+        KEY_DL_STATE,
+        JSON.stringify({ ...this._state, ts: Date.now() }),
+      );
+    } catch (_) {}
+  }
 
-      // Clean very small / likely corrupt file
-      if (await RNFS.exists(zipPath)) {
-        const stats = await RNFS.stat(zipPath);
-        if (stats.size < 5000) {  // less than 5KB → probably failed early
-          console.log('🧹 Removing tiny/corrupt partial zip');
-          await RNFS.unlink(zipPath);
+  async _loadPersisted() {
+    try {
+      const raw = await EncryptedStorage.getItem(KEY_DL_STATE);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+
+      if (saved.status === 'paused' && saved.bytesWritten > 0) {
+        const exists = await RNFS.exists(ZIP_PATH);
+        if (!exists) {
+          await this._clearPersisted();
+          return;
         }
-      }
-
-      const exists = await RNFS.exists(zipPath);
-      const headers = {};
-
-      if (exists) {
-        const stats = await RNFS.stat(zipPath);
-        if (stats.size > 0) {
-          headers['Range'] = `bytes=${stats.size}-`;
-          console.log(`🔁 Resuming from ${stats.size} bytes`);
+        const stat = await RNFS.stat(ZIP_PATH);
+        if (Number(stat.size) !== saved.bytesWritten) {
+          await this._clearPersisted();
+          return;
         }
+        this._state = { ...this._state, ...saved };
+        this._emit();
       }
+    } catch (_) {}
+  }
 
-      const download = RNFS.downloadFile({
-        fromUrl: API_URL,
-        toFile: zipPath,
-        headers,
-        background: true,
-        discretionary: true,
+  async _clearPersisted() {
+    try { await EncryptedStorage.removeItem(KEY_DL_STATE); } catch (_) {}
+  }
 
-        // ← These two are critical for large files on Android
-        connectionTimeout: 30000,   // 30 seconds to establish connection
-        readTimeout: 120000,        // 2 minutes for reading data (important for 100MB)
+  subscribe(fn) {
+    this._listeners.push(fn);
+    fn({ ...this._state });
+    return () => this._listeners = this._listeners.filter(l => l !== fn);
+  }
 
-        progress: (res) => {
-          const percent = res.contentLength > 0
-            ? Math.floor((res.bytesWritten / res.contentLength) * 100)
-            : 0;
-          onProgress(percent);
-        },
-        progressDivider: 1,
-      });
+  getState() { return { ...this._state }; }
 
-      const result = await download.promise;
+  async init() {
+    await this._loadPersisted();
+    return this._state;
+  }
 
-      console.log(`✅ Download finished - Status: ${result.statusCode}, Bytes: ${result.bytesWritten}`);
+  async start() {
+    await checkNet();
+
+    this._set({ status: 'checking' });
+
+    const savedLM = await EncryptedStorage.getItem(KEY_LAST_MODIFIED).catch(() => null);
+
+    // 405 Error fix - Use GET with Range instead of HEAD
+    const checkRes = await fetch(API_URL, {
+      method: 'GET',
+      headers: {
+        ...(savedLM ? { 'If-Modified-Since': savedLM } : {}),
+        'Range': 'bytes=0-0',
+      },
+    });
+
+    console.log("checkRes.status:", checkRes.status);
+
+    if (checkRes.status === 304) {
+      this._set({ status: 'idle' });
+      return 'not_modified';
+    }
+
+    const serverLM = checkRes.headers.get('last-modified');
+    const contentLength = parseInt(checkRes.headers.get('content-length') || '0', 10);
+
+    this._set({
+      status: 'downloading',
+      lastModified: serverLM,
+      bytesWritten: 0,
+      totalBytes: contentLength || 0,
+      progress: 0,
+    });
+
+    return await this._runDownload(0, false);
+  }
+
+  async resume() {
+    await checkNet();
+    const { bytesWritten } = this._state;
+    if (bytesWritten <= 0) return this.start();
+
+    this._set({ status: 'downloading' });
+    return await this._runDownload(bytesWritten, true);
+  }
+
+  async _runDownload(resumeFrom, isResume) {
+    // Delete old file only if it's a fresh start
+    if (!isResume && await RNFS.exists(ZIP_PATH)) {
+      await RNFS.unlink(ZIP_PATH).catch(() => {});
+    }
+
+    const headers = {};
+    if (isResume && resumeFrom > 0) {
+      headers['Range'] = `bytes=${resumeFrom}-`;
+      console.log(`Resuming from byte: ${resumeFrom}`);
+    }
+
+    const dlJob = RNFS.downloadFile({
+      fromUrl:           API_URL,
+      toFile:            ZIP_PATH,
+      headers,
+      background:        true,
+      discretionary:     false,
+      connectionTimeout: 30000,
+      readTimeout:       120000,
+      progressInterval:  200,
+
+      begin: (res) => {
+        console.log('Download began → contentLength:', res.contentLength);
+        if (res.contentLength > 0) {
+          this._set({
+            totalBytes: isResume ? resumeFrom + res.contentLength : res.contentLength,
+          });
+        }
+      },
+
+      progress: (res) => {
+        const written = isResume ? resumeFrom + res.bytesWritten : res.bytesWritten;
+        let total = isResume ? resumeFrom + res.contentLength : res.contentLength;
+
+        if (total <= 0) total = written + 1024 * 1024; // fallback
+
+        const pct = total > 0 
+          ? Math.min(100, Math.round((written / total) * 100)) 
+          : 0;
+
+        this._set({ 
+          bytesWritten: written, 
+          totalBytes: total, 
+          progress: pct 
+        });
+      },
+    });
+
+    this._job = dlJob;
+
+    try {
+      const result = await dlJob.promise;
+      console.log('Download finished with statusCode:', result.statusCode);
 
       if (result.statusCode === 200 || result.statusCode === 206) {
-        return;
+        this._set({ 
+          status: 'extracting', 
+          progress: 100,
+          bytesWritten: this._state.totalBytes || 0 
+        });
+
+        await unzip(ZIP_PATH, EXTRACT_PATH);
+        await RNFS.unlink(ZIP_PATH).catch(() => {});
+
+        if (this._state.lastModified) {
+          await EncryptedStorage.setItem(KEY_LAST_MODIFIED, this._state.lastModified);
+        }
+
+        this._set({ status: 'complete', progress: 100 });
+        await this._clearPersisted();
+        return 'done';
       }
 
-      throw new Error(`HTTP ${result.statusCode}`);
-    } catch (error) {
-      attempt++;
-      console.log(`❌ Attempt ${attempt} failed:`, error.message || error);
-
-      // Clean partial file before next retry (except on last attempt)
-      if (attempt < MAX_RETRIES && await RNFS.exists(zipPath)) {
-        try {
-          const stats = await RNFS.stat(zipPath);
-          if (stats.size < 100000) { // < 100KB → likely bad
-            await RNFS.unlink(zipPath);
-          }
-        } catch (e) {}
-      }
-
-      if (attempt >= MAX_RETRIES) {
-        throw error;
-      }
-
-      // Exponential backoff
-      const backoff = Math.min(5000 * Math.pow(2, attempt - 1), 30000);
-      console.log(`⏳ Waiting ${backoff / 1000}s before retry...`);
-      await new Promise(resolve => setTimeout(resolve, backoff));
+      throw new Error(`Server returned HTTP ${result.statusCode}`);
+    } catch (err) {
+      if (this._state.status === 'paused') return 'paused';
+      this._set({ status: 'failed' });
+      await this._clearPersisted();
+      throw err;
     }
   }
-};
 
-// =======================================
-// SAFE UNZIP
-// =======================================
-const safeUnzip = async (zipPath, extractPath) => {
-  try {
-    await unzip(zipPath, extractPath);
-    console.log('✅ Unzip complete');
-  } catch (err) {
-    console.log('❌ Unzip failed (possibly corrupt zip)');
-    throw new Error('Zip extraction failed');
-  }
-};
-
-// =======================================
-// MAIN FUNCTION
-// =======================================
-export const downloadWithCache = async ({
-  onProgress = () => {},
-  onStage = () => {},
-}) => {
-  const zipPath = `${RNFS.DocumentDirectoryPath}/latest.zip`;
-  const extractPath = RNFS.DocumentDirectoryPath;
-
-  try {
-    // 0. INTERNET CHECK
-    await checkInternet();
-
-    // 1. GET SAVED LAST-MODIFIED
-    const savedLastModified = await AsyncStorage.getItem(STORAGE_KEYS.LAST_MODIFIED);
-    console.log('📦 Saved Last-Modified:', savedLastModified);
-
-    // 2. CHECK UPDATE
-    onStage('checking');
-    const check = await checkForUpdate(savedLastModified);
-
-    if (!check.updated) {
-      console.log('⚡ No update needed');
-      onStage('not_modified');
-      return { updated: false };
-    }
-
-    // 3. CLEAN OLD TINY ZIP
-    if (await RNFS.exists(zipPath)) {
-      const stats = await RNFS.stat(zipPath);
-      if (stats.size < 1000) {
-        console.log('🧹 Removing corrupt tiny zip');
-        await RNFS.unlink(zipPath);
+  async pause() {
+    if (this._job?.jobId && this._state.status === 'downloading') {
+      try {
+        await RNFS.stopDownload(this._job.jobId);
+        this._set({ status: 'paused' });
+        return true;
+      } catch (e) {
+        console.warn('Pause failed:', e);
       }
     }
+    return false;
+  }
 
-    // 4. DOWNLOAD
-    onStage('downloading');
-    await downloadZip(zipPath, onProgress);
-
-    // 5. UNZIP
-    onStage('extracting');
-    await safeUnzip(zipPath, extractPath);
-
-    // 6. DELETE ZIP
-    if (await RNFS.exists(zipPath)) {
-      await RNFS.unlink(zipPath);
+  // ─── Cancel: Fully delete file and reset everything ───
+  async cancel() {
+    if (this._job?.jobId) {
+      try { await RNFS.stopDownload(this._job.jobId); } catch (_) {}
     }
+    this._job = null;
 
-    // 7. SAVE LAST-MODIFIED
-    if (check.lastModified) {
-      await AsyncStorage.setItem(STORAGE_KEYS.LAST_MODIFIED, check.lastModified);
-    }
+    // Delete the partial zip file
+    await RNFS.unlink(ZIP_PATH).catch(() => {});
 
-    onStage('complete');
+    // Clear all saved state
+    await this._clearPersisted();
+    await EncryptedStorage.removeItem(KEY_LAST_MODIFIED).catch(() => {});
 
-    return {
-      updated: true,
-      lastModified: check.lastModified,
+    this._state = {
+      status: 'idle',
+      progress: 0,
+      bytesWritten: 0,
+      totalBytes: 0,
+      lastModified: null,
     };
-  } catch (error) {
-    console.error('❌ FINAL ERROR:', error.message || error);
 
-    // Clean up partial zip on any final failure
-    try {
-      if (await RNFS.exists(zipPath)) {
-        await RNFS.unlink(zipPath);
-      }
-    } catch (e) {}
-
-    throw error;   // re-throw so you can show error UI
+    this._emit();
+    console.log('Download cancelled and cleaned up completely');
   }
+}
+
+// ─── THE HOOK ────────────────────────────────────────────────────────────────
+export const useDownload = () => {
+  const mgrRef = useRef(null);
+  if (!mgrRef.current) mgrRef.current = new DownloadManager();
+  const mgr = mgrRef.current;
+
+  const [dlState, setDlState] = useState(mgr.getState());
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const unsub = mgr.subscribe(setDlState);
+    return unsub;
+  }, []);
+
+  const init = async () => {
+    const state = await mgr.init();
+    return state;
+  };
+
+  const wrap = (fn) => async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      return await fn();
+    } catch (e) {
+      return { error: e.message || String(e) };
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const start  = wrap(() => mgr.start());
+  const pause  = wrap(() => mgr.pause());
+  const resume = wrap(() => mgr.resume());
+  const cancel = wrap(() => mgr.cancel());
+
+  const { status, progress, bytesWritten, totalBytes } = dlState;
+
+  return {
+    status,
+    progress,
+    bytesWritten,
+    totalBytes,
+    busy,
+    canStart:  !busy && (status === 'idle' || status === 'complete' || status === 'failed'),
+    canPause:  !busy && status === 'downloading',
+    canResume: !busy && status === 'paused',
+    canCancel: !busy && (status === 'downloading' || status === 'paused'),
+    init,
+    start,
+    pause,
+    resume,
+    cancel,
+  };
 };

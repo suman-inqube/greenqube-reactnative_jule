@@ -81,10 +81,18 @@ import { Camera } from 'react-native-vision-camera';
 import ImageAnalysisScreen from './ImageAnalysisScreen'
 import { downloadWithCache } from '../../hooks/ModelDownload';
 import { MODELS, loadModelFromAssets } from './ImageAnalysisScreen'
+import { useDownload, formatBytes, STAGE_LABELS, STAGE_COLORS } from '../../hooks/ModelDownload';
 const ActivityReportAWD = ({ navigation, route }) => {
   const { farmer, plot } = route?.params || {};
   const isScanningRef = useRef(false);
   const lastScannedRef = useRef(null);
+  const {
+    status,
+    // progress, 
+    bytesWritten, totalBytes, busy,
+    canStart, canPause, canResume, canCancel,
+    init, start, pause, resume, cancel,
+  } = useDownload();
   //GQR-67
   const {
     loginUser_data,
@@ -2028,60 +2036,18 @@ const ActivityReportAWD = ({ navigation, route }) => {
   const [progress, setProgress] = useState(0);
   const [stageMessage, setStageMessage] = useState('');
 
-  // Then use this improved runDownload:
-  const runDownload = async () => {
 
-    setShowProgress(true);
-    setProgress(0);
-    setStageMessage('Starting...');
-    const isMountedRef = { current: true };
-    const timeoutsRef = { current: [] };
-    const loadedSessionsRef = { current: {} };
-    try {
-      const res = await downloadWithCache({
-        onProgress: (p) => {
-          setProgress(p);
-        },
-        onStage: (s, data) => {
-          const messages = {
-            checking: '🔍 Checking for updates...',
-            downloading: '⬇️ Downloading model...',
-            resuming: '⏳ Resuming download...',
-            extracting: '📂 Extracting files... Please wait',
-            cleaning: '🧹 Cleaning up...',
-            complete: '✅ Download completed!',
-            not_modified: '✨ Model is already up to date!',
-          };
-
-          setStageMessage(messages[s] || s);
-
-          if (s === 'complete' || s === 'not_modified') {
-            setProgress(100);
-          }
-        },
-      });
-
-      if (!res.updated) {
-        setStageMessage('✨ Model is already up to date!');
-        await loadAllModels(isMountedRef, timeoutsRef, loadedSessionsRef);
-      } else {
-        setStageMessage('🎉 Model downloaded successfully!');
-        await loadAllModels(isMountedRef, timeoutsRef, loadedSessionsRef);
-      }
-      setShowProgress(false);
-    } catch (e) {
-      console.log('ERROR:', e.message);
-      setStageMessage(`❌ Error: ${e.message}`);
-    } finally {
-      // Auto close progress after 2 seconds
-      // setTimeout(() => {
-      //   setShowProgress(false);
-      // }, 2000);
-    }
-  };
+  const [isDownloadAvailable, setDownloadAvailable] = useState(true)
   const onPageLoad = async () => {
     try {
-      const QRFlag = await getItem('pipeQR');
+      setDownloadAvailable(true)
+      const [QRFlag, result] = await Promise.all([
+        getItem('pipeQR'),
+        ai_camera_pipe_image == 1 ? start() : Promise.resolve(null)
+      ]);
+      if (result?.error) Alert.alert('Error', result.error);
+      else if (result === 'not_modified') setDownloadAvailable(false);
+      else if (result === 'done') { Alert.alert('Done', 'Download and extraction complete!'); setDownloadAvailable(false); }
       setPipeQR(QRFlag);
       const { latitude, longitude } = coords || {};
       var latlong;
@@ -2114,10 +2080,6 @@ const ActivityReportAWD = ({ navigation, route }) => {
     })();
     const task = InteractionManager.runAfterInteractions(() => {
       onPageLoad();
-      if (ai_camera_pipe_image == 1) {
-        runDownload();
-
-      }
       // startWatchingLocation();
     });
     return () => {
@@ -2399,96 +2361,6 @@ const ActivityReportAWD = ({ navigation, route }) => {
         latitude: lat,
         longitude: lon
       })
-      const options = {
-        mediaType: 'photo',
-        includeBase64: true,
-        maxHeight: 800,
-        maxWidth: 800,
-        includeExtra: true,
-      };
-
-      // launchCamera(options, async response => {
-      //   try {
-      //     if (!response) {
-      //       CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
-      //       return;
-      //     }
-      //     if (response.didCancel) {
-      //       CustomAlert('Error_Cancel', 'User cancelled camera', true, 'OK');
-      //       return;
-      //     }
-      //     if (response.errorCode) {
-      //       CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
-      //       return;
-      //     }
-
-      //     const asset = response.assets?.[0];
-      //     if (!asset?.uri) {
-      //       CustomAlert('Error', 'No image captured', true, 'OK');
-      //       return;
-      //     }
-      //     const timestamp = Date.now();
-      //     const formattedDate = new Intl.DateTimeFormat('en-US', {
-      //       year: 'numeric',
-      //       month: '2-digit',
-      //       day: '2-digit',
-      //       hour: '2-digit',
-      //       minute: '2-digit',
-      //       second: '2-digit',
-      //     }).format(timestamp);
-      //     const watermarkText = `${formattedDate}\nLat: ${lat}, Lon: ${lon}`;
-      //     setTempImage(asset.uri);
-      //     setTempText(watermarkText);
-      //     setTimeout(async () => {
-      //       try {
-      //         const uri = await captureRef(watermarkViewRef, {
-      //           format: 'jpg',
-      //           quality: 2,
-      //           width: 800,
-      //           height: 800,
-      //         });
-      //         const fileName = asset.fileName || `photo_${timestamp}.jpg`;
-      //         const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-      //         await RNFS.copyFile(uri, destPath);
-      //         setTempImage(null);
-      //         setTempText('');
-      //         if (replaceImgKey.arrayPosition === '') {
-      //           setSelectedImagePipe(prev => ({
-      //             ...prev,
-      //             [cameraItem]: `file://${destPath}`,
-      //             [`${cameraItem}fileName`]: fileName,
-      //             [`${cameraItem}Lat`]: lat,
-      //             [`${cameraItem}Long`]: lon,
-      //           }));
-      //         } else {
-      //           const { arrayPosition, imgPosition } = replaceImgKey;
-      //           setPipeDetails(prev => {
-      //             const updated = JSON.parse(JSON.stringify(prev));
-      //             const currentImage = updated[arrayPosition][1][imgPosition];
-      //             updated[arrayPosition][1][imgPosition] = {
-      //               ...currentImage,
-      //               imageURL: `file://${destPath}`,
-      //               imageName: fileName,
-      //               status: '',
-      //               lat,
-      //               lon,
-      //             };
-      //             return updated;
-      //           });
-      //         }
-      //         console.log('Watermarked image saved:', destPath);
-      //       } catch (error) {
-      //         console.log('Capture Error:', error);
-      //         setTempImage(null);
-      //         setTempText('');
-      //       }
-      //     }, 5000);
-      //   } catch (error) {
-      //     CustomAlert('Catch Error ', error, true, 'OK');
-      //   } finally {
-      //     setModalVisibleMap(false);
-      //   }
-      // });
     },
     [
       cameraItem,
@@ -2552,7 +2424,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
   });//
   const [loadProgress, setLoadProgress] = useState(''); //
   const [loadingModels, setLoadingModels] = useState(true);
-
+  const color = STAGE_COLORS[status] ?? '#888';
   return (
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
@@ -2564,19 +2436,26 @@ const ActivityReportAWD = ({ navigation, route }) => {
                 logoImage={logoImage}
                 topBanner={topBanner}
               />
-              {showProgress ? (
-                <View style={styles.progressOverlay}>
-                  <View style={styles.progressCard}>
-                    <ActivityIndicator size="large" color="#4A90E2" />
-                    <Text style={styles.stageText}>{stageMessage}</Text>
-                    <Text style={styles.progressText}>{progress}%</Text>
-
-                    <View style={styles.progressBarContainer}>
-                      <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
-                    </View>
+              {isDownloadAvailable == true ? (
+                <View style={{padding:10}}>
+                  <View style={styles.badge}>
+                    <View style={[styles.dot, { backgroundColor: color }]} />
+                    <Text style={[styles.badgeText, { color }]}>
+                      {STAGE_LABELS[status] ?? status}
+                    </Text>
                   </View>
-                </View>
-              ) :
+
+                  <View style={styles.barWrap}>
+                    <View style={[styles.barFill, { width: `${progress}%`, backgroundColor: "green" }]} />
+                  </View>
+                  <Text style={styles.pct}>{progress}%</Text>
+
+                  {totalBytes > 0 && (
+                    <Text style={styles.byteInfo}>
+                      {formatBytes(bytesWritten)} / {formatBytes(totalBytes)}
+                    </Text>
+                  )}
+                </View>) :
                 <>
                   {AIModalVisible && (<ImageAnalysisScreen
                     AIModalVisible={AIModalVisible}
@@ -3082,7 +2961,6 @@ const ActivityReportAWD = ({ navigation, route }) => {
                     disabled={isLoading || isPrefilling}
                   />
                 </>
-
               }
 
             </View>
@@ -3448,4 +3326,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#4A90E2',
     borderRadius: 999,
   },
+
+
+  sub: { fontSize: 13, color: '#888', marginBottom: 32, letterSpacing: 0.5 },
+  badge: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 20, paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#fff', borderRadius: 20, elevation: 1 },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  badgeText: { fontSize: 14, fontWeight: '600' },
+  barWrap: { width: '100%', height: 10, backgroundColor: '#E0E0E0', borderRadius: 5, overflow: 'hidden', marginBottom: 8 },
+  barFill: { height: '100%', borderRadius: 5 },
+  pct: { fontSize: 32, fontWeight: '700', color: '#1A1A1A', marginBottom: 4 },
+  byteInfo: { fontSize: 13, color: '#888', marginBottom: 32 },
+  btns: { width: '100%', gap: 10 },
+  btn: { paddingVertical: 14, borderRadius: 10, alignItems: 'center' },
+  btnText: { color: '#fff', fontSize: 15, fontWeight: '700', letterSpacing: 0.3 },
+  notice: { marginTop: 24, padding: 16, borderRadius: 10, width: '100%', alignItems: 'center' },
 });
