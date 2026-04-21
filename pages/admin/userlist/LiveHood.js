@@ -115,7 +115,7 @@ const LiveHood = ({
   //GQR-65
   const navigation = useNavigation();
   const route = useRoute();
-  const {farmeruserID, agri_land_user_rels,userName} = route.params;
+  const {farmeruserID, agri_land_user_rels, userName} = route.params;
   const [polygons, setPolygons] = useState([]);
   const [newPolygon, setNewPolygon] = useState([]);
   const [editing, setEditing] = useState(false);
@@ -3002,7 +3002,7 @@ const LiveHood = ({
             type: coFarmerDetails.addressProof?.type,
           });
         }
-    
+
         if (coFarmerDetails.idProof != null && coFarmerDetails.idProof != '') {
           formdataCofarmers.append(`farmer_identity`, {
             uri: coFarmerDetails.idProof?.uri,
@@ -3053,7 +3053,10 @@ const LiveHood = ({
             type: coFarmerDetails.addressProof?.type,
           });
         }
-        if (coFarmerDetails.idProof?.uri != null && coFarmerDetails.idProof?.uri != '') {
+        if (
+          coFarmerDetails.idProof?.uri != null &&
+          coFarmerDetails.idProof?.uri != ''
+        ) {
           formdataCofarmers.append(`farmer_identity_1`, {
             uri: coFarmerDetails.idProof?.uri,
             name: coFarmerDetails.idProof?.name,
@@ -3228,6 +3231,7 @@ const LiveHood = ({
                 unit_valueArr={farmerData.unit_valueArr}
                 landAreaUnit={landAreaUnit?.[0]?.unit_name}
                 effective_dates={effective_dates}
+                ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
               />
             </View>
           </View>
@@ -3267,6 +3271,7 @@ const LiveHood = ({
                 setModalVisibleCoFarmer={setModalVisibleCoFarmer}
                 modalVisibleCoFarmer={modalVisibleCoFarmer}
                 setCoFarmerDetails={setCoFarmerDetails}
+                ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
               />
             </View>
           </View>
@@ -3511,6 +3516,7 @@ const LiveHood = ({
                   InputTextFormEdit={InputTextFormEdit}
                   marginBottom={navigationBarHeight}
                   allowAddMore={true}
+                  ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
                 />
 
                 <View style={{marginTop: 15}}>
@@ -3541,6 +3547,7 @@ const LiveHood = ({
                     marginBottom={navigationBarHeight}
                     allowAddMore={false}
                     farmerName={userName}
+                    ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
                   />
                 </View>
 

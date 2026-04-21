@@ -1,8 +1,9 @@
-import {StyleSheet, View, TouchableOpacity, Image, Text} from 'react-native';
-import React, {memo} from 'react';
-import {Fonts} from '../utils/Constants';
+import { StyleSheet, View, TouchableOpacity, Image, Text } from 'react-native';
+import React, { memo } from 'react';
+import { Fonts } from '../utils/Constants';
 
-const TakePhotoPipe = ({openImagePicker, selectedImage, title, color}) => {
+const TakePhotoPipe = ({ openImagePicker, selectedImage, title, color, act_type }) => {
+  console.log("selectedImage",JSON.stringify(selectedImage))
   return (
     <>
       <Text
@@ -23,11 +24,11 @@ const TakePhotoPipe = ({openImagePicker, selectedImage, title, color}) => {
           {selectedImage.firstItem == '' ? (
             <Image
               source={require('../Common/images/camera.jpeg')}
-              style={{width: 40, height: 40, opacity: 0.7}}
+              style={{ width: 40, height: 40, opacity: 0.7 }}
             />
           ) : (
             <Image
-              source={{uri: `${selectedImage.firstItem}`}}
+              source={{ uri: `${selectedImage.firstItem}` }}
               // style={styles.image}
               style={{
                 width: '100%',
@@ -39,6 +40,12 @@ const TakePhotoPipe = ({openImagePicker, selectedImage, title, color}) => {
               resizeMode="contain"
             />
           )}
+          {
+            act_type != "Pipe Installation" && <Text style={{
+              color: '#666363',
+              fontFamily: Fonts.Medium,   fontSize: 11,
+            }}>Pipe image with ruler</Text>
+          }
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.item}
@@ -46,11 +53,11 @@ const TakePhotoPipe = ({openImagePicker, selectedImage, title, color}) => {
           {selectedImage.secondItem == '' ? (
             <Image
               source={require('../Common/images/camera.jpeg')}
-              style={{width: 40, height: 40, opacity: 0.7, borderRadius: 8}}
+              style={{ width: 40, height: 40, opacity: 0.7, borderRadius: 8 }}
             />
           ) : (
             <Image
-              source={{uri: `${selectedImage.secondItem}`}}
+              source={{ uri: `${selectedImage.secondItem}` }}
               // style={styles.image}
               style={{
                 width: '100%',
@@ -62,6 +69,12 @@ const TakePhotoPipe = ({openImagePicker, selectedImage, title, color}) => {
               resizeMode="contain"
             />
           )}
+          {
+            act_type != "Pipe Installation" && <Text style={{
+                color: '#666363',
+              fontFamily: Fonts.Medium,   fontSize: 11,
+            }}>Normal pipe image</Text>
+          }
         </TouchableOpacity>
         {/* <TouchableOpacity style={styles.item} onPress={() => openImagePicker("thirdItem")}>
                        {selectedImage.thirdItem == "" ? <Image
@@ -93,7 +106,7 @@ const styles = StyleSheet.create({
   },
   item: {
     // backgroundColor: '#e9e9e9',
-    width: '30%',
+    width: '40%',
     // paddingVertical: 10,
     // borderRadius: 6,
     justifyContent: 'center',

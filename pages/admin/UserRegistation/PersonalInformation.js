@@ -193,7 +193,7 @@ const PersonalInformation = () => {
     });
 
     // 3. LOAD STATE API + CONTACT DIGIT API
-    const { dbName, languageId, country_id, languageConpany } = dbLanTokUsr;
+    const { dbName, languageId, country_id, languageConpany,ai_camera_id_proof } = dbLanTokUsr;
 
     const [checkPhoneNumberDigit] = await Promise.all([
       axiosGet(ROUTES.GET.CHECK_PHONE_DIGIT({ countryId: country_id }), '', {
@@ -705,6 +705,7 @@ const PersonalInformation = () => {
                         // photoDeletedValue={photoDeletedValue}
                         // setPhotoDeletedValue={setPhotoDeletedValue}
                         // loginUser_data={loginUser_data}
+                        ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
                         />
                       </View>
                     </View>

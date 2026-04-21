@@ -30,6 +30,7 @@ const ProofAndIdentityPropfComp = ({
   InputTextFormEdit,
   allowAddMore,
   farmerName = "",
+  ai_camera_id_proof = "0",
 }) => {
   const [loading, setLoading] = useState(false);
   const logFileSize = async (uri, label = '') => {
@@ -435,12 +436,12 @@ const ProofAndIdentityPropfComp = ({
               key={index}
               style={styles.idItem}
               onPress={() =>
-                // data.imageType == "identity" ? SPSheet.show({
-                //   component: () => (
-                //     <ActionSheetID data={data} index={index} spSheet={SPSheet} />
-                //   ),
-                //   height: 230,
-                // }) :
+                data.imageType == "identity" && ai_camera_id_proof == "1" ? SPSheet.show({
+                  component: () => (
+                    <ActionSheetID data={data} index={index} spSheet={SPSheet} />
+                  ),
+                  height: 230,
+                }) :
                   SPSheet.show({
                     component: () => (
                       <ActionSheet data={data} index={index} spSheet={SPSheet} />

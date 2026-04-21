@@ -17,23 +17,23 @@ import {
   isLocationEnabled,
   promptForEnableLocationIfNeeded,
 } from 'react-native-android-location-enabler';
-import {getItem, setItem, removeItem} from '../../config/getDataFromStorage';
-import {useTranslation} from 'react-i18next';
-import {AlertMesg} from '../Common/ToastAlert';
+import { getItem, setItem, removeItem } from '../../config/getDataFromStorage';
+import { useTranslation } from 'react-i18next';
+import { AlertMesg } from '../Common/ToastAlert';
 import {
   Root,
   Toast,
   Popup,
   SPSheet,
 } from '@sekizlipenguen/react-native-popup-confirm-toast';
-import {onBackPress} from '../Common/BackPressHandler';
+import { onBackPress } from '../Common/BackPressHandler';
 import DeviceInfo from '../DeviceInfo';
 import i18next from 'i18next';
-import {getNavigationBarHeight} from 'react-native-android-navbar-height';
+import { getNavigationBarHeight } from 'react-native-android-navbar-height';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import RNRestart from 'react-native-restart';
-import {axiosGet} from '../utils/api';
-import {ROUTES} from '../utils/Routes';
+import { axiosGet } from '../utils/api';
+import { ROUTES } from '../utils/Routes';
 import ImagePlaceHolderCircle from '../Common/ImagePlaceHolderCircle';
 import InputTextForm from '../Common/InputTextForm';
 import RadioForm from '../Common/RadioForm';
@@ -53,8 +53,8 @@ const userCreateContext = createContext();
 const userListContext = createContext('adduser');
 
 const UserCreateContextProvider = props => {
-  const {netConnection} = DeviceInfo();
-  const {t} = useTranslation();
+  const { netConnection } = DeviceInfo();
+  const { t } = useTranslation();
 
   const [dbLanTokUsr, setdbLanTokUsr] = useState({});
   const [farmerData, setFarmerData] = useState([]);
@@ -131,7 +131,7 @@ const UserCreateContextProvider = props => {
           },
         },
       ],
-      {cancelable: false},
+      { cancelable: false },
     );
   };
 
@@ -153,7 +153,7 @@ const UserCreateContextProvider = props => {
     Geolocation.getCurrentPosition(
       pos => console.log('Initial fix:', pos.coords),
       err => console.log('Warm-up error:', err),
-      {enableHighAccuracy: true, timeout: 15000, maximumAge: 0},
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
 
     if (watchIdRef.current) {
@@ -207,7 +207,7 @@ const UserCreateContextProvider = props => {
       },
       {
         enableHighAccuracy: true, // Use GPS hardware
-        accuracy: {android: 'high', ios: 'bestForNavigation'},
+        accuracy: { android: 'high', ios: 'bestForNavigation' },
         distanceFilter: 3, // every small move
         interval: 3000,
         fastestInterval: 1000,
@@ -222,8 +222,8 @@ const UserCreateContextProvider = props => {
         p => {
           if (p?.mocked === true) handleMockDetected();
         },
-        () => {},
-        {enableHighAccuracy: true, timeout: 10000},
+        () => { },
+        { enableHighAccuracy: true, timeout: 10000 },
       );
     }, 10000);
 
@@ -268,17 +268,17 @@ const UserCreateContextProvider = props => {
       setNavigationBarHeight(getNavigationBar);
       i18next.changeLanguage(loginUser_data?.lan_id?.toString());
       if (netConnection && loginUser_data?.token) {
-        const {dbname, lan_id, token, user_id, db_company_id} =
+        const { dbname, lan_id, token, user_id, db_company_id } =
           loginUser_data || {};
         [farmer_response, responsePlot, resCarbonFlag, DetailsCompany_res] =
           await Promise.all([
-            axiosGet(ROUTES.GET.LIST_USER({user_id: user_id}), token, {
+            axiosGet(ROUTES.GET.LIST_USER({ user_id: user_id }), token, {
               information: `${dbname},${lan_id}`,
             }),
             axiosGet(
-              ROUTES.GET.PLOT_AGAINST_FARMER({user_id: user_id}),
+              ROUTES.GET.PLOT_AGAINST_FARMER({ user_id: user_id }),
               token,
-              {information: `${dbname},${lan_id}`},
+              { information: `${dbname},${lan_id}` },
             ),
             axiosGet(ROUTES.GET.SHOW_CARBON_FLAG, token, {
               information: `${dbname},${lan_id}`,
@@ -299,13 +299,15 @@ const UserCreateContextProvider = props => {
               responsePlot,
             ),
             setItem('carbonFlag', resCarbonFlag),
+            setItem('detailsCompany', DetailsCompany_res),
           ]);
         }
       } else {
-        [farmer_response, responsePlot, resCarbonFlag] = await Promise.all([
+        [farmer_response, responsePlot, resCarbonFlag, DetailsCompany_res] = await Promise.all([
           getItem('farmerByNameAPI'),
           getItem('problemPlotAgainstFarmer' + loginUser_data?.user_id),
           getItem('carbonFlag'),
+          getItem('detailsCompany'),
         ]);
       }
       if (farmer_response?.status == 200) {
@@ -315,8 +317,14 @@ const UserCreateContextProvider = props => {
         } else if (loginUser_data?.userType == 3) {
           supervisorId = loginUser_data?.user_id;
         }
-        const {company, country_id} = companyLanguage_data;
-        const {option_value} = resCarbonFlag?.data?.data || {};
+        const {
+          ai_camera_pipe_image = "0",
+          ai_camera_id_proof = "0",
+          // co_farmer = "0",
+          pipe_qr_code = "0",
+        } = DetailsCompany_res?.data?.data?.[0] || {};
+        const { company, country_id } = companyLanguage_data;
+        const { option_value } = resCarbonFlag?.data?.data || {};
         setlogoImage(logoImageData);
         settopBanner(topBannerData);
         setloginUser_data({
@@ -337,6 +345,8 @@ const UserCreateContextProvider = props => {
           carbonFlag: option_value,
           co_farmer,
           offline_mode,
+          ai_camera_pipe_image,
+          ai_camera_id_proof
         });
         const dataArrayName = farmer_response?.data?.data?.rows.map(data => ({
           value: data.user_id,
@@ -446,4 +456,4 @@ const UserCreateContextProvider = props => {
   );
 };
 
-export {userListContext, UserCreateContextProvider, userCreateContext};
+export { userListContext, UserCreateContextProvider, userCreateContext };

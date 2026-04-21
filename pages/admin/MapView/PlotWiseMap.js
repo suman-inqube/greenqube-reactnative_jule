@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -57,6 +57,60 @@ const PlotWiseMap = () => {
     district: '',
     block: '',
   });
+
+  const [expandedSections, setExpandedSections] = useState({});
+  const [activityData, setActivityData] = useState(null);
+
+  // useEffect(() => {
+  //   if (
+  //     Platform.OS === 'android' &&
+  //     UIManager.setLayoutAnimationEnabledExperimental
+  //   ) {
+  //     UIManager.setLayoutAnimationEnabledExperimental(true);
+  //   }
+  // }, []);
+
+  const formatDate = dateStr => {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+  };
+
+  // 🔹 GROUP DATA
+  const groupedData = useMemo(() => {
+    if (!activityData?.rows) return {};
+
+    return activityData.rows.reduce((acc, item) => {
+      const category = item?.typeActivity?.categoryName || 'Unknown Activity';
+
+      if (!acc[category]) acc[category] = [];
+
+      acc[category].push({
+        pipeId: item?.uActivityPipe?.pipe_name || '-',
+        date: formatDate(item?.act_perform_date),
+      });
+
+      return acc;
+    }, {});
+  }, [activityData]);
+
+  // Open first section by default
+  useEffect(() => {
+    const keys = Object.keys(groupedData);
+    if (keys.length > 0) {
+      setExpandedSections({[keys[0]]: true});
+    }
+  }, [groupedData]);
+
+  // Toggle
+  const toggleSection = category => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
+    setExpandedSections(prev => ({
+      ...prev,
+      [category]: !prev[category],
+    }));
+  };
 
   const loadStates = async () => {
     const response = await axiosGet(ROUTES.GET.STATE_API(), '', {
@@ -298,17 +352,33 @@ const PlotWiseMap = () => {
   };
   const handlePolygonPress = async polygon => {
     try {
+      setActivityData(null);
       const found = plotData.find(p => p.id === polygon.id);
-
       if (found) {
-        const farmerDetails = await axiosGet(
-          ROUTES.GET.PLOT_MAP_DETAILS({
-            user_id: found.farmer_id,
-            land_unit_id: found.land_unit_id,
-          }),
-          token,
-          {information: `${dbname}`},
-        );
+        const [farmerDetails, actRes] = await Promise.all([
+          axiosGet(
+            ROUTES.GET.PLOT_MAP_DETAILS({
+              user_id: found.farmer_id,
+              land_unit_id: found.land_unit_id,
+            }),
+            token,
+            {information: `${dbname}`},
+          ),
+
+          axiosGet(
+            ROUTES.GET.PLOTWISE_ACTIVITY({
+              plot_id: found.id,
+            }),
+            token,
+            {
+              Information: `${dbname},${lan_id},${found.farmer_id}`,
+            },
+          ),
+        ]);
+
+        if (actRes?.status === 200) {
+          setActivityData(actRes?.data?.data);
+        }
         if (farmerDetails?.status == 200) {
           const userData = farmerDetails?.data?.data?.userData;
           const unitData = farmerDetails?.data?.data?.unitData;
@@ -519,6 +589,34 @@ const PlotWiseMap = () => {
                     </View>
                   </View>
                 </View>
+
+                {activityData && (
+                  <View style={{marginTop: 15, maxHeight: 250}}>
+                    {Object.keys(groupedData).length === 0 && (
+                      <Text style={{textAlign: 'center'}}>
+                        No activity found
+                      </Text>
+                    )}
+
+                    {Object.keys(groupedData).map((category, index) => (
+                      <View key={index} style={{marginBottom: 12}}>
+                        <Text style={{fontWeight: '600'}}>{category}</Text>
+
+                        {groupedData[category].map((item, i) => (
+                          <View
+                            key={i}
+                            style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                            }}>
+                            <Text>{item.pipeId}</Text>
+                            <Text>{item.date}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    ))}
+                  </View>
+                )}
                 {carbonFlag && (
                   <TouchableOpacity
                     onPress={() => {

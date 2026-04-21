@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect, useCallback, memo} from 'react';
+import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
 import {
   StyleSheet,
   View,
@@ -8,10 +8,10 @@ import {
   TouchableOpacity,
   Text,
 } from 'react-native';
-import MapView, {Polygon, Marker, Callout, Circle} from 'react-native-maps';
-import {isPointInPolygon} from 'geolib';
+import MapView, { Polygon, Marker, Callout, Circle } from 'react-native-maps';
+import { isPointInPolygon } from 'geolib';
 
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const ActivityMap = ({
   modalVisibleMap,
@@ -24,6 +24,7 @@ const ActivityMap = ({
   pipeLatLong,
   replaceImgKey,
   TakePhotoReplaceImage,
+  setMapLatLon
 }) => {
   const mapRef = useRef(null);
   const animatedHeading = useRef(new Animated.Value(0)).current;
@@ -101,7 +102,7 @@ const ActivityMap = ({
 
   // Update camera heading (optional animation)
   useEffect(() => {
-    const listener = animatedHeading.addListener(({value}) => {
+    const listener = animatedHeading.addListener(({ value }) => {
       if (mapRef.current && location) {
         mapRef.current.setCamera(
           {
@@ -110,7 +111,7 @@ const ActivityMap = ({
             zoom: 18,
             pitch: 45,
           },
-          {duration: 300},
+          { duration: 300 },
         );
       }
     });
@@ -136,12 +137,17 @@ const ActivityMap = ({
   //   }
   // }, [location, plotPolygon]);
   const handleUserLocationChange = event => {
-    const {coordinate} = event.nativeEvent;
+    const { coordinate } = event.nativeEvent;
     if (coordinate) {
-      const {latitude, longitude, accuracy} = coordinate;
+      const { latitude, longitude, accuracy } = coordinate;
       const inside = isPointInPolygon(coordinate, plotPolygon);
       setOutOfRange(inside);
       setUserLocation({
+        latitude: coordinate.latitude,
+        longitude: coordinate.longitude,
+        accuracy: coordinate.accuracy,
+      });
+      setMapLatLon({
         latitude: coordinate.latitude,
         longitude: coordinate.longitude,
         accuracy: coordinate.accuracy,
@@ -164,7 +170,7 @@ const ActivityMap = ({
 
     const lat2 = Math.asin(
       Math.sin(lat1) * Math.cos(angularDistance) +
-        Math.cos(lat1) * Math.sin(angularDistance) * Math.cos(bearing),
+      Math.cos(lat1) * Math.sin(angularDistance) * Math.cos(bearing),
     );
 
     let lon2 =
@@ -191,9 +197,9 @@ const ActivityMap = ({
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
@@ -211,7 +217,7 @@ const ActivityMap = ({
         <View style={styles.modalContent}>
           <MapView
             ref={mapRef}
-            style={[styles.map, {width, height}]}
+            style={[styles.map, { width, height }]}
             mapType="hybrid"
             // showsUserLocation
             // followsUserLocation
@@ -266,11 +272,11 @@ const ActivityMap = ({
                     />
 
                     {/* North Label */}
-                    <Marker coordinate={northPoint} anchor={{x: 0.5, y: 0.5}}>
+                    <Marker coordinate={northPoint} anchor={{ x: 0.5, y: 0.5 }}>
                       <View
                         style={[
                           styles.distanceBadgeSmall,
-                          {borderColor: ring.borderColor},
+                          { borderColor: ring.borderColor },
                         ]}>
                         <Text style={styles.distanceTextSmall}>
                           {ring.distance}m
@@ -284,11 +290,11 @@ const ActivityMap = ({
                       <Marker
                         key={i}
                         coordinate={point}
-                        anchor={{x: 0.5, y: 0.5}}>
+                        anchor={{ x: 0.5, y: 0.5 }}>
                         <View
                           style={[
                             styles.distanceBadgeSmall,
-                            {borderColor: ring.borderColor},
+                            { borderColor: ring.borderColor },
                           ]}>
                           <Text style={styles.distanceTextSmall}>
                             {ring.distance}m
@@ -329,7 +335,7 @@ const ActivityMap = ({
                     }
                     onPress={() => setSelectedMarker(polygon)}>
                     <Callout>
-                      <Text style={{color: '#715757'}}>{polygon?.name}</Text>
+                      <Text style={{ color: '#715757' }}>{polygon?.name}</Text>
                     </Callout>
                   </Marker>
                 );
@@ -343,7 +349,7 @@ const ActivityMap = ({
             onPress={() => TakePhoto(replaceImgKey, userLocation)}>
             <Text style={styles.captureIcon}>📷</Text>
           </TouchableOpacity>
-        )}
+         )}
         {selectedMarker && (
           <View style={styles.markerInfo}>
             <Text
@@ -413,7 +419,7 @@ const styles = StyleSheet.create({
     elevation: 6,
     shadowColor: '#000',
     shadowOpacity: 0.2,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
   },
 
@@ -426,7 +432,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     // flexDirection: 'row',
   },
-  distanceText: {color: '#fff', fontSize: 10, fontWeight: 'bold'},
+  distanceText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
   distanceUnit: {
     color: '#FFA726',
     fontSize: 10,
@@ -442,7 +448,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     alignItems: 'center',
   },
-  distanceTextSmall: {color: '#fff', fontSize: 10, fontWeight: 'bold'},
+  distanceTextSmall: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
 
   infoCard: {
     position: 'absolute',
@@ -454,9 +460,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 6,
   },
-  infoTitle: {color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 8},
-  infoText: {color: '#4CAF50', fontSize: 14, marginTop: 3},
-  accuracyInfo: {color: '#FFA726', fontSize: 13, marginTop: 6},
+  infoTitle: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginBottom: 8 },
+  infoText: { color: '#4CAF50', fontSize: 14, marginTop: 3 },
+  accuracyInfo: { color: '#FFA726', fontSize: 13, marginTop: 6 },
   ringInfoContainer: {
     marginTop: 12,
     paddingTop: 10,
@@ -480,8 +486,8 @@ const styles = StyleSheet.create({
     width: '48%',
     marginBottom: 8,
   },
-  ringInfoColor: {width: 16, height: 16, borderRadius: 3, marginRight: 8},
-  ringInfoText: {color: '#ddd', fontSize: 12},
+  ringInfoColor: { width: 16, height: 16, borderRadius: 3, marginRight: 8 },
+  ringInfoText: { color: '#ddd', fontSize: 12 },
 
   tapInstruction: {
     color: '#FF9800',
@@ -498,8 +504,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  calloutView: {padding: 10, minWidth: 160},
-  calloutTitle: {fontWeight: 'bold', fontSize: 15, marginBottom: 6},
+  calloutView: { padding: 10, minWidth: 160 },
+  calloutTitle: { fontWeight: 'bold', fontSize: 15, marginBottom: 6 },
 });
 
 export default memo(ActivityMap);
