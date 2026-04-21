@@ -6,6 +6,7 @@ import {
   Clipboard,
   Linking,
   Image,
+  ScrollView,
 } from 'react-native';
 import PlotMap from './PlotMap';
 import FilterModal from './FilterModal';
@@ -591,30 +592,106 @@ const PlotWiseMap = () => {
                 </View>
 
                 {activityData && (
-                  <View style={{marginTop: 15, maxHeight: 250}}>
-                    {Object.keys(groupedData).length === 0 && (
-                      <Text style={{textAlign: 'center'}}>
-                        No activity found
-                      </Text>
-                    )}
+                  <View style={{marginTop: 15}}>
+                    <ScrollView
+                      style={{maxHeight: 220}}
+                      showsVerticalScrollIndicator={true}>
+                      {Object.keys(groupedData).length === 0 && (
+                        <Text style={{textAlign: 'center'}}>
+                          No activity found
+                        </Text>
+                      )}
 
-                    {Object.keys(groupedData).map((category, index) => (
-                      <View key={index} style={{marginBottom: 12}}>
-                        <Text style={{fontWeight: '600'}}>{category}</Text>
-
-                        {groupedData[category].map((item, i) => (
+                      {Object.keys(groupedData).map((category, index) => (
+                        <View key={index} style={{marginBottom: 12}}>
+                          {/* 🔹 CATEGORY TITLE */}
                           <View
-                            key={i}
                             style={{
                               flexDirection: 'row',
-                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              marginBottom: 6,
                             }}>
-                            <Text>{item.pipeId}</Text>
-                            <Text>{item.date}</Text>
+                            {category === 'Pipe Installation' && (
+                              <MaterialIcons
+                                name="settings-input-component"
+                                size={18}
+                                color="#16A34A"
+                              />
+                            )}
+                            {category.toLowerCase().includes('dry') && (
+                              <MaterialIcons
+                                name="water-drop"
+                                size={18}
+                                color="#3B82F6"
+                              />
+                            )}
+
+                            <Text style={{fontWeight: '600', marginLeft: 6}}>
+                              {category}
+                            </Text>
                           </View>
-                        ))}
-                      </View>
-                    ))}
+
+                          {/* 🔹 LIST */}
+                          {groupedData[category].map((item, i) => (
+                            <View
+                              key={i}
+                              style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                paddingVertical: 6,
+                              }}>
+                              {/* LEFT */}
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                }}>
+                                {category === 'Pipe Installation' && (
+                                  <View
+                                    style={{
+                                      backgroundColor: '#16A34A',
+                                      width: 20,
+                                      height: 20,
+                                      borderRadius: 10,
+                                      justifyContent: 'center',
+                                      alignItems: 'center',
+                                    }}>
+                                    <Text style={{color: '#fff', fontSize: 11}}>
+                                      {i + 1}
+                                    </Text>
+                                  </View>
+                                )}
+
+                                <Text
+                                  style={{
+                                    marginLeft:
+                                      category === 'Pipe Installation' ? 8 : 0,
+                                  }}>
+                                  {item.pipeId}
+                                </Text>
+                              </View>
+
+                              {/* RIGHT */}
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                }}>
+                                <MaterialIcons
+                                  name="event"
+                                  size={16}
+                                  color="#6B7280"
+                                />
+                                <Text style={{marginLeft: 4, fontSize: 14}}>
+                                  {item.date}
+                                </Text>
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+                      ))}
+                    </ScrollView>
                   </View>
                 )}
                 {carbonFlag && (

@@ -2061,7 +2061,10 @@ const ActivityReportAWD = ({navigation, route}) => {
   const [isDownloadAvailable, setDownloadAvailable] = useState(true);
   const onPageLoad = async () => {
     try {
-      setDownloadAvailable(true);
+      ai_camera_pipe_image == 1
+        ? setDownloadAvailable(true)
+        : setDownloadAvailable(false);
+
       const [QRFlag, result] = await Promise.all([
         getItem('pipeQR'),
         ai_camera_pipe_image == 1 ? start() : Promise.resolve(null),
