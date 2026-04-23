@@ -355,7 +355,7 @@ export const ROUTES = {
       `carbonRoute/cropInputDetails?cu_rel_fid=${cu_rel_fid}`,
 
     PLOTWISE_ACTIVITY: ({plot_id = ''}) =>
-      `ioRoute/listUserActivity_v3/1/1/2?search_key=&type=carbon_activity&plot_id=${plot_id}`,
+      `ioRoute/listUserActivity_v3/1/1/2?search_key=&type=carbon_activity&plot_id=${plot_id}&crop_status=ACTIVE`,
 
     USER_ACTIVITY_DETAILS_V3: ({uact_id = ''}) =>
       `ioRoute/userActivityDetails_v3?uact_id=${uact_id}`,

@@ -24,6 +24,7 @@ import {axiosGet} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const PlotWiseMap = () => {
   const navigation = useNavigation();
 
@@ -356,6 +357,8 @@ const PlotWiseMap = () => {
       setActivityData(null);
       const found = plotData.find(p => p.id === polygon.id);
       if (found) {
+        console.log('found.id', found.id);
+
         const [farmerDetails, actRes] = await Promise.all([
           axiosGet(
             ROUTES.GET.PLOT_MAP_DETAILS({
@@ -376,7 +379,7 @@ const PlotWiseMap = () => {
             },
           ),
         ]);
-
+        console.log('actRes', actRes?.data?.data?.rows);
         if (actRes?.status === 200) {
           setActivityData(actRes?.data?.data);
         }
@@ -420,338 +423,406 @@ const PlotWiseMap = () => {
     }
   };
   return (
-    <SafeAreaView style={{flex: 1}} edges={['top', 'bottom']}>
-      <Root>
-        <MyErrorBoundary>
-          <View style={{flex: 1}}>
-            <CustomHeader
-              path="Dashboard"
-              HandlerGoBack={HandlerGoBack}
-              logoImage={logoImage}
-              topBanner={topBanner}
-            />
-            <PlotMap
-              polygons={polygons}
-              center={baseLatLong}
-              onPolygonPress={handlePolygonPress}
-              onOpenFilter={openFilter}
-              showRadius={!isFilterApplied}
-            />
-            {selectedPlot && (
-              <View
-                style={{
-                  position: 'absolute',
-                  bottom: 20,
-                  left: 15,
-                  right: 15,
-                  backgroundColor: '#FFFFFF',
-                  padding: 18,
-                  borderRadius: 12,
-                  elevation: 10,
-                  shadowColor: '#000',
-                  shadowOpacity: 0.15,
-                  shadowRadius: 8,
-                  // marginTop: 10,
-                }}>
-                {/* ❌ CLOSE */}
-                <TouchableOpacity
-                  onPress={() => setSelectedPlot(null)}
-                  style={{
-                    position: 'absolute',
-                    top: 3,
-                    right: 2,
-                    marginBottom: 10,
-                  }}>
-                  <MaterialIcons name="close" size={25} color="#EF4444" />
-                </TouchableOpacity>
-
-                {/* 👨 FARMER + PHONE */}
+    <FarmerDrawerScreenWrapper1>
+      <SafeAreaView style={{flex: 1}} edges={['top', 'bottom']}>
+        <Root>
+          <MyErrorBoundary>
+            <View style={{flex: 1}}>
+              <CustomHeader
+                path="Dashboard"
+                HandlerGoBack={HandlerGoBack}
+                logoImage={logoImage}
+                topBanner={topBanner}
+              />
+              <PlotMap
+                polygons={polygons}
+                center={baseLatLong}
+                onPolygonPress={handlePolygonPress}
+                onOpenFilter={openFilter}
+                showRadius={!isFilterApplied}
+              />
+              {selectedPlot && (
                 <View
                   style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: 14,
-                    marginTop: 15,
+                    position: 'absolute',
+                    bottom: 20,
+                    left: 15,
+                    right: 15,
+                    backgroundColor: '#FFFFFF',
+                    padding: 18,
+                    borderRadius: 12,
+                    elevation: 10,
+                    shadowColor: '#000',
+                    shadowOpacity: 0.15,
+                    shadowRadius: 8,
+                    // marginTop: 10,
                   }}>
-                  {/* LEFT SIDE */}
+                  {/* ❌ CLOSE */}
+                  <TouchableOpacity
+                    onPress={() => setSelectedPlot(null)}
+                    style={{
+                      position: 'absolute',
+                      top: 3,
+                      right: 2,
+                      marginBottom: 10,
+                    }}>
+                    <MaterialIcons name="close" size={25} color="#EF4444" />
+                  </TouchableOpacity>
+
+                  {/* 👨 FARMER + PHONE */}
                   <View
                     style={{
                       flexDirection: 'row',
                       alignItems: 'center',
-                      flex: 1,
+                      justifyContent: 'space-between',
+                      marginBottom: 14,
+                      marginTop: 15,
                     }}>
-                    <MaterialIcons name="person" size={22} color="#16A34A" />
-                    <View style={{marginLeft: 10}}>
-                      <Text style={{fontSize: 12, color: '#6B7280'}}>
-                        Farmer
+                    {/* LEFT SIDE */}
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        flex: 1,
+                      }}>
+                      <MaterialIcons name="person" size={22} color="#16A34A" />
+                      <View style={{marginLeft: 10}}>
+                        <Text style={{fontSize: 12, color: '#6B7280'}}>
+                          Farmer
+                        </Text>
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            fontWeight: '600',
+                            color: '#111827',
+                          }}>
+                          {selectedPlot.userName}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* RIGHT SIDE PHONE */}
+                    <TouchableOpacity
+                      onPress={() => {
+                        Linking.openURL(`tel:${selectedPlot.contactNumber}`);
+                      }}
+                      style={{alignItems: 'flex-end'}}>
+                      <MaterialIcons name="phone" size={20} color="#2563EB" />
+
+                      <Text style={{fontSize: 14, color: '#2563EB'}}>
+                        {' '}
+                        {selectedPlot.contactNumber}
                       </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* 🌱 PLOT + SIZE */}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginBottom: 12,
+                    }}>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                      {/* <MaterialIcons name="landscape" size={20} color="#16A34A" /> */}
+                      <Image
+                        source={require('../../Common/images/management.png')}
+                        style={{width: 20, height: 20}}
+                        resizeMode="contain"
+                      />
+
+                      <View style={{marginLeft: 10}}>
+                        <Text style={{fontSize: 12, color: '#6B7280'}}>
+                          Plot Name
+                        </Text>
+                        <Text style={{fontSize: 14, fontWeight: '500'}}>
+                          {selectedPlot.plotName}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={{alignItems: 'flex-end'}}>
+                      <Text style={{fontSize: 12, color: '#6B7280'}}>Area</Text>
                       <Text
                         style={{
                           fontSize: 14,
                           fontWeight: '600',
-                          color: '#111827',
+                          color: '#16A34A',
                         }}>
-                        {selectedPlot.userName}
+                        {selectedPlot.landSize} {selectedPlot.unit_sname}
                       </Text>
                     </View>
                   </View>
 
-                  {/* RIGHT SIDE PHONE */}
-                  <TouchableOpacity
-                    onPress={() => {
-                      Linking.openURL(`tel:${selectedPlot.contactNumber}`);
-                    }}
-                    style={{alignItems: 'flex-end'}}>
-                    <MaterialIcons name="phone" size={20} color="#2563EB" />
-
-                    <Text style={{fontSize: 14, color: '#2563EB'}}>
-                      {' '}
-                      {selectedPlot.contactNumber}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-                {/* 🌱 PLOT + SIZE */}
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginBottom: 12,
-                  }}>
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    {/* <MaterialIcons name="landscape" size={20} color="#16A34A" /> */}
-                    <Image
-                      source={require('../../Common/images/management.png')}
-                      style={{width: 20, height: 20}}
-                      resizeMode="contain"
-                    />
-
-                    <View style={{marginLeft: 10}}>
-                      <Text style={{fontSize: 12, color: '#6B7280'}}>
-                        Plot Name
-                      </Text>
-                      <Text style={{fontSize: 14, fontWeight: '500'}}>
-                        {selectedPlot.plotName}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View style={{alignItems: 'flex-end'}}>
-                    <Text style={{fontSize: 12, color: '#6B7280'}}>Area</Text>
-                    <Text
-                      style={{
-                        fontSize: 14,
-                        fontWeight: '600',
-                        color: '#16A34A',
-                      }}>
-                      {selectedPlot.landSize} {selectedPlot.unit_sname}
-                    </Text>
-                  </View>
-                </View>
-
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginBottom: 12,
-                  }}>
-                  {/* DISTRICT */}
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <MaterialIcons
-                      name="location-city"
-                      size={20}
-                      color="#F59E0B"
-                    />
-                    <View style={{marginLeft: 10}}>
-                      <Text style={{fontSize: 12, color: '#6B7280'}}>
-                        {regionaldatas.district == ''
-                          ? t('pre_district_county')
-                          : t(`${regionaldatas.district}`)}
-                      </Text>
-                      <Text style={{fontSize: 14, fontWeight: '500'}}>
-                        {selectedPlot.district}
-                      </Text>
-                    </View>
-                  </View>
-
-                  {/* PANCHAYAT */}
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <MaterialIcons name="place" size={20} color="#DC2626" />
-                    <View style={{marginLeft: 10, alignItems: 'flex-end'}}>
-                      <Text style={{fontSize: 12, color: '#6B7280'}}>
-                        {regionaldatas.block == ''
-                          ? t('select_block_sub_county_upzila')
-                          : t(`${regionaldatas.block}`)}
-                      </Text>
-                      <Text style={{fontSize: 14, fontWeight: '500'}}>
-                        {selectedPlot.subDivision}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-
-                {activityData && (
-                  <View style={{marginTop: 15}}>
-                    <ScrollView
-                      style={{maxHeight: 220}}
-                      showsVerticalScrollIndicator={true}>
-                      {Object.keys(groupedData).length === 0 && (
-                        <Text style={{textAlign: 'center'}}>
-                          No activity found
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginBottom: 12,
+                    }}>
+                    {/* DISTRICT */}
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                      <MaterialIcons
+                        name="location-city"
+                        size={20}
+                        color="#F59E0B"
+                      />
+                      <View style={{marginLeft: 10}}>
+                        <Text style={{fontSize: 12, color: '#6B7280'}}>
+                          {regionaldatas.district == ''
+                            ? t('pre_district_county')
+                            : t(`${regionaldatas.district}`)}
                         </Text>
-                      )}
+                        <Text style={{fontSize: 14, fontWeight: '500'}}>
+                          {selectedPlot.district}
+                        </Text>
+                      </View>
+                    </View>
 
-                      {Object.keys(groupedData).map((category, index) => (
-                        <View key={index} style={{marginBottom: 12}}>
-                          {/* 🔹 CATEGORY TITLE */}
+                    {/* PANCHAYAT */}
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                      <MaterialIcons name="place" size={20} color="#DC2626" />
+                      <View style={{marginLeft: 10, alignItems: 'flex-end'}}>
+                        <Text style={{fontSize: 12, color: '#6B7280'}}>
+                          {regionaldatas.block == ''
+                            ? t('select_block_sub_county_upzila')
+                            : t(`${regionaldatas.block}`)}
+                        </Text>
+                        <Text style={{fontSize: 14, fontWeight: '500'}}>
+                          {selectedPlot.subDivision}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  {activityData && (
+                    <View
+                      style={{
+                        marginTop: 15,
+                        backgroundColor: '#F9FAFB',
+                        borderRadius: 12,
+                        padding: 12,
+                        borderWidth: 1,
+                        borderColor: '#E5E7EB',
+                      }}>
+                      {/* 🔹 HEADER */}
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          alignSelf: 'center',
+                        }}>
+                        <MaterialIcons
+                          name="insights"
+                          size={18}
+                          color="#4F46E5"
+                        />
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            fontWeight: '700',
+                            marginLeft: 6,
+                            color: '#111827',
+                          }}>
+                          Activity
+                        </Text>
+                      </View>
+
+                      {/* 🔹 CONTENT */}
+                      <ScrollView
+                        style={{maxHeight: 220}}
+                        showsVerticalScrollIndicator={true}>
+                        {Object.keys(groupedData).length === 0 && (
+                          <Text style={{textAlign: 'center', color: '#6B7280'}}>
+                            No activity found
+                          </Text>
+                        )}
+
+                        {Object.keys(groupedData).map((category, index) => (
                           <View
+                            key={index}
                             style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              marginBottom: 6,
+                              marginBottom: 12,
+                              backgroundColor: '#FFFFFF',
+                              borderRadius: 10,
+                              padding: 10,
+                              borderWidth: 1,
+                              borderColor: '#F3F4F6',
                             }}>
-                            {category === 'Pipe Installation' && (
-                              <MaterialIcons
-                                name="settings-input-component"
-                                size={18}
-                                color="#16A34A"
-                              />
-                            )}
-                            {category.toLowerCase().includes('dry') && (
-                              <MaterialIcons
-                                name="water-drop"
-                                size={18}
-                                color="#3B82F6"
-                              />
-                            )}
-
-                            <Text style={{fontWeight: '600', marginLeft: 6}}>
-                              {category}
-                            </Text>
-                          </View>
-
-                          {/* 🔹 LIST */}
-                          {groupedData[category].map((item, i) => (
+                            {/* 🔹 CATEGORY TITLE */}
                             <View
-                              key={i}
                               style={{
                                 flexDirection: 'row',
-                                justifyContent: 'space-between',
                                 alignItems: 'center',
-                                paddingVertical: 6,
+                                marginBottom: 6,
                               }}>
-                              {/* LEFT */}
-                              <View
-                                style={{
-                                  flexDirection: 'row',
-                                  alignItems: 'center',
-                                }}>
-                                {category === 'Pipe Installation' && (
-                                  <View
-                                    style={{
-                                      backgroundColor: '#16A34A',
-                                      width: 20,
-                                      height: 20,
-                                      borderRadius: 10,
-                                      justifyContent: 'center',
-                                      alignItems: 'center',
-                                    }}>
-                                    <Text style={{color: '#fff', fontSize: 11}}>
-                                      {i + 1}
-                                    </Text>
-                                  </View>
-                                )}
-
-                                <Text
-                                  style={{
-                                    marginLeft:
-                                      category === 'Pipe Installation' ? 8 : 0,
-                                  }}>
-                                  {item.pipeId}
-                                </Text>
-                              </View>
-
-                              {/* RIGHT */}
-                              <View
-                                style={{
-                                  flexDirection: 'row',
-                                  alignItems: 'center',
-                                }}>
-                                <MaterialIcons
-                                  name="event"
-                                  size={16}
-                                  color="#6B7280"
+                              {category === 'Pipe Installation' && (
+                                <Image
+                                  source={require('../../Common/images/pipes.png')}
+                                  style={{width: 15, height: 15}}
+                                  resizeMode="contain"
                                 />
-                                <Text style={{marginLeft: 4, fontSize: 14}}>
-                                  {item.date}
-                                </Text>
-                              </View>
+                              )}
+                              {category.toLowerCase().includes('dry') && (
+                                <Image
+                                  source={require('../../Common/images/pipes.png')}
+                                  style={{width: 15, height: 15}}
+                                  resizeMode="contain"
+                                  // tintColor={'red'}
+                                />
+                              )}
+
+                              <Text
+                                style={{
+                                  fontWeight: '600',
+                                  marginLeft: 6,
+                                  color: '#374151',
+                                }}>
+                                {category}
+                              </Text>
                             </View>
-                          ))}
-                        </View>
-                      ))}
-                    </ScrollView>
-                  </View>
-                )}
-                {carbonFlag && (
-                  <TouchableOpacity
-                    onPress={() => {
-                      navigation.navigate('ActivityReportAWD', {
-                        farmer: {
-                          user_id: selectedPlot.farmer_id,
-                          userName: selectedPlot.userName,
-                          contactNumber: selectedPlot.contactNumber,
-                        },
-                        plot: {
-                          rel_id: selectedPlot.id,
-                          plot_no: selectedPlot.plotName,
-                        },
-                      });
-                    }}
-                    style={{
-                      marginTop: 15,
-                      backgroundColor: 'green',
-                      padding: 12,
-                      borderRadius: 8,
-                      alignItems: 'center',
-                    }}>
-                    <Text style={{color: '#fff', fontWeight: 'bold'}}>
-                      Activity
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            )}
-            <FilterModal
-              visible={showFilterModal}
-              onClose={() => setShowFilterModal(false)}
-              onApply={applyFilter}
-              states={states}
-              districts={districts}
-              panchayats={panchayats}
-              onStateChange={loadDistricts}
-              onDistrictChange={loadPanchayats}
-              statesLabel={
-                regionaldatas.state == ''
-                  ? t('pre_state_division_zone')
-                  : t(`${regionaldatas.state}`)
-              }
-              districtsLabel={
-                regionaldatas.district == ''
-                  ? t('pre_district_county')
-                  : t(`${regionaldatas.district}`)
-              }
-              panchayatsLabel={
-                regionaldatas.block == ''
-                  ? t('select_block_sub_county_upzila')
-                  : t(`${regionaldatas.block}`)
-              }
-            />
-          </View>
-        </MyErrorBoundary>
-      </Root>
-    </SafeAreaView>
+
+                            {/* 🔹 LIST */}
+                            {groupedData[category].map((item, i) => (
+                              <View
+                                key={i}
+                                style={{
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  paddingVertical: 6,
+                                  borderBottomWidth:
+                                    i !== groupedData[category].length - 1
+                                      ? 0.5
+                                      : 0,
+                                  borderColor: '#E5E7EB',
+                                }}>
+                                {/* LEFT */}
+                                <View
+                                  style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                  }}>
+                                  {(category === 'Pipe Installation' ||
+                                    category.toLowerCase().includes('dry')) && (
+                                    <View
+                                      style={{
+                                        backgroundColor:
+                                          category === 'Pipe Installation'
+                                            ? '#157037'
+                                            : '#3B82F6',
+                                        width: 20,
+                                        height: 20,
+                                        borderRadius: 10,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                      }}>
+                                      <Text
+                                        style={{color: '#fff', fontSize: 11}}>
+                                        {i + 1}
+                                      </Text>
+                                    </View>
+                                  )}
+
+                                  <Text
+                                    style={{
+                                      marginLeft:
+                                        category === 'Pipe Installation' ||
+                                        category.toLowerCase().includes('dry')
+                                          ? 8
+                                          : 0,
+                                      color: '#111827',
+                                    }}>
+                                    {item.pipeId}
+                                  </Text>
+                                </View>
+
+                                {/* RIGHT */}
+                                <View
+                                  style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                  }}>
+                                  <MaterialIcons
+                                    name="event"
+                                    size={16}
+                                    color="#6B7280"
+                                  />
+                                  <Text
+                                    style={{
+                                      marginLeft: 4,
+                                      fontSize: 13,
+                                      color: '#6B7280',
+                                    }}>
+                                    {item.date}
+                                  </Text>
+                                </View>
+                              </View>
+                            ))}
+                          </View>
+                        ))}
+                      </ScrollView>
+                    </View>
+                  )}
+                  {carbonFlag && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigation.navigate('ActivityReportAWD', {
+                          farmer: {
+                            user_id: selectedPlot.farmer_id,
+                            userName: selectedPlot.userName,
+                            contactNumber: selectedPlot.contactNumber,
+                          },
+                          plot: {
+                            rel_id: selectedPlot.id,
+                            plot_no: selectedPlot.plotName,
+                          },
+                        });
+                      }}
+                      style={{
+                        marginTop: 15,
+                        backgroundColor: 'green',
+                        padding: 12,
+                        borderRadius: 8,
+                        alignItems: 'center',
+                      }}>
+                      <Text style={{color: '#fff', fontWeight: 'bold'}}>
+                        Activity
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
+              <FilterModal
+                visible={showFilterModal}
+                onClose={() => setShowFilterModal(false)}
+                onApply={applyFilter}
+                states={states}
+                districts={districts}
+                panchayats={panchayats}
+                onStateChange={loadDistricts}
+                onDistrictChange={loadPanchayats}
+                statesLabel={
+                  regionaldatas.state == ''
+                    ? t('pre_state_division_zone')
+                    : t(`${regionaldatas.state}`)
+                }
+                districtsLabel={
+                  regionaldatas.district == ''
+                    ? t('pre_district_county')
+                    : t(`${regionaldatas.district}`)
+                }
+                panchayatsLabel={
+                  regionaldatas.block == ''
+                    ? t('select_block_sub_county_upzila')
+                    : t(`${regionaldatas.block}`)
+                }
+              />
+            </View>
+          </MyErrorBoundary>
+        </Root>
+      </SafeAreaView>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 

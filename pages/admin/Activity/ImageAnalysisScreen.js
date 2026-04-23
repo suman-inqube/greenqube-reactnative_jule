@@ -9,21 +9,22 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   StatusBar,
-  Modal, Alert
+  Modal,
+  Alert,
 } from 'react-native';
-import React, { useState, useRef, useEffect } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import AIResultCard from '../../Components/AIResultCard';
 import * as ort from 'onnxruntime-react-native';
 import RNFS from 'react-native-fs';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import jpeg from 'jpeg-js';
-import { Buffer } from 'buffer';
+import {Buffer} from 'buffer';
 
 global.Buffer = Buffer;
 import ModelDot from '../../Components/ModelDot';
-import { captureRef } from 'react-native-view-shot';
-import { Fonts } from '../../utils/Constants';
+import {captureRef} from 'react-native-view-shot';
+import {Fonts} from '../../utils/Constants';
 import CustomAlert from '../../Common/CustomAlert';
 export const MODELS = [
   {
@@ -72,7 +73,7 @@ function sigmoid(logit) {
 // PREDICT
 // ─────────────────────────────────────────────
 function predict(logits, positiveLabel, negativeLabel) {
-  if (!logits || logits.length === 0) return { label: 'Invalid', confidence: 0 };
+  if (!logits || logits.length === 0) return {label: 'Invalid', confidence: 0};
 
   let prob;
   if (logits.length === 1) {
@@ -120,13 +121,19 @@ export async function loadModelFromAssets(fileName, retries = 2) {
   }
 }
 async function imageToTensor(uri) {
-  const resized = await ImageResizer.createResizedImage(uri, 224, 224, 'JPEG', 80);
+  const resized = await ImageResizer.createResizedImage(
+    uri,
+    224,
+    224,
+    'JPEG',
+    80,
+  );
 
   // ✅ Read as binary instead of base64
   const fileData = await RNFS.readFile(resized.uri, 'ascii'); // smaller memory
 
-  const raw = jpeg.decode(Buffer.from(fileData, 'binary'), { useTArray: true });
-  const { data } = raw;
+  const raw = jpeg.decode(Buffer.from(fileData, 'binary'), {useTArray: true});
+  const {data} = raw;
 
   const floatData = new Float32Array(1 * 3 * 224 * 224);
 
@@ -140,8 +147,6 @@ async function imageToTensor(uri) {
 
   return new ort.Tensor('float32', floatData, [1, 3, 224, 224]);
 }
-
-
 
 const ImageAnalysisScreen = ({
   AIModalVisible,
@@ -168,9 +173,8 @@ const ImageAnalysisScreen = ({
   loadingModels,
   setLoadingModels,
   ai_camera_pipe_image,
-  selectedImagePipe
+  selectedImagePipe,
 }) => {
-
   // const [sessions, setSessions] = useState({
   //   clarity: null,
   //   obstacle: null,
@@ -203,7 +207,7 @@ const ImageAnalysisScreen = ({
 
   // ── Pick from gallery ──
   const pickImage = () => {
-    launchImageLibrary({ mediaType: 'photo', quality: 1 }, res => {
+    launchImageLibrary({mediaType: 'photo', quality: 1}, res => {
       if (res.didCancel || !res.assets) return;
       setImage(res.assets[0]);
       setResult(null);
@@ -220,7 +224,7 @@ const ImageAnalysisScreen = ({
       maxWidth: 800,
       includeExtra: true,
     };
-    launchCamera({ options, mediaType: 'photo', quality: 1 }, async response => {
+    launchCamera({options, mediaType: 'photo', quality: 1}, async response => {
       if (response.didCancel || !response.assets) return;
       setResult(null);
       setLoading(false);
@@ -230,7 +234,7 @@ const ImageAnalysisScreen = ({
         timeoutId = null;
       }
       setImage(response.assets[0]);
-      if (ai_camera_pipe_image != "1") {
+      if (ai_camera_pipe_image != '1') {
         try {
           if (!response) {
             CustomAlert('Camera Error:', 'Response is blank.', true, 'OK');
@@ -250,8 +254,11 @@ const ImageAnalysisScreen = ({
             CustomAlert('Error', 'No image captured', true, 'OK');
             return;
           }
-          const { latitude: lat, longitude: lon } = mapLatLon || { lat: 'N/A', lon: 'N/A' };
-          console.log('Captured image with location:', { lat, lon });
+          const {latitude: lat, longitude: lon} = mapLatLon || {
+            lat: 'N/A',
+            lon: 'N/A',
+          };
+          console.log('Captured image with location:', {lat, lon});
           const timestamp = Date.now();
           const formattedDate = new Intl.DateTimeFormat('en-US', {
             year: 'numeric',
@@ -286,7 +293,7 @@ const ImageAnalysisScreen = ({
                   [`${cameraItem}Long`]: lon,
                 }));
               } else {
-                const { arrayPosition, imgPosition } = replaceImgKey || {};
+                const {arrayPosition, imgPosition} = replaceImgKey || {};
                 setPipeDetails(prev => {
                   const updated = JSON.parse(JSON.stringify(prev));
                   const currentImage = updated[arrayPosition][1][imgPosition];
@@ -321,7 +328,7 @@ const ImageAnalysisScreen = ({
   };
 
   const runAnalysis = async () => {
-    const { clarity, obstacle, pipe } = sessions;
+    const {clarity, obstacle, pipe} = sessions;
     let timeoutId = null;
     let isCancelled = false;
 
@@ -330,21 +337,26 @@ const ImageAnalysisScreen = ({
       return;
     }
     if (!clarity || !obstacle || !pipe) {
-      Alert.alert('Models Loading', 'Please wait for core models to finish loading.');
+      Alert.alert(
+        'Models Loading',
+        'Please wait for core models to finish loading.',
+      );
       return;
     }
     setLoading(true);
     setResult(null);
     let tensor = null;
     try {
-
       const saveWatermarkedImage = async () => {
         return new Promise(async (resolve, reject) => {
           if (isCancelled) {
             reject(new Error('Operation cancelled'));
             return;
           }
-          const { latitude: lat, longitude: lon } = mapLatLon || { lat: 'N/A', lon: 'N/A' };
+          const {latitude: lat, longitude: lon} = mapLatLon || {
+            lat: 'N/A',
+            lon: 'N/A',
+          };
           const timestamp = Date.now();
 
           const formattedDate = new Intl.DateTimeFormat('en-US', {
@@ -360,9 +372,7 @@ const ImageAnalysisScreen = ({
 
           // ✅ SAFE URI (important after crop-picker)
           const imageUri =
-            typeof image?.uri === 'string'
-              ? image.uri
-              : image?.path;
+            typeof image?.uri === 'string' ? image.uri : image?.path;
 
           setTempImage(imageUri);
           setTempText(watermarkText);
@@ -402,7 +412,6 @@ const ImageAnalysisScreen = ({
                 // cameraItem,
                 // replaceImgKey,
               });
-
             } catch (error) {
               console.log('Capture Error:', error);
               setTempImage(null);
@@ -413,9 +422,9 @@ const ImageAnalysisScreen = ({
         });
       };
       const imgWatermark = await saveWatermarkedImage();
-      const { path, fileName, lat, lon } = imgWatermark || {};
+      const {path, fileName, lat, lon} = imgWatermark || {};
 
-      console.log("imgWatermark", `file://${imgWatermark?.path}`, image.uri)
+      console.log('imgWatermark', `file://${imgWatermark?.path}`, image.uri);
       tensor = await imageToTensor(`file://${imgWatermark?.path}`);
       console.log('✅ Tensor created');
 
@@ -437,20 +446,22 @@ const ImageAnalysisScreen = ({
       const pLogits = Array.from(pOut[pipe.outputNames[0]].data);
 
       const clarityResult = predict(cLogits, 'Clear', 'Not Clear');
-      const obstacleResult = predict(oLogits, 'Obstacle Present', 'No Obstacle');
+      const obstacleResult = predict(
+        oLogits,
+        'Obstacle Present',
+        'No Obstacle',
+      );
       const pipeResult = predict(pLogits, 'Pipe Present', 'No Pipe');
 
       let soilResult = null;
       let rulerResult = null;
-      if (act_type != "Pipe Installation" || cameraItem == "secondItem") {
+      if (act_type != 'Pipe Installation' || cameraItem == 'secondItem') {
         if (sessions.soil) {
           try {
             const sOut = await sessions.soil.run({
               [sessions.soil.inputNames[0]]: tensor,
             });
-            const sLogits = Array.from(
-              sOut[sessions.soil.outputNames[0]].data
-            );
+            const sLogits = Array.from(sOut[sessions.soil.outputNames[0]].data);
             soilResult = predict(sLogits, 'Soil Visible', 'No Soil');
           } catch (e) {
             console.error('Soil model failed:', e);
@@ -463,14 +474,13 @@ const ImageAnalysisScreen = ({
               [sessions.ruler.inputNames[0]]: tensor,
             });
             const rLogits = Array.from(
-              rOut[sessions.ruler.outputNames[0]].data
+              rOut[sessions.ruler.outputNames[0]].data,
             );
             rulerResult = predict(rLogits, 'Ruler Present', 'No Ruler');
           } catch (e) {
             console.error('Ruler model failed:', e);
           }
         }
-
       }
 
       setResult({
@@ -478,11 +488,15 @@ const ImageAnalysisScreen = ({
         obstacle: obstacleResult,
         pipe: pipeResult,
         soil: soilResult,
-        ruler: rulerResult
+        ruler: rulerResult,
       });
       // Check conditions and save image if applicable
-      if (act_type == "Pipe Installation" || cameraItem == "secondItem") {
-        if (clarityResult.isPositive && pipeResult.isPositive && !obstacleResult.isPositive) {
+      if (act_type == 'Pipe Installation' || cameraItem == 'secondItem') {
+        if (
+          clarityResult.isPositive &&
+          pipeResult.isPositive &&
+          !obstacleResult.isPositive
+        ) {
           try {
             // await saveWatermarkedImage();
             if (replaceImgKey?.arrayPosition === '') {
@@ -494,7 +508,7 @@ const ImageAnalysisScreen = ({
                 [`${cameraItem}Long`]: lon,
               }));
             } else {
-              const { arrayPosition, imgPosition } = replaceImgKey || {};
+              const {arrayPosition, imgPosition} = replaceImgKey || {};
               setPipeDetails(prev => {
                 const updated = JSON.parse(JSON.stringify(prev));
                 const currentImage = updated[arrayPosition][1][imgPosition];
@@ -518,7 +532,13 @@ const ImageAnalysisScreen = ({
           // Alert.alert('Analysis Result', 'Conditions may not be ideal for pipe installation. Please review the results.');
         }
       } else {
-        if (clarityResult.isPositive && pipeResult.isPositive && !obstacleResult.isPositive && soilResult?.isPositive && rulerResult?.isPositive) {
+        if (
+          clarityResult.isPositive &&
+          pipeResult.isPositive &&
+          !obstacleResult.isPositive &&
+          soilResult?.isPositive &&
+          rulerResult?.isPositive
+        ) {
           try {
             // await saveWatermarkedImage();
             if (replaceImgKey.arrayPosition === '') {
@@ -530,7 +550,7 @@ const ImageAnalysisScreen = ({
                 [`${cameraItem}Long`]: lon,
               }));
             } else {
-              const { arrayPosition, imgPosition } = replaceImgKey;
+              const {arrayPosition, imgPosition} = replaceImgKey;
               setPipeDetails(prev => {
                 const updated = JSON.parse(JSON.stringify(prev));
                 const currentImage = updated[arrayPosition][1][imgPosition];
@@ -577,15 +597,20 @@ const ImageAnalysisScreen = ({
       setLoading(false);
     }
   };
-  const coreModelsReady = modelStatus.clarity && modelStatus.obstacle && modelStatus.pipe;
+  const coreModelsReady =
+    modelStatus.clarity && modelStatus.obstacle && modelStatus.pipe;
   const anyModelLoading = Object.values(modelLoading).some(v => v === true);
   return (
-    <Modal visible={AIModalVisible} animationType="slide" transparent={false} onRequestClose={() => {
-      setAIModalVisible(false);
-      setImage(null);
-      setResult(null);
-      setLoading(false);
-    }}>
+    <Modal
+      visible={AIModalVisible}
+      animationType="slide"
+      transparent={false}
+      onRequestClose={() => {
+        setAIModalVisible(false);
+        setImage(null);
+        setResult(null);
+        setLoading(false);
+      }}>
       <SafeAreaView style={styles.safe}>
         <StatusBar barStyle="light-content" backgroundColor="#0A0A0A" />
         <View style={styles.hiddenContainer}>
@@ -595,14 +620,12 @@ const ImageAnalysisScreen = ({
               style={styles.watermarkView}
               collapsable={false}>
               <Image
-                source={{ uri: tempImage }}
+                source={{uri: tempImage}}
                 style={styles.watermarkImage}
                 resizeMode="cover"
               />
               <View style={styles.watermarkTextContainer}>
-                <Text style={styles.watermarkText}>
-                  {tempText}
-                </Text>
+                <Text style={styles.watermarkText}>{tempText}</Text>
               </View>
             </View>
           )}
@@ -611,27 +634,30 @@ const ImageAnalysisScreen = ({
         <ScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {ai_camera_pipe_image == "1" ?
+          showsVerticalScrollIndicator={false}>
+          {ai_camera_pipe_image == '1' ? (
             <Animated.View style={[styles.header]}>
               <Text style={styles.headerTitle}>Pipe Analyzer</Text>
               <Text style={styles.headerSub}>AI-powered pipe inspection</Text>
-            </Animated.View> : <View style={{ marginTop: 100 }} />}
+            </Animated.View>
+          ) : (
+            <View style={{marginTop: 100}} />
+          )}
 
           <TouchableOpacity
             style={styles.imageArea}
             // onPress={pickImage}
             onPress={takePhoto}
-            activeOpacity={0.85}
-          >
+            activeOpacity={0.85}>
             {image ? (
-              <Image source={{ uri: image.uri }} style={styles.previewImage} />
+              <Image source={{uri: image.uri}} style={styles.previewImage} />
             ) : (
               <View style={styles.imagePlaceholder}>
                 <Text style={styles.placeholderIcon}>📷</Text>
                 {/* <Text style={styles.placeholderText}>Tap to select image</Text> */}
-                <Text style={styles.placeholderSub}>Use camera button below</Text>
+                <Text style={styles.placeholderSub}>
+                  Use camera button below
+                </Text>
               </View>
             )}
           </TouchableOpacity>
@@ -642,63 +668,68 @@ const ImageAnalysisScreen = ({
               <Text style={styles.btnSecondaryText}>Gallery</Text>
             </TouchableOpacity> */}
 
-            <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={takePhoto}>
+            <TouchableOpacity
+              style={[styles.btn, styles.btnSecondary]}
+              onPress={takePhoto}>
               <Text style={styles.btnIcon}>📸</Text>
               <Text style={styles.btnSecondaryText}>Camera</Text>
             </TouchableOpacity>
           </View>
-          {ai_camera_pipe_image == 1 && <><View style={styles.modelStatusContainer}>
-            <View style={styles.modelStatusRow}>
-              {MODELS.map(m => (
-                <ModelDot
-                  key={m.key}
-                  loaded={modelStatus[m.key]}
-                  label={m.label}
-                  loading={modelLoading[m.key]}
-                />
-              ))}
-            </View>
-            {(loadingModels || anyModelLoading) && (
-              <View style={styles.loadingProgress}>
-                <ActivityIndicator size="small" color="#6B7280" />
-                <Text style={styles.loadingText}>{loadProgress || 'Loading models...'}</Text>
+          {ai_camera_pipe_image == 1 && (
+            <>
+              <View style={styles.modelStatusContainer}>
+                <View style={styles.modelStatusRow}>
+                  {MODELS.map(m => (
+                    <ModelDot
+                      key={m.key}
+                      loaded={modelStatus[m.key]}
+                      label={m.label}
+                      loading={modelLoading[m.key]}
+                    />
+                  ))}
+                </View>
+                {(loadingModels || anyModelLoading) && (
+                  <View style={styles.loadingProgress}>
+                    <ActivityIndicator size="small" color="#6B7280" />
+                    <Text style={styles.loadingText}>
+                      {loadProgress || 'Loading models...'}
+                    </Text>
+                  </View>
+                )}
               </View>
-            )}
-          </View>
+              <TouchableOpacity
+                style={[
+                  styles.btn,
+                  styles.btnPrimary,
+                  (!image || !coreModelsReady || loading) && styles.btnDisabled,
+                ]}
+                onPress={runAnalysis}
+                disabled={!image || !coreModelsReady || loading}>
+                {loading ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <>
+                    <Text style={styles.btnIcon}>🔍</Text>
+                    <Text style={styles.btnPrimaryText}>
+                      {!coreModelsReady ? 'Loading Models…' : 'Run Analysis'}
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </>
+          )}
+          {ai_camera_pipe_image != 1 && (
             <TouchableOpacity
+              onPress={() => setAIModalVisible(false)}
               style={[
                 styles.btn,
                 styles.btnPrimary,
-                (!image || !coreModelsReady || loading) && styles.btnDisabled,
+                !isReady && styles.btnDisabled,
               ]}
-              onPress={runAnalysis}
-              disabled={!image || !coreModelsReady || loading}
-            >
-              {loading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <>
-                  <Text style={styles.btnIcon}>🔍</Text>
-                  <Text style={styles.btnPrimaryText}>
-                    {!coreModelsReady ? 'Loading Models…' : 'Run Analysis'}
-                  </Text>
-                </>
-              )}
-            </TouchableOpacity>
-          </>
-          }
-          {ai_camera_pipe_image != 1 && (
-            <TouchableOpacity onPress={() => setAIModalVisible(false)} style={[
-              styles.btn,
-              styles.btnPrimary,
-              (!isReady) && styles.btnDisabled
-            ]}
-              disabled={!isReady}
-            >
+              disabled={!isReady}>
               <Text style={styles.btnPrimaryText}>Done</Text>
             </TouchableOpacity>
-          )
-          }
+          )}
           {result && (
             <View style={styles.resultsSection}>
               <Text style={styles.resultsTitle}>Analysis Results</Text>
@@ -730,7 +761,7 @@ const ImageAnalysisScreen = ({
                 delay={200}
                 unavailable={false}
               />
-              {act_type != "Pipe Installation" && cameraItem == "firstItem" ? (
+              {act_type != 'Pipe Installation' && cameraItem == 'firstItem' ? (
                 <>
                   <AIResultCard
                     icon="🌱"
@@ -751,11 +782,13 @@ const ImageAnalysisScreen = ({
                     unavailable={!result.ruler}
                   />
                 </>
-              ) : <></>}
+              ) : (
+                <></>
+              )}
             </View>
           )}
 
-          <View style={{ height: 40 }} />
+          <View style={{height: 40}} />
         </ScrollView>
       </SafeAreaView>
     </Modal>
