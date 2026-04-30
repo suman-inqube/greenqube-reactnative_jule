@@ -372,6 +372,7 @@ const PlotWiseMap = () => {
           axiosGet(
             ROUTES.GET.PLOTWISE_ACTIVITY({
               plot_id: found.id,
+              cropStatus: 'ACTIVE',
             }),
             token,
             {
@@ -379,7 +380,7 @@ const PlotWiseMap = () => {
             },
           ),
         ]);
-        console.log('actRes', actRes?.data?.data?.rows);
+        console.log('actRes', `${dbname},${lan_id},${found.farmer_id}`, token);
         if (actRes?.status === 200) {
           setActivityData(actRes?.data?.data);
         }
