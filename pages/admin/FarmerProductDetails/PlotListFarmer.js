@@ -240,6 +240,7 @@ const PlotListFarmer = () => {
       const res = await axiosGet(
         ROUTES.GET.PLOTWISE_ACTIVITY({
           plot_id: plotId,
+          cropStatus: '',
         }),
         token,
         {

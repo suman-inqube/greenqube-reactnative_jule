@@ -804,10 +804,7 @@ const ActivityReportAWD = ({navigation, route}) => {
             }
             if (activitySchedule.status == 200) {
               setIsLoading(false);
-              console.log(
-                'Last Activity=',
-                JSON.stringify(activitySchedule?.data?.data),
-              );
+              
               if (
                 activitySchedule?.data?.data?.lastActivity !==
                 'No Last Activity'
@@ -1961,7 +1958,7 @@ const ActivityReportAWD = ({navigation, route}) => {
           '',
           'pipeQrDetails',
         );
-        console.log('pi value111=', JSON.stringify(scanedData));
+        console.log('pi value111=',`${dbname},${lan_id},${farmerID}`);
         if (scanedData?.status == 200) {
           setPipeNumber(scannedValue);
         } else if (scanedData?.status == 409) {
