@@ -273,6 +273,7 @@ const ActivityReportAWD = ({navigation, route}) => {
     lastAct: '',
     upcomingAct: '',
   });
+  const [sDId, setSDId] = useState('');
 
   const pipe_fieldType = useRef(2);
   // const checkPipeDistance = (currentLat, currentLon) => {
@@ -624,6 +625,7 @@ const ActivityReportAWD = ({navigation, route}) => {
             'produceAgainstPlot' + farmerID + relId.value,
           );
         }
+        console.log("response",JSON.stringify(response?.data))
         if (response) {
           if (
             response?.data?.data?.land_info?.agri_land_user_latlongs.length > 2
@@ -676,6 +678,7 @@ const ActivityReportAWD = ({navigation, route}) => {
                 ? data.sowing_date
                 : data.crop_cycl_start_date;
             setMinimumSelectableDate(new Date(cycle_start_date));
+            setSDId(data?.cropSeasonTime?.sd_id);
             setNameVarityStartEnd(prev => ({
               ...prev,
               name: data.crop_name.name,
@@ -1952,6 +1955,7 @@ const ActivityReportAWD = ({navigation, route}) => {
         const scanedData = await axiosGet(
           ROUTES.GET.UNIQUE_SCAN_CODE({
             unique_id: scannedValue,
+            sDId:sDId,
           }),
           token,
           {information: `${dbname},${lan_id},${farmerID}`},

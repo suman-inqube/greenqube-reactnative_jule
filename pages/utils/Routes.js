@@ -341,8 +341,8 @@ export const ROUTES = {
       // ),
       `settingsRoute/listCoFarmers/1/${pageNo}/2?search_key=${searchKey}&land_fid=${land_fid}`,
 
-    UNIQUE_SCAN_CODE: ({unique_id = ''}) =>
-      `categoryRoute/pipeQrDetails?unique_id=${unique_id}&act_type=new`,
+    UNIQUE_SCAN_CODE: ({unique_id = '', sDId=''}) =>
+      `categoryRoute/pipeQrDetails?unique_id=${unique_id}&act_type=new&season_date_fid=${sDId}`,
     GET_CROP_HISTORY: ({plot_id = ''}) =>
       `carbonRoute/cropHistory?land_rel_id=${plot_id}`,
     GET_CROP_DETAILS: ({plot_id = ''}) =>
