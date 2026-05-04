@@ -82,8 +82,8 @@ android {
         applicationId "com.inqube.greenqube"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-          versionCode 134
-          versionName "13.4"
+          versionCode 139
+          versionName "13.9"
          ndk {
             abiFilters "armeabi-v7a","arm64-v8a","x86","x86_64"
         }
@@ -122,12 +122,19 @@ android {
             useLegacyPackaging = true
         }
     }
+    //  aaptOptions {
+    //     noCompress "onnx"
+    // }
+    assetPacks = [":asset_install_time"]
 }
 
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-
+//  implementation("com.google.android.play:asset-delivery-ktx:2.0.0")
+implementation "com.google.android.play:asset-delivery:2.2.2"
+implementation "com.google.android.play:asset-delivery-ktx:2.2.2"
+ implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.17.0'
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {

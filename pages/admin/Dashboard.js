@@ -5,7 +5,7 @@ import React, {
   useContext,
   useCallback,
   useMemo,
-  memo,
+  memo
 } from 'react';
 import {
   Animated,
@@ -18,25 +18,28 @@ import {
   Alert,
   BackHandler,
   Linking,
-  InteractionManager,
+  InteractionManager, NativeModules
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import {userCreateContext} from '../Context/usersCreateContext';
+import { userCreateContext } from '../Context/usersCreateContext';
 import CarouselSlider from '../Components/CarouselSlider';
 import TrackingInfromation from '../Components/TrackingInfromation';
 import UpcomingActivities from '../Components/UpcomingActivities';
 import SkeletonScreenDashoard from '../Components/Skeleton/SkeletonScreenDashoard';
-import {Colors} from '../utils/Constants';
-import {axiosGet} from '../utils/api';
-import {ROUTES} from '../utils/Routes';
+import { Colors } from '../utils/Constants';
+import { axiosGet } from '../utils/api';
+import { ROUTES } from '../utils/Routes';
 import useDoubleBackToExit from '../utils/useDoubleBackToExit';
 import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
-import {getDashboardItems} from '../utils/dashboardItems';
-import {useRoute} from '@react-navigation/native';
+import { getDashboardItems } from '../utils/dashboardItems';
+import { useIsFocused, useRoute } from '@react-navigation/native';
 import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
+import { MODELS } from './Activity/ImageAnalysisScreen';
+const { AssetPackModule } = NativeModules;
 // const HEADER_HEIGHT = 60;
-const Dashboard = ({navigation}) => {
+const Dashboard = ({ navigation }) => {
+  const isFocused = useIsFocused();
   useDoubleBackToExit();
   const {
     getItem,
@@ -108,17 +111,30 @@ const Dashboard = ({navigation}) => {
     },
     [isOnline, navigation, uiState.convertionLUState, Toast, AlertMesg],
   );
-
+  // useEffect(() => {
+  //   if (isFocused) {
+  //     MODELS.forEach(model => {
+  //       AssetPackModule.isModelLoaded(model.file)
+  //         .then(loaded => {
+  //           if (loaded) {
+  //             AssetPackModule.unloadModel(model.file)
+  //               .catch(() => { });
+  //           }
+  //         })
+  //         .catch(() => { });
+  //     });
+  //   }
+  // }, [isFocused]);
   const onPageLoad = useCallback(async () => {
     if (!loginUser_data) return;
 
     try {
-      const {dbname, lan_id, token, agri_user_addresses, user_id} =
+      const { dbname, lan_id, token, agri_user_addresses, user_id } =
         loginUser_data || {};
       let plotStatus = [];
       let convertionLUState = false;
       let defaultLand = false;
-      setIsLoading(prev => ({...prev, initial: true}));
+      setIsLoading(prev => ({ ...prev, initial: true }));
       const results = await Promise.allSettled([
         getItem('bottomBannerData'),
         getItem('userNameData'),
@@ -126,7 +142,6 @@ const Dashboard = ({navigation}) => {
         getItem('company_website'),
         getItem('logoImageData'),
         getItem('topBannerData'),
-
         axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT(), token, {
           information: `${dbname},${lan_id}`,
         }),
@@ -146,7 +161,7 @@ const Dashboard = ({navigation}) => {
             subdiv_id: agri_user_addresses[0]?.agri_subdivision?.fid,
           }),
           '',
-          {information: `${dbname},${lan_id}`},
+          { information: `${dbname},${lan_id}` },
         ),
 
         axiosGet(
@@ -158,8 +173,8 @@ const Dashboard = ({navigation}) => {
             supervisor_id: user_id,
           }),
           token,
-          {information: `${dbname},${lan_id},${user_id}`},
-        ),
+          { information: `${dbname},${lan_id},${user_id}` },
+        )
       ]);
 
       // ---------- PROCESS FAST RESULTS ----------
@@ -233,10 +248,11 @@ const Dashboard = ({navigation}) => {
         usefulInfoList,
         activitySchedule: [], // slow data later
       }));
-      setIsLoading(prev => ({...prev, initial: false}));
-      loadSlowApis({dbname, lan_id, token, user_id});
+      setIsLoading(prev => ({ ...prev, initial: false }));
+      loadSlowApis({ dbname, lan_id, token, user_id });
     } catch (error) {
-      setIsLoading(prev => ({...prev, initial: false}));
+      console.log('Error loading dashboard data:', error);
+      setIsLoading(prev => ({ ...prev, initial: false }));
       Toast?.show({
         text:
           error?.response?.data?.error?.errorMessage || 'Something went wrong',
@@ -244,9 +260,9 @@ const Dashboard = ({navigation}) => {
       });
     }
   }, [loginUser_data]);
-  const loadSlowApis = async ({dbname, lan_id, token, user_id}) => {
+  const loadSlowApis = async ({ dbname, lan_id, token, user_id }) => {
     try {
-      setIsLoading(prev => ({...prev, slowData: true}));
+      setIsLoading(prev => ({ ...prev, slowData: true }));
 
       const [carbonRes, userRes] = await Promise.allSettled([
         axiosGet(
@@ -255,7 +271,7 @@ const Dashboard = ({navigation}) => {
             type: 'carbon_activity',
           }),
           token,
-          {information: `${dbname},${lan_id},${user_id}`},
+          { information: `${dbname},${lan_id},${user_id}` },
         ),
         axiosGet(
           ROUTES.GET.ALL_ACTIVITY_SCHEDULE({
@@ -263,15 +279,15 @@ const Dashboard = ({navigation}) => {
             type: 'user_activity',
           }),
           token,
-          {information: `${dbname},${lan_id},${user_id}`},
+          { information: `${dbname},${lan_id},${user_id}` },
         ),
       ]);
 
       const carbonActivities =
         carbonRes.status === 'fulfilled'
           ? carbonRes.value?.data?.data?.data ||
-            carbonRes.value?.data?.data ||
-            []
+          carbonRes.value?.data?.data ||
+          []
           : [];
 
       const userActivities =
@@ -299,9 +315,9 @@ const Dashboard = ({navigation}) => {
         activitySchedule: finalActivity,
       }));
 
-      setIsLoading(prev => ({...prev, slowData: false}));
+      setIsLoading(prev => ({ ...prev, slowData: false }));
     } catch (error) {
-      setIsLoading(prev => ({...prev, slowData: false}));
+      setIsLoading(prev => ({ ...prev, slowData: false }));
       Toast?.show({
         text:
           error?.response?.data?.error?.errorMessage || 'Something went wrong',
@@ -312,6 +328,7 @@ const Dashboard = ({navigation}) => {
   useEffect(() => {
     if (route?.params?.action === 'plotStatusUpdated') {
       onPageLoad();
+
     }
   }, [route?.params]);
   useEffect(() => {
@@ -329,10 +346,10 @@ const Dashboard = ({navigation}) => {
       `${t('app_name')}`,
       `${t('close_app')}`,
       [
-        {text: `${t('cancle')}`, onPress: () => {}, style: 'cancel'},
-        {text: `${t('ok')}`, onPress: () => BackHandler.exitApp()},
+        { text: `${t('cancle')}`, onPress: () => { }, style: 'cancel' },
+        { text: `${t('ok')}`, onPress: () => BackHandler.exitApp() },
       ],
-      {cancelable: false},
+      { cancelable: false },
     );
     return true;
   }, [t]);
@@ -388,7 +405,7 @@ const Dashboard = ({navigation}) => {
               onPress={CompanyWebsiteOpen}
               style={styles.bottomContainer}>
               <ImageForm
-                source={{uri: uiState.bottomBanner}}
+                source={{ uri: uiState.bottomBanner }}
                 resizeMode="cover"
                 height={220}
                 width={'100%'}
@@ -445,7 +462,7 @@ const Dashboard = ({navigation}) => {
             <Animated.View
               style={[
                 styles.header,
-                {transform: [{translateY: headerTranslateY}]},
+                { transform: [{ translateY: headerTranslateY }] },
               ]}>
               {renderCustomHeader}
             </Animated.View>
@@ -453,10 +470,10 @@ const Dashboard = ({navigation}) => {
             <Animated.View
               style={[
                 styles.filterBar,
-                {transform: [{translateY: filterTranslateY}]},
+                { transform: [{ translateY: filterTranslateY }] },
               ]}>
               <Animated.View
-                style={[styles.animatedHeaderImage, {height: imageHeight}]}>
+                style={[styles.animatedHeaderImage, { height: imageHeight }]}>
                 <ImageBackground
                   source={{
                     uri: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop',
@@ -464,7 +481,7 @@ const Dashboard = ({navigation}) => {
                   // source={{ uri: uiState.topBannerImg || 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop' }}
                   resizeMode="cover"
                   style={styles.imageBackground}
-                  imageStyle={{opacity: 0.6}}>
+                  imageStyle={{ opacity: 0.6 }}>
                   <View style={styles.overlay} />
                   <View style={styles.bottomContent}>
                     <CarouselSlider
@@ -492,7 +509,7 @@ const Dashboard = ({navigation}) => {
               </Animated.View>
             </Animated.View>
 
-            <View style={{flex: 1, overflow: 'hidden'}}>
+            <View style={{ flex: 1, overflow: 'hidden' }}>
               <FlatList
                 nestedScrollEnabled={true}
                 contentContainerStyle={{
@@ -533,7 +550,7 @@ const Dashboard = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: Colors.background},
+  container: { flex: 1, backgroundColor: Colors.background },
   header: {
     // height: 60 - 10,
     position: 'absolute',
@@ -546,7 +563,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     elevation: 6,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     zIndex: 99999,
@@ -566,8 +583,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#003c04',
     zIndex: 9999,
   },
-  imageBackground: {flex: 1, width: '100%', justifyContent: 'flex-end'},
-  overlay: {...StyleSheet.absoluteFillObject},
+  imageBackground: { flex: 1, width: '100%', justifyContent: 'flex-end' },
+  overlay: { ...StyleSheet.absoluteFillObject },
   bottomContent: {
     paddingBottom: 10,
     paddingTop: 15,
