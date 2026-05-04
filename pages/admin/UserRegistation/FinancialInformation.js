@@ -9,7 +9,13 @@ import {
   BackHandler,
   Keyboard,
 } from 'react-native';
-import React, { useEffect, useState, useCallback, useContext, useMemo } from 'react';
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useContext,
+  useMemo,
+} from 'react';
 import ImageForm from '../../Common/ImageForm';
 import DatePicker from 'react-native-date-picker';
 import {
@@ -18,10 +24,10 @@ import {
   useIsFocused,
   useFocusEffect,
 } from '@react-navigation/native';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import config from '../../../config';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { Colors, Fonts, Fronts } from '../../utils/Constants';
+import {Colors, Fonts, Fronts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import useSingleBackToNavigate from '../../utils/useSingleBackToNavigate';
 
@@ -41,7 +47,7 @@ const FinancialInformation = () => {
     effective_dates,
     Root,
   } = useContext(userCreateContext);
-  useSingleBackToNavigate("PersonalInformation")
+  useSingleBackToNavigate('PersonalInformation');
   const navigation = useNavigation();
   const route = useRoute();
   const isFocused = useIsFocused();
@@ -93,12 +99,12 @@ const FinancialInformation = () => {
     setLifeInsurance(!isLifeInsurance);
   };
   const onPageLoad = async () => {
-    const [currency_res,storeFinancial_data_res] = await Promise.all([
+    const [currency_res, storeFinancial_data_res] = await Promise.all([
       getItem('currency'),
       getItem('storeFinancial_data'),
     ]);
-    if(storeFinancial_data_res){
-      setStoreFinancial(storeFinancial_data_res)
+    if (storeFinancial_data_res) {
+      setStoreFinancial(storeFinancial_data_res);
     }
     setCurrencyt(currency_res);
   };
@@ -128,9 +134,9 @@ const FinancialInformation = () => {
       onPageLoad();
     }
   }, [isFocused]);
-    const storeFinancial_data_delete = async () => {
-    await setItem('storeFinancial_data')
-  }
+  const storeFinancial_data_delete = async () => {
+    await setItem('storeFinancial_data');
+  };
   const emptyData = () => {
     setStoreFinancial({
       adharCard: '',
@@ -156,82 +162,82 @@ const FinancialInformation = () => {
     Keyboard.dismiss();
     if (path != '') {
       await setItem('storeFinancial_data', storeFinancial);
-      navigation.navigate(route.params.pagename, { data: remove });
+      navigation.navigate(route.params.pagename, {data: remove});
     } else {
       await setItem('storeFinancial_data', storeFinancial);
-      navigation.navigate('PlotSiteProduceInformation', { data: remove });
+      navigation.navigate('PlotSiteProduceInformation', {data: remove});
     }
   };
   const HandlerGoBack = async () => {
-    const pagename = await getItem('pagename')
+    const pagename = await getItem('pagename');
     navigation.navigate(pagename != '' ? pagename : 'PersonalInformation');
   };
-  const handleChangeAadhar = useCallback((text) => {
+  const handleChangeAadhar = useCallback(text => {
     setStoreFinancial(prev => ({
       ...prev,
       adharCard: text,
-    }))
-  }, [])
-  const handleChangePan = useCallback((text) => {
+    }));
+  }, []);
+  const handleChangePan = useCallback(text => {
     setStoreFinancial(prev => ({
       ...prev,
       panNo: text,
-    }))
-  }, [])
-  const handleChangeVot = useCallback((text) => {
+    }));
+  }, []);
+  const handleChangeVot = useCallback(text => {
     setStoreFinancial(prev => ({
       ...prev,
       voterCard: text,
-    }))
-  }, [])
-  const handleChangeKcc = useCallback((text) => {
+    }));
+  }, []);
+  const handleChangeKcc = useCallback(text => {
     setStoreFinancial(prev => ({
       ...prev,
       farmarLoanNo: text,
-    }))
-  }, [])
-  const handleChangeAccountHolderName = useCallback((text) => {
+    }));
+  }, []);
+  const handleChangeAccountHolderName = useCallback(text => {
     setStoreFinancial(prev => ({
       ...prev,
       accountHolderName: text,
-    }))
-  }, [])
-  const handleChangeFarmerRegIfsc = useCallback((text) => {
+    }));
+  }, []);
+  const handleChangeFarmerRegIfsc = useCallback(text => {
     setStoreFinancial(prev => ({
       ...prev,
       bankName: text,
-    }))
-  }, [])
-  const handleChangeBranchName = useCallback((text) => {
+    }));
+  }, []);
+  const handleChangeBranchName = useCallback(text => {
     setStoreFinancial(prev => ({
       ...prev,
       branchName: text,
-    }))
-  }, [])
-  const handleChangeBankAccNo = useCallback((text) => {
+    }));
+  }, []);
+  const handleChangeBankAccNo = useCallback(text => {
     setStoreFinancial(prev => ({
       ...prev,
       bankAccountNo: text,
-    }))
-  }, [])
-  const handleChangeFarmerRegIfscNo = useCallback((text) => {
+    }));
+  }, []);
+  const handleChangeFarmerRegIfscNo = useCallback(text => {
     setStoreFinancial(prev => ({
       ...prev,
       ifscCode: text,
-    }))
-  }, [])
-  const handleChangePensionAuth = useCallback((text) => {
+    }));
+  }, []);
+  const handleChangePensionAuth = useCallback(text => {
     setStoreFinancial(prev => ({
       ...prev,
       pensionProvidingAuthority: text,
-    }))
-  }, [])
-  const handleChangePensionsAccNo = useCallback((text) => {
+    }));
+  }, []);
+  const handleChangePensionsAccNo = useCallback(text => {
     setStoreFinancial(prev => ({
       ...prev,
       pensionAccountNo: text,
-    }))
-  }, [])
+    }));
+  }, []);
 
   const renderCustomHeader = useMemo(
     () => (
@@ -630,7 +636,7 @@ const FinancialInformation = () => {
 export default FinancialInformation;
 
 const styles = StyleSheet.create({
-  mainConatiner: { flex: 1, backgroundColor: Colors.background },
+  mainConatiner: {flex: 1, backgroundColor: Colors.background},
   headerStyle: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -662,7 +668,7 @@ const styles = StyleSheet.create({
     // elevation: 3,
     // height: 55,
     borderWidth: 0.5,
-    borderColor: Colors.border
+    borderColor: Colors.border,
   },
   toggleText: {
     fontSize: 16,

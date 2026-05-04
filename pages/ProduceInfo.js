@@ -65,8 +65,8 @@ const ProduceInfo = () => {
     daagNo: '',
     khatianNo: '',
     noOfPlants: '',
-    jl_no:'',
-    mouja:'',
+    jl_no: '',
+    mouja: '',
     terrainType: '',
     landType: '',
     soilType: '',
@@ -714,10 +714,9 @@ const ProduceInfo = () => {
     setstoreProduceInfo({...storeProduceInfo, cycleEnds: cycleEnds});
   };
   const validationData = () => {
-
     if (carbonFlag && !storeProduceInfo.daagNo) {
       Toast.show({
-        text: 'Please enter Daag Number',
+        text: 'Please enter Dag Number',
         ...AlertMesg[0],
       });
       return;
@@ -1520,6 +1519,7 @@ const ProduceInfo = () => {
                     }
                     value={storeProduceInfo.daagNo}
                     required={carbonFlag === true}
+                    required={carbonFlag === true}
                   />
                   <InputTextForm
                     label={t('khatian_no')}
@@ -1551,6 +1551,7 @@ const ProduceInfo = () => {
                         })
                       }
                       value={storeProduceInfo.jl_no}
+                      required={carbonFlag === true}
                       required={carbonFlag === true}
                     />
                   ) : (

@@ -59,6 +59,7 @@ const RequestForInsurance = lazy(() =>
 const DailySalesReport = lazy(() =>
   import('./DailySalesReport/DailySalesReport'),
 );
+
 const SalesDetail = lazy(() => import('./DailySalesReport/SalesDetail'));
 const DealerReport = lazy(() => import('./DailySalesReport/DealerReport'));
 const FarmerReport = lazy(() => import('./DailySalesReport/FarmerReport'));
@@ -192,6 +193,7 @@ function AdminStack() {
         name="RequestForInsurance"
         component={RequestForInsurance}
       />
+
       <Stack.Screen name="DailySalesReport" component={DailySalesReport} />
       <Stack.Screen name="SalesDetail" component={SalesDetail} />
       <Stack.Screen name="DealerReport" component={DealerReport} />

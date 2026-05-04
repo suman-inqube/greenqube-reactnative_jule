@@ -125,7 +125,7 @@ const ProduceInfoUpdate = () => {
   const [minStartDate, setMinStartDate] = useState(new Date());
   const [maxHarvestDate, setMaxHarvestDate] = useState(new Date());
   const [minHarvestDate, setMinHarvestDate] = useState(new Date());
-   const [carbonFlag, setCarbonStatus] = useState(false);
+  const [carbonFlag, setCarbonStatus] = useState(false);
   const renderLocationTags = () => {
     return location.map((data, index) => (
       <View key={index} style={styles.locationContainer}>
@@ -796,7 +796,7 @@ const ProduceInfoUpdate = () => {
       getItem('storePersnolInfo_data'),
       getItem('storeProduceInfo_data'),
       getItem('produceVariety'),
-       getItem('carbon_status'),
+      getItem('carbon_status'),
     ]);
     setCarbonStatus(carbonStatus);
     const dbName = storeSignup_data.company.dbname;

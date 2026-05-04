@@ -2207,24 +2207,24 @@ const PlotStatusUpdate = () => {
                   onChangeText={text => handleAddUserData('plant_number', text)}
                   editable={InputTextFormEdit}
                 />
-                 {carbonFlag == true ? (
-                 <InputTextForm
-                  label={t('JL No')}
-                  value={farmerData.jl_no}
-                  onChangeText={text => handleAddUserData('jl_no', text)}
-                  editable={InputTextFormEdit}
-                  required={carbonFlag === true}
-                />
+                {carbonFlag == true ? (
+                  <InputTextForm
+                    label={t('JL No')}
+                    value={farmerData.jl_no}
+                    onChangeText={text => handleAddUserData('jl_no', text)}
+                    editable={InputTextFormEdit}
+                    required={carbonFlag === true}
+                  />
                 ) : (
                   <></>
                 )}
-                 {carbonFlag == true ? (
-                <InputTextForm
-                  label={t('Mouja Name')}
-                  value={farmerData.mouja}
-                  onChangeText={text => handleAddUserData('mouja', text)}
-                  editable={InputTextFormEdit}
-                />
+                {carbonFlag == true ? (
+                  <InputTextForm
+                    label={t('Mouja Name')}
+                    value={farmerData.mouja}
+                    onChangeText={text => handleAddUserData('mouja', text)}
+                    editable={InputTextFormEdit}
+                  />
                 ) : (
                   <></>
                 )}

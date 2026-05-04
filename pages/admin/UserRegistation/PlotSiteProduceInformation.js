@@ -908,7 +908,6 @@ const PlotSiteProduceInformation = () => {
     setstoreProduceInfoInArray(values);
   };
   const validationData = () => {
-
     if (carbonFlag && !storeProduceInfo.jlNo) {
       Toast.show({
         time: 3,

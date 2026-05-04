@@ -198,7 +198,7 @@ export const axiosPost = async (
   //   ...extraHeaders,
   // };
   // logCurl({url, method: 'POST', headers, body: payload});
-
+  console.log('check', url, body, headers);
   try {
     return await instance.post(url, payload, {
       headers,

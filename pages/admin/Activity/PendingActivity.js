@@ -252,6 +252,7 @@ const PendingActivity = () => {
             </View>
           </TouchableOpacity>
         ) : (
+          // </TouchableOpacity>
           <></>
         )}
       </>

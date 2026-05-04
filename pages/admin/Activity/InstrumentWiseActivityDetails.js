@@ -100,6 +100,7 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
   const [tempImage, setTempImage] = useState(null);
   const [tempText, setTempText] = useState('');
   const {params} = route;
+  const [mapLatLon, setMapLatLon] = useState(null);
   const onPageLoad = async () => {
     try {
       const {latitude, longitude} = coords || {};
@@ -109,6 +110,8 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
       }
       const lat = latitude === '' ? latlong.latitude : latitude;
       const lon = longitude === '' ? latlong.longitude : longitude;
+
+
       setIsLoading(true);
       const pipeRes = await ActivityPipeImages(
         token,
@@ -180,6 +183,10 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
         }
       }
       setIsLoading(false);
+       setMapLatLon({
+         latitude: lat,
+         longitude: lon,
+       });
     } catch (error) {
       setIsLoading(false);
     }
@@ -303,6 +310,11 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
           latitude = loc?.latitude;
           longitude = loc?.longitude;
         }
+
+         setMapLatLon({
+           latitude: latitude,
+           longitude: longitude,
+         });
 
         const timestamp = Date.now();
         const formattedTime = new Intl.DateTimeFormat('en-US', {
@@ -472,6 +484,8 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
               outofRange={outofRange}
               pipeLatLong={pipeLatLong}
               replaceImgKey={replaceImgKey}
+              userLocationPriority="high"
+              setMapLatLon={setMapLatLon}
             />
           )}
 

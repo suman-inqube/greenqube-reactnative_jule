@@ -337,8 +337,18 @@ export default function Map({
   const actions = useMemo(() => {
     const baseActions = [
       {
-        text: editing ? 'Stop Editing' : 'Start Editing',
-        icon: require('../../Common/images/editing.png'),
+        text:
+          type === 'plotWise'
+            ? 'Search Location'
+            : editing
+            ? 'Stop Editing'
+            : 'Start Editing',
+
+        icon:
+          type === 'plotWise'
+            ? require('../../Common/images/find.png') // 🔥 your filter icon
+            : require('../../Common/images/editing.png'),
+
         name: 'toggleEdit',
         position: 1,
         color: Colors.useGreen,

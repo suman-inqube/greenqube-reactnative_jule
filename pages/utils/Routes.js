@@ -341,8 +341,8 @@ export const ROUTES = {
       // ),
       `settingsRoute/listCoFarmers/1/${pageNo}/2?search_key=${searchKey}&land_fid=${land_fid}`,
 
-    UNIQUE_SCAN_CODE: ({unique_id = ''}) =>
-      `categoryRoute/pipeQrDetails?unique_id=${unique_id}&act_type=new`,
+    UNIQUE_SCAN_CODE: ({unique_id = '', sDId=''}) =>
+      `categoryRoute/pipeQrDetails?unique_id=${unique_id}&act_type=new&season_date_fid=${sDId}`,
     GET_CROP_HISTORY: ({plot_id = ''}) =>
       `carbonRoute/cropHistory?land_rel_id=${plot_id}`,
     GET_CROP_DETAILS: ({plot_id = ''}) =>
@@ -354,8 +354,8 @@ export const ROUTES = {
     PEST_DETAILS: ({cu_rel_fid = ''}) =>
       `carbonRoute/cropInputDetails?cu_rel_fid=${cu_rel_fid}`,
 
-    PLOTWISE_ACTIVITY: ({plot_id = ''}) =>
-      `ioRoute/listUserActivity_v3/1/1/2?search_key=&type=carbon_activity&plot_id=${plot_id}`,
+    PLOTWISE_ACTIVITY: ({plot_id = '', cropStatus = ''}) =>
+      `ioRoute/listUserActivity_v3/1/1/2?search_key=&type=carbon_activity&plot_id=${plot_id}&crop_status=${cropStatus}`,
 
     USER_ACTIVITY_DETAILS_V3: ({uact_id = ''}) =>
       `ioRoute/userActivityDetails_v3?uact_id=${uact_id}`,

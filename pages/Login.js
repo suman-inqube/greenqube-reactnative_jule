@@ -15,14 +15,14 @@ import {
   Platform,
   TouchableWithoutFeedback,
 } from 'react-native';
-import React, { useEffect, useState, useContext } from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import Logo from './Common/Logo';
 import DropdownForm from './Common/DropdownForm';
 import FilterDropDownForm from './Common/FilterDropDownForm';
 import config from '../config';
 import ButtonForm from './Common/ButtonForm';
 import axios from 'axios';
-import { getItem, removeItem, setItem } from '../config/getDataFromStorage';
+import {getItem, removeItem, setItem} from '../config/getDataFromStorage';
 import {
   databaseListAPI,
   fpodetailsDataListAPI,
@@ -33,7 +33,7 @@ import {
 } from '../config/apiHere';
 import MessageDialog from './Common/MessageDialog';
 import i18next from './services/i18next';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from 'react-i18next';
 import LoadingScreen from './Common/LoadingScreen';
 import {
   Root,
@@ -42,7 +42,7 @@ import {
   SPSheet,
 } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import Checkbox from './Common/CheckboxCom';
-import { AlertMesg } from './Common/ToastAlert';
+import {AlertMesg} from './Common/ToastAlert';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import {
@@ -50,24 +50,24 @@ import {
   useIsFocused,
   StackActions,
 } from '@react-navigation/native';
-import { Permission, PERMISSIONS_TYPE } from './AppPermission/AppPermission';
+import {Permission, PERMISSIONS_TYPE} from './AppPermission/AppPermission';
 // import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
 // import NotificationServices from './PushNotification/NotificationServices';
 import DeviceInfo from './DeviceInfo';
-import { userCreateContext } from './Context/usersCreateContext';
+import {userCreateContext} from './Context/usersCreateContext';
 import DropdownForm11 from './Common/DropdownForm11';
 import CompanyDropdown from './Common/CompanyDropdown11';
-import { axiosGet, axiosPost } from './utils/api';
-import { ROUTES } from './utils/Routes';
+import {axiosGet, axiosPost} from './utils/api';
+import {ROUTES} from './utils/Routes';
 import Container from '../Components/Container';
 
-const Login = ({ route }) => {
-  const { setlogoImage, settopBanner, AllFarmerList, t } =
+const Login = ({route}) => {
+  const {setlogoImage, settopBanner, AllFarmerList, t} =
     useContext(userCreateContext);
-  const { netConnection } = DeviceInfo();
+  const {netConnection} = DeviceInfo();
   const roleData = [
-    { label: t('login_farmer'), value: '2' },
-    { label: t('retailer'), value: '3' },
+    {label: t('login_farmer'), value: '2'},
+    {label: t('retailer'), value: '3'},
   ];
   const [checked, setChecked] = useState(false);
   // const { requestUserPermission, notificationListener } = NotificationServices();
@@ -162,7 +162,13 @@ const Login = ({ route }) => {
       };
       try {
         setIsLoading(true);
-        let userIno = await axiosPost(ROUTES.POST.LOGIN, inputdata, null, false, {})
+        let userIno = await axiosPost(
+          ROUTES.POST.LOGIN,
+          inputdata,
+          null,
+          false,
+          {},
+        );
         if (userIno?.status === 200) {
           setRemUser({
             ...remUser,
@@ -188,20 +194,16 @@ const Login = ({ route }) => {
             loginUserdata?.db_company_id,
           );
 
-          console.log('details_company_res', JSON.stringify(details_company_res));
-          console.log(
-            'pipeQR',
-           details_company_res?.data?.data[0]?.pipe_qr_code
-          );
-
           if (details_company_res?.status == 200) {
             await setItem('side_menu_option', {
               soil_testing: details_company_res?.data?.data[0]?.soil_testing,
               agri_calculator:
                 details_company_res?.data?.data[0]?.agri_calculator,
             });
-              await setItem('pipeQR', details_company_res?.data?.data[0]?.pipe_qr_code
-              );
+            await setItem(
+              'pipeQR',
+              details_company_res?.data?.data[0]?.pipe_qr_code,
+            );
           }
           // db_name:dbname, company_id:value, agri_company.country_id:country_id
           await Promise.all([
@@ -240,7 +242,7 @@ const Login = ({ route }) => {
                   compCode: loginUserdata.sa_company[0].company_code,
                 }),
                 loginUserdata.token,
-                { information: `${dbname},${lan_id},${user_id}` },
+                {information: `${dbname},${lan_id},${user_id}`},
               ),
               axiosGet(ROUTES.GET.REGIONAL_DATA, token, {
                 information: `${dbname},${lan_id}`,
@@ -267,7 +269,7 @@ const Login = ({ route }) => {
           }
           if (fpoDetailsList_res?.status === 200) {
             //   i18next.changeLanguage(`${loginUserdata?.lan_id}`);
-            const { company_website } = fpoDetailsList_res.data[0];
+            const {company_website} = fpoDetailsList_res.data[0];
             var url_regex = /^(http|https)/;
             if (url_regex.test(String(company_website).toLowerCase()) == true) {
               await setItem('company_website', company_website);
@@ -369,6 +371,7 @@ const Login = ({ route }) => {
           console.log(userIno);
         }
       } catch (error) {
+        console.log('error', error);
         let errorMessage = 'Invalid login details. Please try again.';
         Toast.show({
           text: `${error?.data?.error?.errorMessage}`,
@@ -402,7 +405,7 @@ const Login = ({ route }) => {
       ]);
     if (companyLanguage_data != '' && companyLanguage_data != null) {
       setCompanyLanguage(companyLanguage_data);
-      const { country_id, company, language } = companyLanguage_data;
+      const {country_id, company, language} = companyLanguage_data;
       checkPhoneNumber(country_id, company, language);
       if (companyFirstEntry == 1) {
         setStoreLoginUser({
@@ -445,7 +448,7 @@ const Login = ({ route }) => {
     if (company_res.status == 200) {
       let companyArray = [];
       company_res?.data?.data?.map((data, index) => {
-        const { company_id, agri_company, db_name } = data;
+        const {company_id, agri_company, db_name} = data;
         companyArray.push({
           value: company_id,
           label: agri_company.company_name,
@@ -471,8 +474,8 @@ const Login = ({ route }) => {
   }, [netConnection]);
   const onChangeConpany = async item => {
     try {
-      const { country_id, dbname, value, label } = item;
-      const { language } = companyLanguage;
+      const {country_id, dbname, value, label} = item;
+      const {language} = companyLanguage;
       setStoreLoginUser(prev => ({
         ...prev,
         company: value,
@@ -489,12 +492,12 @@ const Login = ({ route }) => {
   const checkPhoneNumber = async (country_id, company, language) => {
     try {
       const checkPhoneNumber = await axiosGet(
-        ROUTES.GET.PHONE_DIGIT_CHECK({ country_id }),
+        ROUTES.GET.PHONE_DIGIT_CHECK({country_id}),
         '',
-        { information: `${company},${language}` },
+        {information: `${company},${language}`},
       );
       if (checkPhoneNumber.status == 200) {
-        const { contact_no_digits } = checkPhoneNumber.data?.data;
+        const {contact_no_digits} = checkPhoneNumber.data?.data;
         setcontact_no_digits(contact_no_digits);
       }
     } catch (error) {
@@ -546,7 +549,7 @@ const Login = ({ route }) => {
                   keyboardType="numeric"
                   value={storeLoginUser.phone}
                   onChangeText={phone =>
-                    setStoreLoginUser({ ...storeLoginUser, phone: phone })
+                    setStoreLoginUser({...storeLoginUser, phone: phone})
                   }
                   maxLength={contact_no_digits}
                 />
@@ -582,13 +585,13 @@ const Login = ({ route }) => {
                 </TouchableOpacity>
               </View>
 
-              <View style={{ marginTop: 20 }}>
+              <View style={{marginTop: 20}}>
                 <DropdownForm11
                   data={roleData}
                   label={t('select_role')}
                   searchPlaceholder="Search by role"
                   onChange={role =>
-                    setStoreLoginUser({ ...storeLoginUser, role: role.value })
+                    setStoreLoginUser({...storeLoginUser, role: role.value})
                   }
                   val={storeLoginUser.role}
                   dropdownStyle={{
@@ -599,7 +602,7 @@ const Login = ({ route }) => {
                 />
               </View>
 
-              <View style={{ marginTop: 10 }}>
+              <View style={{marginTop: 10}}>
                 <CompanyDropdown
                   data={companyData}
                   label={t('select_company')}
@@ -618,17 +621,14 @@ const Login = ({ route }) => {
               <View style={styles.checkBoxAndForgotPass}>
                 <View style={styles.rememberMeContainer}>
                   <TouchableOpacity
-                    style={[
-                      styles.checkbox,
-                      checked && styles.ifCheckedBox,
-                    ]}
+                    style={[styles.checkbox, checked && styles.ifCheckedBox]}
                     onPress={() => setChecked(!checked)}>
                     {checked && (
                       <MaterialIcons
                         name="check"
                         size={16}
                         color="white"
-                        style={{ position: 'absolute' }}
+                        style={{position: 'absolute'}}
                       />
                     )}
                   </TouchableOpacity>
@@ -650,9 +650,7 @@ const Login = ({ route }) => {
                     : styles.signInButtonInactive,
                 ]}
                 onPress={saveHandle}
-                disabled={
-                  !storeLoginUser.phone || !storeLoginUser.password
-                }>
+                disabled={!storeLoginUser.phone || !storeLoginUser.password}>
                 <Text style={styles.signInBtnText}>{t('sign_in')}</Text>
               </TouchableOpacity>
 
@@ -660,8 +658,7 @@ const Login = ({ route }) => {
                 <Text style={styles.dontHaveAccount}>
                   {t('Dont have an account?')}
                 </Text>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('Signup')}>
+                <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
                   <Text style={styles.signUpText}>
                     {t('Create')} {t('account')}
                   </Text>
@@ -670,7 +667,6 @@ const Login = ({ route }) => {
             </View>
           </View>
         </ScrollView>
-
       </Container>
     </Root>
   );

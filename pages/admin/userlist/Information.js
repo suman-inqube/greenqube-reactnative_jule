@@ -412,7 +412,7 @@ const Information = ({sendDataToParent, farmerID}) => {
           information: `${dbname},${lan_id}`,
         },
       );
-
+      console.log('response', response);
       const farmerFound = response?.data?.data?.[0];
       console.log('farmer==', farmerFound);
 
@@ -436,10 +436,10 @@ const Information = ({sendDataToParent, farmerID}) => {
         farmerFound?.agri_user_addresses?.[0]?.agri_district?.fid,
       );
 
-                const filteredFilesProfile = farmerFound.agri_files.filter(
-                  file => file.term_type === '1',
-                );
-                setSelectedImage(filteredFilesProfile[0]?.file_path);
+      const filteredFilesProfile = farmerFound.agri_files.filter(
+        file => file.term_type === '1',
+      );
+      setSelectedImage(filteredFilesProfile[0]?.file_path);
 
       const values = [...identityProofIdentityPropf];
 
@@ -549,6 +549,7 @@ const Information = ({sendDataToParent, farmerID}) => {
       try {
         setIsLoading(true);
         Keyboard.dismiss();
+
         const formData = new FormData();
         formData.append('meta', []);
         formData.append('lan_id', lan_id);
@@ -602,6 +603,7 @@ const Information = ({sendDataToParent, farmerID}) => {
           farmerData.user_bank_branch_name,
         );
         formData.append('user_bank_ifsc_code', farmerData.user_bank_ifsc_code);
+
         formData.append(
           'pension_details',
           JSON.stringify({
@@ -612,6 +614,7 @@ const Information = ({sendDataToParent, farmerID}) => {
             frequency: farmerData.frequency,
           }),
         );
+
         formData.append(
           'lic_details',
           JSON.stringify({
@@ -620,12 +623,15 @@ const Information = ({sendDataToParent, farmerID}) => {
             sum_insured: farmerData.sum_insured,
           }),
         );
+
         formData.append('pan_number', farmerData.pan_number);
         formData.append('voter_card_number', farmerData.voter_card_number);
         formData.append('farmer_type', farmerData.farmer_type);
+
         if (myphoto.name != '') {
           formData.append('photo', myphoto);
         }
+
         const formDataPlotImg = new FormData();
 
         if (
@@ -634,64 +640,77 @@ const Information = ({sendDataToParent, farmerID}) => {
         ) {
           const {uri, type, name} = identityProofIdentityPropf[0];
           formDataPlotImg.append('farmer_address', {
-            uri: uri,
-            type: type,
-            name: name,
+            uri,
+            type,
+            name,
           });
         }
+
         if (
           identityProofIdentityPropf[1]?.fileName != '' &&
           identityProofIdentityPropf[1]?.fileName != ''
         ) {
           const {uri, type, name} = identityProofIdentityPropf[1];
           formDataPlotImg.append('farmer_identity', {
-            uri: uri,
-            type: type,
-            name: name,
+            uri,
+            type,
+            name,
           });
         }
+
         formDataPlotImg.append('user_id', farmeruserID);
-        // console.error(farmeruserID)
+
         let formDataDelete = qs.stringify({
           file_delete_ids: photoDeletedValue.toString(),
         });
 
-        const [userDataUpdate, addIdAddressImgsRes] = await Promise.all([
-          axiosPut(
-            ROUTES.PUT.USER_PROFILE_UPDATE({
-              user_id: farmeruserID,
-            }),
-            formData,
-            token,
-            false,
-            {information: `${dbname},${lan_id},${user_id}`},
-          ),
-          // UserInformationUpdate(
-          //   dbname,
-          //   lan_id,
-          //   user_id,
-          //   token,
-          //   farmeruserID,
-          //   formData,
-          // ),
-          onlyUpdateIdAddrFile(
-            dbname,
-            lan_id,
-            farmeruserID,
-            token,
-            formDataPlotImg,
-          ),
+        // ✅ 🔥 FIX START (ONLY CHANGE AREA)
+        console.log('body', JSON.stringify(formData, token));
+        console.log('headers', JSON.stringify(farmeruserID));
+        console.log('info', JSON.stringify(dbname));
+        console.log('info2', JSON.stringify(lan_id));
 
-          deletePlotImageAPI(dbname, lan_id, token, formDataDelete),
-        ]);
+        console.log('info3', JSON.stringify(user_id));
 
+        // STEP 1: USER UPDATE FIRST
+        const userDataUpdate = await axiosPut(
+          ROUTES.PUT.USER_PROFILE_UPDATE({
+            user_id: farmeruserID,
+          }),
+          formData,
+          token,
+          false,
+          {information: `${dbname},${lan_id},${user_id}`},
+        );
+        console.log(
+          'aaaaa',
+          dbname,
+          lan_id,
+          farmeruserID,
+          token,
+          formDataPlotImg,
+        );
+        // STEP 2: FILE UPLOAD (DEPENDENT)
+        const addIdAddressImgsRes = await onlyUpdateIdAddrFile(
+          dbname,
+          lan_id,
+          farmeruserID,
+          token,
+          formDataPlotImg,
+        );
+
+        // STEP 3: DELETE OLD FILE
+        await deletePlotImageAPI(dbname, lan_id, token, formDataDelete);
+
+        // ✅ 🔥 FIX END
+        console.log('userDataUpdate', JSON.stringify(userDataUpdate));
         if (userDataUpdate.status === 200) {
           Toast.show({
             text: 'User information update successfully',
             ...AlertMesg[0],
           });
+
           setTimeout(() => {
-            // navigation.navigate('Dashboard');
             navigation.dispatch(
               CommonActions.reset({
                 index: 1,
@@ -706,6 +725,7 @@ const Information = ({sendDataToParent, farmerID}) => {
             );
           }, 2000);
         }
+
         setIsLoading(false);
       } catch (error) {
         setIsLoading(false);
@@ -713,6 +733,187 @@ const Information = ({sendDataToParent, farmerID}) => {
       }
     }
   };
+  // const handleUserListUpdate = async () => {
+  //   if (farmerData?.stateName == '' || farmerData?.stateName == undefined) {
+  //     Toast.show({text: t('select_state_first'), ...AlertMesg[0]});
+  //   } else if (
+  //     farmerData?.districtName == '' ||
+  //     farmerData?.districtName == undefined
+  //   ) {
+  //     Toast.show({text: t('select_district_first'), ...AlertMesg[0]});
+  //   } else if (
+  //     farmerData?.blockName == '' ||
+  //     farmerData?.blockName == undefined
+  //   ) {
+  //     Toast.show({text: t('select_block_first'), ...AlertMesg[0]});
+  //   } else {
+  //     try {
+  //       setIsLoading(true);
+  //       Keyboard.dismiss();
+  //       const formData = new FormData();
+  //       formData.append('meta', []);
+  //       formData.append('lan_id', lan_id);
+  //       formData.append('father_name', '');
+  //       formData.append('gender', farmerData.gender);
+  //       formData.append('cast', '');
+  //       formData.append('bankInfo', []);
+  //       formData.append(
+  //         'addressInfo',
+  //         JSON.stringify([
+  //           {
+  //             country: farmerData.country,
+  //             state: farmerData.state,
+  //             district: farmerData.district,
+  //             subdivision: farmerData.block,
+  //           },
+  //         ]),
+  //       );
+  //       formData.append('status', 1);
+  //       formData.append('userName', farmerData.userName);
+  //       formData.append('date_of_birth', farmerData.date_of_birth);
+  //       formData.append('unique_id', '');
+  //       formData.append('has_farmer_smart_phone', '');
+  //       formData.append('finance_agriculture_campagin', '');
+  //       formData.append('financial_or_bank_name', '');
+  //       formData.append('bank_account_number', '');
+  //       formData.append('financial_entity_name', '');
+  //       formData.append('farmer_belongs_name', '');
+  //       formData.append('emailId', '');
+  //       formData.append('type_percel_ownership_document', '');
+  //       formData.append('farmer_belongs_option', '');
+  //       formData.append('finance_agriculture_campagin_option', '');
+  //       formData.append('faco_value', '');
+  //       formData.append('agent_ally', '');
+  //       formData.append('aadhar_number', farmerData.aadhar_number);
+  //       formData.append('kcc_number', farmerData.kcc_number);
+  //       formData.append(
+  //         'user_bank_account_holder',
+  //         farmerData.user_bank_account_holder,
+  //       );
+  //       formData.append(
+  //         'user_bank_account_name',
+  //         farmerData.user_bank_account_name,
+  //       );
+  //       formData.append(
+  //         'user_bank_account_number',
+  //         farmerData.user_bank_account_number,
+  //       );
+  //       formData.append(
+  //         'user_bank_branch_name',
+  //         farmerData.user_bank_branch_name,
+  //       );
+  //       formData.append('user_bank_ifsc_code', farmerData.user_bank_ifsc_code);
+  //       formData.append(
+  //         'pension_details',
+  //         JSON.stringify({
+  //           pension_authority: farmerData.pension_authority,
+  //           pension_account_no: farmerData.pension_account_no,
+  //           effective_from: farmerData.effective_from,
+  //           pension_amount: farmerData.pension_amount,
+  //           frequency: farmerData.frequency,
+  //         }),
+  //       );
+  //       formData.append(
+  //         'lic_details',
+  //         JSON.stringify({
+  //           company_name: farmerData.company_name,
+  //           policy_no: farmerData.policy_no,
+  //           sum_insured: farmerData.sum_insured,
+  //         }),
+  //       );
+  //       formData.append('pan_number', farmerData.pan_number);
+  //       formData.append('voter_card_number', farmerData.voter_card_number);
+  //       formData.append('farmer_type', farmerData.farmer_type);
+  //       if (myphoto.name != '') {
+  //         formData.append('photo', myphoto);
+  //       }
+  //       const formDataPlotImg = new FormData();
+
+  //       if (
+  //         identityProofIdentityPropf[0]?.fileName != '' &&
+  //         identityProofIdentityPropf[0]?.fileName != ''
+  //       ) {
+  //         const {uri, type, name} = identityProofIdentityPropf[0];
+  //         formDataPlotImg.append('farmer_address', {
+  //           uri: uri,
+  //           type: type,
+  //           name: name,
+  //         });
+  //       }
+  //       if (
+  //         identityProofIdentityPropf[1]?.fileName != '' &&
+  //         identityProofIdentityPropf[1]?.fileName != ''
+  //       ) {
+  //         const {uri, type, name} = identityProofIdentityPropf[1];
+  //         formDataPlotImg.append('farmer_identity', {
+  //           uri: uri,
+  //           type: type,
+  //           name: name,
+  //         });
+  //       }
+  //       formDataPlotImg.append('user_id', farmeruserID);
+  //       // console.error(farmeruserID)
+  //       let formDataDelete = qs.stringify({
+  //         file_delete_ids: photoDeletedValue.toString(),
+  //       });
+
+  //       const [userDataUpdate, addIdAddressImgsRes] = await Promise.all([
+  //         axiosPut(
+  //           ROUTES.PUT.USER_PROFILE_UPDATE({
+  //             user_id: farmeruserID,
+  //           }),
+  //           formData,
+  //           token,
+  //           false,
+  //           {information: `${dbname},${lan_id},${user_id}`},
+  //         ),
+  //         // UserInformationUpdate(
+  //         //   dbname,
+  //         //   lan_id,
+  //         //   user_id,
+  //         //   token,
+  //         //   farmeruserID,
+  //         //   formData,
+  //         // ),
+  //         onlyUpdateIdAddrFile(
+  //           dbname,
+  //           lan_id,
+  //           farmeruserID,
+  //           token,
+  //           formDataPlotImg,
+  //         ),
+
+  //         deletePlotImageAPI(dbname, lan_id, token, formDataDelete),
+  //       ]);
+
+  //       if (userDataUpdate.status === 200) {
+  //         Toast.show({
+  //           text: 'User information update successfully',
+  //           ...AlertMesg[0],
+  //         });
+  //         setTimeout(() => {
+  //           // navigation.navigate('Dashboard');
+  //           navigation.dispatch(
+  //             CommonActions.reset({
+  //               index: 1,
+  //               routes: [
+  //                 {name: 'Dashboard'},
+  //                 {
+  //                   name: 'Dashboard',
+  //                   params: {pagename: 'Dashboard'},
+  //                 },
+  //               ],
+  //             }),
+  //           );
+  //         }, 2000);
+  //       }
+  //       setIsLoading(false);
+  //     } catch (error) {
+  //       setIsLoading(false);
+  //       console.log(error);
+  //     }
+  //   }
+  // };
   const handleDocumentSelection = async (data, index, objData) => {
     try {
       const response = await DocumentPicker.pick({

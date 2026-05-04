@@ -70,7 +70,6 @@ const ActivityReport = ({navigation, route}) => {
 
   useEffect(() => {
     if (farmer && plot) {
-     
       const farmerObj = {
         label: farmer?.userName || '',
         value: farmer?.user_id,
@@ -91,25 +90,25 @@ const ActivityReport = ({navigation, route}) => {
       }));
 
       // Async pre-filling
-     const prefillData = async () => {
-       setIsPrefilling(true);
-       try {
-         await handleResultSelect(farmerObj);
+      const prefillData = async () => {
+        setIsPrefilling(true);
+        try {
+          await handleResultSelect(farmerObj);
 
-         await handlePlot({
-           label: plot?.plot_no,
-           value: plot?.rel_id,
-         });
-       } catch (error) {
-         console.error('Prefill error:', error);
-       } finally {
-         setIsPrefilling(false);
-       }
-     };
+          await handlePlot({
+            label: plot?.plot_no,
+            value: plot?.rel_id,
+          });
+        } catch (error) {
+          console.error('Prefill error:', error);
+        } finally {
+          setIsPrefilling(false);
+        }
+      };
 
       prefillData();
     }
-     onPageLoad();
+    onPageLoad();
   }, [farmer, plot]);
   // 7 days ago
   const tenDaysAgo = new Date();
@@ -979,7 +978,7 @@ const ActivityReport = ({navigation, route}) => {
         //   false,
         //   {information: `${dbname},${lan_id},${saveData.user_id}`},
         // );
-         console.log('formData', formData);
+        console.log('formData', formData);
         const database_res = await activitySaveAPI(
           dbname,
           lan_id,
@@ -1032,16 +1031,15 @@ const ActivityReport = ({navigation, route}) => {
       latitude: latitude,
       longitude: longitude,
     });
-    
+
     // setSaveData({...saveData, act_pattern: item});
     setactivityInfoReadio({...activityInfoReadio, activityPreFormDate: item});
-    
+
     if (item === 'schedule') {
       setisActiveMenu(true);
     } else {
       setisActiveMenu(false);
     }
-    
   };
   const handleActivityType = async item => {
     let dataArray = [];
@@ -1165,17 +1163,16 @@ const ActivityReport = ({navigation, route}) => {
   const onPageLoad = async () => {
     // requestLivePermission();
 
-          var latlong = await getHighAccuracyLocation();
-           setSaveData({
-             ...saveData,
-             latitude: latlong.latitude,
-             longitude: latlong.longitude,
-           });
-         
-           console.log('Error starting1 :', latlong.latitude);
-            console.log('Error starting1 :', latlong.longitude);         
-  };
+    var latlong = await getHighAccuracyLocation();
+    setSaveData({
+      ...saveData,
+      latitude: latlong.latitude,
+      longitude: latlong.longitude,
+    });
 
+    console.log('Error starting1 :', latlong.latitude);
+    console.log('Error starting1 :', latlong.longitude);
+  };
 
   const handleHarvested = async data => {
     if (data == 'Yes') {

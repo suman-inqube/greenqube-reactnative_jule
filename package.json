@@ -79,6 +79,7 @@
     "react-native-screens": "^4.6.0",
     "react-native-signature-canvas": "^5.0.1",
     "react-native-simple-audio-player": "^1.0.3",
+    "react-native-sound": "^0.13.0",
     "react-native-svg": "^15.15.1",
     "react-native-tts": "^4.1.1",
     "react-native-unimodules": "^0.15.0",

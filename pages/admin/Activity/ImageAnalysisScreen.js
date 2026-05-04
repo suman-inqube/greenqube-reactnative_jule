@@ -105,7 +105,7 @@ export async function loadModel(modelFile) {
       `${RNFS.DocumentDirectoryPath}/${modelFile}`
     );
 
-    console.log(`✅ Model loaded: ${modelFile}`);
+    // console.log(`✅ Model loaded: ${modelFile}`);
     return session; // 🔥 return single session
   } catch (e) {
     console.error(`❌ Failed to load: ${modelFile}`, e);
@@ -724,10 +724,8 @@ const ImageAnalysisScreen = ({
         : image?.path;
     const results = await runAllModels(imageUri);
     const final = await evaluateResults(results, "drying");
-    console.log("📊 Model probabilities:", results);
-
-
-    console.log("✅ Final result:", JSON.stringify(final));
+    // console.log("📊 Model probabilities:", results);
+    // console.log("✅ Final result:", JSON.stringify(final));
     setResult(final.reasons);
     setisReady(final.accepted);
   }

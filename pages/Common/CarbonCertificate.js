@@ -36,9 +36,9 @@ const CarbonCertificate = ({
   const [loading, setLoading] = useState(false);
   const resizeImage = async (
     uri,
-    imgWidth = 800,
-    imgHeight = 600,
-    Quality = 80,
+    imgWidth = 1200,
+    imgHeight = 1600,
+    Quality = 100,
   ) => {
     try {
       const resizedImage = await ImageResizer.createResizedImage(
@@ -79,7 +79,7 @@ const CarbonCertificate = ({
               reject,
             );
           });
-          resizedUri = await resizeImage(uri, width, height, 90);
+          resizedUri = await resizeImage(uri, width, height, 50);
           const fileStat = await RNFS.stat(resizedUri);
           const fileSizeInMB = fileStat.size / (1024 * 1024); // File size in MB
           console.log(`PDF Size: ${fileSizeInMB} MB`);
@@ -170,7 +170,7 @@ const CarbonCertificate = ({
         const fileStat = await RNFS.stat(path);
         const fileSizeInMB = fileStat.size / (1024 * 1024);
         console.log(`PDF Size: ${fileSizeInMB} MB`);
-        const sizeLimitMB = 3;
+        const sizeLimitMB = 10;
         if (fileSizeInMB > sizeLimitMB) {
           Alert.alert(
             'File Too Large',
