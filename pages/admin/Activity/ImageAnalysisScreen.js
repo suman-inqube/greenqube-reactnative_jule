@@ -115,7 +115,7 @@ export async function loadModel(modelFile) {
 export async function loadModelFromAssets(fileName, retries = 2) {
   // const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
   const res = await AssetPackModule.loadModel(fileName);
-
+  // console.log("loadModelFromAssets",res)
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       if (!(await RNFS.exists(res.path))) {
@@ -125,9 +125,9 @@ export async function loadModelFromAssets(fileName, retries = 2) {
         // console.log(`Copied ${fileName}`);
       }
 
-      // console.log(`Creating session for ${fileName}...`);
+      console.log(`Creating session for ${fileName}...`);
       const session = await ort.InferenceSession.create(res.path);
-      // console.log(`✅ Session created for ${fileName}`);
+      console.log(`✅ Session created for ${fileName}`);
       return session;
     } catch (e) {
       console.error(`Attempt ${attempt} failed for ${fileName}:`, e);
@@ -505,122 +505,7 @@ const ImageAnalysisScreen = ({
       ruler
     };
   }
-  // async function evaluateResults(results, activity = "") {
-  //   try {
-  //     const failed = [];
-  //     const clarity = results.clarity > 0.5;
-  //     const obstacle = results.obstacle > 0.5;
-  //     const pipe = results.pipe > 0.5;
-  //     const moisture = results.moisture > 0.5;
-  //     const ruler = results.ruler > 0.3;
-  //     //  clarity: clarityResult,
-  //     // obstacle: obstacleResult,
-  //     // pipe: pipeResult,
-  //     // moisture: moistureResult,
-  //     // ruler: rulerResult
-  //     if (!pipe) {
-  //       failed.push({
-  //         pipe: {
-  //           label: "Clear",
-  //           confidence: "No pipe in the image.",
-  //           isPositive: false
-  //         }
-  //       });
-  //     } else {
-  //       failed.push({
-  //         pipe: {
-  //           label: "Not Clear",
-  //           confidence: "No pipe in the image.",
-  //           isPositive: true
-  //         }
-  //       });
-  //     }
-  //     // value={result.clarity.label}
-  //     //         confidence={result.clarity.confidence}
-  //     //         isPositive={result.clarity.isPositive}
-  //     if (!clarity) {
-  //       failed.push({
-  //         clarity: {
-  //           label: "Unclear Image",
-  //           confidence: "Image is unclear.",
-  //           isPositive: false
-  //         }
-  //       });
-  //     } else {
-  //       failed.push({
-  //         clarity: {
-  //           label: "Clear Image",
-  //           confidence: "Image is clear.",
-  //           isPositive: true
-  //         }
-  //       });
-  //     }
-  //     if (obstacle) {
-  //       failed.push({
-  //         obstacle: {
-  //           label: "Obstructed Pipe",
-  //           confidence: "Pipe is obstructed.",
-  //           isPositive: false
-  //         }
-  //       });
-  //     } else {
-  //       failed.push({
-  //         obstacle: {
-  //           label: "Clear Pipe",
-  //           confidence: "Pipe is clear.",
-  //           isPositive: true
-  //         }
-  //       });
-  //     }
-  //     if (activity.toLowerCase().includes("drying")) {
-  //       if (moisture) {
-  //         failed.push({
-  //           moisture: {
-  //             label: "Moisture Detected",
-  //             confidence: "Soil has moisture.",
-  //             isPositive: false
-  //           }
-  //         });
-  //       } else {
-  //         failed.push({
-  //           moisture: {
-  //             label: "No Moisture Detected",
-  //             confidence: "Soil is dry.",
-  //             isPositive: true
-  //           }
-  //         });
-  //       }
-  //       if (!ruler) {
-  //         failed.push({
-  //           ruler: {
-  //             label: "Ruler Not Detected",
-  //             confidence: "Ruler not detected.",
-  //             isPositive: false
-  //           }
-  //         });
-  //       } else {
-  //         failed.push({
-  //           ruler: {
-  //             label: "Ruler Detected",
-  //             confidence: "Ruler detected.",
-  //             isPositive: true
-  //           }
-  //         });
-  //       }
-  //     }
-  //     return {
-  //       accepted: failed.length === 0,
-  //       reasons: failed,
-  //     };
-  //   } catch (e) {
-  //     return {
-  //       accepted: false,
-  //       reasons: ["Error evaluating results."],
-  //     };
-  //     console.error("Error evaluating results:", e);
-  //   }
-  // }
-  async function evaluateResults(results, activity = "") {
+  async function evaluateResults(results, activity = "", act_type = "") {
     try {
       const failed = {}; // ✅ OBJECT (not array)
 
@@ -668,7 +553,19 @@ const ImageAnalysisScreen = ({
           confidence: "Pipe is clear.",
           isPositive: true
         };
-
+      if (act_type == "Pipe Installation") {
+        failed.moisture = moisture
+          ? {
+            label: "Moisture Detected",
+            confidence: "Soil has moisture.",
+            isPositive: true
+          }
+          : {
+            label: "No Moisture",
+            confidence: "Soil is dry.",
+            isPositive: false
+          };
+      }
       // MOISTURE
       if (activity.toLowerCase().includes("drying")) {
         failed.moisture = moisture
@@ -723,7 +620,8 @@ const ImageAnalysisScreen = ({
         ? image.uri
         : image?.path;
     const results = await runAllModels(imageUri);
-    const final = await evaluateResults(results, "drying");
+    const final = await evaluateResults(results, act_type == "Pipe Installation" ? "" : "drying", act_type);
+    // act_type == "Pipe Installation"
     // console.log("📊 Model probabilities:", results);
     // console.log("✅ Final result:", JSON.stringify(final));
     setResult(final.reasons);
@@ -889,7 +787,7 @@ const ImageAnalysisScreen = ({
                 label="Moisture Visibility"
                 value={result.moisture?.label || 'N/A'}
                 confidence={result.moisture?.confidence || 0}
-                isPositive={act_type == "Pipe Installation" ? !result.moisture?.isPositive : result.moisture?.isPositive || false}
+                isPositive={result.moisture?.isPositive || false}
                 delay={300}
                 unavailable={!result.moisture}
               />
