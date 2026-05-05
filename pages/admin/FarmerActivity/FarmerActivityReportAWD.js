@@ -1536,7 +1536,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
     try {
 
       for (const model of MODELS) {
-        const session = await loadModel(model.file);
+         const session = await loadModelFromAssets(model.file);
 
         loadedSessionsRef.current[model.key] = session;
 
@@ -1555,50 +1555,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
     } catch (e) {
       console.log("modelerror", e)
     }
-    return;
-    try {
-      setLoadingModels(true);
-      setLoadProgress('Starting model loading...');
-
-      for (const model of MODELS) {
-        if (!isMountedRef.current) return;   // Safe check
-
-        setModelLoading(prev => ({ ...prev, [model.key]: true }));
-        setLoadProgress(`Loading ${model.label} model...`);
-
-        try {
-          const session = await loadModels(model.file);
-
-          loadedSessionsRef.current[model.key] = session;
-
-          setSessions(prev => ({ ...prev, [model.key]: session }));
-          setModelStatus(prev => ({ ...prev, [model.key]: true }));
-
-          console.log(`✅ ${model.label} loaded`);
-        } catch (e) {
-          console.log(`❌ Failed to load ${model.label}:`, e);
-          setModelStatus(prev => ({ ...prev, [model.key]: false }));
-        } finally {
-          setModelLoading(prev => ({ ...prev, [model.key]: false }));
-        }
-
-        // Small delay
-        await new Promise(resolve => {
-          const id = setTimeout(resolve, 200);
-          timeoutsRef.current.push(id);
-        });
-      }
-
-      setLoadProgress('All models loaded successfully');
-
-      const clearId = setTimeout(() => setLoadProgress(''), 1500);
-      timeoutsRef.current.push(clearId);
-
-    } catch (e) {
-      console.error('Model loading error:', e);
-    } finally {
-      setLoadingModels(false);
-    }
+    
   };
    useEffect(() => {
     if (ai_camera_pipe_image != 1) return;
