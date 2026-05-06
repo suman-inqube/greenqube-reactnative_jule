@@ -243,6 +243,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
   });
   const [scan, setScan] = useState(false);
   const [pipeQR, setPipeQR] = useState(1);
+  const [sDId, setSDId] = useState('');
   const pipe_fieldType = useRef(2);
 
 
@@ -625,7 +626,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
             : data.crop_cycl_start_date;
         setCycleStartDate(cycle_start_date);
         setMinimumSelectedDate(new Date(cycle_start_date));
-
+ setSDId(data?.cropSeasonTime?.sd_id);
         setNameVarityStartEnd(prev => ({
           ...prev,
           name: data.crop_name.name,
@@ -1921,6 +1922,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
         const scanedData = await axiosGet(
           ROUTES.GET.UNIQUE_SCAN_CODE({
             unique_id: scannedValue,
+            sDId:sDId
           }),
           token,
           { information: `${dbname},${lan_id},${farmerID}` },

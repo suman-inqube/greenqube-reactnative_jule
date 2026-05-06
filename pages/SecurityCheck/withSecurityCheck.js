@@ -1,5 +1,5 @@
-import React, {useEffect, useState, useRef} from 'react';
-import {Alert, BackHandler, AppState, View, Text, Linking} from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { Alert, BackHandler, AppState, View, Text, Linking } from 'react-native';
 import JailMonkey from 'jail-monkey';
 import NetInfo from '@react-native-community/netinfo';
 import VersionCheck from 'react-native-version-check';
@@ -39,8 +39,8 @@ const withSecurityCheck = WrappedComponent => {
               isRooted
                 ? 'This device is rooted. The app will now exit.'
                 : 'Developer Options detected. Please disable it to continue.',
-              [{text: 'OK', onPress: exitApp}],
-              {cancelable: false},
+              [{ text: 'OK', onPress: exitApp }],
+              { cancelable: false },
             );
           }
         } else {
@@ -58,7 +58,7 @@ const withSecurityCheck = WrappedComponent => {
     const runVersionCheck = async () => {
       try {
         const net = await NetInfo.fetch();
-        if (!net.isConnected || __DEV__) return;
+        // if (!net.isConnected || __DEV__) return;
 
         const latestVersion = await VersionCheck.getLatestVersion({
           provider: 'playStore',
@@ -77,7 +77,7 @@ const withSecurityCheck = WrappedComponent => {
                 text: 'Update Now',
                 onPress: () => Linking.openURL(PLAY_STORE_URL),
               },
-              {text: 'Later', style: 'cancel'},
+              // {text: 'Later', style: 'cancel'},
             ],
           );
         }
@@ -100,6 +100,7 @@ const withSecurityCheck = WrappedComponent => {
         ) {
           alertShownRef.current = false;
           runSecurityCheck();
+          runVersionCheck();
         }
         appStateRef.current = nextState;
       });
@@ -109,9 +110,20 @@ const withSecurityCheck = WrappedComponent => {
 
     // ⏳ Version check after app loads
     useEffect(() => {
+      let timer;
+
       if (!isChecking && isSecure) {
-        setTimeout(runVersionCheck, 1200);
+        timer = setTimeout(() => {
+          runVersionCheck();
+        }, 1200);
       }
+
+      // ✅ Cleanup
+      return () => {
+        if (timer) {
+          clearTimeout(timer);
+        }
+      };
     }, [isChecking, isSecure]);
 
     // 🌀 Loading UI (VERY SHORT)

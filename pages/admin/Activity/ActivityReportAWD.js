@@ -214,6 +214,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
   const [lastPerfromedDate, setLastPerfromedDate] = useState('');
   const [newPerFromDate, setNewPerFromDate] = useState('');
   const [upcomingAct, setUpcomingAct] = useState('');
+    const [sDId, setSDId] = useState('');
   const pipe_fieldType = useRef(2);
   // ==================== OUTSIDE useEffect ====================
   const loadAllModels = async (isMountedRef, timeoutsRef, loadedSessionsRef) => {
@@ -349,14 +350,14 @@ const ActivityReportAWD = ({ navigation, route }) => {
           { latitude: existingPipe.latitude, longitude: existingPipe.longitude },
         );
 
-        // if (distance < 20) {
-        //   Alert.alert(
-        //     'Too Close!',
-        //     `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
-        //     [{ text: 'OK', style: 'cancel' }],
-        //   );
-        //   return false;
-        // }
+        if (distance < 20) {
+          Alert.alert(
+            'Too Close!',
+            `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
+            [{ text: 'OK', style: 'cancel' }],
+          );
+          return false;
+        }
       }
       return true;
     } catch (error) {
@@ -544,6 +545,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
                 ? data.sowing_date
                 : data.crop_cycl_start_date;
             setMinimumSelectableDate(new Date(cycle_start_date));
+            setSDId(data?.cropSeasonTime?.sd_id);
             setNameVarityStartEnd(prev => ({
               ...prev,
               name: data.crop_name.name,
@@ -1523,17 +1525,16 @@ const ActivityReportAWD = ({ navigation, route }) => {
         const scanedData = await axiosGet(
           ROUTES.GET.UNIQUE_SCAN_CODE({
             unique_id: scannedValue,
+            sDId:sDId
           }),
           token,
           { information: `${dbname},${lan_id},${farmerID}` },
           '',
           'pipeQrDetails',
         );
-        console.log('pi value111=', JSON.stringify(scanedData));
         if (scanedData?.status == 200) {
           setPipeNumber(scannedValue);
         } else if (scanedData?.status == 409) {
-          console.log('pipe data555=', JSON.stringify(scanedData));
           Toast.show({
             time: 3,
             text: `QR Code is already registered with activity pipe.`,

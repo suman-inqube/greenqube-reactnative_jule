@@ -687,10 +687,10 @@ const ImageAnalysisScreen = ({
           </TouchableOpacity>
 
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={pickImage}>
+            {/* <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={pickImage}>
               <Text style={styles.btnIcon}>🖼</Text>
               <Text style={styles.btnSecondaryText}>Gallery</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={takePhoto}>
               <Text style={styles.btnIcon}>📸</Text>
