@@ -5,3 +5,4 @@ rootProject.name = 'GreenQube'
 include ':app'
 include ':onnx_model_pack'
 includeBuild('../node_modules/@react-native/gradle-plugin')
+include(":asset_install_time")

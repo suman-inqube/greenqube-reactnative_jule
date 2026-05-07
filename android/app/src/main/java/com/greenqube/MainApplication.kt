@@ -20,6 +20,7 @@ class MainApplication : Application(), ReactApplication {
             PackageList(this).packages.apply {
               // Packages that cannot be autolinked yet can be added manually here, for example:
               // add(MyReactNativePackage())
+              add(AssetPackPackage())
             }
 
         override fun getJSMainModuleName(): String = "index"
@@ -40,5 +41,43 @@ class MainApplication : Application(), ReactApplication {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
       load()
     }
+
+    try {
+    val file = java.io.File(filesDir, "clarity_classifier_simplified.onnx")
+
+    if (!file.exists()) {
+      val inputStream = assets.open("clarity_classifier_simplified.onnx")
+      val outputStream = java.io.FileOutputStream(file)
+
+      inputStream.copyTo(outputStream)
+
+      inputStream.close()
+      outputStream.close()
+
+      android.util.Log.d("MODEL", "✅ Model copied at startup")
+    } else {
+      android.util.Log.d("MODEL", "✅ Model already exists")
+    }
+
+  } catch (e: Exception) {
+    android.util.Log.e("MODEL", "❌ Model not available: ${e.message}")
+  }
+    //////////////////////////////////////////////////////////////////////////////////////////
+ModelManager.init()
+
+val modelNames = listOf(
+    "clarity_classifier_simplified.onnx",
+    "moisture_classifier_simplified.onnx",
+    "obstacle_classifier_simplified.onnx",
+    "pipe_classifier_simplified.onnx",
+    "ruler_classifier_simplified.onnx",
+    "soil_visibility_classifier_simplified.onnx"
+)
+
+modelNames.forEach {
+    ModelManager.loadModel(this, it)
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
   }
 }

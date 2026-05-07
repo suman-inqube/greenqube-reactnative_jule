@@ -1,0 +1,8 @@
+apply plugin: 'com.android.asset-pack'
+
+assetPack {
+    packName = "asset_install_time" // useless
+    dynamicDelivery {
+        deliveryType = "install-time"
+    }
+}

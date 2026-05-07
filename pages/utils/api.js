@@ -142,7 +142,7 @@ export const axiosGet = async (
       data: {message: 'No internet & no cache'},
     });
   }
-  console.log('url==', url);
+  // console.log('url==', url);
   try {
     const response = await instance.get(url, {
       headers: {...(token && {Authorization: token}), ...extraHeaders},
@@ -170,7 +170,7 @@ export const axiosPost = async (
   abortController = null,
 ) => {
   const online = await isInternetAvailable(true);
- console.log('body==', body);
+//  console.log('body==', body);
   if (!online) {
     cacheManager.addToQueue({
       url,
@@ -198,7 +198,7 @@ export const axiosPost = async (
   //   ...extraHeaders,
   // };
   // logCurl({url, method: 'POST', headers, body: payload});
-  console.log('check', url, body, headers);
+  // console.log('check', url, body, headers);
   try {
     return await instance.post(url, payload, {
       headers,

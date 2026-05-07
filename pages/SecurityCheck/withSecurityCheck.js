@@ -58,7 +58,7 @@ const withSecurityCheck = WrappedComponent => {
     const runVersionCheck = async () => {
       try {
         const net = await NetInfo.fetch();
-        if (!net.isConnected || __DEV__) return;
+        // if (!net.isConnected || __DEV__) return;
 
         const latestVersion = await VersionCheck.getLatestVersion({
           provider: 'playStore',
@@ -68,19 +68,19 @@ const withSecurityCheck = WrappedComponent => {
 
         const currentVersion = VersionCheck.getCurrentVersion();
 
-        if (latestVersion && latestVersion !== currentVersion) {
-          Alert.alert(
-            'Update Available',
-            'A new version is available. Please update to continue.',
-            [
-              {
-                text: 'Update Now',
-                onPress: () => Linking.openURL(PLAY_STORE_URL),
-              },
-              {text: 'Later', style: 'cancel'},
-            ],
-          );
-        }
+        // if (latestVersion && latestVersion !== currentVersion) {
+        //   Alert.alert(
+        //     'Update Available',
+        //     'A new version is available. Please update to continue.',
+        //     [
+        //       {
+        //         text: 'Update Now',
+        //         onPress: () => Linking.openURL(PLAY_STORE_URL),
+        //       },
+        //       // {text: 'Later', style: 'cancel'},
+        //     ],
+        //   );
+        // }
       } catch (err) {
         console.warn('Version check skipped:', err);
       }
@@ -100,6 +100,7 @@ const withSecurityCheck = WrappedComponent => {
         ) {
           alertShownRef.current = false;
           runSecurityCheck();
+          runVersionCheck();
         }
         appStateRef.current = nextState;
       });
@@ -109,9 +110,20 @@ const withSecurityCheck = WrappedComponent => {
 
     // ⏳ Version check after app loads
     useEffect(() => {
+      let timer;
+
       if (!isChecking && isSecure) {
-        setTimeout(runVersionCheck, 1200);
+        timer = setTimeout(() => {
+          runVersionCheck();
+        }, 1200);
       }
+
+      // ✅ Cleanup
+      return () => {
+        if (timer) {
+          clearTimeout(timer);
+        }
+      };
     }, [isChecking, isSecure]);
 
     // 🌀 Loading UI (VERY SHORT)

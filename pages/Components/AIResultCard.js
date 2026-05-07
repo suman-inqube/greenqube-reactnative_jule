@@ -52,13 +52,13 @@ const AIResultCard = ({
           {unavailable ? 'Model Unavailable' : value}
         </Text>
       </View>
-      {!unavailable && (
+      {/* {!unavailable && (
         <View style={styles.confidenceBadge}>
           <Text style={[styles.confidenceText, { color: accent }]}>
             {(confidence * 100).toFixed(1)}%
           </Text>
         </View>
-      )}
+      )} */}
     </Animated.View>
   );
 };

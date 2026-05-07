@@ -323,6 +323,7 @@ const UserCreateContextProvider = props => {
           // co_farmer = "0",
           pipe_qr_code = "0",
         } = DetailsCompany_res?.data?.data?.[0] || {};
+
         const { company, country_id } = companyLanguage_data;
         const { option_value } = resCarbonFlag?.data?.data || {};
         setlogoImage(logoImageData);
