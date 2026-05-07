@@ -125,9 +125,9 @@ export async function loadModelFromAssets(fileName, retries = 2) {
         // console.log(`Copied ${fileName}`);
       }
 
-      console.log(`Creating session for ${fileName}...`);
+      // console.log(`Creating session for ${fileName}...`);
       const session = await ort.InferenceSession.create(res.path);
-      console.log(`✅ Session created for ${fileName}`);
+      // console.log(`✅ Session created for ${fileName}`);
       return session;
     } catch (e) {
       console.error(`Attempt ${attempt} failed for ${fileName}:`, e);

@@ -55,6 +55,7 @@ import { isWithin20Meters } from '../../Common/calculateAreaFun';
 import ScannerModal from '../../Common/ScannerModal';
 import ImageAnalysisScreen from './ImageAnalysisScreen'
 import { MODELS, loadModelFromAssets, loadModel } from './ImageAnalysisScreen'
+import { CURRENT_ENV } from '../../../config/environment';
 // import { useDownload, formatBytes, STAGE_LABELS, STAGE_COLORS } from '../../hooks/ModelDownload';
 const ActivityReportAWD = ({ navigation, route }) => {
   const { farmer, plot } = route?.params || {};
@@ -349,7 +350,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
           { latitude: lat, longitude: lon },
           { latitude: existingPipe.latitude, longitude: existingPipe.longitude },
         );
-
+      if(CURRENT_ENV !== 'DEMO'){
         if (distance < 20) {
           Alert.alert(
             'Too Close!',
@@ -359,6 +360,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
           return false;
         }
       }
+    }
       return true;
     } catch (error) {
       console.log('Error in checkPipeDistance:', error);
