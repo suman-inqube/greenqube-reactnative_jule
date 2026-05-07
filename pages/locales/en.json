@@ -1192,5 +1192,7 @@
   "id_proof": "ID Proof",
   "tap_to_upload": "Tap to upload",
   "pdf_uploaded": "PDF Uploaded",
-  "tap_to_view_pdf": "Tap to view PDF"
+  "tap_to_view_pdf": "Tap to view PDF",
+  "Crop Variety": "Crop Variety",
+  "Season": "Season"
 }

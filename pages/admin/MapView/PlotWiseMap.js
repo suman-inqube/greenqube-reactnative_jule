@@ -118,11 +118,11 @@ const PlotWiseMap = () => {
     const response = await axiosGet(ROUTES.GET.STATE_API(), '', {
       information: `${dbname},${lan_id}`,
     });
-    console.log('STATE_API', response);
+    console.log('STATE_API2222', response);
     if (response?.status === 200) {
       const data = response.data.data.rows.map(item => ({
         label: item.state_name,
-        value: item.id,
+        value: item.fid,
       }));
       setStates(data);
     }
@@ -134,7 +134,7 @@ const PlotWiseMap = () => {
       '',
       {information: `${dbname},${lan_id}`},
     );
-    console.log('DISTRICT_API', response);
+    console.log('DISTRICT_API222', response);
 
     if (response?.status === 200) {
       const data = response.data.data.rows.map(item => ({

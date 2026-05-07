@@ -168,6 +168,8 @@ const Information = ({sendDataToParent, farmerID}) => {
       information: `${dbname},${lan_id}`,
     });
     // fetchStateAPI(dbname, lan_id);
+    console.log('STATE_API111', response);
+
     if (response?.status == 200) {
       const dataArray = response?.data?.data?.rows.map(data => ({
         value: data.fid,
@@ -204,6 +206,7 @@ const Information = ({sendDataToParent, farmerID}) => {
       {information: `${dbname},${lan_id}`},
     );
     // fetchBlockAPI(dbname, lan_id, districtID);
+    console.log('responseState', response);
     if (response?.status == 200) {
       const dataArray = response?.data?.data?.rows.map(data => ({
         value: data.fid,

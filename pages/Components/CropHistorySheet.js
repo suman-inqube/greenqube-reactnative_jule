@@ -107,10 +107,10 @@ const CropHistorySheet = memo(({plotId, onSelectHistory}) => {
               <View style={styles.infoContainer}>
                 <View>
                   {[
-                    'Crop Variety',
-                    'Season',
-                    'Sowing Date',
-                    'Harvest Date',
+                    t('Crop Variety'),
+                    t('Season'),
+                    t('Sowing Date'),
+                    t('Hervesting Date'),
                   ].map((label, idx) => (
                     <Text key={idx} style={styles.labelText}>
                       {label}

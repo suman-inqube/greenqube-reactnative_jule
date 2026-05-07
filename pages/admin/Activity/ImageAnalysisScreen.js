@@ -550,19 +550,19 @@ const ImageAnalysisScreen = ({
             confidence: 'Pipe is clear.',
             isPositive: true,
           };
-      if (act_type == 'Pipe Installation') {
-        failed.moisture = moisture
-          ? {
-              label: 'Moisture Detected',
-              confidence: 'Soil has moisture.',
-              isPositive: true,
-            }
-          : {
-              label: 'No Moisture',
-              confidence: 'Soil is dry.',
-              isPositive: false,
-            };
-      }
+      // if (act_type == "Pipe Installation") {
+      //   failed.moisture = moisture
+      //     ? {
+      //       label: "Moisture Detected",
+      //       confidence: "Soil has moisture.",
+      //       isPositive: true
+      //     }
+      //     : {
+      //       label: "No Moisture",
+      //       confidence: "Soil is dry.",
+      //       isPositive: false
+      //     };
+      // }
       // MOISTURE
       if (activity.toLowerCase().includes('drying')) {
         failed.moisture = moisture
@@ -596,7 +596,7 @@ const ImageAnalysisScreen = ({
           failed.pipe.isPositive &&
           failed.clarity.isPositive &&
           failed.obstacle.isPositive &&
-          (!failed.moisture || failed.moisture.isPositive) &&
+          // (!failed.moisture || failed.moisture.isPositive) &&
           (!failed.ruler || failed.ruler.isPositive),
 
         reasons: failed, // ✅ OBJECT
@@ -616,8 +616,8 @@ const ImageAnalysisScreen = ({
     const final = await evaluateResults(
       results,
       act_type == 'Pipe Installation' ? '' : 'drying',
-      act_type,
     );
+    // const final = await evaluateResults(results,"drying");
     // act_type == "Pipe Installation"
     // console.log("📊 Model probabilities:", results);
     // console.log("✅ Final result:", JSON.stringify(final));
@@ -690,10 +690,12 @@ const ImageAnalysisScreen = ({
           </TouchableOpacity>
 
           <View style={styles.buttonRow}>
-            {/* <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={pickImage}>
+            <TouchableOpacity
+              style={[styles.btn, styles.btnSecondary]}
+              onPress={pickImage}>
               <Text style={styles.btnIcon}>🖼</Text>
               <Text style={styles.btnSecondaryText}>Gallery</Text>
-            </TouchableOpacity> */}
+            </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.btn, styles.btnSecondary]}
@@ -794,18 +796,18 @@ const ImageAnalysisScreen = ({
                 unavailable={false}
               />
 
-              <AIResultCard
-                icon="💧"
-                label="Moisture Visibility"
-                value={result.moisture?.label || 'N/A'}
-                confidence={result.moisture?.confidence || 0}
-                isPositive={result.moisture?.isPositive || false}
-                delay={300}
-                unavailable={!result.moisture}
-              />
-
               {act_type != 'Pipe Installation' && cameraItem == 'firstItem' ? (
                 <>
+                  {/* <AIResultCard
+                    icon="💧"
+                    label="Moisture Visibility"
+                    value={result.moisture?.label || 'N/A'}
+                    confidence={result.moisture?.confidence || 0}
+                    isPositive={result.moisture?.isPositive || false}
+                    delay={300}
+                    unavailable={!result.moisture}
+                  /> */}
+
                   <AIResultCard
                     icon="📏"
                     label="Ruler Detection"
