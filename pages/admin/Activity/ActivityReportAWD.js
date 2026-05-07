@@ -24,31 +24,6 @@ import React, {
   useRef,
   useMemo,
 } from 'react';
-import {NativeModules} from 'react-native';
-import * as ort from 'onnxruntime-react-native';
-
-const {OnnxModule} = NativeModules;
-
-// 👇 ADD THIS FUNCTION HERE
-const loadModelNative = async modelFile => {
-  console.log(NativeModules);
-  try {
-    console.log('📦 Request model:', modelFile);
-
-    const path = await OnnxModule.getModelPath(modelFile);
-
-    console.log('📁 Model path:', path);
-
-    const session = await ort.InferenceSession.create(path);
-
-    console.log('✅ Model loaded:', modelFile);
-
-    return session;
-  } catch (e) {
-    console.log('❌ Model load error:', e);
-    return null;
-  }
-};
 import {launchCamera} from 'react-native-image-picker';
 import {
   inputOutputRoutePipeImagesLatLong,
@@ -342,7 +317,8 @@ const ActivityReportAWD = ({navigation, route}) => {
         setLoadProgress(`Loading ${model.label} model...`);
 
         try {
-          const session = await loadModelNative(model.file);
+          const session = await loadModelFromAssets(model.file);
+
           loadedSessionsRef.current[model.key] = session;
 
           setSessions(prev => ({...prev, [model.key]: session}));
@@ -828,7 +804,7 @@ const ActivityReportAWD = ({navigation, route}) => {
             }
             if (activitySchedule.status == 200) {
               setIsLoading(false);
-              
+
               if (
                 activitySchedule?.data?.data?.lastActivity !==
                 'No Last Activity'
@@ -1982,7 +1958,7 @@ const ActivityReportAWD = ({navigation, route}) => {
           '',
           'pipeQrDetails',
         );
-        console.log('pi value111=',`${dbname},${lan_id},${farmerID}`);
+        console.log('pi value111=', `${dbname},${lan_id},${farmerID}`);
         if (scanedData?.status == 200) {
           setPipeNumber(scannedValue);
         } else if (scanedData?.status == 409) {
@@ -2079,16 +2055,16 @@ const ActivityReportAWD = ({navigation, route}) => {
   const [progress, setProgress] = useState(0);
   const [stageMessage, setStageMessage] = useState('');
 
-  const [isDownloadAvailable, setDownloadAvailable] = useState(false);
+  const [isDownloadAvailable, setDownloadAvailable] = useState(true);
   const onPageLoad = async () => {
     try {
       ai_camera_pipe_image == 1
-        ? setDownloadAvailable(false)
+        ? setDownloadAvailable(true)
         : setDownloadAvailable(false);
 
       const [QRFlag, result] = await Promise.all([
         getItem('pipeQR'),
-        ai_camera_pipe_image == 1 ? cancel() : Promise.resolve(null),
+        ai_camera_pipe_image == 1 ? start() : Promise.resolve(null),
       ]);
       if (result?.error) Alert.alert('Error', result.error);
       else if (result === 'not_modified') setDownloadAvailable(false);

@@ -144,7 +144,7 @@ const CustomDrawer = memo(({state}) => {
       {
         id: 'home',
         iconName: 'home',
-        title: t('Home'),
+        title: t('dashboard'),
         onPress: () => navigateToPages('Dashboard'),
       },
       {

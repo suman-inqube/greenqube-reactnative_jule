@@ -1519,7 +1519,6 @@ const ProduceInfo = () => {
                     }
                     value={storeProduceInfo.daagNo}
                     required={carbonFlag === true}
-                    required={carbonFlag === true}
                   />
                   <InputTextForm
                     label={t('khatian_no')}
@@ -1551,7 +1550,6 @@ const ProduceInfo = () => {
                         })
                       }
                       value={storeProduceInfo.jl_no}
-                      required={carbonFlag === true}
                       required={carbonFlag === true}
                     />
                   ) : (
@@ -1648,7 +1646,7 @@ const ProduceInfo = () => {
                     area != null && (
                       <InputTextForm
                         label={
-                          t('Converted reported Land size ') +
+                          t('converted_reported_land_size') +
                           `${
                             landAreaUnit?.[0]?.defined_unit_value
                               ? `(${landAreaUnit?.[0]?.unit_name})`
@@ -1671,7 +1669,7 @@ const ProduceInfo = () => {
                   <View style={styles.locationContainer}>
                     <View style={styles.locationHeader}>
                       <Text style={styles.locationTitle}>
-                        {t('Geo tag IOT Device')}
+                        {t('geo_tag_iot_device')}
                       </Text>
 
                       <TouchableOpacity
@@ -1728,7 +1726,7 @@ const ProduceInfo = () => {
                   {area != 0 && area != null && (
                     <InputTextForm
                       label={
-                        t('Calculated Map Area ') +
+                        t('calculated_map_area') +
                         `${
                           landAreaUnit?.[0]?.defined_unit_value
                             ? '(' + landAreaUnit?.[0]?.unit_name + ')'

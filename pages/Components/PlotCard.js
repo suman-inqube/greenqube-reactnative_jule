@@ -1,4 +1,4 @@
-import React, {memo, useCallback} from 'react';
+import React, {memo, useCallback, useContext} from 'react';
 import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import {Colors, Fonts} from '../utils/Constants';
 import CollapsibleCard from '../Common/CollapsibleCard';
@@ -6,6 +6,7 @@ import StatusBadge from './StatusBadge';
 import CropHistorySheet from './CropHistorySheet';
 import {useBottomSheet} from '../Common/BottomSheetProvider';
 import {useNavigation} from '@react-navigation/native';
+import {userCreateContext} from '../Context/usersCreateContext';
 
 const PlotCard = memo(
   ({
@@ -18,6 +19,7 @@ const PlotCard = memo(
     role = 'farmer',
     activityApi,
   }) => {
+    const {t} = useContext(userCreateContext);
     const {showBottomSheet} = useBottomSheet();
     const navigation = useNavigation();
     // console.log(JSON.stringify(item));
@@ -100,16 +102,16 @@ const PlotCard = memo(
               <View style={styles.plotInfoContainer}>
                 <View>
                   {[
-                    'Plot Name',
-                    'Reported Land Area',
-                    'Converted Land Area',
-                    'Produce Name',
-                    'Produce Variety',
-                    'Cycle Start Date',
-                    'Cycle End Date',
+                    'plot_name',
+                    'reported_land_area',
+                    'converted_land_area',
+                    'produce_name',
+                    'produce_variety',
+                    'cycle_start_date',
+                    'cycle_end_date',
                   ].map((label, idx) => (
                     <Text key={idx} style={styles.text}>
-                      {label}
+                      {t(label)}
                     </Text>
                   ))}
                 </View>
@@ -151,13 +153,13 @@ const PlotCard = memo(
               <TouchableOpacity
                 style={styles.actionButton}
                 onPress={handleOpenHistory}>
-                <Text style={styles.actionText}>Crop History</Text>
+                <Text style={styles.actionText}>{t('crop_history')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.actionButton}
                 onPress={() => activityApi(item?.rel_id)}>
-                <Text style={styles.actionText}>Activity</Text>
+                <Text style={styles.actionText}>{t('activity')}</Text>
               </TouchableOpacity>
             </View>
           }

@@ -1,9 +1,9 @@
-import React, { memo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Colors, Fonts } from '../utils/Constants';
+import React, {memo} from 'react';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {Colors, Fonts} from '../utils/Constants';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const PaginationNav = ({ page, totalPages, onPrev, onNext, t, isLoading }) => {
+const PaginationNav = ({page, totalPages, onPrev, onNext, t, isLoading}) => {
   const disablePrev = page === 1 || isLoading;
   const disableNext = page === totalPages || isLoading;
 
@@ -12,23 +12,25 @@ const PaginationNav = ({ page, totalPages, onPrev, onNext, t, isLoading }) => {
       <TouchableOpacity
         style={[styles.navButton, disablePrev && styles.disabledButton]}
         disabled={disablePrev}
-        onPress={onPrev}
-      >
+        onPress={onPrev}>
         {/* <Ionicons name="chevron-back" size={20} color="#666" /> */}
-        <Text style={[styles.navText, styles.nextButton]}>{t('prev_page')} </Text>
+        <Text style={[styles.navText, styles.nextButton]}>
+          {t('prev_page')}{' '}
+        </Text>
       </TouchableOpacity>
 
       <Text style={styles.pageIndicator}>
-        {`Page ${page} / ${totalPages}`}
+        {t('page_indicator', {page, totalPages})}
       </Text>
 
       <TouchableOpacity
         style={[styles.navButton, disableNext && styles.disabledButton]}
         disabled={disableNext}
-        onPress={onNext}
-      >
-        <Text style={[styles.navText, styles.nextButton]}>{t('next_page')}</Text>
-          {/* <Ionicons name="chevron-forward" size={20} color="#666" /> */}
+        onPress={onNext}>
+        <Text style={[styles.navText, styles.nextButton]}>
+          {t('next_page')}
+        </Text>
+        {/* <Ionicons name="chevron-forward" size={20} color="#666" /> */}
       </TouchableOpacity>
     </View>
   );
@@ -45,7 +47,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
+    shadowOffset: {width: 0, height: -2},
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
     elevation: 5,
@@ -58,7 +60,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 8,
     paddingHorizontal: 12,
-    borderRadius: 8
+    borderRadius: 8,
   },
   navText: {
     fontSize: 14,

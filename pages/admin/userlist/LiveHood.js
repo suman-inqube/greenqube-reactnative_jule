@@ -3389,7 +3389,7 @@ const LiveHood = ({
 
                 {carbonFlag == true ? (
                   <InputTextForm
-                    label={t('JL No')}
+                    label={t('JL_No')}
                     required={carbonFlag === true}
                     value={farmerData.jl_no}
                     onChangeText={handleAddUserDataJLNo}
@@ -3405,7 +3405,7 @@ const LiveHood = ({
                 )}
                 {carbonFlag == true ? (
                   <InputTextForm
-                    label={t('Mouja Name')}
+                    label={t('Mouja_Name')}
                     value={farmerData.mouja}
                     onChangeText={handleAddUserDataMouja}
                     editable={
@@ -3582,7 +3582,7 @@ const LiveHood = ({
             )} */}
                 <View style={{marginTop: 10}}>
                   <InputTextForm
-                    label={t('Enter IOT Id')}
+                    label={t('enter_iot_id')}
                     onChangeText={handleIOTId}
                     value={farmerData.IOTId}
                     // editable={(statuslevel.label != 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED') && harvested == '' || harvested == 'same produce' ? false : true}
@@ -3592,7 +3592,7 @@ const LiveHood = ({
                 <View style={styles.locationContainer}>
                   <View style={styles.locationHeader}>
                     <Text style={styles.locationTitle}>
-                      {t('Geo tag IOT Device')}
+                      {t('geo_tag_iot_device')}
                     </Text>
                     <TouchableOpacity
                       onPress={() => handleCurrentLatLongIOT()}
@@ -3783,7 +3783,7 @@ const LiveHood = ({
                     <CarbonCertificate
                       identityProofIdentityPropf={carboncertificate}
                       t={t}
-                      title={t('Upload Carbon Agreement')}
+                      title={t('carbon_certificate')}
                       setStateValue={setCarboncertificate}
                       stateValue={carboncertificate}
                       status_level={

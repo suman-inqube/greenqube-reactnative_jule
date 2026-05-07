@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, {memo, useCallback, useState, useContext} from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,17 +7,19 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import { SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
-import DocumentPicker, { types, pick } from '@react-native-documents/picker';
-import { createPdf } from 'react-native-images-to-pdf';
+import {SPSheet} from '@sekizlipenguen/react-native-popup-confirm-toast';
+import DocumentPicker, {types, pick} from '@react-native-documents/picker';
+import {createPdf} from 'react-native-images-to-pdf';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import RNFS from 'react-native-fs';
 import FileViewer from 'react-native-file-viewer';
 import LoadingScreen from './LoadingScreen';
-import { Colors, Fonts } from '../utils/Constants';
+import {Colors, Fonts} from '../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import TextRecognition from '@react-native-ml-kit/text-recognition';
+import {userCreateContext} from '../Context/usersCreateContext';
+
 const PDF_SIZE_LIMIT = 3;
 const ProofAndIdentityPropfComp = ({
   stateValue,
@@ -29,9 +31,10 @@ const ProofAndIdentityPropfComp = ({
   status_level,
   InputTextFormEdit,
   allowAddMore,
-  farmerName = "",
-  ai_camera_id_proof = "0",
+  farmerName = '',
+  ai_camera_id_proof = '0',
 }) => {
+  const {loginUser_data, t} = useContext(userCreateContext);
   const [loading, setLoading] = useState(false);
   const logFileSize = async (uri, label = '') => {
     try {
@@ -122,7 +125,7 @@ const ProofAndIdentityPropfComp = ({
         'Confirm Deletion',
         'Are you sure you want to delete this document?',
         [
-          { text: 'Cancel', style: 'cancel' },
+          {text: 'Cancel', style: 'cancel'},
           {
             text: 'Delete',
             style: 'destructive',
@@ -156,7 +159,7 @@ const ProofAndIdentityPropfComp = ({
     const fileName = `document_${Date.now()}_compressed.pdf`;
     const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
     return await createPdf({
-      pages: resized.map(uri => ({ imagePath: uri })),
+      pages: resized.map(uri => ({imagePath: uri})),
       outputPath,
     });
   };
@@ -164,7 +167,7 @@ const ProofAndIdentityPropfComp = ({
     async (imageType, index) => {
       setLoading(true);
       try {
-        const { scannedImages, status } = await DocumentScanner.scanDocument({
+        const {scannedImages, status} = await DocumentScanner.scanDocument({
           letUserAdjustCrop: false,
           maxNumDocuments: 1,
           noAutoEnhance: false,
@@ -178,7 +181,7 @@ const ProofAndIdentityPropfComp = ({
         const fileName = `document_${Date.now()}.pdf`;
         const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
         let pdfPath = await createPdf({
-          pages: resized.map(uri => ({ imagePath: uri })),
+          pages: resized.map(uri => ({imagePath: uri})),
           outputPath,
         });
         pdfPath = await compressIfNeeded(pdfPath, scannedImages);
@@ -229,7 +232,7 @@ const ProofAndIdentityPropfComp = ({
     try {
       const exists = await RNFS.exists(filePath);
       if (exists) return FileViewer.open(filePath);
-      const dl = await RNFS.downloadFile({ fromUrl: fileUrl, toFile: filePath })
+      const dl = await RNFS.downloadFile({fromUrl: fileUrl, toFile: filePath})
         .promise;
       if (dl.statusCode === 200) {
         await FileViewer.open(filePath);
@@ -246,7 +249,7 @@ const ProofAndIdentityPropfComp = ({
         const result = await DocumentScanner.scanDocument({
           maxNumDocuments: 1,
           letUserAdjustCrop: true,
-          responseType: "imageFilePath",
+          responseType: 'imageFilePath',
           croppedImageQuality: 100,
           saveInAppDocument: false,
         });
@@ -257,39 +260,46 @@ const ProofAndIdentityPropfComp = ({
           try {
             const result = await TextRecognition.recognize(uri);
             const rawText = result.text;
-            const normalizedOCR = rawText.toLowerCase().replace(/\s/g, "").trim();
+            const normalizedOCR = rawText
+              .toLowerCase()
+              .replace(/\s/g, '')
+              .trim();
             const cleanedOCR = cleanText(rawText);
-            const isNameFound = cleanedOCR.includes(cleanText(farmerName?.toLowerCase()?.replace(/\s/g, "")));
-            if (!farmerName?.includes(" ")) {
+            const isNameFound = cleanedOCR.includes(
+              cleanText(farmerName?.toLowerCase()?.replace(/\s/g, '')),
+            );
+            if (!farmerName?.includes(' ')) {
               Alert.alert(
-                "Name Format Warning",
-                "Please enter your full name (First and Last name separated by a space)"
+                'Name Format Warning',
+                'Please enter your full name (First and Last name separated by a space)',
               );
               return;
             }
-            let documentType = "Unknown Document";
+            let documentType = 'Unknown Document';
             if (
-              normalizedOCR.includes("uidai") ||
-              normalizedOCR.includes("governmentofindia") ||
+              normalizedOCR.includes('uidai') ||
+              normalizedOCR.includes('governmentofindia') ||
               /\d{12}/.test(normalizedOCR)
             ) {
-              documentType = "Aadhaar Card";
-            }
-            else if (
-              normalizedOCR.includes("electioncommissionofindia") ||
-              normalizedOCR.includes("elector") ||
+              documentType = 'Aadhaar Card';
+            } else if (
+              normalizedOCR.includes('electioncommissionofindia') ||
+              normalizedOCR.includes('elector') ||
               /[a-z]{3}\d{7}/.test(normalizedOCR)
             ) {
-              documentType = "Voter Card";
+              documentType = 'Voter Card';
             }
-            if (documentType == "Unknown Document") {
-              Alert.alert("Document Type Not Detected", "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.");
+            if (documentType == 'Unknown Document') {
+              Alert.alert(
+                'Document Type Not Detected',
+                "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.",
+              );
               return;
             } else {
               if (!isNameFound) {
                 Alert.alert(
-                  "Name Verification Failed",
-                  "The farmer's name and the document owner's name do not match."
+                  'Name Verification Failed',
+                  "The farmer's name and the document owner's name do not match.",
                 );
               } else {
                 const values = [...stateValue];
@@ -299,7 +309,7 @@ const ProofAndIdentityPropfComp = ({
                   uri: uri,
                   name: uri.split('/').pop(),
                   fileName: uri.split('/').pop(),
-                  type: "image/jpeg",
+                  type: 'image/jpeg',
                   imageType: data?.imageType || 'identity',
                   value: '1',
                   id: '',
@@ -309,7 +319,7 @@ const ProofAndIdentityPropfComp = ({
               }
             }
           } catch (error) {
-            Alert.alert("Error", "Text recognition failed. Please try again.");
+            Alert.alert('Error', 'Text recognition failed. Please try again.');
           }
         }
       } else {
@@ -320,16 +330,15 @@ const ProofAndIdentityPropfComp = ({
           : await openFile(fileUrl);
       }
     } catch (error) {
-      console.log("SCAN ERROR:", error);
+      console.log('SCAN ERROR:', error);
     }
-  }
-
-
-  const cleanText = (text) => {
-    return text.toLowerCase().replace(/[^a-z0-9]/g, "");
   };
 
-  const ActionSheetID = ({ data, index, spSheet }) => {
+  const cleanText = text => {
+    return text.toLowerCase().replace(/[^a-z0-9]/g, '');
+  };
+
+  const ActionSheetID = ({data, index, spSheet}) => {
     // Alert.alert('Test-1');
     const handleOpen = async () => {
       const fileUrl = data?.file_path || data?.uri;
@@ -372,7 +381,7 @@ const ProofAndIdentityPropfComp = ({
       </>
     );
   };
-  const ActionSheet = ({ data, index, spSheet }) => {
+  const ActionSheet = ({data, index, spSheet}) => {
     // Alert.alert('Test-1');
     const handleOpen = async () => {
       const fileUrl = data?.file_path || data?.uri;
@@ -418,7 +427,7 @@ const ProofAndIdentityPropfComp = ({
 
   return (
     <View style={styles.idContainer}>
-      <Text style={[styles.title, { fontSize: 14, marginBottom: 10 }]}>
+      <Text style={[styles.title, {fontSize: 14, marginBottom: 10}]}>
         {title}
       </Text>
       {loading && (
@@ -436,18 +445,27 @@ const ProofAndIdentityPropfComp = ({
               key={index}
               style={styles.idItem}
               onPress={() =>
-                data.imageType == "identity" && ai_camera_id_proof == "1" ? SPSheet.show({
-                  component: () => (
-                    <ActionSheetID data={data} index={index} spSheet={SPSheet} />
-                  ),
-                  height: 230,
-                }) :
-                  SPSheet.show({
-                    component: () => (
-                      <ActionSheet data={data} index={index} spSheet={SPSheet} />
-                    ),
-                    height: 230,
-                  })
+                data.imageType == 'identity' && ai_camera_id_proof == '1'
+                  ? SPSheet.show({
+                      component: () => (
+                        <ActionSheetID
+                          data={data}
+                          index={index}
+                          spSheet={SPSheet}
+                        />
+                      ),
+                      height: 230,
+                    })
+                  : SPSheet.show({
+                      component: () => (
+                        <ActionSheet
+                          data={data}
+                          index={index}
+                          spSheet={SPSheet}
+                        />
+                      ),
+                      height: 230,
+                    })
               }>
               <View
                 style={{
@@ -467,8 +485,8 @@ const ProofAndIdentityPropfComp = ({
                   {data?.imageType === 'address'
                     ? 'Address Proof'
                     : data?.imageType === 'identity'
-                      ? 'Identity Proof'
-                      : ''}
+                    ? 'Identity Proof'
+                    : ''}
                 </Text>
                 <View
                   style={{
@@ -484,7 +502,7 @@ const ProofAndIdentityPropfComp = ({
                         style={styles.idImage}
                       />
                     ) : (
-                      <Image source={{ uri: data.uri }} style={styles.idImage} />
+                      <Image source={{uri: data.uri}} style={styles.idImage} />
                     )
                   ) : (
                     <Image
@@ -502,22 +520,26 @@ const ProofAndIdentityPropfComp = ({
                         onHandleDocumentSelectionRemove(index, status_level)
                       }
                       style={styles.deleteIcon}>
-                      <View style={{ marginTop: 15 }}>
+                      <View style={{marginTop: 15}}>
                         {/* Replace the Image with Material Icon in red circle */}
                         <View style={styles.deleteIconContainer}>
-                          <MaterialIcons name="close" size={15} color="#FFFFFF" />
+                          <MaterialIcons
+                            name="close"
+                            size={15}
+                            color="#FFFFFF"
+                          />
                         </View>
                       </View>
                     </TouchableOpacity>
                   )}
               </View>
-              <View style={{ marginBottom: 10 }}>
+              <View style={{marginBottom: 10}}>
                 <Text style={styles.fileName} numberOfLines={1}>
                   {data?.name || data.file_name}
                 </Text>
               </View>
             </TouchableOpacity>
-          )
+          );
         })}
         {allowAddMore && (
           <TouchableOpacity
@@ -528,7 +550,7 @@ const ProofAndIdentityPropfComp = ({
               <View style={styles.greenCircle}>
                 <Text style={styles.plusIcon}>＋</Text>
               </View>
-              <Text style={styles.buttonLabel}>Add more</Text>
+              <Text style={styles.buttonLabel}>{t('add_more')}</Text>
             </View>
           </TouchableOpacity>
         )}
@@ -536,7 +558,7 @@ const ProofAndIdentityPropfComp = ({
     </View>
   );
 };
-const ActionButton = ({ label, icon, onPress }) => (
+const ActionButton = ({label, icon, onPress}) => (
   <TouchableOpacity style={styles.actionButton} onPress={onPress}>
     <Image source={icon} style={styles.actionIcon} />
     <Text numberOfLines={1} style={styles.title}>
@@ -621,25 +643,25 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     marginBottom: 15,
   },
-  itemLabel: { fontSize: 12, color: '#605f5fff', textAlign: 'center', margin: 5 },
-  fileName: { fontSize: 12, color: '#4c4a4aff', marginTop: 4 },
-  deleteIcon: { position: 'absolute', top: -10, right: -5 },
-  title: { color: '#000', fontFamily: Fonts.Regular },
+  itemLabel: {fontSize: 12, color: '#605f5fff', textAlign: 'center', margin: 5},
+  fileName: {fontSize: 12, color: '#4c4a4aff', marginTop: 4},
+  deleteIcon: {position: 'absolute', top: -10, right: -5},
+  title: {color: '#000', fontFamily: Fonts.Regular},
   loaderBackdrop: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1000,
   },
-  loaderContainer: { backgroundColor: '#FFF', padding: 15, alignItems: 'center' },
-  loaderText: { marginTop: 10, fontSize: 14, color: '#333' },
+  loaderContainer: {backgroundColor: '#FFF', padding: 15, alignItems: 'center'},
+  loaderText: {marginTop: 10, fontSize: 14, color: '#333'},
   sheetTitle: {
     textAlign: 'center',
     fontSize: 18,
     fontFamily: Fonts.SemiBold,
     marginBottom: 10,
   },
-  sheetRow: { flexDirection: 'row', justifyContent: 'space-around' },
+  sheetRow: {flexDirection: 'row', justifyContent: 'space-around'},
   actionButton: {
     backgroundColor: '#DFE8EF',
     width: 70,
@@ -648,7 +670,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  actionIcon: { width: 30, height: 30 },
+  actionIcon: {width: 30, height: 30},
   deleteIconContainer: {
     width: 20,
     height: 20,

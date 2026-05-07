@@ -531,7 +531,7 @@ const Login = ({route}) => {
               <View style={styles.signInView}>
                 <Text style={styles.signInText}>{t('sign_in')}</Text>
                 <Text style={styles.signInSubText}>
-                  {t('Hello there, Please Sign In to Continue.')}
+                  {t('Hello_there_Please_Sign_In_to_Continue')}
                 </Text>
               </View>
 
@@ -656,12 +656,10 @@ const Login = ({route}) => {
 
               <View style={styles.signUpContainer}>
                 <Text style={styles.dontHaveAccount}>
-                  {t('Dont have an account?')}
+                  {t('dont_have_account')}
                 </Text>
                 <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-                  <Text style={styles.signUpText}>
-                    {t('Create')} {t('account')}
-                  </Text>
+                  <Text style={styles.signUpText}>{t('create_account')}</Text>
                 </TouchableOpacity>
               </View>
             </View>

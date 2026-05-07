@@ -138,13 +138,13 @@ const ActivityCard = ({
             <View style={styles.datesSection}>
               <View style={styles.dateGrid}>
                 <View style={styles.dateItem}>
-                  <Text style={styles.dateLabel}>{t('Sowing')}</Text>
+                  <Text style={styles.dateLabel}>{t('Sowing Date')}</Text>
                   <Text style={styles.dateValue}>
                     {formatDateToDateName(activity?.actCurel?.sowing_date)}
                   </Text>
                 </View>
                 <View style={styles.dateItem}>
-                  <Text style={styles.dateLabel}>{t('Harvesting')}</Text>
+                  <Text style={styles.dateLabel}>{t('harvesting_date')}</Text>
                   <Text style={styles.dateValue}>
                     {formatDateToDateName(activity?.actCurel?.harvesting_date)}
                   </Text>

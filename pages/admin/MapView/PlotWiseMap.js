@@ -118,7 +118,7 @@ const PlotWiseMap = () => {
     const response = await axiosGet(ROUTES.GET.STATE_API(), '', {
       information: `${dbname},${lan_id}`,
     });
-
+    console.log('STATE_API', response);
     if (response?.status === 200) {
       const data = response.data.data.rows.map(item => ({
         label: item.state_name,
@@ -134,6 +134,8 @@ const PlotWiseMap = () => {
       '',
       {information: `${dbname},${lan_id}`},
     );
+    console.log('DISTRICT_API', response);
+
     if (response?.status === 200) {
       const data = response.data.data.rows.map(item => ({
         label: item.district_name,
@@ -380,10 +382,13 @@ const PlotWiseMap = () => {
             },
           ),
         ]);
+        console.log('actRes111', actRes);
+
         console.log('actRes', `${dbname},${lan_id},${found.farmer_id}`, token);
         if (actRes?.status === 200) {
           setActivityData(actRes?.data?.data);
         }
+        console.log('farmerDetails', farmerDetails);
         if (farmerDetails?.status == 200) {
           const userData = farmerDetails?.data?.data?.userData;
           const unitData = farmerDetails?.data?.data?.unitData;
@@ -489,7 +494,7 @@ const PlotWiseMap = () => {
                       <MaterialIcons name="person" size={22} color="#16A34A" />
                       <View style={{marginLeft: 10}}>
                         <Text style={{fontSize: 12, color: '#6B7280'}}>
-                          Farmer
+                          {t('User')}
                         </Text>
                         <Text
                           style={{
@@ -534,7 +539,7 @@ const PlotWiseMap = () => {
 
                       <View style={{marginLeft: 10}}>
                         <Text style={{fontSize: 12, color: '#6B7280'}}>
-                          Plot Name
+                          {t('plot_name')}
                         </Text>
                         <Text style={{fontSize: 14, fontWeight: '500'}}>
                           {selectedPlot.plotName}
@@ -625,7 +630,7 @@ const PlotWiseMap = () => {
                             marginLeft: 6,
                             color: '#111827',
                           }}>
-                          Activity
+                          {t('my_activities')}
                         </Text>
                       </View>
 
@@ -635,7 +640,7 @@ const PlotWiseMap = () => {
                         showsVerticalScrollIndicator={true}>
                         {Object.keys(groupedData).length === 0 && (
                           <Text style={{textAlign: 'center', color: '#6B7280'}}>
-                            No activity found
+                            {t('no_activity_found')}
                           </Text>
                         )}
 
@@ -788,7 +793,7 @@ const PlotWiseMap = () => {
                         alignItems: 'center',
                       }}>
                       <Text style={{color: '#fff', fontWeight: 'bold'}}>
-                        Activity
+                        {t('activity_nreporting')}
                       </Text>
                     </TouchableOpacity>
                   )}

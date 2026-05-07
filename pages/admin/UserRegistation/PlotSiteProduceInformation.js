@@ -1653,7 +1653,7 @@ const PlotSiteProduceInformation = () => {
                 />
                 {carbonFlag == true ? (
                   <InputTextForm
-                    label={t('JL No')}
+                    label={t('JL_No')}
                     onChangeText={handelJLNo}
                     value={storeProduceInfo.jlNo}
                     required={carbonFlag === true}
@@ -1663,7 +1663,7 @@ const PlotSiteProduceInformation = () => {
                 )}
                 {carbonFlag == true ? (
                   <InputTextForm
-                    label={t('Mouja Name')}
+                    label={t('Mouja_Name')}
                     onChangeText={handelMoujaName}
                     value={storeProduceInfo.moujaName}
                   />
@@ -1734,7 +1734,7 @@ const PlotSiteProduceInformation = () => {
 
                 <View style={{marginTop: 10}}>
                   <InputTextForm
-                    label={t('Enter IOT Device Id')}
+                    label={t('enter_iot_device_id')}
                     onChangeText={handleIOTId}
                     value={storeProduceInfo.IOTId}
                   />
@@ -1742,7 +1742,7 @@ const PlotSiteProduceInformation = () => {
                 <View style={styles.locationContainer}>
                   <View style={styles.locationHeader}>
                     <Text style={styles.locationTitle}>
-                      {t('Geo tag IOT Device')}
+                      {t('geo_tag_iot_device')}
                     </Text>
 
                     <TouchableOpacity

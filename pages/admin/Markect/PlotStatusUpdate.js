@@ -632,9 +632,9 @@ const PlotStatusUpdate = () => {
             dataLandDetails?.status_level == 'CARBON_DOCUMENTS_REJECTED'
           ) {
             Alert.alert(
-              'Note',
-              'You will not be able to edit Geo Locations, Plot/Site Size and Land Record Documents.',
-              [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+              t('note'),
+              t('geo_edit_restriction'),
+              [{text: t('ok'), onPress: () => console.log('OK Pressed')}],
               {cancelable: false},
             );
           }
@@ -2209,7 +2209,7 @@ const PlotStatusUpdate = () => {
                 />
                 {carbonFlag == true ? (
                   <InputTextForm
-                    label={t('JL No')}
+                    label={t('JL_No')}
                     value={farmerData.jl_no}
                     onChangeText={text => handleAddUserData('jl_no', text)}
                     editable={InputTextFormEdit}
@@ -2220,7 +2220,7 @@ const PlotStatusUpdate = () => {
                 )}
                 {carbonFlag == true ? (
                   <InputTextForm
-                    label={t('Mouja Name')}
+                    label={t('Mouja_Name')}
                     value={farmerData.mouja}
                     onChangeText={text => handleAddUserData('mouja', text)}
                     editable={InputTextFormEdit}
@@ -2303,7 +2303,7 @@ const PlotStatusUpdate = () => {
                 {farmerData?.ConvertedreportedLandsize != 0 && area != null && (
                   <InputTextForm
                     label={
-                      t('Converted reported Land size ') +
+                      t('converted_reported_land_size') +
                       `${
                         landAreaUnit?.[0]?.defined_unit_value
                           ? '(' + landAreaUnit?.[0]?.unit_name + ')'
@@ -2393,7 +2393,7 @@ const PlotStatusUpdate = () => {
                     {console.log('Calculated Map  AREA:', area)}
                     <InputTextForm
                       label={
-                        t('Calculated Map Area ') +
+                        t('calculated_map_area') +
                         `${
                           landAreaUnit?.[0]?.defined_unit_value
                             ? '(' + landAreaUnit?.[0]?.unit_name + ')'
@@ -2408,7 +2408,7 @@ const PlotStatusUpdate = () => {
                 )}
                 <View style={{marginTop: 10}}>
                   <InputTextForm
-                    label={t('Enter IOT Id')}
+                    label={t('enter_iot_id')}
                     onChangeText={text => handleIOTId('IOTId', text)}
                     value={farmerData.IOTId}
                     // editable={(statuslevel.label != 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED') && harvested == '' || harvested == 'same produce' ? false : true}
@@ -2418,7 +2418,7 @@ const PlotStatusUpdate = () => {
                 <View style={styles.locationContainer}>
                   <View style={styles.locationHeader}>
                     <Text style={styles.locationTitle}>
-                      {t('Geo tag IOT Device')}
+                      {t('geo_tag_iot_device')}
                     </Text>
                     <TouchableOpacity
                       onPress={() => handleCurrentLatLongIOT()}
@@ -2776,7 +2776,7 @@ const PlotStatusUpdate = () => {
                     <CarbonCertificate
                       identityProofIdentityPropf={carboncertificate}
                       t={t}
-                      title={t('Carbon certificate')}
+                      title={t('carbon_certificate')}
                       setStateValue={setCarboncertificate}
                       stateValue={carboncertificate}
                       status_level={

@@ -59,7 +59,7 @@ const Information = ({sendDataToParent, farmerID}) => {
     RadioForm,
     effective_dates,
     loginUser_data,
-    dbLanTokUsr
+    dbLanTokUsr,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, FcmUserToken, owner} = loginUser_data;
   //GQR-66
@@ -185,6 +185,7 @@ const Information = ({sendDataToParent, farmerID}) => {
       {information: `${dbname},${lan_id}`},
     );
     // fetchDistrictAPI(dbname, lan_id, stateID);
+    console.log('DISTRICT_API1111111', response);
 
     if (response?.status === 200) {
       const dataArray = response?.data?.data?.rows.map(data => ({
@@ -1216,7 +1217,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                 disable={true}
                 InputTextFormEdit={true}
                 farmerName={farmerData.userName}
-                   ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
+                ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
               />
 
               <View

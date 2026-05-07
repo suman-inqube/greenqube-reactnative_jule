@@ -113,7 +113,7 @@ const FarmerUpcomingActivity = () => {
                   {upcomingActivities[0]?.sowing_date || 'N/A'}
                 </Text>
                 <Text style={styles.activityDate}>
-                  Hervesting Date:{' '}
+                  {t('Hervesting Date')}:{' '}
                   {upcomingActivities[0]?.harvesting_date || 'N/A'}
                 </Text>
               </View>
@@ -147,7 +147,7 @@ const FarmerUpcomingActivity = () => {
                 </Text> */}
 
                       <Text style={styles.activityDate}>
-                        Schedule date:{' '}
+                        {t('Schedule date')}:{' '}
                         {new Date(
                           activity?.activity_start_date,
                         ).toLocaleDateString('en-GB', {
@@ -203,7 +203,7 @@ const FarmerUpcomingActivity = () => {
         {renderCustomHeader}
         <View style={styles.container}>
           <TabBar
-            tabs={['Carbon', 'Non-Carbon']}
+            tabs={[t('carbon'), t('non_carbon')]}
             activeTab={activeTab === 'carbon' ? 0 : 1}
             onTabPress={index => {
               setActiveTab(index === 0 ? 'carbon' : 'non-carbon');

@@ -198,7 +198,7 @@ const Market = () => {
         <View style={styles.searchContainer}>
           <View style={styles.textInputContainer}>
             <TextInput
-              placeholder={t('search by number')}
+              placeholder={t('search_by_number')}
               placeholderTextColor={'#000'}
               style={styles.textInput}
               onChangeText={num => setSearchBy(num)}
@@ -207,7 +207,7 @@ const Market = () => {
           </View>
         </View>
         <TabBar
-          tabs={[' Rejected Plots', ' Non-Geo Fenced Plots']}
+          tabs={[t('Rejected_Plot'), t('non_geofenced_plots')]}
           activeTab={activeTab}
           onTabPress={ix => onTabPress(ix)}
           indicatorColor={Colors.useGreen}

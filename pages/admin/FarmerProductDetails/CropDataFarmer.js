@@ -170,7 +170,7 @@ const CropDataFarmer = ({
                   fontSize: 24,
                   marginBottom: 10,
                 }}>
-                Amendments & Inputs
+                Inputs
               </Text>
               <View>
                 {amendmentTypes.map(option => (

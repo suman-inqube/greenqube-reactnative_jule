@@ -239,7 +239,7 @@ const PlotList = () => {
           {activeTab === 0 && (
             <>
               <TabBar
-                tabs={['Plot List']}
+                tabs={[t('plot_list')]}
                 activeTab={activeTab}
                 onTabPress={ix => onTabPress(ix)}
                 indicatorColor={Colors.useGreen}

@@ -1,4 +1,11 @@
-import React, {useState, useEffect, useRef, useMemo, useCallback} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+  useContext,
+} from 'react';
 import {
   StyleSheet,
   View,
@@ -65,6 +72,8 @@ import {getMapLocation} from '../../../config/apiHere';
 import LoadingScreen from '../../Common/LoadingScreen';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import NetInfo from '@react-native-community/netinfo';
+import {userCreateContext} from '../../Context/usersCreateContext';
+
 export default function Map({
   polygons,
   newPolygon,
@@ -87,6 +96,7 @@ export default function Map({
   isLoading,
   offline_mode = 0,
 }) {
+  const {t} = useContext(userCreateContext);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [drawingReference, setDrawingReference] = useState(null);
   const [distanceThreshold, setDistanceThreshold] = useState(20);
@@ -339,10 +349,10 @@ export default function Map({
       {
         text:
           type === 'plotWise'
-            ? 'Search Location'
+            ? t('search_location')
             : editing
-            ? 'Stop Editing'
-            : 'Start Editing',
+            ? t('stop_editing')
+            : t('start_editing'),
 
         icon:
           type === 'plotWise'
@@ -358,21 +368,21 @@ export default function Map({
     if (editing) {
       baseActions.push(
         {
-          text: 'Finalize Polygon',
+          text: t('finalize_polygon'),
           icon: require('../../Common/images/check.png'),
           name: 'finalizePolygon',
           position: 2,
           color: Colors.useGreen,
         },
         {
-          text: 'Clear',
+          text: t('clear'),
           icon: require('../../Common/images/bin.png'),
           name: 'clear',
           position: 3,
           color: Colors.useGreen,
         },
         {
-          text: 'Undo Mark',
+          text: t('undo_mark'),
           icon: require('../../Common/images/undo.png'),
           name: 'undoMark',
           position: 4,
