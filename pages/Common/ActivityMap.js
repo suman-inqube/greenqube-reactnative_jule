@@ -258,35 +258,25 @@ const ActivityMap = ({
             onUserLocationChange={
               handleUserLocationChange
             }
-
             // =========================
             // UI
             // =========================
-
             showsCompass={true}
-
             // =========================
             // PERFORMANCE SAFE
             // =========================
-
             rotateEnabled={false}
-
             pitchEnabled={false}
-
             // =========================
             // CAMERA
             // =========================
-
             initialCamera={{
               center: {
                 latitude: location?.latitude,
                 longitude: location?.longitude,
               },
-
               zoom: 18,
-
               heading: 0,
-
               pitch: 0,
             }}
 
