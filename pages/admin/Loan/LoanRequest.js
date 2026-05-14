@@ -20,7 +20,7 @@ import React, {
   useRef,
 } from 'react';
 import CheckBoxComp from '../../Common/CheckBoxComp';
-import DocumentPicker, {types,pick} from '@react-native-documents/picker';
+import DocumentPicker, {types, pick} from '@react-native-documents/picker';
 import {
   farmerDocAPI,
   problemPlotAgainstFarmerAPI,
@@ -257,13 +257,16 @@ const LoanRequest = ({setActiveBtn}) => {
         formDataDelete,
       );
       if (deletePlotImage?.status == 200) {
-        const getPlotDoc = await getPlotDocAPI(
-          dbname,
-          lan_id,
+        const getPlotDoc = await axiosGet(
+          ROUTES.GET.GET_PLOT_DOC({
+            plotId: objData[index].plotId,
+          }),
           token,
-          farmerID,
-          objData[index].plotId,
+          {
+            information: `${dbname},${lan_id},${farmerID}`,
+          },
         );
+        // getPlotDocAPI(dbname, lan_id, token, farmerID, objData[index].plotId);
 
         const addressProof_value = [
           {
@@ -317,9 +320,11 @@ const LoanRequest = ({setActiveBtn}) => {
             plotId: '',
           },
         ];
+
+        console.log('getPlotDoc', getPlotDoc);
         if (getPlotDoc?.status === 200) {
-          if (getPlotDoc.data.data.rows[0].plot_img.length > 0) {
-            const address_proofArr = getPlotDoc.data.data.rows[0].plot_img;
+          if (getPlotDoc?.data?.rows[0].plot_img.length > 0) {
+            const address_proofArr = getPlotDoc?.data?.rows[0].plot_img;
 
             addressProof.map((data, index1) => {
               if (address_proofArr[index1] != undefined) {
@@ -422,13 +427,22 @@ const LoanRequest = ({setActiveBtn}) => {
           fileName: response[0].name,
         });
 
-        const addPlotImage = await addPlotImageAPI(
-          dbname,
-          lan_id,
-          token,
-          farmerID,
+        const addPlotImage = await axiosPost(
+          ROUTES.POST.ADD_PLOTI_MGS,
           formDataPlotImg,
+          token,
+          false,
+          {
+            information: `${dbname},${lan_id},${farmerID}`,
+          },
         );
+        // addPlotImageAPI(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   farmerID,
+        //   formDataPlotImg,
+        // );
 
         if (objData[index].id != '') {
           const deleteValue = [];
@@ -447,13 +461,16 @@ const LoanRequest = ({setActiveBtn}) => {
           );
         }
         if (addPlotImage?.status == 200) {
-          const getPlotDoc = await getPlotDocAPI(
-            dbname,
-            lan_id,
+          const getPlotDoc = await axiosGet(
+            ROUTES.GET.GET_PLOT_DOC({
+              plotId: par.plot_id,
+            }),
             token,
-            farmerID,
-            par.plot_id,
+            {
+              information: `${dbname},${lan_id},${farmerID}`,
+            },
           );
+          // getPlotDocAPI(dbname, lan_id, token, farmerID, par.plot_id);
 
           const addressProof_value = [
             {
@@ -507,10 +524,11 @@ const LoanRequest = ({setActiveBtn}) => {
               plotId: '',
             },
           ];
+          console.log('getPlotDoc222222', getPlotDoc);
 
           if (getPlotDoc?.status === 200) {
-            if (getPlotDoc.data.data.rows[0].plot_img.length > 0) {
-              const address_proofArr = getPlotDoc.data.data.rows[0].plot_img;
+            if (getPlotDoc.data?.rows[0].plot_img.length > 0) {
+              const address_proofArr = getPlotDoc?.data?.rows[0].plot_img;
               addressProof.map((data, index1) => {
                 if (address_proofArr[index1] != undefined) {
                   addressProof_value[index1] = {
@@ -615,13 +633,22 @@ const LoanRequest = ({setActiveBtn}) => {
           fileName: fileName,
         });
 
-        const addPlotImage = await addPlotImageAPI(
-          dbname,
-          lan_id,
-          token,
-          farmerID,
+        const addPlotImage = await axiosPost(
+          ROUTES.POST.ADD_PLOTI_MGS,
           formDataPlotImg,
+          token,
+          false,
+          {
+            information: `${dbname},${lan_id},${farmerID}`,
+          },
         );
+        // addPlotImageAPI(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   farmerID,
+        //   formDataPlotImg,
+        // );
 
         if (objData[index].id != '') {
           const deleteValue = [];
@@ -640,13 +667,16 @@ const LoanRequest = ({setActiveBtn}) => {
           );
         }
         if (addPlotImage?.status == 200) {
-          const getPlotDoc = await getPlotDocAPI(
-            dbname,
-            lan_id,
+          const getPlotDoc = await axiosGet(
+            ROUTES.GET.GET_PLOT_DOC({
+              plotId: par.plot_id,
+            }),
             token,
-            farmerID,
-            par.plot_id,
+            {
+              information: `${dbname},${lan_id},${farmerID}`,
+            },
           );
+          // getPlotDocAPI(dbname, lan_id, token, farmerID, par.plot_id);
 
           const addressProof_value = [
             {
@@ -700,11 +730,11 @@ const LoanRequest = ({setActiveBtn}) => {
               plotId: '',
             },
           ];
+          console.log('getPlotDoc33333', getPlotDoc);
 
           if (getPlotDoc?.status === 200) {
-            if (getPlotDoc.data.data.rows[0].plot_img.length > 0) {
-              const address_proofArr =
-                getPlotDoc?.data?.data?.rows[0]?.plot_img;
+            if (getPlotDoc.data?.rows[0].plot_img.length > 0) {
+              const address_proofArr = getPlotDoc?.data?.rows[0]?.plot_img;
 
               addressProof.map((data, index1) => {
                 if (address_proofArr[index1] != undefined) {
@@ -904,13 +934,22 @@ const LoanRequest = ({setActiveBtn}) => {
         }
       });
 
-      const addPlotImage = addPlotImageAPI(
-        dbname,
-        lan_id,
-        token,
-        farmerID,
+      const addPlotImage = axiosPost(
+        ROUTES.POST.ADD_PLOTI_MGS,
         formData,
+        token,
+        false,
+        {
+          information: `${dbname},${lan_id},${farmerID}`,
+        },
       );
+      // addPlotImageAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   farmerID,
+      //   formData,
+      // );
 
       setIsPlotChecked(0);
       setIsPlotCheckedId('');
@@ -926,13 +965,23 @@ const LoanRequest = ({setActiveBtn}) => {
         },
       ),
       // problemProduceAgainstPlotAPI(dbname, lan_id, farmerID, value),
-
-      getPlotDocAPI(dbname, lan_id, token, farmerID, value),
+      axiosGet(
+        ROUTES.GET.GET_PLOT_DOC({
+          plotId: value,
+        }),
+        token,
+        {
+          information: `${dbname},${lan_id},${farmerID}`,
+        },
+      ),
+      // getPlotDocAPI(dbname, lan_id, token, farmerID, value),
     ]);
     const addressProof_value = [...addressProof];
+    console.log('getPlotDoc555', getPlotDoc);
+
     if (getPlotDoc?.status === 200) {
-      if (getPlotDoc.data.data.rows[0].plot_img.length > 0) {
-        const {plot_img} = getPlotDoc?.data?.data?.rows[0] || {};
+      if (getPlotDoc?.data?.rows[0].plot_img.length > 0) {
+        const {plot_img} = getPlotDoc?.data?.rows[0] || {};
         const address_proofArr = plot_img?.filter(
           item => item.term_type === 'plot_image',
         );

@@ -188,12 +188,18 @@ const Login = ({route}) => {
             user_id,
             token,
           } = loginUserdata;
-          const details_company_res = await DetailsCompany(
-            loginUserdata?.dbname,
-            1,
-            loginUserdata?.db_company_id,
+          const details_company_res = await axiosGet(
+            ROUTES.GET.DETAILS_COMPANY(loginUserdata?.db_company_id),
+            '',
+            {
+              information: `${loginUserdata?.dbname},1`,
+            },
           );
-
+          // DetailsCompany(
+          //   loginUserdata?.dbname,
+          //   1,
+          //   loginUserdata?.db_company_id,
+          // );
           if (details_company_res?.status == 200) {
             await setItem('side_menu_option', {
               soil_testing: details_company_res?.data?.data[0]?.soil_testing,

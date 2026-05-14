@@ -715,8 +715,8 @@ const LoanEnquiryDetail = () => {
             {/* </View> */}
           </ScrollView>
           {/* {status != 2 && (
-          <ButtonForm label={t('submit')} onPress={() => handleSave()} />
-        )} */}
+            <ButtonForm label={t('submit')} onPress={() => handleSave()} />
+          )} */}
         </View>
       </Root>
     </FarmerDrawerScreenWrapper1>
