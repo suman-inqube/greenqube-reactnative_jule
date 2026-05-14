@@ -55,6 +55,8 @@ import {isWithin20Meters} from '../../Common/calculateAreaFun';
 import ScannerModal from '../../Common/ScannerModal';
 import ImageAnalysisScreen from './ImageAnalysisScreen';
 import {MODELS, loadModelFromAssets, loadModel} from './ImageAnalysisScreen';
+import {FEATURES} from '../../../config/featureFlags';
+import {CURRENT_ENV} from '../../../config/environment';
 // import { useDownload, formatBytes, STAGE_LABELS, STAGE_COLORS } from '../../hooks/ModelDownload';
 const ActivityReportAWD = ({navigation, route}) => {
   const {farmer, plot} = route?.params || {};
