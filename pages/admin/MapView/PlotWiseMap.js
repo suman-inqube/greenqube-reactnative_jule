@@ -139,7 +139,7 @@ const PlotWiseMap = () => {
     if (response?.status === 200) {
       const data = response.data.data.rows.map(item => ({
         label: item.district_name,
-        value: item.id,
+        value: item.fid,
       }));
       setDistricts(data);
     }
@@ -155,19 +155,25 @@ const PlotWiseMap = () => {
     if (response?.status === 200) {
       const data = response.data.data.rows.map(item => ({
         label: item.subdiv_name,
-        value: item.id,
+        value: item.fid,
       }));
       setPanchayats(data);
     }
   };
 
-  useEffect(() => {
-    startWatchingLocation();
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('✅ PlotWiseMap Focused - Start Location');
 
-    return () => {
-      stopWatchingLocation();
-    };
-  }, []);
+      startWatchingLocation();
+
+      return () => {
+        console.log('❌ PlotWiseMap Unfocused - Stop Location');
+
+        stopWatchingLocation();
+      };
+    }, []),
+  );
   useEffect(() => {
     const loadLocation = async () => {
       try {
@@ -773,6 +779,7 @@ const PlotWiseMap = () => {
                   {carbonFlag && (
                     <TouchableOpacity
                       onPress={() => {
+                        stopWatchingLocation();
                         navigation.navigate('ActivityReportAWD', {
                           farmer: {
                             user_id: selectedPlot.farmer_id,

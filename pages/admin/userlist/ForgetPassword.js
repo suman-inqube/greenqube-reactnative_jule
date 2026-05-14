@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   StyleSheet,
   View,
@@ -10,16 +10,19 @@ import {
   BackHandler,
   ImageBackground,
 } from 'react-native';
-import {useRoute, useNavigation} from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import qs from 'qs';
 
 import ButtonForm from '../../Common/ButtonForm';
-import {AlertMesg} from '../../Common/ToastAlert';
-import {NewForgotPassword} from '../../../config/apiHere';
-import {getItem} from '../../../config/getDataFromStorage';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {Colors, Fonts} from '../../utils/Constants';
+import { AlertMesg } from '../../Common/ToastAlert';
+import { NewForgotPassword } from '../../../config/apiHere';
+import { getItem } from '../../../config/getDataFromStorage';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { Colors, Fonts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import axios from 'axios';
+import { axiosPost } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 
 const PasswordInput = ({
   value,
@@ -68,27 +71,30 @@ const ForgotPassword = () => {
 
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [cPasswordVisible, setCPasswordVisible] = useState(false);
-  const [form, setForm] = useState({password: '', cpassword: ''});
+  const [form, setForm] = useState({ password: '', cpassword: '' });
   const [isLoading, setIsLoading] = useState(true);
-  const showToast = msg => Toast.show({text: msg, ...AlertMesg[0]});
+  const showToast = msg => Toast.show({ text: msg, ...AlertMesg[0] });
   const handleSave = async () => {
-    const {password, cpassword} = form;
+    const { password, cpassword } = form;
 
     if (!password) return showToast(t('enter_new_password'));
     if (!cpassword) return showToast(t('enter_conf_pass'));
     if (password !== cpassword) return showToast(t('same_con_password'));
     setIsLoading(true);
-    const saveData = qs.stringify({newPassword: password, userType: 2});
-    const res = await NewForgotPassword(
-      dbLanTokUsr.dbName,
-      dbLanTokUsr.languageID,
-      dbLanTokUsr.farmeruserID,
+    const saveData = qs.stringify({ newPassword: password, userType: 2 });
+    const res = await axiosPost(
+      ROUTES.POST.NEWFORGOT_PASSWORD,
       saveData,
-    );
+      '',
+      false,
+      {
+        information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageID},${dbLanTokUsr.farmeruserID}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }
+    )
     setIsLoading(false);
-
     if (res.status === 200) {
-      setForm({password: '', cpassword: ''});
+      setForm({ password: '', cpassword: '' });
       showToast(t('password_change_successfully'));
       navigation.navigate('userList');
     }
@@ -128,16 +134,16 @@ const ForgotPassword = () => {
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.forgotContainer}>
               {/* <Text style={styles.title}>{t("forgot_password")}</Text> */}
-              <View style={{alignItems: 'center', justifyContent: 'center'}}>
+              <View style={{ alignItems: 'center', justifyContent: 'center' }}>
                 <Image
                   source={require('../../Common/images/changepass.png')}
-                  style={{width: '80%', height: 100}}
+                  style={{ width: '80%', height: 100 }}
                 />
               </View>
               <Text style={styles.label}>{t('enter_pass')}</Text>
               <PasswordInput
                 value={form.password}
-                onChangeText={password => setForm({...form, password})}
+                onChangeText={password => setForm({ ...form, password })}
                 placeholder={t('enter_new_password')}
                 visible={passwordVisible}
                 toggleVisible={() => setPasswordVisible(!passwordVisible)}
@@ -146,7 +152,7 @@ const ForgotPassword = () => {
               <Text style={styles.label}>{t('enter_conf_pass')}</Text>
               <PasswordInput
                 value={form.cpassword}
-                onChangeText={cpassword => setForm({...form, cpassword})}
+                onChangeText={cpassword => setForm({ ...form, cpassword })}
                 placeholder={t('enter_conf_pass')}
                 visible={cPasswordVisible}
                 toggleVisible={() => setCPasswordVisible(!cPasswordVisible)}

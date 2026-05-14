@@ -297,7 +297,21 @@ const PlotSiteProduceInformation = () => {
         //     information: `${dbName},${languageId}`,
         //   },
         // ),
-        nearestLatLong(dbName, languageId, token, latitude, longitude),
+        axiosPost(
+          ROUTES.POST.NEAREST_LATLONG,
+          {
+            latitude: latitude,
+            longitude: longitude,
+            distance: 200,
+            data_limit: 100,
+          },
+          token,
+          false,
+          {
+            information: `${dbName},${languageId}`,
+          },
+        ),
+        // nearestLatLong(dbName, languageId, token, latitude, longitude),
 
         axiosGet(ROUTES.GET.TERRAIN_TYPE(), '', {
           information: `${dbName},${languageId}`,
@@ -330,8 +344,16 @@ const PlotSiteProduceInformation = () => {
           },
         ),
         // ProducceSeasionAPI(dbName, languageId),
-
-        livelihoodTypeAPI(dbName, languageId),
+        axiosGet(
+          ROUTES.GET.PRODUCTION_STAGE({
+            languageID: languageId,
+            cropTypeId: '',
+            cropNameID: '',
+          }),
+          '',
+          {information: `${dbName},${languageId}`},
+        ),
+        // livelihoodTypeAPI(dbName, languageId),
 
         axiosGet(ROUTES.GET.PRODUCTION_PROCESS(), '', {
           information: `${dbName},${languageId}`,
@@ -760,12 +782,21 @@ const PlotSiteProduceInformation = () => {
   ) => {
     let produceVarietyArray = [];
     if (isOnline) {
-      let produceVariety_res = await produceVarietyAPI(
-        dbName,
-        languageID,
-        livelihoodType,
-        produceName,
+      let produceVariety_res = await axiosGet(
+        ROUTES.GET.PRODUCTION_STAGE({
+          languageID: languageId,
+          cropTypeId: livelihoodType,
+          cropNameID: produceName,
+        }),
+        '',
+        {information: `${dbName},${languageId}`},
       );
+      // produceVarietyAPI(
+      //   dbName,
+      //   languageID,
+      //   livelihoodType,
+      //   produceName,
+      // );
       if (produceVariety_res?.status == 200) {
         produceVarietyArray = produceVariety_res?.data?.data?.crop_variety?.map(
           data => ({
@@ -1392,21 +1423,21 @@ const PlotSiteProduceInformation = () => {
         Math.abs(latestRegion.longitude - newRegion.longitude) < 0.0001;
       if (isSameLat && isSameLng) {
         try {
-          const nearestLatLong_res = await // axiosPost(
-          //   ROUTES.POST.NEAREST_LATLONG,
-          //   {
-          //     latitude: latitude,
-          //     longitude: longitude,
-          //     distance: 200,
-          //     data_limit: 100,
-          //   },
-          //   token,
-          //   false,
-          //   {
-          //     information: `${dbName},${languageId}`,
-          //   },
-          // );
-          nearestLatLong(dbName, languageId, token, latitude, longitude);
+          const nearestLatLong_res = await axiosPost(
+            ROUTES.POST.NEAREST_LATLONG,
+            {
+              latitude: latitude,
+              longitude: longitude,
+              distance: 200,
+              data_limit: 100,
+            },
+            token,
+            false,
+            {
+              information: `${dbName},${languageId}`,
+            },
+          );
+          // nearestLatLong(dbName, languageId, token, latitude, longitude);
           if (nearestLatLong_res?.status === 200) {
             const data = nearestLatLong_res?.data?.data;
             // setnearPolData(data);

@@ -33,7 +33,7 @@ import HarvestedModel from '../../Common/HarvestedModel';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fronts} from '../../utils/Constants';
-import {axiosGet} from '../../utils/api';
+import {axiosGet, axiosPost} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 
 const WantToBuy = ({navigation}) => {
@@ -266,13 +266,21 @@ const WantToBuy = ({navigation}) => {
       district_id: agri_user_addresses[0]?.district,
       subdiv_id: agri_user_addresses[0]?.subdivision,
     });
-    const response = await problemProduceAgainstPlotAPI(
-      dbname,
-      lan_id,
-      farmerID,
-      relId.value,
+    const response = await axiosGet(
+      ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+        relID: relId.value,
+      }),
+      '',
+      {
+        information: `${dbname},${lan_id},${farmerID}`,
+      },
     );
-    console.log('abc', response);
+    // problemProduceAgainstPlotAPI(
+    //   dbname,
+    //   lan_id,
+    //   farmerID,
+    //   relId.value,
+    // );
     if (response) {
       setNameVarityStartEnd({
         ...nameVarityStartEnd,
@@ -463,13 +471,22 @@ const WantToBuy = ({navigation}) => {
         //
         formData.append('pp_qty', saveData.pp_qty);
 
-        const database_res = await inputSaveAPI(
-          dbname,
-          lan_id,
-          token,
-          saveData.farmer_id,
+        const database_res = await axiosPost(
+          ROUTES.POST.INPUT_OUTPUT_SAVE,
           formData,
+          token,
+          false,
+          {
+            information: `${dbname},${lan_id},${saveData.farmer_id}`,
+          },
         );
+        // inputSaveAPI(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   saveData.farmer_id,
+        //   formData,
+        // );
 
         if (database_res?.status == 200) {
           Toast.show({

@@ -65,6 +65,8 @@ const PlotMap = ({
             strokeColor={plot.isSelected ? '#004d00' : '#004d00'}
             strokeWidth={2}
             tappable={true}
+            tracksViewChanges={false}
+            cacheEnabled={true}
             onPress={() => onPolygonPress(plot)}
           />
         ))}

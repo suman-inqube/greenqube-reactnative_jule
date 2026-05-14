@@ -695,13 +695,20 @@ const Information = ({sendDataToParent, farmerID}) => {
           formDataPlotImg,
         );
         // STEP 2: FILE UPLOAD (DEPENDENT)
-        const addIdAddressImgsRes = await onlyUpdateIdAddrFile(
-          dbname,
-          lan_id,
-          farmeruserID,
-          token,
+        const addIdAddressImgsRes = await axiosPut(
+          ROUTES.PUT.ONLY_UPDATE_ID_ADDRESS,
           formDataPlotImg,
+          token,
+          false,
+          {information: `${dbname},${lan_id},${farmeruserID}`},
         );
+        // onlyUpdateIdAddrFile(
+        //   dbname,
+        //   lan_id,
+        //   farmeruserID,
+        //   token,
+        //   formDataPlotImg,
+        // );
 
         // STEP 3: DELETE OLD FILE
         await deletePlotImageAPI(dbname, lan_id, token, formDataDelete);

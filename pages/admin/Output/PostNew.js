@@ -16,7 +16,7 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
-import { launchCamera } from 'react-native-image-picker';
+import {launchCamera} from 'react-native-image-picker';
 import {
   farmerAgainstSupervisorAPI,
   farmerByNameAPI,
@@ -25,17 +25,17 @@ import {
   problemPlotAgainstFarmerAPI,
   unitByListAPI,
 } from '../../../config/apiHere';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { Colors, Fonts } from '../../utils/Constants';
+import {Colors, Fonts} from '../../utils/Constants';
 import AnimatedCard from '../../Components/AnimatedCard';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
-import { FloatingAction } from 'react-native-floating-action';
-import { getActionsPostNew } from '../../utils/options';
-import { axiosGet } from '../../utils/api';
-import { ROUTES } from '../../utils/Routes';
+import {FloatingAction} from 'react-native-floating-action';
+import {getActionsPostNew} from '../../utils/options';
+import {axiosGet, axiosPost} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 import DatePickerField from '../../Common/DatePickerField';
-const PostNew = ({ navigation }) => {
+const PostNew = ({navigation}) => {
   //GQR-67
   const {
     loginUser_data,
@@ -52,7 +52,7 @@ const PostNew = ({ navigation }) => {
     effective_dates,
     CustomHeader,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-67
   const unitFarm = [
     {
@@ -66,7 +66,12 @@ const PostNew = ({ navigation }) => {
   ];
   const [searchFarmerName, setSearchFarmerName] = useState('');
   const [searchFarmerPhone, setSearchFarmerPhone] = useState('');
-  const [saveData, setSaveData] = useState({ plot_name: '', created_at: '', agri_user_addresses: [], agri_crop_user_rels: [] });
+  const [saveData, setSaveData] = useState({
+    plot_name: '',
+    created_at: '',
+    agri_user_addresses: [],
+    agri_crop_user_rels: [],
+  });
   const [farmerID, setfarmerID] = useState();
   const [plotAll, setplotAll] = useState([]);
   const [liveliHoodType, setLiveliHoodType] = useState([]);
@@ -90,7 +95,14 @@ const PostNew = ({ navigation }) => {
     block: '',
   });
   const handleResultSelect = useCallback(async item => {
-    const { label: name, value: currentfarmerId, phone, FcmUserToken, agri_user_addresses, agri_crop_user_rels } = item;
+    const {
+      label: name,
+      value: currentfarmerId,
+      phone,
+      FcmUserToken,
+      agri_user_addresses,
+      agri_crop_user_rels,
+    } = item;
     const min = 1000000000000;
     const max = 9999999999999;
     const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -101,7 +113,7 @@ const PostNew = ({ navigation }) => {
       ref_code: randomNumber,
       plot_name: '',
       agri_user_addresses: agri_user_addresses?.[0],
-      agri_crop_user_rels: agri_crop_user_rels[0]
+      agri_crop_user_rels: agri_crop_user_rels[0],
     }));
     setNameVarityLivelihood(prev => ({
       ...prev,
@@ -117,7 +129,7 @@ const PostNew = ({ navigation }) => {
         farmerID: currentfarmerId,
       }),
       token,
-      { information: `${dbname},${lan_id}` },
+      {information: `${dbname},${lan_id}`},
     );
     // problemPlotAgainstFarmerAPI(
     //   dbname,
@@ -146,7 +158,7 @@ const PostNew = ({ navigation }) => {
   });
   const handlePlot = async relId => {
     setIsLoading(true);
-    console.log("relId.label", relId.label)
+    console.log('relId.label', relId.label);
     try {
       if (relId.label == 'other') {
         setIsOther(true);
@@ -160,20 +172,15 @@ const PostNew = ({ navigation }) => {
           created_at: '',
           // plot_name: plot != undefined && relId.label,
           plot_name: relId.label,
-          state_name:
-            saveData?.agri_user_addresses?.agri_state?.state_name,
+          state_name: saveData?.agri_user_addresses?.agri_state?.state_name,
           district_name:
-            saveData?.agri_user_addresses?.agri_district
-              ?.district_name,
+            saveData?.agri_user_addresses?.agri_district?.district_name,
           subdiv_name:
-            saveData?.agri_user_addresses?.agri_subdivision
-              ?.subdiv_name,
+            saveData?.agri_user_addresses?.agri_subdivision?.subdiv_name,
           state_id: saveData?.agri_user_addresses?.state,
           district_id: saveData?.agri_user_addresses?.district,
           block_id: saveData?.agri_user_addresses?.subdivision,
         });
-
-
       } else {
         setIsOther(false);
         const [livelyhoodNameVerity] = await Promise.all([
@@ -199,7 +206,6 @@ const PostNew = ({ navigation }) => {
           // farmerAgainstSupervisorAPI(dbname, lan_id, farmerID),
         ]);
         if (livelyhoodNameVerity) {
-
           if (
             new Date(saveData?.agri_crop_user_rels?.harvesting_date) >
             new Date()
@@ -239,14 +245,11 @@ const PostNew = ({ navigation }) => {
             fulfill_status: 0,
             plot_name: relId.label,
             created_at: relId.created_at,
-            state_name:
-              saveData?.agri_user_addresses?.agri_state.state_name,
+            state_name: saveData?.agri_user_addresses?.agri_state.state_name,
             district_name:
-              saveData?.agri_user_addresses?.agri_district
-                .district_name,
+              saveData?.agri_user_addresses?.agri_district.district_name,
             subdiv_name:
-              saveData?.agri_user_addresses?.agri_subdivision
-                .subdiv_name,
+              saveData?.agri_user_addresses?.agri_subdivision.subdiv_name,
             state_id: saveData?.agri_user_addresses?.state,
             district_id: saveData?.agri_user_addresses?.district,
             block_id: saveData?.agri_user_addresses?.subdivision,
@@ -259,7 +262,7 @@ const PostNew = ({ navigation }) => {
         }
       }
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
     setIsLoading(false);
   };
@@ -281,7 +284,7 @@ const PostNew = ({ navigation }) => {
         sub_type: item.sub_type,
       }),
       '',
-      { information: `${dbname},${lan_id}` },
+      {information: `${dbname},${lan_id}`},
     );
     // unitByListAPI(dbname, lan_id, 1, item.sub_type);
 
@@ -314,7 +317,7 @@ const PostNew = ({ navigation }) => {
         console.log('Camera Error: ', response.error);
       } else {
         let imageUri = response.uri || response.assets?.[0]?.uri;
-        const newPhoto = { uri: imageUri, type: 'image/jpeg', name: imageUri };
+        const newPhoto = {uri: imageUri, type: 'image/jpeg', name: imageUri};
       }
     });
   };
@@ -336,7 +339,7 @@ const PostNew = ({ navigation }) => {
         sub_type: '',
       }),
       '',
-      { information: `${dbname},${lan_id}` },
+      {information: `${dbname},${lan_id}`},
     );
 
     // unitByListAPI(dbname, lan_id);
@@ -358,19 +361,19 @@ const PostNew = ({ navigation }) => {
   const validationData = () => {
     Keyboard.dismiss();
     if (searchFarmerName == '') {
-      Toast.show({ text: `${t('please_enter_first_name')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_enter_first_name')}`, ...AlertMesg[0]});
       return false;
     } else if (saveData.plot_name == '' && saveData.plot_name != 'other') {
-      Toast.show({ text: `${t('please_select_plot')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('please_select_plot')}`, ...AlertMesg[0]});
       return false;
     } else if (saveData.quantity == '' && saveData.plot_name != 'other') {
-      Toast.show({ text: `${t('select_quantity_input')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('select_quantity_input')}`, ...AlertMesg[0]});
       return false;
     } else if (saveData.unit_id == '') {
-      Toast.show({ text: `${t('select_unit_input')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('select_unit_input')}`, ...AlertMesg[0]});
       return false;
     } else if (approximateDate == '' && nextpage == 2) {
-      Toast.show({ text: `${t('approximate_date')}`, ...AlertMesg[0] });
+      Toast.show({text: `${t('approximate_date')}`, ...AlertMesg[0]});
       return false;
     } else {
       return true;
@@ -424,20 +427,29 @@ const PostNew = ({ navigation }) => {
             ? saveData.defined_unit_value * saveData.quantity
             : saveData.quantity * 1,
         );
-        const database_res = await outputSaveAPI(
-          dbname,
-          lan_id,
-          token,
-          user_id,
+        const database_res = await axiosPost(
+          ROUTES.POST.INPUT_OUTPUT_SAVE,
           formDataObject,
+          token,
+          false,
+          {
+            information: `${dbname},${lan_id},${user_id}`,
+          },
         );
+        // outputSaveAPI(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   user_id,
+        //   formDataObject,
+        // );
         console.log('database_res', database_res);
         if (database_res?.status === 200) {
-          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+          Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
 
           setTimeout(() => {
             // props.sendDataToParent(2);
-            navigation.navigate('OutPutList', { action: 'addData' });
+            navigation.navigate('OutPutList', {action: 'addData'});
           }, 1500);
         }
       }
@@ -447,7 +459,7 @@ const PostNew = ({ navigation }) => {
     onPageLoad();
     const backHandler = BackHandler.addEventListener(
       'hardwareBackPress',
-      handleBackButtonClick
+      handleBackButtonClick,
     );
     return () => {
       backHandler.remove();
@@ -460,7 +472,7 @@ const PostNew = ({ navigation }) => {
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <View style={{ flex: 1, backgroundColor: Colors.background }}>
+        <View style={{flex: 1, backgroundColor: Colors.background}}>
           {renderCustomHeader}
           <DatePickerComp
             openDate={openDatePicker}
@@ -471,15 +483,16 @@ const PostNew = ({ navigation }) => {
               saveData.created_at == ''
                 ? ''
                 : new Date(
-                  `${new Date(saveData.created_at).getFullYear()}-${new Date(saveData.created_at).getMonth() + 1
-                  }-${new Date(saveData.created_at).getDate() + 1}`,
-                )
+                    `${new Date(saveData.created_at).getFullYear()}-${
+                      new Date(saveData.created_at).getMonth() + 1
+                    }-${new Date(saveData.created_at).getDate() + 1}`,
+                  )
             }
           />
 
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.fromContainer}>
-              <View style={{ padding: 16 }}>
+              <View style={{padding: 16}}>
                 {nextpage == 1 ? (
                   <>
                     <DropdownForm
@@ -504,9 +517,8 @@ const PostNew = ({ navigation }) => {
                       <InputTextForm
                         label={t('other')}
                         onChangeText={item =>
-                          setSaveData(prev => ({ ...prev, others: item }))
+                          setSaveData(prev => ({...prev, others: item}))
                         }
-                        
                       />
                     ) : (
                       <>
@@ -541,17 +553,17 @@ const PostNew = ({ navigation }) => {
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                       }}>
-                      <View style={{ width: '45%' }}>
+                      <View style={{width: '45%'}}>
                         <InputTextForm
                           label={t('quantity')}
                           keyboardType="number-pad"
                           onChangeText={item =>
-                            setSaveData(prev => ({ ...prev, quantity: item }))
+                            setSaveData(prev => ({...prev, quantity: item}))
                           }
                           value={saveData.quantity}
                         />
                       </View>
-                      <View style={{ width: '45%' }}>
+                      <View style={{width: '45%'}}>
                         <DropdownForm
                           label={t('select_unit_input')}
                           data={unitData}
@@ -571,7 +583,7 @@ const PostNew = ({ navigation }) => {
                           : t(`${regionaldatas.state}`)
                       }
                       value={saveData.state_name}
-                           editable={false}
+                      editable={false}
                     />
                     <InputTextForm
                       label={
@@ -580,7 +592,7 @@ const PostNew = ({ navigation }) => {
                           : t(`${regionaldatas.district}`)
                       }
                       value={saveData.district_name}
-                           editable={false}
+                      editable={false}
                     />
                     <InputTextForm
                       label={
@@ -589,7 +601,7 @@ const PostNew = ({ navigation }) => {
                           : t(`${regionaldatas.block}`)
                       }
                       value={saveData.subdiv_name}
-                           editable={false}
+                      editable={false}
                     />
                     <DatePickerField
                       label={t('approximate_date')}

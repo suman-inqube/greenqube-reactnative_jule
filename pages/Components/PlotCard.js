@@ -159,7 +159,7 @@ const PlotCard = memo(
               <TouchableOpacity
                 style={styles.actionButton}
                 onPress={() => activityApi(item?.rel_id)}>
-                <Text style={styles.actionText}>{t('activity')}</Text>
+                <Text style={styles.actionText}>{t('Activity')}</Text>
               </TouchableOpacity>
             </View>
           }

@@ -20,6 +20,12 @@ export const ROUTES = {
     FARMER_SIGNUP_BY_AGENT: `agentRoute/farmerSignupByAgent`,
     ADD_PLOTI_MGS: `landRoute/addPlotImgs`,
     NEW_FORGOT_PASSWORD: 'loginSignupRoute/newForgotPassword',
+    UP_CARBON_AGR_DOC: 'landRoute/uploadCarbonAgrDocs',
+    ADD_CROP_INOUT: 'carbonRoute/addCropInput',
+    NEWFORGOT_PASSWORD: `loginSignupRoute/newForgotPassword`,
+    ADD_ACTIVITY_IMG: `landRoute/uploadPipeImages`,
+    PROBLEM_COMMENT_SAVE: `questionRoute/addComment`,
+    INPUT_OUTPUT_SAVE: `inputOutputRoute/add`,
   },
 
   GET: {
@@ -374,6 +380,17 @@ export const ROUTES = {
 
     PLOT_MAP_DETAILS: ({user_id = '', land_unit_id = ''}) =>
       `loanEntityRoute/polygonDetails_v2?user_id=${user_id}&land_unit_id=${land_unit_id}`,
+
+    GET_PLOT_DOC: ({plotId = ''}) => `landRoute/getPlotImgs_e/${plotId}`,
+
+    ACTIVITY_PIPE_IMG: ({rel_id_plot = '', act_name_fid = '', pipe_id = ''}) =>
+      `inputOutputRoute/pipeImages_e2?plot_fid=${rel_id_plot}&act_name_fid=${act_name_fid}&pipe_id=${pipe_id}`,
+
+    PROBLEM_ANS_LIST: ({problem_id = ''}) =>
+      `solutionRoute/viewQuestionSolution/${problem_id}`,
+
+    PROBLEM_COMMENTS_LIST: ({questionId = ''}) =>
+      `questionRoute/listComment/1/0/2?search_key=&comment_type=2&comment_qid=${questionId}&farming_type=crop`,
   },
 
   PUT: {
@@ -382,9 +399,11 @@ export const ROUTES = {
     UPDATE_LAND_CROP_DETAILS: ({land_rel_id = '', crop_rel_id = ''}) =>
       `landRoute/editUserLandCrop?land_rel_id=${land_rel_id}&crop_rel_id=${crop_rel_id}`,
 
-    UPLOAD_FARMER_ID_ADD: () => `settingsRoute/uploadFarmerIdAdd`,
+    UPLOAD_FARMER_ID_ADD: `settingsRoute/uploadFarmerIdAdd`,
     UP_DATE_OWNER_SHIP: `settingsRoute/updateOwnership`,
     EDIT_CO_FARMER: `settingsRoute/editCofarmer`,
+    SET_CYCLE_DATE: ({cuRelID = ''}) => `cropRoute/editUserCrop/${cuRelID}`,
+    ONLY_UPDATE_ID_ADDRESS: `settingsRoute/onlyUpdateIdAddrFile`,
   },
 
   DELETE: {
