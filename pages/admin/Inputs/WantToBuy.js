@@ -232,9 +232,6 @@ const WantToBuy = ({navigation}) => {
   //   }
   // }, []);
   const handlePlot = async relId => {
-    console.log('Plot selected:', relId);
-    console.log('saveData:', saveData);
-
     const farmer_all = await axiosGet(
       ROUTES.GET.LIST_USER({user_id: farmerID}),
       '',
@@ -246,7 +243,6 @@ const WantToBuy = ({navigation}) => {
     //   lan_id,
     //   farmerID,
     // );
-    console.log('farmerAgainstSupervisorAPI', farmer_all);
     const problemNameFound = farmer_all.data.data.rows.find(
       user => user.user_id === relId.user_id,
     );
@@ -559,7 +555,6 @@ const WantToBuy = ({navigation}) => {
       );
 
       // farmerByNameAPI(dbname, lan_id, token, user_id);
-      console.log('response1111', response);
       if (response?.status == 200) {
         const dataArray = response.data.data.rows.map(data => ({
           value: data.user_id,

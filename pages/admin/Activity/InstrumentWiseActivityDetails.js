@@ -132,7 +132,6 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
       //   params?.act_name_fid,
       //   params?.pipe_id,
       // );
-      console.log('pipeRes', JSON.stringify(pipeRes));
       if (pipeRes?.status == 200) {
         const plotCoordinates = pipeRes?.data?.plotLatLong?.rows?.map(item => ({
           latitude: parseFloat(item.latitude),

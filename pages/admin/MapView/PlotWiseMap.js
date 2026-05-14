@@ -118,7 +118,6 @@ const PlotWiseMap = () => {
     const response = await axiosGet(ROUTES.GET.STATE_API(), '', {
       information: `${dbname},${lan_id}`,
     });
-    console.log('STATE_API2222', response);
     if (response?.status === 200) {
       const data = response.data.data.rows.map(item => ({
         label: item.state_name,
@@ -134,7 +133,6 @@ const PlotWiseMap = () => {
       '',
       {information: `${dbname},${lan_id}`},
     );
-    console.log('DISTRICT_API222', response);
 
     if (response?.status === 200) {
       const data = response.data.data.rows.map(item => ({
@@ -250,7 +248,6 @@ const PlotWiseMap = () => {
     );
 
     if (res?.status == 200) {
-      console.log('res', JSON.stringify(res));
       if (res?.data?.data?.rows?.length > 0) {
         setBaseLatLong({
           latitude: res?.data?.data?.rows[0]?.landLatLong[0]?.latitude,
@@ -329,9 +326,7 @@ const PlotWiseMap = () => {
         {information: `${dbname}`},
       );
       if (response?.status === 200) {
-        console.log('response1', response);
         // const formattedData = transformData(response);
-        console.log('formattedData', formattedData);
         // 🔥 500m FILTER
         // const nearbyPlots = formattedData.filter(plot => {
         //   if (!plot.center_lat || !plot.center_lng) return false;
@@ -365,8 +360,6 @@ const PlotWiseMap = () => {
       setActivityData(null);
       const found = plotData.find(p => p.id === polygon.id);
       if (found) {
-        console.log('found.id', found.id);
-
         const [farmerDetails, actRes] = await Promise.all([
           axiosGet(
             ROUTES.GET.PLOT_MAP_DETAILS({
@@ -388,13 +381,10 @@ const PlotWiseMap = () => {
             },
           ),
         ]);
-        console.log('actRes111', actRes);
 
-        console.log('actRes', `${dbname},${lan_id},${found.farmer_id}`, token);
         if (actRes?.status === 200) {
           setActivityData(actRes?.data?.data);
         }
-        console.log('farmerDetails', farmerDetails);
         if (farmerDetails?.status == 200) {
           const userData = farmerDetails?.data?.data?.userData;
           const unitData = farmerDetails?.data?.data?.unitData;

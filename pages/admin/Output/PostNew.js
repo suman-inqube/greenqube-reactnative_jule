@@ -158,7 +158,6 @@ const PostNew = ({navigation}) => {
   });
   const handlePlot = async relId => {
     setIsLoading(true);
-    console.log('relId.label', relId.label);
     try {
       if (relId.label == 'other') {
         setIsOther(true);
@@ -344,8 +343,6 @@ const PostNew = ({navigation}) => {
 
     // unitByListAPI(dbname, lan_id);
 
-    console.log('unitByList.status', unitByList.status);
-
     if (unitByList.status === 200) {
       const dataArray = unitByList?.data?.data?.rows.map(data => ({
         value: data.fid,
@@ -443,7 +440,6 @@ const PostNew = ({navigation}) => {
         //   user_id,
         //   formDataObject,
         // );
-        console.log('database_res', database_res);
         if (database_res?.status === 200) {
           Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
 

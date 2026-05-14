@@ -399,7 +399,6 @@ const ActivityReport = ({navigation, route}) => {
 
   const handlePlot = async relId => {
     const {latitude, longitude} = coords || {};
-    console.log('plt', latitude);
     setSaveData({
       ...saveData,
       latitude: latitude,
@@ -995,8 +994,6 @@ const ActivityReport = ({navigation, route}) => {
         formData.append('power_used', saveData.power_used);
 
         if (isOnline) {
-          console.log('formData', formData);
-
           const database_res = await axiosPost(
             ROUTES.POST.ACTIVITY_SAVE,
             formData,
@@ -1005,23 +1002,17 @@ const ActivityReport = ({navigation, route}) => {
             {information: `${dbname},${lan_id},${farmerID}`},
           );
 
-          console.log('Save11', database_res);
-
           if (database_res?.status == 200) {
             AnalyticsLogEvent('activity_report', 'activity_report');
 
             navigation.popToTop();
             navigation.navigate('activityList', {action: 'addData'});
           } else if (database_res?.status == 409) {
-            console.log('eeeeeee', database_res?.data?.error?.errorMessage);
-
             Toast.show({
               text: database_res?.data?.error?.errorMessage,
               ...AlertMesg[0],
             });
           } else {
-            console.log('fffff', database_res?.data?.error?.errorMessage);
-
             Toast.show({
               text: database_res?.data?.error?.errorMessage,
               ...AlertMesg[0],
@@ -1210,9 +1201,6 @@ const ActivityReport = ({navigation, route}) => {
       latitude: latlong.latitude,
       longitude: latlong.longitude,
     });
-
-    console.log('Error starting1 :', latlong.latitude);
-    console.log('Error starting1 :', latlong.longitude);
   };
 
   const handleHarvested = async data => {
