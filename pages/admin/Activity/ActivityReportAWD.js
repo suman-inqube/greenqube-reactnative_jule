@@ -1150,6 +1150,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
               latitude,
               longitude,
             });
+            alert(distances)
             if (distances < 10) {
               database_res = await addPrevPipeActivity(
                 dbname,

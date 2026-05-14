@@ -2551,16 +2551,18 @@ const LiveHood = ({
           const existingGeo = turf.polygon([
             [...poly, poly[0]].map(p => [p.longitude, p.latitude]),
           ]);
+           if (CURRENT_ENV !== 'DEMO') {
           if (
             turf.booleanOverlap(existingGeo, newGeo) ||
             turf.booleanWithin(newGeo, existingGeo)
           ) {
             overlapFound = false;
           }
+        }
         });
         // setPolygons([newPolygon]);
         //basudev
-        if (CURRENT_ENV !== 'DEMO') {
+       
           if (!overlapFound) {
             setPolygons([...nearPolSet, newPolygon]);
             setNewPolygon([]);
@@ -2588,7 +2590,7 @@ const LiveHood = ({
               { cancelable: false },
             );
           }
-        }
+
       } else {
         // setArea(0);
         Alert.alert(

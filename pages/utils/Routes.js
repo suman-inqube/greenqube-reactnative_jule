@@ -19,6 +19,7 @@ export const ROUTES = {
     SAVE_CO_FARMERS: `settingsRoute/saveCoFarmers`,
     FARMER_SIGNUP_BY_AGENT: `agentRoute/farmerSignupByAgent`,
     ADD_PLOTI_MGS: `landRoute/addPlotImgs`,
+    NEWFORGOT_PASSWORD: `loginSignupRoute/newForgotPassword`
   },
 
   GET: {

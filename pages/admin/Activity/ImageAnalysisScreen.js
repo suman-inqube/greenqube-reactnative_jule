@@ -25,6 +25,7 @@ import ModelDot from '../../Components/ModelDot';
 import { captureRef } from 'react-native-view-shot';
 import { Fonts } from '../../utils/Constants';
 import CustomAlert from '../../Common/CustomAlert';
+import { CURRENT_ENV } from '../../../config/environment';
 export const MODELS = [
   {
     key: 'clarity',
@@ -688,10 +689,11 @@ const ImageAnalysisScreen = ({
           </TouchableOpacity>
 
           <View style={styles.buttonRow}>
-            <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={pickImage}>
+            {CURRENT_ENV == 'DEMO' && <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={pickImage}>
               <Text style={styles.btnIcon}>🖼</Text>
               <Text style={styles.btnSecondaryText}>Gallery</Text>
-            </TouchableOpacity>
+            </TouchableOpacity>}
+
 
             <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={takePhoto}>
               <Text style={styles.btnIcon}>📸</Text>

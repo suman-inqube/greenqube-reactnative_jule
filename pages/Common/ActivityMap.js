@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Text,
 } from 'react-native';
-import MapView, { Polygon, Marker, Callout, Circle, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Polygon, Marker, Callout, Circle } from 'react-native-maps';
 import { isPointInPolygon } from 'geolib';
 import { Fonts } from '../utils/Constants';
 
@@ -106,21 +106,16 @@ const ActivityMap = ({
     return () => animatedHeading.removeListener(listener);
   }, [animatedHeading, location]);
 
-  const groupByCoordinates = useCallback(points => {
+  const groupByCoordinates = useCallback((points) => {
     const groups = {};
-
     points.forEach(p => {
       if (!p) return;
-
       const key = `${p.latitude},${p.longitude}`;
-
       if (!groups[key]) {
         groups[key] = [];
       }
-
       groups[key].push(p);
     });
-
     return Object.values(groups);
   }, []);
   const groupedMarkers = useMemo(() => {
@@ -128,9 +123,16 @@ const ActivityMap = ({
       pipeLatLong?.flat() || [],
     );
   }, [pipeLatLong, groupByCoordinates]);
-  const lastLocationUpdate = useRef(0);
 
+  // Check if location is in polygon
+  // useEffect(() => {
+  //   if (location && plotPolygon?.length) {
+  //     const inside = isPointInPolygon(location, plotPolygon);
+  //     setOutOfRange(inside);
+  //   }
+  // }, [location, plotPolygon]);
   const LOCATION_INTERVAL = 2000;
+  const lastLocationUpdate = useRef(0);
   const handleUserLocationChange = useCallback(
     event => {
       const now = Date.now();
@@ -187,6 +189,44 @@ const ActivityMap = ({
     },
     [plotPolygon, setOutOfRange, setMapLatLon],
   );
+  const calculatePointAtDistance = useCallback(
+    (lat, lng, distanceMeters, bearingDegrees) => {
+      const R = 6378137;
+
+      const bearing = (bearingDegrees * Math.PI) / 180;
+
+      const lat1 = (lat * Math.PI) / 180;
+
+      const lon1 = (lng * Math.PI) / 180;
+
+      const angularDistance = distanceMeters / R;
+
+      const lat2 = Math.asin(
+        Math.sin(lat1) * Math.cos(angularDistance) +
+        Math.cos(lat1) *
+        Math.sin(angularDistance) *
+        Math.cos(bearing),
+      );
+
+      let lon2 =
+        lon1 +
+        Math.atan2(
+          Math.sin(bearing) *
+          Math.sin(angularDistance) *
+          Math.cos(lat1),
+          Math.cos(angularDistance) -
+          Math.sin(lat1) * Math.sin(lat2),
+        );
+
+      lon2 = ((lon2 + 3 * Math.PI) % (2 * Math.PI)) - Math.PI;
+
+      return {
+        latitude: (lat2 * 180) / Math.PI,
+        longitude: (lon2 * 180) / Math.PI,
+      };
+    },
+    [],
+  );
   return (
     <Modal
       animationType="slide"
@@ -197,79 +237,19 @@ const ActivityMap = ({
       }}>
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          {/* <MapView
-            ref={mapRef}
-            style={[styles.map, { width, height }]}
-            provider={PROVIDER_GOOGLE}
-            mapType="hybrid"
-            // showsUserLocation
-            // followsUserLocation
-            showsCompass
-            showsUserLocation={true}
-            followsUserLocation={true}
-            showsMyLocationButton={true}
-            onUserLocationChange={
-              handleUserLocationChange
-            }
-            loadingEnabled={true}
-            initialCamera={{
-              center: {
-                latitude: location?.latitude,
-                longitude: location?.longitude,
-              },
-              zoom: 20,
-              pitch: 45,
-              heading: currentHeading || 0,
-              altitude: 1000,
-            }}
-
-            maxZoomLevel={22}
-            cacheEnabled={false}
-          > */}
-
           <MapView
             ref={mapRef}
             style={[styles.map, { width, height }]}
-            provider={PROVIDER_GOOGLE}
-
-            // =========================
-            // MAP TYPE
-            // =========================
-
             mapType="hybrid"
-
-            // =========================
-            // PERFORMANCE
-            // =========================
-
-            cacheEnabled={false}
-            loadingEnabled={true}
-
-            // =========================
-            // USER LOCATION
-            // =========================
-
+            // showsUserLocation
+            // followsUserLocation
+            // showsCompass
             showsUserLocation={true}
-
-            followsUserLocation={false}
-
+            followsUserLocation={true}
             showsMyLocationButton={true}
-
-            onUserLocationChange={
-              handleUserLocationChange
-            }
-            // =========================
-            // UI
-            // =========================
-            showsCompass={true}
-            // =========================
-            // PERFORMANCE SAFE
-            // =========================
-            rotateEnabled={false}
-            pitchEnabled={false}
-            // =========================
-            // CAMERA
-            // =========================
+            onUserLocationChange={handleUserLocationChange}
+            userLocationPriority="high"
+            minZoomLevel={15}
             initialCamera={{
               center: {
                 latitude: location?.latitude,
@@ -279,106 +259,59 @@ const ActivityMap = ({
               heading: 0,
               pitch: 0,
             }}
-
             maxZoomLevel={20}
+            toolbarEnabled={false}
+            showsCompass={false}
+            rotateEnabled={false}
+            pitchEnabled={false}
+            moveOnMarkerPress={false}
+            userLocationUpdateInterval={3000}
+            userLocationFastestInterval={2000}
           >
-          {/* ========================================= */}
-          {/* DISTANCE RINGS FULL CODE */}
-          {/* ========================================= */}
+            {userLocation &&
+              distanceRings.map((ring, index) => {
+                const northPoint = calculatePointAtDistance(
+                  userLocation.latitude,
+                  userLocation.longitude,
+                  ring.distance,
+                  0,
+                );
+                return (
+                  <React.Fragment key={index}>
+                    <Circle
+                      center={userLocation}
+                      radius={ring.distance}
+                      strokeWidth={1.5}
+                      strokeColor={ring.color}
+                      fillColor="transparent"
+                      zIndex={1}
+                    />
 
-          {
-            userLocation &&
-            distanceRings.map((ring, index) => {
-
-              // =========================================
-              // NORTH POINT
-              // =========================================
-
-              // const northPoint = calculatePointAtDistance(
-              //   userLocation.latitude,
-              //   userLocation.longitude,
-              //   ring.distance,
-              //   0,
-              // );
-              // const southPoint = calculatePointAtDistance(
-              //   userLocation.latitude,
-              //   userLocation.longitude,
-              //   ring.distance,
-              //   180,
-              // );
-              return (
-                <React.Fragment key={index}>
-                  <Circle
-                    center={{
-                      latitude: userLocation.latitude,
-                      longitude: userLocation.longitude,
-                    }}
-                    radius={ring.distance}
-                    strokeWidth={3}
-                    strokeColor={ring.borderColor}
-                    fillColor="rgba(255,255,255,0.03)"
-                    zIndex={1}
-                  />
-                  {/* <Marker
-                      coordinate={northPoint}
-                      tracksViewChanges={true}
-                      anchor={{
-                        x: 0.5,
-                        y: 0.5,
-                      }}
-                      zIndex={999}
-                    >
+                    {/* North Label */}
+                    <Marker coordinate={northPoint} anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges={true}>
                       <View
                         style={[
-                          styles.distanceBadge,
-                          {
-                            borderColor: ring.borderColor,
-                          },
-                        ]}
-                      >
-                        <Text style={styles.distanceText}>
+                          styles.distanceBadgeSmall,
+                          { borderColor: ring.borderColor },
+                        ]}>
+                        <Text style={styles.distanceTextSmall}>
                           {ring.distance}m
                         </Text>
                       </View>
-                    </Marker> */}
+                    </Marker>
+                  </React.Fragment>
+                );
+              })}
+            {plotPolygon?.length > 0 && (
+              <Polygon
+                coordinates={plotPolygon}
+                fillColor="rgba(139, 236, 11, 0.73)"
+                strokeColor="rgb(1, 255, 1)"
+                strokeWidth={2}
+              />
+            )}
 
-
-                  {/* <Marker
-                      coordinate={southPoint}
-                      tracksViewChanges={true}
-                      anchor={{
-                        x: 0.5,
-                        y: 0.5,
-                      }}
-                      zIndex={999}
-                    >
-                      <View
-                        style={[
-                          styles.distanceBadge,
-                          {
-                            borderColor: ring.borderColor,
-                          },
-                        ]}
-                      >
-                        <Text style={styles.distanceText}>
-                          {ring.distance}m
-                        </Text>
-                      </View>
-                    </Marker>                     */}
-                </React.Fragment>
-              );
-            })
-          }
-          {plotPolygon?.length > 0 && (
-            <Polygon
-              coordinates={plotPolygon}
-              fillColor="rgba(139, 236, 11, 0.73)"
-              strokeColor="rgb(1, 255, 1)"
-              strokeWidth={2}
-            />
-          )}
-
-          {/* {groupByCoordinates(pipeLatLong?.flat() || []).map((group, index) =>
+            {/* {groupByCoordinates(pipeLatLong?.flat() || []).map((group, index) =>
               group.map((polygon, i) => {
                 const angle = (2 * Math.PI * i) / group.length;
                 const offset = 0.000005; // ~50cm offset to avoid overlapping
@@ -387,6 +320,7 @@ const ActivityMap = ({
 
                 return (
                   <Marker
+                    tracksViewChanges={false}
                     key={`${index}-${i}`}
                     coordinate={{
                       latitude: polygon.latitude + latOffset,
@@ -405,95 +339,95 @@ const ActivityMap = ({
                 );
               }),
             )} */}
-          {groupedMarkers.map(
-            (group, index) =>
-              group.map((polygon, i) => {
-                const angle =
-                  (2 * Math.PI * i) /
-                  group.length;
+            {groupedMarkers.map(
+              (group, index) =>
+                group.map((polygon, i) => {
+                  const angle =
+                    (2 * Math.PI * i) /
+                    group.length;
 
-                const offset = 0.000005;
+                  const offset = 0.000005;
 
-                const latOffset =
-                  Math.cos(angle) * offset;
+                  const latOffset =
+                    Math.cos(angle) * offset;
 
-                const lngOffset =
-                  Math.sin(angle) * offset;
+                  const lngOffset =
+                    Math.sin(angle) * offset;
 
-                return (
-                  <Marker
-                    key={`${index}-${i}`}
-                    tracksViewChanges={false}
-                    coordinate={{
-                      latitude:
-                        polygon.latitude +
-                        latOffset,
+                  return (
+                    <Marker
+                      key={`${index}-${i}`}
+                      tracksViewChanges={false}
+                      coordinate={{
+                        latitude:
+                          polygon.latitude +
+                          latOffset,
 
-                      longitude:
-                        polygon.longitude +
-                        lngOffset,
-                    }}
-                    pinColor={
-                      polygon?.color?.trim()
-                        ? polygon.color
-                        : 'red'
-                    }
-                    onPress={() => {
-                      setSelectedMarker(
-                        polygon,
-                      );
-                    }}>
-                    <Callout>
-                      <View
-                        style={
-                          styles.callout
-                        }>
-                        <Text
+                        longitude:
+                          polygon.longitude +
+                          lngOffset,
+                      }}
+                      pinColor={
+                        polygon?.color?.trim()
+                          ? polygon.color
+                          : 'red'
+                      }
+                      onPress={() => {
+                        setSelectedMarker(
+                          polygon,
+                        );
+                      }}>
+                      <Callout>
+                        <View
                           style={
-                            styles.calloutText
+                            styles.callout
                           }>
-                          {polygon?.name ||
-                            'Marker'}
-                        </Text>
-                      </View>
-                    </Callout>
-                  </Marker>
-                );
-              }),
-          )}
-        </MapView>
-      </View>
-      {outofRange && (
-        <TouchableOpacity
-          style={styles.captureButton}
-          onPress={() => TakePhoto(replaceImgKey, userLocation)}>
-          <Text style={styles.captureIcon}>📷</Text>
-        </TouchableOpacity>
-      )}
-      {selectedMarker && (
-        <View style={styles.markerInfo}>
-          <Text
-            style={{
-              textAlign: 'center',
-              color: '#000',
-              fontWeight: 'bold',
-            }}>
-            {selectedMarker?.name || 'Unnamed Marker'}
-          </Text>
-          {selectedMarker?.description && (
+                          <Text
+                            style={
+                              styles.calloutText
+                            }>
+                            {polygon?.name ||
+                              'Marker'}
+                          </Text>
+                        </View>
+                      </Callout>
+                    </Marker>
+                  );
+                }),
+            )}
+          </MapView>
+        </View>
+
+          <TouchableOpacity
+            style={styles.captureButton}
+            onPress={() => TakePhoto(replaceImgKey, userLocation)}>
+            <Text style={styles.captureIcon}>📷</Text>
+          </TouchableOpacity>
+
+        {selectedMarker && (
+          <View style={styles.markerInfo}>
             <Text
               style={{
                 textAlign: 'center',
-                color: '#444',
-                marginTop: 4,
+                color: '#000',
+                fontWeight: 'bold',
               }}>
-              {selectedMarker.description}
+              {selectedMarker?.name || 'Unnamed Marker'}
             </Text>
-          )}
-        </View>
-      )}
-    </View>
-    </Modal >
+            {selectedMarker?.description && (
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: '#444',
+                  marginTop: 4,
+                }}>
+                {selectedMarker.description}
+              </Text>
+            )}
+          </View>
+        )}
+      </View>
+    </Modal>
   );
 };
 
@@ -552,8 +486,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     // flexDirection: 'row',
   },
-  distanceText: { color: '#fff', fontSize: 10, fontWeight: 'bold', fontFamily: Fonts.Medium },
-
+  distanceText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
   distanceUnit: {
     color: '#FFA726',
     fontSize: 10,
@@ -563,13 +496,13 @@ const styles = StyleSheet.create({
 
   distanceBadgeSmall: {
     backgroundColor: 'rgba(0,0,0,0.85)',
-    paddingHorizontal: 8,
+    paddingHorizontal: 6,
     paddingVertical: 4,
     borderRadius: 12,
     borderWidth: 1.5,
     alignItems: 'center',
   },
-  distanceTextSmall: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+  distanceTextSmall: { color: '#fff', fontSize: 9, fontWeight: 'bold',fontFamily:Fonts.Regular },
 
   infoCard: {
     position: 'absolute',

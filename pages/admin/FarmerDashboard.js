@@ -522,7 +522,6 @@ const FarmerDashboard = ({navigation}) => {
       if (USER_ACTIVITY?.status === 200) {
         latestActivities = USER_ACTIVITY.data?.data?.rows || [];
       }
-      console.log('ALL_ACTIVITY_SCHEDULE_RES', ALL_ACTIVITY_SCHEDULE_RES);
       let activityScheduleData = [];
       let carbonActivities = [];
 
