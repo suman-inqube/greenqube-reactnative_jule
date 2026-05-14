@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useRef, useState, useEffect, useContext} from 'react';
 import {
   View,
   Text,
@@ -12,8 +12,10 @@ import {
 } from 'react-native';
 import SignatureScreen from 'react-native-signature-canvas';
 import RNFS from 'react-native-fs';
+import {userCreateContext} from '../Context/usersCreateContext';
 
 const SignaturePad = ({setSignatureVal, signatureVal, statuslevel}) => {
+  const {loginUser_data, t} = useContext(userCreateContext);
   // statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED'
   const signatureRef = useRef();
   const [signature, setSignature] = useState(null); // File path
@@ -133,7 +135,7 @@ const SignaturePad = ({setSignatureVal, signatureVal, statuslevel}) => {
   }, [signatureVal]);
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Digital Signature</Text>
+      <Text style={styles.title}>{t('digital_signature')}</Text>
       <Pressable onPress={() => setShowModal(true)} style={styles.previewBox}>
         {signatureVal?.uri ? (
           <Image
@@ -142,7 +144,7 @@ const SignaturePad = ({setSignatureVal, signatureVal, statuslevel}) => {
             resizeMode="contain"
           />
         ) : (
-          <Text style={styles.placeholderText}>Tap to sign</Text>
+          <Text style={styles.placeholderText}>{t('tap_to_sign')}</Text>
         )}
       </Pressable>
 

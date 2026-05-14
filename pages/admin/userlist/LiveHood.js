@@ -546,8 +546,16 @@ const LiveHood = ({
         //   {information: `${dbname},${lan_id}`},
         // ),
         // ProductionSeasonAndApi(dbname, lan_id, ''),
-
-        getPlotDocAPI(dbname, lan_id, token, farmeruserID, dataProps?.rel_id),
+        axiosGet(
+          ROUTES.GET.GET_PLOT_DOC({
+            plotId: dataProps?.rel_id,
+          }),
+          token,
+          {
+            information: `${dbname},${lan_id},${farmeruserID}`,
+          },
+        ),
+        // getPlotDocAPI(dbname, lan_id, token, farmeruserID, dataProps?.rel_id),
         terraintype_resAPI(dbname, lan_id, 'terrain_type'),
         soilType_resAPI(dbname, lan_id, 'soil_type'),
         landType_resAPI(dbname, lan_id, 'land_type'),
@@ -641,7 +649,17 @@ const LiveHood = ({
               information: `${dbname},${lan_id},${farmeruserID}`,
             },
           ),
-          getPlotDocAPI(dbname, lan_id, token, farmeruserID, findData.value),
+          // getPlotDocAPI(dbname, lan_id, token, farmeruserID, findData.value),
+
+          axiosGet(
+            ROUTES.GET.GET_PLOT_DOC({
+              plotId: findData.value,
+            }),
+            token,
+            {
+              information: `${dbname},${lan_id},${farmeruserID}`,
+            },
+          ),
           axiosPost(
             ROUTES.POST.NEAREST_LATLONG,
             {
@@ -669,12 +687,10 @@ const LiveHood = ({
           //   ),
         ]);
         setPlotId(findData.value);
-        // console.log('getPlotDoc');
         if (getPlotDoc?.status == 200) {
-          const { count } = getPlotDoc?.data?.data;
+          const {count} = getPlotDoc?.data;
 
-          const { plot_img, landUserImgs } =
-            getPlotDoc?.data?.data?.rows[0] || {};
+          const {plot_img, landUserImgs} = getPlotDoc?.data?.rows[0] || {};
           // const values = [...addressProof];
           const carbonCertificateValues = [...carboncertificate];
           const filteredPlotImages = plot_img.filter(
@@ -816,7 +832,6 @@ const LiveHood = ({
                   { cancelable: false },
                 );
               }
-              console.log('cropAndPlotDetailsstatus==', dataLandDetails);
 
               setPlotStatus(prev => ({
                 ...prev,
@@ -945,10 +960,6 @@ const LiveHood = ({
 
                 fetchAndGroupPestDetails(dataProps?.plot_crops[0]?.cu_rel_id);
               } else {
-                // console.log(
-                //   'hisdata11--',
-                //   JSON.stringify(data?.gap_draining_harvest),
-                // );
                 setFarmerData(prev => ({
                   ...prev,
                   createdBy: user_id,
@@ -1238,7 +1249,6 @@ const LiveHood = ({
   }, []);
   useEffect(() => {
     if (plotSiteUserLandDetails.length != 0) {
-      console.log('dataProps', dataProps);
       if (dataProps?.plot_no != undefined) {
         handlePlot({
           label: dataProps?.plot_no,
@@ -1424,7 +1434,6 @@ const LiveHood = ({
     }));
   };
   const handleDatePicker2 = item =>
-    // console.log("rrrtu")
     setFarmerData(prev => ({
       ...prev,
       cycleEndDate: effective_dates(item),
@@ -1705,7 +1714,6 @@ const LiveHood = ({
       );
       // landRouteApi(dbname, lan_id, type);
       if (landType_res?.status == 200) {
-        // console.log('unit==', JSON.stringify(landType_res.data.data.rows));
         const landTypeArray = landType_res?.data?.data?.rows.map(data => ({
           value: data.fid,
           label: data?.name,
@@ -1728,7 +1736,6 @@ const LiveHood = ({
       });
 
       if (landunitAPI?.status == 200) {
-        // console.log('unit==', JSON.stringify(landunitAPI.data.data.rows));
         setFarmerData(prev => ({
           ...prev,
           unit_valueArr: JSON.stringify(landunitAPI.data.data.rows),
@@ -2131,7 +2138,6 @@ const LiveHood = ({
             false,
             {
               information: `${dbname},${lan_id},${farmeruserID}`,
-              'Content-Type': 'multipart/form-data',
             },
           );
           // const AddLandCropDetails_res = await AddLandCropDetailsAPI(
@@ -2159,7 +2165,6 @@ const LiveHood = ({
             });
           }
         } else {
-          // console.log('amendmentData===', JSON.stringify(allItems));
           var cusCropCyclStartDate = '2004-02-29';
           if (harvested != '') {
             cusCropCyclStartDate = '2004-02-29';
@@ -2258,16 +2263,26 @@ const LiveHood = ({
             end_usg_rm_straw: farmerData.end_usg_rm_straw,
           });
 
-          // console.log('setCycleDateAPI==', save_extradata);
           var [setCycleDate] = await Promise.all([
-            setCycleDateAPI(
-              dbname,
-              lan_id,
-              farmeruserID,
-              token,
-              farmerData.cu_rel_id,
+            axiosPut(
+              ROUTES.PUT.SET_CYCLE_DATE({cuRelID: farmerData.cu_rel_id}),
               save_extradata,
+              token,
+              false,
+              {
+                information: `${dbname},${lan_id},${farmeruserID}`,
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
             ),
+
+            // setCycleDateAPI(
+            //   dbname,
+            //   lan_id,
+            //   farmeruserID,
+            //   token,
+            //   farmerData.cu_rel_id,
+            //   save_extradata,
+            // ),
           ]);
 
           const finalPayload = formatAmendmentPayload(
@@ -2318,13 +2333,22 @@ const LiveHood = ({
                   information: `${dbname},${lan_id},${farmeruserID}`,
                 },
               ),
-              addCropInputAPI(
-                dbname,
-                lan_id,
-                token,
-                farmeruserID,
+              axiosPost(
+                ROUTES.POST.ADD_CROP_INOUT,
                 finalPayload,
+                token,
+                false,
+                {
+                  information: `${dbname},${lan_id},${farmeruserID}`,
+                },
               ),
+              // addCropInputAPI(
+              //   dbname,
+              //   lan_id,
+              //   token,
+              //   farmeruserID,
+              //   finalPayload,
+              // ),
             ],
           );
           if (addPlotImageAPIRes.data?.error?.errorCode == 400) {
@@ -2343,6 +2367,7 @@ const LiveHood = ({
             statuslevel.label == 'PENDING'
           ) {
             const formdatauploadFarmerIdAdd = new FormData();
+
             if (identityProofIdentityPropf[0]?.uri != '') {
               const { uri, type, name } = identityProofIdentityPropf[0];
               formdatauploadFarmerIdAdd.append('farmer_address', {
@@ -2351,8 +2376,8 @@ const LiveHood = ({
                 name,
               });
             }
-            if (identityProofIdentityPropf[1]?.id == '') {
-              const { uri, type, name } = identityProofIdentityPropf[1];
+            if (identityProofIdentityPropf[1]?.uri != '') {
+              const {uri, type, name} = identityProofIdentityPropf[1];
               formdatauploadFarmerIdAdd.append('farmer_identity', {
                 uri,
                 type,
@@ -2362,13 +2387,22 @@ const LiveHood = ({
             formdatauploadFarmerIdAdd.append('rel_id', farmerData.land_rel_id);
             formdatauploadFarmerIdAdd.append('user_id', farmeruserID);
 
-            const resOocUpdate = await uploadFarmerIdAdd(
-              dbname,
-              lan_id,
-              farmeruserID,
-              token,
+            const resOocUpdate = await axiosPut(
+              ROUTES.PUT.UPLOAD_FARMER_ID_ADD,
               formdatauploadFarmerIdAdd,
+              token,
+              false,
+              {
+                information: `${dbname},${lan_id},${farmeruserID}`,
+              },
             );
+            // uploadFarmerIdAdd(
+            //   dbname,
+            //   lan_id,
+            //   farmeruserID,
+            //   token,
+            //   formdatauploadFarmerIdAdd,
+            // );
             if (resOocUpdate?.status != 200) {
               Toast.show({
                 text: resOocUpdate?.data?.error?.errorMessage,
@@ -2405,13 +2439,22 @@ const LiveHood = ({
 
             if (hasSignature || hasCarbonAgreement) {
               if (!historyData) {
-                const carbonRes = await uploadCarbonAgrDocs(
-                  dbname,
-                  lan_id,
-                  token,
-                  farmeruserID,
+                const carbonRes = await axiosPost(
+                  ROUTES.POST.UP_CARBON_AGR_DOC,
                   formdataCarbon,
+                  token,
+                  false,
+                  {
+                    information: `${dbname},${lan_id},${farmeruserID}`,
+                  },
                 );
+                // uploadCarbonAgrDocs(
+                //   dbname,
+                //   lan_id,
+                //   token,
+                //   farmeruserID,
+                //   formdataCarbon,
+                // );
               }
             }
           }
@@ -2428,7 +2471,6 @@ const LiveHood = ({
               });
             }
           } else {
-            console.log('cropInputRes', cropInputRes);
             if (cropInputRes?.status === 200) {
               removesetLocation();
               Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
@@ -2445,7 +2487,6 @@ const LiveHood = ({
         }
       }
     } catch (error) {
-      console.error('error11', error);
       Toast.show({
         text: `${error?.data?.error?.errorMessage}`,
         // text: errorMessage,
@@ -3391,7 +3432,7 @@ const LiveHood = ({
 
                 {carbonFlag == true ? (
                   <InputTextForm
-                    label={t('JL No')}
+                    label={t('JL_No')}
                     required={carbonFlag === true}
                     value={farmerData.jl_no}
                     onChangeText={handleAddUserDataJLNo}
@@ -3407,7 +3448,7 @@ const LiveHood = ({
                 )}
                 {carbonFlag == true ? (
                   <InputTextForm
-                    label={t('Mouja Name')}
+                    label={t('Mouja_Name')}
                     value={farmerData.mouja}
                     onChangeText={handleAddUserDataMouja}
                     editable={
@@ -3582,7 +3623,7 @@ const LiveHood = ({
             )} */}
                 <View style={{ marginTop: 10 }}>
                   <InputTextForm
-                    label={t('Enter IOT Id')}
+                    label={t('enter_iot_id')}
                     onChangeText={handleIOTId}
                     value={farmerData.IOTId}
                   // editable={(statuslevel.label != 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED') && harvested == '' || harvested == 'same produce' ? false : true}
@@ -3592,7 +3633,7 @@ const LiveHood = ({
                 <View style={styles.locationContainer}>
                   <View style={styles.locationHeader}>
                     <Text style={styles.locationTitle}>
-                      {t('Geo tag IOT Device')}
+                      {t('geo_tag_iot_device')}
                     </Text>
                     <TouchableOpacity
                       onPress={() => handleCurrentLatLongIOT()}
@@ -3783,7 +3824,7 @@ const LiveHood = ({
                     <CarbonCertificate
                       identityProofIdentityPropf={carboncertificate}
                       t={t}
-                      title={t('Upload Carbon Agreement')}
+                      title={t('carbon_certificate')}
                       setStateValue={setCarboncertificate}
                       stateValue={carboncertificate}
                       status_level={

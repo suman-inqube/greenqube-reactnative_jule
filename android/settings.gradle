@@ -3,5 +3,6 @@ plugins { id("com.facebook.react.settings") }
 extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
 rootProject.name = 'GreenQube'
 include ':app'
+include ':onnx_model_pack'
 includeBuild('../node_modules/@react-native/gradle-plugin')
 include(":asset_install_time")

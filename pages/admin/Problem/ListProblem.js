@@ -95,8 +95,6 @@ const ListProblem = ({navigation}) => {
           token,
           {information: `${dbname},${lan_id}`},
         );
-        console.log('response11111', response);
-        console.log('response32222', JSON.stringify(response));
 
         if (response?.status === 200) {
           await setItem('problemTypeName', response);

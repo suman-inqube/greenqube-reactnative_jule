@@ -110,11 +110,11 @@ const TrackingInformation = ({
                 styles.text,
                 {color: Colors.text, fontFamily: Fonts.Medium},
               ]}>
-              {item?.farmer_data?.userName || 'Activity Name: Nill'}
+              {item?.farmer_data?.userName || t('activity_name_nil')}
             </Text>
             <View style={{flexDirection: 'row'}}>
               <Text style={[styles.text, {color: '#ff0101ff'}]}>
-                {t('Rejected Plot')}:{' '}
+                {t('Rejected_Plot')}:{' '}
               </Text>
               <Text style={[styles.text, {color: Colors.text}]}>{plot_no}</Text>
             </View>
@@ -154,7 +154,7 @@ const TrackingInformation = ({
                 styles.text,
                 {color: Colors.text, fontFamily: Fonts.Medium},
               ]}>
-              {item?.typeActivity?.categoryName || 'Activity Name: Nill'}
+              {item?.typeActivity?.categoryName || t('activity_name_nil')}
             </Text>
             <View style={{flexDirection: 'row'}}>
               <Text style={[styles.text, {color: Colors.text}]}>
@@ -226,7 +226,7 @@ const TrackingInformation = ({
                         : Colors.text,
                   },
                 ]}>
-                Information
+                {t('information')}
               </Text>
             </TouchableOpacity>
           </Animated.View>

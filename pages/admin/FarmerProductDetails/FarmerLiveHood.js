@@ -2817,7 +2817,7 @@ const FarmerLiveHood = ({
               />
               {carbonFlag == true ? (
                 <InputTextForm
-                  label={t('JL No')}
+                  label={t('JL_No')}
                   value={farmerData.jl_no}
                   required={carbonFlag === true}
                   onChangeText={handleAddUserDataJLNo}
@@ -2835,7 +2835,7 @@ const FarmerLiveHood = ({
               )}
               {carbonFlag == true ? (
                 <InputTextForm
-                  label={t('Mouja Name')}
+                  label={t('Mouja_Name')}
                   value={farmerData.mouja}
                   onChangeText={handleAddUserDataMouja}
                   editable={
@@ -2924,7 +2924,7 @@ const FarmerLiveHood = ({
               )}
               <View style={{marginTop: 10}}>
                 <InputTextForm
-                  label={t('Enter IOT Device Id')}
+                  label={t('enter_iot_device_id')}
                   onChangeText={handleIOTId}
                   value={farmerData.IOTId}
                 />
@@ -2933,7 +2933,7 @@ const FarmerLiveHood = ({
               <View style={styles.locationContainer}>
                 <View style={styles.locationHeader}>
                   <Text style={styles.locationTitle}>
-                    {t('Geo tag IOT Device')}
+                    {t('geo_tag_iot_device')}
                   </Text>
 
                   <TouchableOpacity
@@ -3034,7 +3034,6 @@ const FarmerLiveHood = ({
                       : true
                   }
                   farmerName={loginUser_data?.userName}
-                  
                 />
               </View>
               {area != 0 && area != null && (
@@ -3168,7 +3167,7 @@ const FarmerLiveHood = ({
                   <CarbonCertificate
                     identityProofIdentityPropf={carboncertificate}
                     t={t}
-                    title={t('Carbon certificate')}
+                    title={t('carbon_certificate')}
                     setStateValue={setCarboncertificate}
                     stateValue={carboncertificate}
                     status_level={
@@ -3299,7 +3298,7 @@ const FarmerLiveHood = ({
         />
       )}
       {selectedTab != 'CROP' && (
-        <ButtonForm label={t('Next')} onPress={() => setSelectedTab('CROP')} />
+        <ButtonForm label={t('next')} onPress={() => setSelectedTab('CROP')} />
       )}
       {/* <TouchableOpacity
           style={styles.locationAddMoreContainer}

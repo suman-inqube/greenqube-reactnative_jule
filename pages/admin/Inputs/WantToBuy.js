@@ -33,7 +33,7 @@ import HarvestedModel from '../../Common/HarvestedModel';
 import {userCreateContext} from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fronts} from '../../utils/Constants';
-import {axiosGet} from '../../utils/api';
+import {axiosGet, axiosPost} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 
 const WantToBuy = ({navigation}) => {
@@ -232,9 +232,6 @@ const WantToBuy = ({navigation}) => {
   //   }
   // }, []);
   const handlePlot = async relId => {
-    console.log('Plot selected:', relId);
-    console.log('saveData:', saveData);
-
     const farmer_all = await axiosGet(
       ROUTES.GET.LIST_USER({user_id: farmerID}),
       '',
@@ -246,7 +243,6 @@ const WantToBuy = ({navigation}) => {
     //   lan_id,
     //   farmerID,
     // );
-    console.log('farmerAgainstSupervisorAPI', farmer_all);
     const problemNameFound = farmer_all.data.data.rows.find(
       user => user.user_id === relId.user_id,
     );
@@ -266,13 +262,21 @@ const WantToBuy = ({navigation}) => {
       district_id: agri_user_addresses[0]?.district,
       subdiv_id: agri_user_addresses[0]?.subdivision,
     });
-    const response = await problemProduceAgainstPlotAPI(
-      dbname,
-      lan_id,
-      farmerID,
-      relId.value,
+    const response = await axiosGet(
+      ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+        relID: relId.value,
+      }),
+      '',
+      {
+        information: `${dbname},${lan_id},${farmerID}`,
+      },
     );
-    console.log('abc', response);
+    // problemProduceAgainstPlotAPI(
+    //   dbname,
+    //   lan_id,
+    //   farmerID,
+    //   relId.value,
+    // );
     if (response) {
       setNameVarityStartEnd({
         ...nameVarityStartEnd,
@@ -463,13 +467,22 @@ const WantToBuy = ({navigation}) => {
         //
         formData.append('pp_qty', saveData.pp_qty);
 
-        const database_res = await inputSaveAPI(
-          dbname,
-          lan_id,
-          token,
-          saveData.farmer_id,
+        const database_res = await axiosPost(
+          ROUTES.POST.INPUT_OUTPUT_SAVE,
           formData,
+          token,
+          false,
+          {
+            information: `${dbname},${lan_id},${saveData.farmer_id}`,
+          },
         );
+        // inputSaveAPI(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   saveData.farmer_id,
+        //   formData,
+        // );
 
         if (database_res?.status == 200) {
           Toast.show({
@@ -542,7 +555,6 @@ const WantToBuy = ({navigation}) => {
       );
 
       // farmerByNameAPI(dbname, lan_id, token, user_id);
-      console.log('response1111', response);
       if (response?.status == 200) {
         const dataArray = response.data.data.rows.map(data => ({
           value: data.user_id,

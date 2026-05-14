@@ -394,7 +394,7 @@ const FarmerActivityDetail = () => {
                               marginBottom: 7,
                             }}>
                             <Text style={[styles.label, {paddingVertical: 0}]}>
-                              Instrument Name :
+                              {t('instrument_name')} :
                             </Text>
                             <Text
                               style={[

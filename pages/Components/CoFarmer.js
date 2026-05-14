@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState } from 'react';
+import React, {memo, useContext, useState} from 'react';
 import {
   View,
   Text,
@@ -13,25 +13,25 @@ import {
   Alert,
 } from 'react-native';
 
-import DocumentPicker, { types, pick } from '@react-native-documents/picker';
+import DocumentPicker, {types, pick} from '@react-native-documents/picker';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import DropdownForm from '../Common/DropdownForm';
-import { Colors } from '../utils/Constants';
-import { Fonts } from '../utils/Constants';
-import { resizeImage } from '../utils/imageUtils';
+import {Colors} from '../utils/Constants';
+import {Fonts} from '../utils/Constants';
+import {resizeImage} from '../utils/imageUtils';
 import ImagePlaceHolderCircle from '../Common/ImagePlaceHolderCircle';
 import RadioForm from '../Common/RadioForm';
 import DatePickerComp from '../Common/DatePickerComp';
-import { userCreateContext } from '../Context/usersCreateContext';
-import { formatToDDMMYYYY, getAgeLimitDates } from '../utils/helpers';
+import {userCreateContext} from '../Context/usersCreateContext';
+import {formatToDDMMYYYY, getAgeLimitDates} from '../utils/helpers';
 import InputTextForm from '../Common/InputTextForm';
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
-import TextRecognition from "@react-native-ml-kit/text-recognition";
-import DocumentScanner from "react-native-document-scanner-plugin";
+import TextRecognition from '@react-native-ml-kit/text-recognition';
+import DocumentScanner from 'react-native-document-scanner-plugin';
 function CoFarmerComponent({
   title = 'Co-Farmer Details',
   coFarmerDetails,
@@ -41,9 +41,10 @@ function CoFarmerComponent({
   unitAll,
   unit_valueArr,
   landAreaUnit,
-  ai_camera_id_proof="0"
+  ai_camera_id_proof = '0',
 }) {
-  const { minimumDate, maximumDate } = getAgeLimitDates();
+  const {t, r} = useContext(userCreateContext);
+  const {minimumDate, maximumDate} = getAgeLimitDates();
   const [newDate, setnewDate] = useState(new Date());
   const [penCycleStart, setopenCycleStart] = useState(false);
   const handleGovtIdPickTextRecognition = async fieldName => {
@@ -51,7 +52,7 @@ function CoFarmerComponent({
       const result = await DocumentScanner.scanDocument({
         maxNumDocuments: 1,
         letUserAdjustCrop: true,
-        responseType: "imageFilePath",
+        responseType: 'imageFilePath',
         croppedImageQuality: 100,
         saveInAppDocument: false,
       });
@@ -62,39 +63,48 @@ function CoFarmerComponent({
           try {
             const result = await TextRecognition.recognize(uri);
             const rawText = result.text;
-            const normalizedOCR = rawText.toLowerCase().replace(/\s/g, "").trim();
+            const normalizedOCR = rawText
+              .toLowerCase()
+              .replace(/\s/g, '')
+              .trim();
             const cleanedOCR = cleanText(rawText);
-            const isNameFound = cleanedOCR.includes(cleanText(coFarmerDetails?.name?.toLowerCase()?.replace(/\s/g, "")));
-            if (!coFarmerDetails?.name?.includes(" ")) {
+            const isNameFound = cleanedOCR.includes(
+              cleanText(
+                coFarmerDetails?.name?.toLowerCase()?.replace(/\s/g, ''),
+              ),
+            );
+            if (!coFarmerDetails?.name?.includes(' ')) {
               Alert.alert(
-                "Name Format Warning",
-                "Please enter your full name (First and Last name separated by a space)"
+                'Name Format Warning',
+                'Please enter your full name (First and Last name separated by a space)',
               );
               return;
             }
-            let documentType = "Unknown Document";
+            let documentType = 'Unknown Document';
             if (
-              normalizedOCR.includes("uidai") ||
-              normalizedOCR.includes("governmentofindia") ||
+              normalizedOCR.includes('uidai') ||
+              normalizedOCR.includes('governmentofindia') ||
               /\d{12}/.test(normalizedOCR)
             ) {
-              documentType = "Aadhaar Card";
-            }
-            else if (
-              normalizedOCR.includes("electioncommissionofindia") ||
-              normalizedOCR.includes("elector") ||
+              documentType = 'Aadhaar Card';
+            } else if (
+              normalizedOCR.includes('electioncommissionofindia') ||
+              normalizedOCR.includes('elector') ||
               /[a-z]{3}\d{7}/.test(normalizedOCR)
             ) {
-              documentType = "Voter Card";
+              documentType = 'Voter Card';
             }
-            if (documentType == "Unknown Document") {
-              Alert.alert("Document Type Not Detected", "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.");
+            if (documentType == 'Unknown Document') {
+              Alert.alert(
+                'Document Type Not Detected',
+                "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.",
+              );
               return;
             } else {
               if (!isNameFound) {
                 Alert.alert(
-                  "Name Verification Failed",
-                  "The farmer's name and the document owner's name do not match."
+                  'Name Verification Failed',
+                  "The farmer's name and the document owner's name do not match.",
                 );
               } else {
                 setCoFarmerDetails(prev => ({
@@ -103,16 +113,19 @@ function CoFarmerComponent({
                     uri: uri,
                     name: uri.split('/').pop(),
                     fileName: uri.split('/').pop(),
-                    type: "image/jpeg",
+                    type: 'image/jpeg',
                   },
                 }));
               }
             }
           } catch (error) {
-            Alert.alert("Error", "Text recognition failed. Please try again.");
+            Alert.alert('Error', 'Text recognition failed. Please try again.');
           }
         } catch (err) {
-          Alert.alert("Error", "An error occurred while processing the document. Please try again.");
+          Alert.alert(
+            'Error',
+            'An error occurred while processing the document. Please try again.',
+          );
         }
       }
     } catch (err) {
@@ -120,10 +133,10 @@ function CoFarmerComponent({
       console.error('Picker Error:', err);
     }
   };
-  const cleanText = (text) => {
-    return text.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const cleanText = text => {
+    return text.toLowerCase().replace(/[^a-z0-9]/g, '');
   };
-   const handleGovtIdPick = async fieldName => {
+  const handleGovtIdPick = async fieldName => {
     try {
       const [res] = await pick({
         presentationStyle: 'fullScreen',
@@ -152,8 +165,9 @@ function CoFarmerComponent({
       let path = file.uri;
 
       if (file.uri.startsWith('http')) {
-        const localPath = `${RNFS.DocumentDirectoryPath}/${file.name || Date.now()
-          }`;
+        const localPath = `${RNFS.DocumentDirectoryPath}/${
+          file.name || Date.now()
+        }`;
         await RNFS.downloadFile({
           fromUrl: file.uri,
           toFile: localPath,
@@ -161,7 +175,7 @@ function CoFarmerComponent({
         path = localPath;
       }
 
-      await FileViewer.open(path, { showOpenWithDialog: true });
+      await FileViewer.open(path, {showOpenWithDialog: true});
     } catch (e) {
       Alert.alert('Error', 'Unable to open document');
     }
@@ -221,29 +235,28 @@ function CoFarmerComponent({
             <View style={styles.inputGroup}>
               <View style={styles.labelContainer}>
                 {/* <Feather name="user" size={16} color="#10b981" /> */}
-                <Text style={styles.label}>Farmer Name</Text>
+                <Text style={styles.label}>{t('farmer_name')}</Text>
                 <Text style={styles.required}>*</Text>
               </View>
               <View style={[styles.inputWrapper]}>
                 <TextInput
-                  placeholder="Enter farmer's full name"
+                  placeholder={t('enter_farmer_full_name')}
                   value={coFarmerDetails.name}
                   onChangeText={text => {
                     setCoFarmerDetails(prev => ({
                       ...prev,
                       name: text,
-                    }))
+                    }));
                     setCoFarmerDetails(prev => ({
                       ...prev,
-                      ["idProof"]: {
-                        uri: "",
-                        name: "",
-                        fileName: "",
-                        type: "image/jpeg",
+                      ['idProof']: {
+                        uri: '',
+                        name: '',
+                        fileName: '',
+                        type: 'image/jpeg',
                       },
                     }));
-                  }
-                  }
+                  }}
                   style={styles.input}
                   placeholderTextColor="#9ca3af"
                 />
@@ -253,14 +266,14 @@ function CoFarmerComponent({
             <View style={styles.inputGroup}>
               <View style={styles.labelContainer}>
                 {/* <Feather name="phone" size={16} color="#10b981" /> */}
-                <Text style={styles.label}>Phone Number</Text>
+                <Text style={styles.label}>{t('phone_number')}</Text>
                 <View style={styles.optionalBadge}>
-                  <Text style={styles.optionalText}>Optional</Text>
+                  <Text style={styles.optionalText}>{t('optional')}</Text>
                 </View>
               </View>
               <View style={styles.inputWrapper}>
                 <TextInput
-                  placeholder="Enter 10-digit mobile number"
+                  placeholder={t('enter_mobile_number')}
                   keyboardType="numeric"
                   maxLength={10}
                   value={coFarmerDetails.phone}
@@ -279,9 +292,9 @@ function CoFarmerComponent({
             <View style={styles.inputGroup}>
               <View style={styles.labelContainer}>
                 {/* <Feather name="phone" size={16} color="#10b981" /> */}
-                <Text style={styles.label}>Date of Birth</Text>
+                <Text style={styles.label}>{t('date_of_birth')}</Text>
                 <View style={styles.optionalBadge}>
-                  <Text style={styles.optionalText}>Optional</Text>
+                  <Text style={styles.optionalText}>{t('optional')}</Text>
                 </View>
               </View>
               <View style={[styles.inputWrapper]}>
@@ -289,7 +302,7 @@ function CoFarmerComponent({
                   onPress={() => setopenCycleStart(!penCycleStart)}>
                   <TextInput
                     label=""
-                    placeholder="DD/MM/YYYY"
+                    placeholder={t('date_of_birth')}
                     // keyboardType="numeric"
                     // maxLength={2}
                     value={coFarmerDetails.date_of_birth}
@@ -336,14 +349,14 @@ function CoFarmerComponent({
               <View style={styles.inputGroup}>
                 <View style={styles.labelContainer}>
                   {/* <Feather name="phone" size={16} color="#10b981" /> */}
-                  <Text style={styles.label}>Aadhar Number</Text>
+                  <Text style={styles.label}>{t('aadhar_number')}</Text>
                   <View style={styles.optionalBadge}>
-                    <Text style={styles.optionalText}>Optional</Text>
+                    <Text style={styles.optionalText}>{t('optional')}</Text>
                   </View>
                 </View>
                 <View style={styles.inputWrapper}>
                   <TextInput
-                    placeholder="Enter Aadhar Number"
+                    placeholder={t('enter_aadhar_number')}
                     keyboardType="numeric"
                     maxLength={12}
                     value={coFarmerDetails.aadhar_number}
@@ -362,20 +375,20 @@ function CoFarmerComponent({
               <></>
             )}
             {coFarmerDetails.type == '' ? (
-              <View style={{ marginBottom: 15, paddingHorizontal: 10 }}>
-                <Text style={styles.label}>Gender</Text>
+              <View style={{marginBottom: 15, paddingHorizontal: 10}}>
+                <Text style={styles.label}>{t('gender')}</Text>
                 <RadioForm
-                  label={'Male'}
+                  label={t('male')}
                   onSelect={() => handleAddDataGender('gender', '1')}
                   selected={coFarmerDetails.gender === '1'}
                 />
                 <RadioForm
-                  label={'Female'}
+                  label={t('female')}
                   onSelect={() => handleAddDataGender('gender', '2')}
                   selected={coFarmerDetails.gender === '2'}
                 />
                 <RadioForm
-                  label={'Others'}
+                  label={t('others')}
                   onSelect={() => handleAddDataGender('gender', '3')}
                   selected={coFarmerDetails.gender === '3'}
                 />
@@ -494,41 +507,55 @@ function CoFarmerComponent({
                 onPress={() =>
                   coFarmerDetails.idProof?.uri
                     ? openFile(coFarmerDetails.idProof)
-                    : ai_camera_id_proof=="1"?handleGovtIdPickTextRecognition('idProof'):handleGovtIdPick('idProof')
+                    : ai_camera_id_proof == '1'
+                    ? handleGovtIdPickTextRecognition('idProof')
+                    : handleGovtIdPick('idProof')
                 }>
                 {coFarmerDetails.idProof?.uri ? (
                   <View style={styles.uploadedContainer}>
                     {coFarmerDetails.idProof.type?.startsWith('image/') ? (
                       <Image
-                        source={{ uri: coFarmerDetails.idProof.uri }}
+                        source={{uri: coFarmerDetails.idProof.uri}}
                         style={styles.previewImage}
                       />
                     ) : (
                       <View style={styles.pdfContainer}>
                         <AntDesign name="pdffile1" size={36} color="#ef4444" />
-                        <Text style={styles.pdfText}>Tap to view PDF</Text>
+                        <Text style={styles.pdfText}>
+                          T{t('tap_to_view_pdf')}
+                        </Text>
                       </View>
                     )}
 
                     {/* VIEW ICON */}
                     <TouchableOpacity
                       style={styles.viewBadge}
-                      onPress={() => ai_camera_id_proof=="1"?handleGovtIdPickTextRecognition('idProof'):openFile(coFarmerDetails.idProof)}>
+                      onPress={() =>
+                        ai_camera_id_proof == '1'
+                          ? handleGovtIdPickTextRecognition('idProof')
+                          : openFile(coFarmerDetails.idProof)
+                      }>
                       <MaterialIcons name="visibility" size={18} color="#fff" />
                     </TouchableOpacity>
 
                     {/* REPLACE ICON */}
                     <TouchableOpacity
                       style={styles.replaceBadge}
-                      onPress={() =>ai_camera_id_proof=="1"?handleGovtIdPickTextRecognition('idProof'): handleGovtIdPick('idProof')}>
+                      onPress={() =>
+                        ai_camera_id_proof == '1'
+                          ? handleGovtIdPickTextRecognition('idProof')
+                          : handleGovtIdPick('idProof')
+                      }>
                       <Feather name="refresh-cw" size={16} color="#fff" />
                     </TouchableOpacity>
                   </View>
                 ) : (
                   <View style={styles.uploadPlaceholder}>
                     <Feather name="upload-cloud" size={28} color="#10b981" />
-                    <Text style={styles.uploadTitle}>ID Proof</Text>
-                    <Text style={styles.uploadSubtitle}>Tap to upload</Text>
+                    <Text style={styles.uploadTitle}> {t('id_proof')}</Text>
+                    <Text style={styles.uploadSubtitle}>
+                      {t('tap_to_upload')}
+                    </Text>
                   </View>
                 )}
               </TouchableOpacity>
@@ -546,17 +573,17 @@ function CoFarmerComponent({
             {/* Land Area */}
             {coFarmerDetails.type == '' ? (
               <>
-                <View style={[styles.inputGroup, { marginTop: 12 }]}>
+                <View style={[styles.inputGroup, {marginTop: 12}]}>
                   <View style={styles.labelContainer}>
                     {/* <MaterialIcons name="landscape" size={16} color="#10b981" /> */}
-                    <Text style={styles.label}>Land Area</Text>
+                    <Text style={styles.label}>{t('land_area')}</Text>
                     <View style={styles.optionalBadge}>
-                      <Text style={styles.optionalText}>Optional</Text>
+                      <Text style={styles.optionalText}>{t('optional')}</Text>
                     </View>
                   </View>
                   <View style={styles.inputWrapper}>
                     <TextInput
-                      placeholder="Enter land area"
+                      placeholder={t('enter_land_area')}
                       keyboardType="numeric"
                       value={coFarmerDetails.landArea}
                       onChangeText={text => {
@@ -580,9 +607,9 @@ function CoFarmerComponent({
                 <View style={styles.inputGroup}>
                   <View style={styles.labelContainer}>
                     {/* <MaterialIcons name="square-foot" size={16} color="#10b981" /> */}
-                    <Text style={styles.label}>Land Unit</Text>
+                    <Text style={styles.label}>{t('land_unit')}</Text>
                     <View style={styles.optionalBadge}>
-                      <Text style={styles.optionalText}>Optional</Text>
+                      <Text style={styles.optionalText}>{t('optional')}</Text>
                     </View>
                   </View>
                   <DropdownForm
@@ -600,9 +627,10 @@ function CoFarmerComponent({
                       }
                       setCoFarmerDetails(prev => ({
                         ...prev,
-                        convertedLandArea: `${Number(selectUnitValue) *
+                        convertedLandArea: `${
+                          Number(selectUnitValue) *
                           Number(coFarmerDetails.landArea)
-                          }`,
+                        }`,
                         unit: item.label,
                         unitValue: item.value,
                         UnitValueNum: UnitValueNum,
@@ -613,10 +641,10 @@ function CoFarmerComponent({
                 </View>
 
                 {/* Converted Land Area */}
-                <View style={[styles.inputGroup, { marginTop: -20 }]}>
+                <View style={[styles.inputGroup, {marginTop: -20}]}>
                   <View style={styles.labelContainer}>
                     {/* <MaterialIcons name="calculate" size={16} color="#10b981" /> */}
-                    <Text style={styles.label}>Converted Land Area</Text>
+                    <Text style={styles.label}>{t('converted_land_area')}</Text>
                     {landAreaUnit && (
                       <View style={styles.unitBadge}>
                         <Text style={styles.unitBadgeText}>{landAreaUnit}</Text>
@@ -649,7 +677,7 @@ function CoFarmerComponent({
               style={styles.cancelButton}
               activeOpacity={0.8}>
               {/* <Feather name="x" size={20} color="#6b7280" /> */}
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -659,7 +687,9 @@ function CoFarmerComponent({
               activeOpacity={0.8}>
               {/* <Feather name="check-circle" size={20} color="#fff" /> */}
               <Text style={styles.saveButtonText}>
-                {coFarmerDetails.type == '' ? 'Save Farmer' : 'Update Farmer'}
+                {coFarmerDetails.type == ''
+                  ? t('save_farmer')
+                  : t('update_farmer')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -745,7 +775,7 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     elevation: 4,
     shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -943,7 +973,7 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     elevation: 4,
     shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.4,
     shadowRadius: 6,
   },
@@ -1009,7 +1039,7 @@ const styles = StyleSheet.create({
     gap: 8,
     elevation: 6,
     shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.35,
     shadowRadius: 10,
   },

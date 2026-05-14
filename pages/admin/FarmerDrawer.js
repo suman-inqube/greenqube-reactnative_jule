@@ -184,10 +184,10 @@ const FarmerDrawer = props => {
   };
   const navigateToPages = pageName => {
     if (netConnection) {
-       navigation.navigate('FarmerNavigation', {
-          screen: 'FarmerMainStack',
-          params: { screen: pageName },
-        });
+      navigation.navigate('FarmerNavigation', {
+        screen: 'FarmerMainStack',
+        params: {screen: pageName},
+      });
     }
   };
   return (
@@ -223,7 +223,7 @@ const FarmerDrawer = props => {
                     styles.menuText,
                     isActive('FarmerDashboard') && styles.activeText, // Active text color
                   ]}>
-                  {t('Home')}
+                  {t('dashboard')}
                 </Text>
               </View>
             </TouchableOpacity>

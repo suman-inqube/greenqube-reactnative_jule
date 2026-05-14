@@ -389,7 +389,7 @@ const Dashboard = ({ navigation }) => {
           navigation={navigation}
           trackingNavigationPath="Market"
           informationNavigationPath="UsefulInformationList"
-          leftButtonText="Plot Status"
+          leftButtonText={t('plot_status')}
           dashboardType="admin"
         />
         <View

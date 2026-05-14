@@ -1,4 +1,11 @@
-import React, {useState, useEffect, useRef, memo, useCallback} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  memo,
+  useCallback,
+  useContext,
+} from 'react';
 import {
   View,
   Text,
@@ -9,7 +16,7 @@ import {
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {Colors} from '../utils/Constants';
-
+import {userCreateContext} from '../Context/usersCreateContext';
 const ListCard = ({
   onPress,
   title,
@@ -32,6 +39,7 @@ const ListCard = ({
   rejectionReason = '',
   showItemLabel = true,
 }) => {
+  const {t} = useContext(userCreateContext);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(-50)).current; // Start from left (-50)
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
@@ -184,7 +192,7 @@ const ListCard = ({
           </View>
           {showRejectedStatus && (
             <View style={styles.rejectedContainer}>
-              <Text style={styles.rejectedText}>Rejected</Text>
+              <Text style={styles.rejectedText}> {t('Rejected')}</Text>
             </View>
           )}
           {renderIcon() && (

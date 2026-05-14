@@ -22,7 +22,7 @@ const FilterModal = ({
   districtsLabel,
   panchayatsLabel,
 }) => {
-  const {DropdownForm} = useContext(userCreateContext);
+  const {DropdownForm, t} = useContext(userCreateContext);
 
   const [state, setState] = useState(null);
   const [district, setDistrict] = useState(null);
@@ -166,7 +166,7 @@ const FilterModal = ({
               });
               onClose();
             }}>
-            <Text style={{color: '#fff'}}>Apply</Text>
+            <Text style={{color: '#fff'}}>{t('apply')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={{
@@ -190,7 +190,7 @@ const FilterModal = ({
 
               onClose();
             }}>
-            <Text style={{color: '#fff'}}>Clear Filter</Text>
+            <Text style={{color: '#fff'}}>{t('clear_filter')}</Text>
           </TouchableOpacity>
 
           {/* <TouchableOpacity onPress={onClose}>

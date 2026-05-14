@@ -111,10 +111,11 @@ const FarmerPendingActivity = () => {
                 {/* <Text style={styles.mainText}>{farmerName}</Text> */}
                 <Text style={styles.mainText}> {plotName}</Text>
                 <Text style={styles.activityDate}>
-                  Sowing Date: {overdueActivities[0]?.sowing_date || 'N/A'}
+                  {t('Sowing Date')}:{' '}
+                  {overdueActivities[0]?.sowing_date || 'N/A'}
                 </Text>
                 <Text style={styles.activityDate}>
-                  Hervesting Date:{' '}
+                  {t('Hervesting Date')}:{' '}
                   {overdueActivities[0]?.harvesting_date || 'N/A'}
                 </Text>
 
@@ -149,7 +150,7 @@ const FarmerPendingActivity = () => {
                 </Text> */}
 
                       <Text style={styles.activityDate}>
-                        Schedule date:{' '}
+                        {t('Schedule date')}:{' '}
                         {new Date(
                           activity?.activity_start_date,
                         ).toLocaleDateString('en-GB', {
@@ -202,7 +203,7 @@ const FarmerPendingActivity = () => {
         {renderCustomHeader}
         <View style={styles.container}>
           <TabBar
-            tabs={['Carbon', 'Non-Carbon']}
+            tabs={[t('carbon'), t('non_carbon')]}
             activeTab={activeTab === 'carbon' ? 0 : 1}
             onTabPress={index => {
               setActiveTab(index === 0 ? 'carbon' : 'non-carbon');

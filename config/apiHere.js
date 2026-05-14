@@ -1211,7 +1211,6 @@ export const inputSaveAPI = async (
       'Content-Type': 'multipart/form-data',
     },
   };
-  console.log(`${config.BASE_URL}questionRoute/add`, inputData, axiosHeaders);
   try {
     let response = await axios.post(
       `${config.BASE_URL}inputOutputRoute/add`,
@@ -1568,13 +1567,13 @@ export const signupSaveAPI = async (
       plot_count: plot_count,
     },
   };
-   console.log(
-     'hed',
-     `${dbname},${language}`,
-     plot_count,
-     `${config.BASE_URL}farmerRoute/selfFarmerSignup`,
-     inputData,
-   );
+  console.log(
+    'hed',
+    `${dbname},${language}`,
+    plot_count,
+    `${config.BASE_URL}farmerRoute/selfFarmerSignup`,
+    inputData,
+  );
   try {
     let response = await axios.post(
       `${config.BASE_URL}farmerRoute/selfFarmerSignup`,
@@ -3045,7 +3044,6 @@ export const nearestLatLong = async (
 //     return console.log(error.response);
 //   }
 // };
-
 
 export const plotListApproval = async (dbname, lan_id, token, farmerID) => {
   try {

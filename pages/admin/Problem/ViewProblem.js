@@ -29,7 +29,7 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {axiosGet} from '../../utils/api';
+import {axiosGet, axiosPost} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 const ViewProblem = ({navigation}) => {
   // console.log('Question Title:', farmerProblem?.question_title);
@@ -89,21 +89,39 @@ const ViewProblem = ({navigation}) => {
       formData.append('farmer_fcm', dbLanTokUsr.question_user_fcm);
       // formData.append("agent_fcm", dbLanTokUsr.question_user_agent_fcm);
       formData.append('photo', '');
-      const database_res = await problemCommentSaveAPI(
-        dbname,
-        lan_id,
-        user_id,
+      const database_res = await axiosPost(
+        ROUTES.POST.PROBLEM_COMMENT_SAVE,
         formData,
+        '',
+        false,
+        {
+          information: `${dbname},${lan_id},${user_id}`,
+          cof_count: '1',
+        },
       );
+
+      // problemCommentSaveAPI(
+      //   dbname,
+      //   lan_id,
+      //   user_id,
+      //   formData,
+      // );
       if (database_res) {
         Toast.show({text: `${t('comment_is_added')}`, ...AlertMesg[0]});
         // MessageDialog({ title: 'Successful', message: "Successfull Add Comments" })
         setComment1('');
-        const commnetList = await problemCommentListAPI(
-          dbname,
-          user_id,
-          dbLanTokUsr.question_id,
+        const commnetList = await axiosGet(
+          ROUTES.GET.PROBLEM_COMMENTS_LIST({
+            questionId: dbLanTokUsr.question_id,
+          }),
+          '',
+          {information: `${dbname},${user_id}`},
         );
+        // problemCommentListAPI(
+        //   dbname,
+        //   user_id,
+        //   dbLanTokUsr.question_id,
+        // );
         if (commnetList.data) {
           setcommentAll(commnetList.data.data.rows);
           navigation.navigate('ProblemView');
@@ -129,11 +147,19 @@ const ViewProblem = ({navigation}) => {
             setBtnColor(1);
           }
 
-          var response = await farmerProblemDetailApi(
-            dbname,
-            lan_id,
-            comment_qid,
+          var response = await axiosGet(
+            ROUTES.GET.FARMER_PROBLEM_DETAILS({
+              quesId: comment_qid,
+            }),
+            '',
+            {information: `${dbname},${lan_id}`},
           );
+
+          // farmerProblemDetailApi(
+          //   dbname,
+          //   lan_id,
+          //   comment_qid,
+          // );
         } else {
           var response = await axiosGet(
             ROUTES.GET.FARMER_PROBLEM_DETAILS({
@@ -174,10 +200,25 @@ const ViewProblem = ({navigation}) => {
           question_user_agent_fcm: agent_details?.FcmUserToken,
         });
         const [commnetList, answerList] = await Promise.all([
-          problemCommentListAPI(dbname, user_id, question_id),
+          axiosGet(
+            ROUTES.GET.PROBLEM_COMMENTS_LIST({
+              questionId: dbLanTokUsr.question_id,
+            }),
+            '',
+            {information: `${dbname},${user_id}`},
+          ),
+          // problemCommentListAPI(dbname, user_id, question_id),
 
-          problemAnswerListAPI(dbname, lan_id, token, question_id),
+          axiosGet(
+            ROUTES.GET.PROBLEM_ANS_LIST({
+              problem_id: question_id,
+            }),
+            token,
+            {information: `${dbname},${lan_id}`},
+          ),
+          // problemAnswerListAPI(dbname, lan_id, token, question_id),
         ]);
+
         if (commnetList?.status == 200) {
           setcommentAll(commnetList?.data?.data?.rows);
         }
@@ -194,7 +235,6 @@ const ViewProblem = ({navigation}) => {
           const agri_files_image = agri_files.filter(function (v, i) {
             return v['file_ext'] == 'image/jpeg';
           });
-          console.log("agri_files_image",agri_files_image)
           const agri_files_mp3 = agri_audio_files.filter(function (v, i) {
             return v;
           });
@@ -548,17 +588,34 @@ const ViewProblem = ({navigation}) => {
                   {answerAll.length > 0 ? (
                     <View style={styles.AnsItem}>
                       {answerAll.map((value, index) => (
-                        <View style={styles.AnsTextContainer} key={index}>
-                          <Text style={styles.AnsTitle}>
-                            {t('role_col')} : Super Admin
-                          </Text>
-                          <Text style={styles.AnsTitle}>
-                            {t('date')} :{' '}
-                            {formatDateToMMDDYYYY(value.created_at)}
-                          </Text>
-                          <Text style={styles.AnsTitle}>
-                            {t('comments')} :{value.optional_solution}{' '}
-                          </Text>
+                        <View style={styles.answerCard} key={index}>
+                          {/* Header */}
+                          <View style={styles.answerHeader}>
+                            <View style={styles.roleBadge}>
+                              <Text style={styles.roleBadgeText}>
+                                {value?.agri_user?.user_role?.role_name ||
+                                  'Super Admin'}
+                              </Text>
+                            </View>
+
+                            <Text style={styles.answerDate}>
+                              {formatDateToMMDDYYYY(value.created_at)}
+                            </Text>
+                          </View>
+
+                          {/* Answer */}
+                          <View style={styles.answerBody}>
+                            <Text style={styles.answerLabel}>
+                              {t('comments')}
+                            </Text>
+
+                            <Text style={styles.answerText}>
+                              {value?.optional_solution ||
+                                value?.agri_solution?.agri_predefined_sol
+                                  ?.description ||
+                                'No Answer Available'}
+                            </Text>
+                          </View>
                         </View>
                       ))}
                     </View>
@@ -571,7 +628,7 @@ const ViewProblem = ({navigation}) => {
                   {commentAll
                     ? commentAll.map((value, index) => {
                         return (
-                          <View style={styles.AnsItem} key={index}>
+                          <View style={styles.ComItem} key={index}>
                             <View style={{width: '20%'}}>
                               {value.agri_user?.agri_files.length > 0 ? (
                                 value.agri_user?.agri_files.map(
@@ -900,6 +957,11 @@ const styles = StyleSheet.create({
     marginHorizontal: '2%',
   },
   AnsItem: {
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    marginBottom: 10,
+  },
+  ComItem: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
@@ -1038,4 +1100,66 @@ const styles = StyleSheet.create({
   //   fontFamily: 'Poppins-Regular',
   //   fontSize: 14,
   // },
+  answerCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#d8e8d8',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+  },
+
+  answerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+
+  roleBadge: {
+    backgroundColor: '#e8f5e9',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
+
+  roleBadgeText: {
+    color: '#1b5e20',
+    fontSize: 12,
+    fontFamily: 'Poppins-SemiBold',
+  },
+
+  answerDate: {
+    color: '#777',
+    fontSize: 12,
+    fontFamily: 'Poppins-Regular',
+  },
+
+  answerBody: {
+    backgroundColor: '#f8fbf8',
+    borderRadius: 10,
+    padding: 12,
+  },
+
+  answerLabel: {
+    color: '#1b5e20',
+    fontSize: 13,
+    marginBottom: 6,
+    fontFamily: 'Poppins-SemiBold',
+  },
+
+  answerText: {
+    color: '#222',
+    fontSize: 14,
+    lineHeight: 22,
+    fontFamily: 'Poppins-Regular',
+  },
 });

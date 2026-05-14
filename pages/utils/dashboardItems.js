@@ -12,7 +12,7 @@ const getDashboardItems = (t, navigateToPages) => [
     onpress: () => navigateToPages('userList'),
   },
   {
-    text: t('Plot Status'),
+    text: t('plot_status'),
     imageurl: require('../Common/images/plot_status1.png'),
     onpress: () => navigateToPages('Market'),
   },
@@ -30,7 +30,7 @@ const getDashboardItems = (t, navigateToPages) => [
     onpress: () => navigateToPages('activityList'),
   },
   {
-    text: t('Map View'),
+    text: t('Map_View'),
 
     imageurl: require('../Common/images/pin.png'),
 

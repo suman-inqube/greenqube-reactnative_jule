@@ -101,8 +101,16 @@ const PlotList = () => {
         axiosGet(ROUTES.GET.USERLANDLIST_E({farmer_id: farmeruserID}), token, {
           Information: `${dbname},${lan_id}`,
         }),
-        LandUnitArea(dbname, lan_id, token),
-        LandUnitsquare_metre(dbname, lan_id, token),
+        // LandUnitArea(dbname, lan_id, token),
+        axiosGet(ROUTES.GET.LAND_UNIT_AREA({}), token, {
+          information: `${dbname},${lan_id}`,
+          'Content-Type': 'multipart/form-data',
+        }),
+        // LandUnitsquare_metre(dbname, lan_id, token),
+        axiosGet(ROUTES.GET.LAND_UNIT_SQUARE({}), token, {
+          information: `${dbname},${lan_id}`,
+          'Content-Type': 'multipart/form-data',
+        }),
         // AllFarmerList(),
       ]);
       // console.log('plotsResJSON', JSON.stringify(plotsRes));
@@ -239,7 +247,7 @@ const PlotList = () => {
           {activeTab === 0 && (
             <>
               <TabBar
-                tabs={['Plot List']}
+                tabs={[t('plot_list')]}
                 activeTab={activeTab}
                 onTabPress={ix => onTabPress(ix)}
                 indicatorColor={Colors.useGreen}

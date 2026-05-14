@@ -78,15 +78,9 @@ const InputProductCard = memo(
             )}
           </View>
           <View style={styles.contentSection}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-              <Text style={styles.productName} numberOfLines={2}>
-                {product.product_name}
-              </Text>
+            <View style={styles.productHeader}>
+              <Text style={styles.productName}>{product.product_name}</Text>
+
               <View style={styles.categoryBadge}>
                 <Text style={styles.categoryBadgeText}>
                   {product.productCategories[0]?.productCategory?.name || 'N/A'}
@@ -134,16 +128,19 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: 'relative',
     width: '100%',
-    // height: 150, // Facebook style large image
-    backgroundColor: '#f0f2f5',
-  },
-  productImage: {
-    width: '100%',
-    // height: '80%',
-    height: 200,
-    resizeMode: 'cover',
+    height: 220,
+    backgroundColor: '#f8f8f8',
     borderTopRightRadius: 8,
     borderTopLeftRadius: 8,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  productImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
   trendingBadge: {
     position: 'absolute',
@@ -165,9 +162,9 @@ const styles = StyleSheet.create({
   productName: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#1c1e21', // Facebook's dark text
-    marginBottom: 8,
-    lineHeight: 24,
+    color: '#1c1e21',
+    lineHeight: 28,
+    marginBottom: 10,
   },
   categoryContainer: {
     flexDirection: 'row',
@@ -277,16 +274,26 @@ const styles = StyleSheet.create({
   },
 
   categoryBadge: {
+    alignSelf: 'flex-start',
     backgroundColor: 'rgba(16, 185, 129, 0.1)',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: 'rgba(16, 185, 129, 0.3)',
   },
+
   categoryBadgeText: {
     color: '#059669',
     fontSize: 12,
     fontWeight: '600',
+  },
+  productHeader: {
+    marginBottom: 12,
+  },
+
+  productNameContainer: {
+    flex: 1,
+    paddingRight: 10,
   },
 });

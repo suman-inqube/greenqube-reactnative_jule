@@ -41,8 +41,8 @@ import PaginationNav from '../../pages/Components/PaginationNav';
 import {userCreateContext} from '../../pages/Context/usersCreateContext';
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
-import TextRecognition from "@react-native-ml-kit/text-recognition";
-import DocumentScanner from "react-native-document-scanner-plugin";
+import TextRecognition from '@react-native-ml-kit/text-recognition';
+import DocumentScanner from 'react-native-document-scanner-plugin';
 const Button = memo(({label, onPress, disabled}) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
@@ -99,7 +99,7 @@ const ListOfCoFarmer = ({
   setCoFarmerDetails,
   onEdit,
   modalVisibleCoFarmer,
-    ai_camera_id_proof="0"
+  ai_camera_id_proof = '0',
 }) => {
   const {t, LoadingScreen} = useContext(userCreateContext);
   const {minimumDate, maximumDate} = getAgeLimitDates();
@@ -392,7 +392,7 @@ const ListOfCoFarmer = ({
       const result = await DocumentScanner.scanDocument({
         maxNumDocuments: 1,
         letUserAdjustCrop: true,
-        responseType: "imageFilePath",
+        responseType: 'imageFilePath',
         croppedImageQuality: 100,
         saveInAppDocument: false,
       });
@@ -403,39 +403,46 @@ const ListOfCoFarmer = ({
           try {
             const result = await TextRecognition.recognize(uri);
             const rawText = result.text;
-            const normalizedOCR = rawText.toLowerCase().replace(/\s/g, "").trim();
+            const normalizedOCR = rawText
+              .toLowerCase()
+              .replace(/\s/g, '')
+              .trim();
             const cleanedOCR = cleanText(rawText);
-            const isNameFound = cleanedOCR.includes(cleanText(userName?.toLowerCase()?.replace(/\s/g, "")));
-            if (!userName?.includes(" ")) {
+            const isNameFound = cleanedOCR.includes(
+              cleanText(userName?.toLowerCase()?.replace(/\s/g, '')),
+            );
+            if (!userName?.includes(' ')) {
               Alert.alert(
-                "Name Format Warning",
-                "Please enter your full name (First and Last name separated by a space)"
+                'Name Format Warning',
+                'Please enter your full name (First and Last name separated by a space)',
               );
               return;
             }
-            let documentType = "Unknown Document";
+            let documentType = 'Unknown Document';
             if (
-              normalizedOCR.includes("uidai") ||
-              normalizedOCR.includes("governmentofindia") ||
+              normalizedOCR.includes('uidai') ||
+              normalizedOCR.includes('governmentofindia') ||
               /\d{12}/.test(normalizedOCR)
             ) {
-              documentType = "Aadhaar Card";
-            }
-            else if (
-              normalizedOCR.includes("electioncommissionofindia") ||
-              normalizedOCR.includes("elector") ||
+              documentType = 'Aadhaar Card';
+            } else if (
+              normalizedOCR.includes('electioncommissionofindia') ||
+              normalizedOCR.includes('elector') ||
               /[a-z]{3}\d{7}/.test(normalizedOCR)
             ) {
-              documentType = "Voter Card";
+              documentType = 'Voter Card';
             }
-            if (documentType == "Unknown Document") {
-              Alert.alert("Document Type Not Detected", "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.");
+            if (documentType == 'Unknown Document') {
+              Alert.alert(
+                'Document Type Not Detected',
+                "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.",
+              );
               return;
             } else {
               if (!isNameFound) {
                 Alert.alert(
-                  "Name Verification Failed",
-                  "The farmer's name and the document owner's name do not match."
+                  'Name Verification Failed',
+                  "The farmer's name and the document owner's name do not match.",
                 );
               } else {
                 setCoFarmerDetails(prev => ({
@@ -444,17 +451,20 @@ const ListOfCoFarmer = ({
                     uri: uri,
                     name: uri.split('/').pop(),
                     fileName: uri.split('/').pop(),
-                    type: "image/jpeg",
+                    type: 'image/jpeg',
                   },
                 }));
               }
             }
           } catch (error) {
-            console.error("Text Recognition Error:", error);
-            Alert.alert("Error", "Text recognition failed. Please try again.");
+            console.error('Text Recognition Error:', error);
+            Alert.alert('Error', 'Text recognition failed. Please try again.');
           }
         } catch (err) {
-          Alert.alert("Error", "An error occurred while processing the document. Please try again.");
+          Alert.alert(
+            'Error',
+            'An error occurred while processing the document. Please try again.',
+          );
         }
       }
     } catch (err) {
@@ -462,10 +472,10 @@ const ListOfCoFarmer = ({
       console.error('Picker Error:', err);
     }
   }, []);
-  const cleanText = (text) => {
-    return text.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const cleanText = text => {
+    return text.toLowerCase().replace(/[^a-z0-9]/g, '');
   };
-    const pickFile = useCallback(async fieldName => {
+  const pickFile = useCallback(async fieldName => {
     try {
       const [res] = await pick({
         presentationStyle: 'fullScreen',
@@ -613,7 +623,7 @@ const ListOfCoFarmer = ({
             <MaterialIcons name="people" size={32} color="#fff" />
           </View>
           <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Co-Farmers</Text>
+            <Text style={styles.headerTitle}>{t('co_farmers')}</Text>
             {/* <Text style={styles.headerSubtitle}>Select a co-farmer to switch ownership</Text> */}
           </View>
         </View>
@@ -622,7 +632,7 @@ const ListOfCoFarmer = ({
       <View style={styles.searchContainer}>
         <Feather name="search" size={18} color="#585858" />
         <TextInput
-          placeholder="Search by name"
+          placeholder={t('search_by_name')}
           placeholderTextColor="#585858" // optional
           value={searchText}
           onChangeText={onSearchChange}
@@ -647,7 +657,7 @@ const ListOfCoFarmer = ({
             <View style={styles.emptyIconCircle}>
               <Feather name="users" size={48} color="#9ca3af" />
             </View>
-            <Text style={styles.emptyTitle}>No Co-Farmers Yet</Text>
+            <Text style={styles.emptyTitle}>{t('no_co_farmers_yet')}</Text>
             {/* <Text style={styles.emptyText}>Add co-farmers to manage your farm collaboratively</Text> */}
           </View>
         ) : (
@@ -748,7 +758,7 @@ const ListOfCoFarmer = ({
                         </View>
                       </View>
                       <Text style={styles.toggleLabel}>
-                        Switch to{'\n'}Main Farmer
+                        {t('switch_to_main_farmer')}
                       </Text>
                     </View>
                   </View>
@@ -766,14 +776,14 @@ const ListOfCoFarmer = ({
                     {/* Phone Number Input */}
                     <View style={styles.inputWrapper}>
                       <Text style={styles.inputLabel}>
-                        Phone Number
+                        {t('enter_phone_number')}
                         {/* <Text style={styles.required}>*</Text> */}
                       </Text>
                       <View style={styles.inputContainer}>
                         {/* <Feather name="phone" size={18} color="#9ca3af" style={styles.inputIcon} /> */}
                         <InputTextForm
                           label=""
-                          placeholder="Enter 10-digit phone number"
+                          placeholder={t('enter_phone_number')}
                           onChangeText={text =>
                             setCoFarmer(prev => ({
                               ...prev,
@@ -790,14 +800,14 @@ const ListOfCoFarmer = ({
                     {/* Password Input */}
                     <View style={styles.inputWrapper}>
                       <Text style={styles.inputLabel}>
-                        Password
+                        {t('password')}
                         {/* <Text style={styles.required}>*</Text> */}
                       </Text>
                       <View style={styles.inputContainer}>
                         {/* <MaterialIcons name="lock-outline" size={18} color="#9ca3af" style={styles.inputIcon} /> */}
                         <InputTextForm
                           label=""
-                          placeholder="Enter secure password"
+                          placeholder={t('enter_secure_password')}
                           onChangeText={text =>
                             setCoFarmer(prev => ({
                               ...prev,
@@ -812,7 +822,7 @@ const ListOfCoFarmer = ({
 
                     <View style={styles.inputWrapper}>
                       <Text style={styles.inputLabel}>
-                        Date of Birth
+                        {t('date_of_birth')}
                         {/* <Text style={styles.required}>*</Text> */}
                       </Text>
                       <View style={styles.inputContainer}>
@@ -839,7 +849,7 @@ const ListOfCoFarmer = ({
                     {/* Document Upload Section */}
                     <View style={styles.uploadSection}>
                       <Text style={styles.uploadSectionTitle}>
-                        Document Verification
+                        {t('document_verification')}
                       </Text>
                       <View style={styles.uploadRow}>
                         {/* <TouchableOpacity
@@ -883,7 +893,14 @@ const ListOfCoFarmer = ({
                             styles.uploadBox,
                             coFarmer.idProof && styles.uploadBoxFilled,
                           ]}
-                          onPress={() => ai_camera_id_proof=="1"?pickFileTextRecognition('idProof',item?.coFInfo?.userName):pickFile('idProof',item?.coFInfo?.userName)}
+                          onPress={() =>
+                            ai_camera_id_proof == '1'
+                              ? pickFileTextRecognition(
+                                  'idProof',
+                                  item?.coFInfo?.userName,
+                                )
+                              : pickFile('idProof', item?.coFInfo?.userName)
+                          }
                           activeOpacity={0.7}>
                           {coFarmer.idProof?.uri ? (
                             <>
@@ -903,7 +920,7 @@ const ListOfCoFarmer = ({
                                     color="#ef4444"
                                   />
                                   <Text style={styles.pdfText}>
-                                    PDF Uploaded
+                                    {t('pdf_uploaded')}
                                   </Text>
                                 </View>
                               )}
@@ -924,9 +941,12 @@ const ListOfCoFarmer = ({
                                   color="#10b981"
                                 />
                               </View>
-                              <Text style={styles.uploadTitle}>ID Proof</Text>
+                              <Text style={styles.uploadTitle}>
+                                {' '}
+                                {t('id_proof')}
+                              </Text>
                               <Text style={styles.uploadSubtitle}>
-                                Tap to upload
+                                {t('tap_to_upload')}
                               </Text>
                             </View>
                           )}
@@ -937,7 +957,7 @@ const ListOfCoFarmer = ({
                     {/* Submit Button */}
                     <Button
                       // label={isFormValid ? "Submit & Switch Ownership" : "Complete All Fields"}
-                      label={'Save'}
+                      label={t('save')}
                       onPress={onSave}
                       // disabled={!isFormValid}
                     />
@@ -1370,7 +1390,7 @@ const styles = StyleSheet.create({
     // position: 'absolute',
     // right: 60,
     // top: 11,
-    bottom:20,
+    bottom: 20,
   },
   editIconContainer: {
     width: 30,

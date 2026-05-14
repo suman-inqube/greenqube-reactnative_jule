@@ -1,7 +1,8 @@
-import React, {useRef, useEffect, useState} from 'react';
+import React, {useRef, useEffect, useState, useContext} from 'react';
 import MapView, {Polygon, Circle} from 'react-native-maps';
 import {View, TouchableOpacity, Text} from 'react-native';
 import FloatingActionButton from '../../Components/FloatingActionButton';
+import {userCreateContext} from '../../Context/usersCreateContext';
 
 const PlotMap = ({
   polygons = [],
@@ -10,6 +11,7 @@ const PlotMap = ({
   onOpenFilter,
   showRadius,
 }) => {
+  const {loginUser_data, t} = useContext(userCreateContext);
   const mapRef = useRef(null);
   const [showMenu, setShowMenu] = useState(false);
 
@@ -63,6 +65,8 @@ const PlotMap = ({
             strokeColor={plot.isSelected ? '#004d00' : '#004d00'}
             strokeWidth={2}
             tappable={true}
+            tracksViewChanges={false}
+            cacheEnabled={true}
             onPress={() => onPolygonPress(plot)}
           />
         ))}
@@ -85,7 +89,7 @@ const PlotMap = ({
               onOpenFilter();
             }}
             style={{padding: 10}}>
-            <Text>Search Location</Text>
+            <Text>{t('search_location')}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -93,7 +97,7 @@ const PlotMap = ({
       <FloatingActionButton
         actions={[
           {
-            text: 'Search Location',
+            text: t('search_location'),
             icon: require('../../Common/images/find.png'),
             name: 'search_location',
             position: 1,

@@ -25,10 +25,12 @@ import RNFS from 'react-native-fs';
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 import { showAIValidationError } from '../../utils/showAIValidationError';
 import ActivityMap from '../../Common/ActivityMap';
-import { isPointInPolygon } from 'geolib';
 import ImageAnalysisScreen from './ImageAnalysisScreen';
 import { MODELS, loadModelFromAssets, loadModel } from './ImageAnalysisScreen'
-const InstrumentWiseActivityDetails = ({ navigation }) => {
+import {isPointInPolygon} from 'geolib';
+import {axiosGet, axiosPost, axiosPut} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
+const InstrumentWiseActivityDetails = ({navigation}) => {
   const location = useLocationTracking();
   const {
     loginUser_data,
@@ -114,24 +116,30 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
       const lat = latitude === '' ? latlong.latitude : latitude;
       const lon = longitude === '' ? latlong.longitude : longitude;
 
-
       setIsLoading(true);
-      const pipeRes = await ActivityPipeImages(
+      const pipeRes = await axiosGet(
+        ROUTES.GET.ACTIVITY_PIPE_IMG({
+          rel_id_plot: params?.pipeLand?.rel_id,
+          act_name_fid: params?.act_name_fid,
+          pipe_id: params?.pipe_id,
+        }),
         token,
-        dbname,
-        lan_id,
-        user_id,
-        params?.pipeLand?.rel_id,
-        params?.act_name_fid,
-        params?.pipe_id,
+        {information: `${dbname},${lan_id},${user_id}`},
       );
+      // ActivityPipeImages(
+      //   token,
+      //   dbname,
+      //   lan_id,
+      //   user_id,
+      //   params?.pipeLand?.rel_id,
+      //   params?.act_name_fid,
+      //   params?.pipe_id,
+      // );
       if (pipeRes?.status == 200) {
-        const plotCoordinates = pipeRes?.data?.data?.plotLatLong?.rows?.map(
-          item => ({
-            latitude: parseFloat(item.latitude),
-            longitude: parseFloat(item.longitude),
-          }),
-        );
+        const plotCoordinates = pipeRes?.data?.plotLatLong?.rows?.map(item => ({
+          latitude: parseFloat(item.latitude),
+          longitude: parseFloat(item.longitude),
+        }));
         if (plotCoordinates.length != 0) {
           setPlotPolygon(plotCoordinates);
           const inside = isPointInPolygon({ lat, lon }, plotCoordinates);
@@ -146,15 +154,15 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
         }
         setPlotPolygon(plotCoordinates || []);
         const pipeLocations =
-          pipeRes?.data?.data?.pipeData?.rows?.[0]?.pipeLatLong?.map(item => ({
+          pipeRes?.data?.pipeData?.rows?.[0]?.pipeLatLong?.map(item => ({
             latitude: item.latitude,
             longitude: item.longitude,
-            name: pipeRes?.data?.data?.pipeData?.rows?.[0]?.pipe_name || 'Pipe',
+            name: pipeRes?.data?.pipeData?.rows?.[0]?.pipe_name || 'Pipe',
             color: '#000000', // You can customize this
           }));
         setPipeLatLong(pipeLocations || []);
 
-        const { rows, count } = pipeRes?.data?.data?.pipeData;
+        const {rows, count} = pipeRes?.data?.pipeData;
         if (count > 0) {
           rows.map(item => {
             if (item?.pipe_id === params?.pipe_id) {
@@ -271,13 +279,20 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
     }
     formData.append('pipe_id', params?.pipe_id);
     if (imgCount > 1) {
-      const updateActivityPipeImages = await addActivityPipeImages(
-        dbname,
-        lan_id,
-        user_id,
-        token,
+      const updateActivityPipeImages = await axiosPost(
+        ROUTES.POST.ADD_ACTIVITY_IMG,
         formData,
+        token,
+        false,
+        {information: `${dbname},${lan_id},${user_id}`},
       );
+      // addActivityPipeImages(
+      //   dbname,
+      //   lan_id,
+      //   user_id,
+      //   token,
+      //   formData,
+      // );
       if (updateActivityPipeImages?.status === 400) {
         // Toast.show({
         //   text: updateActivityPipeImages.data?.error?.errorMessage?.message,

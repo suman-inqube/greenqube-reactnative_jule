@@ -59,7 +59,7 @@ const Information = ({sendDataToParent, farmerID}) => {
     RadioForm,
     effective_dates,
     loginUser_data,
-    dbLanTokUsr
+    dbLanTokUsr,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id, FcmUserToken, owner} = loginUser_data;
   //GQR-66
@@ -168,6 +168,7 @@ const Information = ({sendDataToParent, farmerID}) => {
       information: `${dbname},${lan_id}`,
     });
     // fetchStateAPI(dbname, lan_id);
+
     if (response?.status == 200) {
       const dataArray = response?.data?.data?.rows.map(data => ({
         value: data.fid,
@@ -665,12 +666,6 @@ const Information = ({sendDataToParent, farmerID}) => {
         });
 
         // ✅ 🔥 FIX START (ONLY CHANGE AREA)
-        console.log('body', JSON.stringify(formData, token));
-        console.log('headers', JSON.stringify(farmeruserID));
-        console.log('info', JSON.stringify(dbname));
-        console.log('info2', JSON.stringify(lan_id));
-
-        console.log('info3', JSON.stringify(user_id));
 
         // STEP 1: USER UPDATE FIRST
         const userDataUpdate = await axiosPut(
@@ -682,28 +677,27 @@ const Information = ({sendDataToParent, farmerID}) => {
           false,
           {information: `${dbname},${lan_id},${user_id}`},
         );
-        console.log(
-          'aaaaa',
-          dbname,
-          lan_id,
-          farmeruserID,
-          token,
-          formDataPlotImg,
-        );
+
         // STEP 2: FILE UPLOAD (DEPENDENT)
-        const addIdAddressImgsRes = await onlyUpdateIdAddrFile(
-          dbname,
-          lan_id,
-          farmeruserID,
-          token,
+        const addIdAddressImgsRes = await axiosPut(
+          ROUTES.PUT.ONLY_UPDATE_ID_ADDRESS,
           formDataPlotImg,
+          token,
+          false,
+          {information: `${dbname},${lan_id},${farmeruserID}`},
         );
+        // onlyUpdateIdAddrFile(
+        //   dbname,
+        //   lan_id,
+        //   farmeruserID,
+        //   token,
+        //   formDataPlotImg,
+        // );
 
         // STEP 3: DELETE OLD FILE
         await deletePlotImageAPI(dbname, lan_id, token, formDataDelete);
 
         // ✅ 🔥 FIX END
-        console.log('userDataUpdate', JSON.stringify(userDataUpdate));
         if (userDataUpdate.status === 200) {
           Toast.show({
             text: 'User information update successfully',
@@ -1216,7 +1210,7 @@ const Information = ({sendDataToParent, farmerID}) => {
                 disable={true}
                 InputTextFormEdit={true}
                 farmerName={farmerData.userName}
-                   ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
+                ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
               />
 
               <View

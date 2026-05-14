@@ -17,7 +17,7 @@ const CropHistorySheet = memo(({plotId, onSelectHistory}) => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const {loginUser_data} = useContext(userCreateContext);
+  const {loginUser_data, t} = useContext(userCreateContext);
   const {dbname, lan_id, token} = loginUser_data;
 
   /* ---------------- FETCH API ---------------- */
@@ -107,10 +107,10 @@ const CropHistorySheet = memo(({plotId, onSelectHistory}) => {
               <View style={styles.infoContainer}>
                 <View>
                   {[
-                    'Crop Variety',
-                    'Season',
-                    'Sowing Date',
-                    'Harvest Date',
+                    t('Crop Variety'),
+                    t('Season'),
+                    t('Sowing Date'),
+                    t('Hervesting Date'),
                   ].map((label, idx) => (
                     <Text key={idx} style={styles.labelText}>
                       {label}
@@ -153,7 +153,7 @@ const CropHistorySheet = memo(({plotId, onSelectHistory}) => {
 
   return (
     <View style={{flex: 1}}>
-      <Text style={styles.screenTitle}>Crop History</Text>
+      <Text style={styles.screenTitle}>{t('crop_history')}</Text>
 
       <FlatList
         data={data}

@@ -101,7 +101,7 @@ const TrackingInformationTabs = ({
                               <Text style={styles.titleResult}>
                                 {item?.typeActivity
                                   ? item?.typeActivity?.categoryName
-                                  : 'Activity Name: Nill'}
+                                  : t('activity_name_nil')}
                               </Text>
                             </Marquee>
                           </View>

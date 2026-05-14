@@ -279,7 +279,7 @@ const UpcomingActivity = () => {
         {renderCustomHeader}
         <View style={styles.container}>
           <TabBar
-            tabs={['Carbon', 'Non-Carbon']}
+            tabs={[t('carbon'), t('non_carbon')]}
             activeTab={activeTab === 'carbon' ? 0 : 1}
             onTabPress={index => {
               setActiveTab(index === 0 ? 'carbon' : 'non-carbon');

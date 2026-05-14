@@ -118,11 +118,10 @@ const PlotWiseMap = () => {
     const response = await axiosGet(ROUTES.GET.STATE_API(), '', {
       information: `${dbname},${lan_id}`,
     });
-
     if (response?.status === 200) {
       const data = response.data.data.rows.map(item => ({
         label: item.state_name,
-        value: item.id,
+        value: item.fid,
       }));
       setStates(data);
     }
@@ -134,10 +133,11 @@ const PlotWiseMap = () => {
       '',
       {information: `${dbname},${lan_id}`},
     );
+
     if (response?.status === 200) {
       const data = response.data.data.rows.map(item => ({
         label: item.district_name,
-        value: item.id,
+        value: item.fid,
       }));
       setDistricts(data);
     }
@@ -153,19 +153,25 @@ const PlotWiseMap = () => {
     if (response?.status === 200) {
       const data = response.data.data.rows.map(item => ({
         label: item.subdiv_name,
-        value: item.id,
+        value: item.fid,
       }));
       setPanchayats(data);
     }
   };
 
-  useEffect(() => {
-    startWatchingLocation();
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('✅ PlotWiseMap Focused - Start Location');
 
-    return () => {
-      stopWatchingLocation();
-    };
-  }, []);
+      startWatchingLocation();
+
+      return () => {
+        console.log('❌ PlotWiseMap Unfocused - Stop Location');
+
+        stopWatchingLocation();
+      };
+    }, []),
+  );
   useEffect(() => {
     const loadLocation = async () => {
       try {
@@ -242,7 +248,6 @@ const PlotWiseMap = () => {
     );
 
     if (res?.status == 200) {
-      console.log('res', JSON.stringify(res));
       if (res?.data?.data?.rows?.length > 0) {
         setBaseLatLong({
           latitude: res?.data?.data?.rows[0]?.landLatLong[0]?.latitude,
@@ -321,9 +326,7 @@ const PlotWiseMap = () => {
         {information: `${dbname}`},
       );
       if (response?.status === 200) {
-        console.log('response1', response);
         // const formattedData = transformData(response);
-        console.log('formattedData', formattedData);
         // 🔥 500m FILTER
         // const nearbyPlots = formattedData.filter(plot => {
         //   if (!plot.center_lat || !plot.center_lng) return false;
@@ -357,8 +360,6 @@ const PlotWiseMap = () => {
       setActivityData(null);
       const found = plotData.find(p => p.id === polygon.id);
       if (found) {
-        console.log('found.id', found.id);
-
         const [farmerDetails, actRes] = await Promise.all([
           axiosGet(
             ROUTES.GET.PLOT_MAP_DETAILS({
@@ -380,7 +381,7 @@ const PlotWiseMap = () => {
             },
           ),
         ]);
-        console.log('actRes', `${dbname},${lan_id},${found.farmer_id}`, token);
+
         if (actRes?.status === 200) {
           setActivityData(actRes?.data?.data);
         }
@@ -489,7 +490,7 @@ const PlotWiseMap = () => {
                       <MaterialIcons name="person" size={22} color="#16A34A" />
                       <View style={{marginLeft: 10}}>
                         <Text style={{fontSize: 12, color: '#6B7280'}}>
-                          Farmer
+                          {t('User')}
                         </Text>
                         <Text
                           style={{
@@ -534,7 +535,7 @@ const PlotWiseMap = () => {
 
                       <View style={{marginLeft: 10}}>
                         <Text style={{fontSize: 12, color: '#6B7280'}}>
-                          Plot Name
+                          {t('plot_name')}
                         </Text>
                         <Text style={{fontSize: 14, fontWeight: '500'}}>
                           {selectedPlot.plotName}
@@ -625,7 +626,7 @@ const PlotWiseMap = () => {
                             marginLeft: 6,
                             color: '#111827',
                           }}>
-                          Activity
+                          {t('my_activities')}
                         </Text>
                       </View>
 
@@ -635,7 +636,7 @@ const PlotWiseMap = () => {
                         showsVerticalScrollIndicator={true}>
                         {Object.keys(groupedData).length === 0 && (
                           <Text style={{textAlign: 'center', color: '#6B7280'}}>
-                            No activity found
+                            {t('no_activity_found')}
                           </Text>
                         )}
 
@@ -768,6 +769,7 @@ const PlotWiseMap = () => {
                   {carbonFlag && (
                     <TouchableOpacity
                       onPress={() => {
+                        stopWatchingLocation();
                         navigation.navigate('ActivityReportAWD', {
                           farmer: {
                             user_id: selectedPlot.farmer_id,
@@ -788,7 +790,7 @@ const PlotWiseMap = () => {
                         alignItems: 'center',
                       }}>
                       <Text style={{color: '#fff', fontWeight: 'bold'}}>
-                        Activity
+                        {t('activity_nreporting')}
                       </Text>
                     </TouchableOpacity>
                   )}

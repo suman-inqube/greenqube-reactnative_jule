@@ -50,7 +50,7 @@ import {isWithin20Meters} from '../../Common/calculateAreaFun';
 import {Colors, Fonts, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {axiosGet, axiosPost} from '../../utils/api';
+import {axiosGet, axiosPost, axiosPut} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
 
@@ -374,11 +374,14 @@ const ActivityReport = ({navigation, route}) => {
         //   '',
         //   {information: `${dbname},${lan_id},${currentfarmerId}`},
         // );
-        var activityType_res = await activityTypeAPI(
-          dbname,
-          lan_id,
-          currentfarmerId,
-        );
+        var activityType_res = await axiosGet(ROUTES.GET.ACTIVITY_TYPE(), '', {
+          information: `${dbname},${lan_id},${currentfarmerId}`,
+        });
+        // activityTypeAPI(
+        //   dbname,
+        //   lan_id,
+        //   currentfarmerId,
+        // );
         await setItem('activityType' + currentfarmerId, activityType_res);
       } else {
         var activityType_res = await getItem('activityType' + currentfarmerId);
@@ -396,7 +399,6 @@ const ActivityReport = ({navigation, route}) => {
 
   const handlePlot = async relId => {
     const {latitude, longitude} = coords || {};
-    console.log('plt', latitude);
     setSaveData({
       ...saveData,
       latitude: latitude,
@@ -711,14 +713,24 @@ const ActivityReport = ({navigation, route}) => {
     // );
 
     var [setCycleDate, activitySchedule] = await Promise.all([
-      setCycleDateAPI(
-        dbname,
-        lan_id,
-        farmerID,
-        token,
-        saveData.cu_rel_id,
+      axiosPut(
+        ROUTES.PUT.SET_CYCLE_DATE({cuRelID: saveData.cu_rel_id}),
         save_data,
+        token,
+        false,
+        {
+          information: `${dbname},${lan_id},${farmerID}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
       ),
+      // setCycleDateAPI(
+      //   dbname,
+      //   lan_id,
+      //   farmerID,
+      //   token,
+      //   saveData.cu_rel_id,
+      //   save_data,
+      // ),
       axiosGet(
         ROUTES.GET.ACTIVITY_SCHEDULE_API({
           type: 'user_activity',
@@ -913,111 +925,131 @@ const ActivityReport = ({navigation, route}) => {
     return true;
   };
   const handleSave = async () => {
-    Keyboard.dismiss();
-    // if (!outofRange) {
-    //   // Toast.show({ text: 'You are out of range', ...AlertMesg[0] });
-    //   Alert.alert('You are out of range');
-    //   return;
-    // }
-    if (validateForm()) {
-      const formData = new FormData();
-      formData.append('act_title', '');
-      myphotoAll.forEach(photo => {
-        formData.append('photo', photo);
-      });
-      formData.append('type', 'user_activity');
-      if (soundRecordFirstItem.result != '') {
-        formData.append('audio', {
-          name: 'firstItem.mp3',
-          type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`,
-        });
-      }
-      if (soundRecordSecoundItem.result != '') {
-        formData.append('audio', {
-          name: 'secoundItem.mp3',
-          type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`,
-        });
-      }
-      if (soundRecordThirdItem.result != '') {
-        formData.append('audio', {
-          name: 'thirdItem.mp3',
-          type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`,
-        });
-      }
-      formData.append('latitude', saveData.latitude);
-      formData.append('longitude', saveData.longitude);
-      formData.append('user_id', farmerID);
-      formData.append('plot_id', saveData.plot_id);
-      formData.append('crop_name', saveData.crop_name);
-      formData.append('crop_variety', saveData.crop_variety);
-      formData.append('cycle_start_date', saveData.cycle_start_date);
-      formData.append('growth_stage', saveData.growth_stage);
-      formData.append('act_perform_date', saveData.act_perform_date);
-      formData.append('act_pattern', saveData.act_pattern);
-      formData.append('act_master_id', saveData.act_master_id);
-      formData.append('cu_rel_fid', saveData.cu_rel_id);
+    try {
+      Keyboard.dismiss();
 
-      if (saveData.act_pattern === 'schedule') {
-        formData.append('act_ref_type', saveData.act_ref_type);
-        formData.append('act_to_date', saveData.act_to_date);
-        formData.append('act_start_date', saveData.act_start_date);
-        formData.append('act_ref', saveData.act_ref);
-      }
-      formData.append('act_desc', saveData.act_desc);
-      formData.append('material_used', saveData.material_used);
-      formData.append('water_used', saveData.water_used);
-      formData.append('power_used', saveData.power_used);
-      if (isOnline) {
-        // const database_res = await axiosPost(
-        //   ROUTES.POST.ACTIVITY_SAVE,
-        //   formData,
-        //   token,
-        //   false,
-        //   {information: `${dbname},${lan_id},${saveData.user_id}`},
-        // );
-        console.log('formData', formData);
-        const database_res = await activitySaveAPI(
-          dbname,
-          lan_id,
-          token,
-          farmerID,
-          formData,
-        );
-        console.log('Save11', database_res);
-        if (database_res?.status == 200) {
-          AnalyticsLogEvent('activity_report', 'activity_report');
+      // if (!outofRange) {
+      //   Alert.alert('You are out of range');
+      //   return;
+      // }
+
+      if (validateForm()) {
+        const formData = new FormData();
+
+        formData.append('act_title', '');
+
+        myphotoAll.forEach(photo => {
+          formData.append('photo', photo);
+        });
+
+        formData.append('type', 'user_activity');
+
+        if (soundRecordFirstItem.result != '') {
+          formData.append('audio', {
+            name: 'firstItem.mp3',
+            type: 'audio/mp3',
+            uri: `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`,
+          });
+        }
+
+        if (soundRecordSecoundItem.result != '') {
+          formData.append('audio', {
+            name: 'secoundItem.mp3',
+            type: 'audio/mp3',
+            uri: `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`,
+          });
+        }
+
+        if (soundRecordThirdItem.result != '') {
+          formData.append('audio', {
+            name: 'thirdItem.mp3',
+            type: 'audio/mp3',
+            uri: `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`,
+          });
+        }
+
+        formData.append('latitude', saveData.latitude);
+        formData.append('longitude', saveData.longitude);
+        formData.append('user_id', farmerID);
+        formData.append('plot_id', saveData.plot_id);
+        formData.append('crop_name', saveData.crop_name);
+        formData.append('crop_variety', saveData.crop_variety);
+        formData.append('cycle_start_date', saveData.cycle_start_date);
+        formData.append('growth_stage', saveData.growth_stage);
+        formData.append('act_perform_date', saveData.act_perform_date);
+        formData.append('act_pattern', saveData.act_pattern);
+        formData.append('act_master_id', saveData.act_master_id);
+        formData.append('cu_rel_fid', saveData.cu_rel_id);
+
+        if (saveData.act_pattern === 'schedule') {
+          formData.append('act_ref_type', saveData.act_ref_type);
+          formData.append('act_to_date', saveData.act_to_date);
+          formData.append('act_start_date', saveData.act_start_date);
+          formData.append('act_ref', saveData.act_ref);
+        }
+
+        formData.append('act_desc', saveData.act_desc);
+        formData.append('material_used', saveData.material_used);
+        formData.append('water_used', saveData.water_used);
+        formData.append('power_used', saveData.power_used);
+
+        if (isOnline) {
+          const database_res = await axiosPost(
+            ROUTES.POST.ACTIVITY_SAVE,
+            formData,
+            token,
+            false,
+            {information: `${dbname},${lan_id},${farmerID}`},
+          );
+
+          if (database_res?.status == 200) {
+            AnalyticsLogEvent('activity_report', 'activity_report');
+
+            navigation.popToTop();
+            navigation.navigate('activityList', {action: 'addData'});
+          } else if (database_res?.status == 409) {
+            Toast.show({
+              text: database_res?.data?.error?.errorMessage,
+              ...AlertMesg[0],
+            });
+          } else {
+            Toast.show({
+              text: database_res?.data?.error?.errorMessage,
+              ...AlertMesg[0],
+            });
+          }
+        } else {
+          formData.append('farmerID', saveData.user_id);
+
+          let timeStamp = Date.now();
+
+          await setItem('off' + timeStamp, formData);
+
+          let offlineDataArr = await getItem('offlineSupervisorActivityData');
+
+          if (offlineDataArr) {
+            await setItem(
+              'offlineSupervisorActivityData',
+              offlineDataArr + ',' + 'off' + timeStamp,
+            );
+          } else {
+            await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
+          }
+
           navigation.popToTop();
           navigation.navigate('activityList', {action: 'addData'});
-        } else if (database_res?.status == 409) {
-          Toast.show({
-            text: database_res?.data?.error?.errorMessage,
-            ...AlertMesg[0],
-          });
-        } else {
-          Toast.show({
-            text: database_res?.data?.error?.errorMessage,
-            ...AlertMesg[0],
-          });
         }
-      } else {
-        formData.append('farmerID', saveData.user_id);
-        let timeStamp = Date.now();
-        await setItem('off' + timeStamp, formData);
-        let offlineDataArr = await getItem('offlineSupervisorActivityData');
-        if (offlineDataArr) {
-          await setItem(
-            'offlineSupervisorActivityData',
-            offlineDataArr + ',' + 'off' + timeStamp,
-          );
-        } else {
-          await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
-        }
-        navigation.popToTop();
-        navigation.navigate('activityList', {action: 'addData'});
       }
+    } catch (error) {
+      console.log('handleSave Error =>', error);
+
+      Toast.show({
+        text:
+          error?.data?.error?.errorMessage ||
+          error?.message ||
+          'Something went wrong',
+        ...AlertMesg[0],
+      });
     }
   };
   const handleActivityPattern = item => {
@@ -1169,9 +1201,6 @@ const ActivityReport = ({navigation, route}) => {
       latitude: latlong.latitude,
       longitude: latlong.longitude,
     });
-
-    console.log('Error starting1 :', latlong.latitude);
-    console.log('Error starting1 :', latlong.longitude);
   };
 
   const handleHarvested = async data => {
