@@ -529,6 +529,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
           const currentDate = new Date();
           if (harvesting_date > currentDate) {
             const data = response?.data?.data;
+            console.log("response?.data?.data",response?.data?.data)
             setShowingMenu(true);
             data.crop_cycl_start_date == null ||
               data.crop_cycl_start_date == '2004-02-29'
@@ -1430,7 +1431,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
             token,
             { information: `${dbname},${lan_id},${farmerID}` },
           ),
-          axiosGet(ROUTES.GET.CHECK_PIPE_COUNT({ plot_fid: saveData.plot_id, activity_id: item.value, season_date_fid: nameVarityStartEnd.productionSeasonSdId }),
+          axiosGet(ROUTES.GET.CHECK_PIPE_COUNT({ plot_fid: saveData.plot_id, activity_id: item?.act_master_id, season_date_fid: sDId }),
             token,
             { information: `${dbname}` },
           )
@@ -1466,7 +1467,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
         }
       } catch (error) {
         const [pipecount] = await Promise.all([
-          axiosGet(ROUTES.GET.CHECK_PIPE_COUNT({ plot_fid: saveData.plot_id, activity_id: item.value, season_date_fid: nameVarityStartEnd.productionSeasonSdId }),
+          axiosGet(ROUTES.GET.CHECK_PIPE_COUNT({ plot_fid: saveData.plot_id, activity_id: item?.act_master_id, season_date_fid: sDId }),
             token,
             { information: `${dbname}` },
           )
