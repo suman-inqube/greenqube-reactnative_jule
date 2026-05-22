@@ -398,11 +398,16 @@ const ActivityMap = ({
           </MapView>
         </View>
 
-          <TouchableOpacity
-            style={styles.captureButton}
-            onPress={() => TakePhoto(replaceImgKey, userLocation)}>
-            <Text style={styles.captureIcon}>📷</Text>
-          </TouchableOpacity>
+        {
+          outofRange && (
+            <TouchableOpacity
+              style={styles.captureButton}
+              onPress={() => TakePhoto(replaceImgKey, userLocation)}>
+              <Text style={styles.captureIcon}>📷</Text>
+            </TouchableOpacity>
+
+          )
+        }
         {selectedMarker && (
           <View style={styles.markerInfo}>
             <Text
@@ -501,7 +506,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     alignItems: 'center',
   },
-  distanceTextSmall: { color: '#fff', fontSize: 9, fontWeight: 'bold',fontFamily:Fonts.Regular },
+  distanceTextSmall: { color: '#fff', fontSize: 9, fontWeight: 'bold', fontFamily: Fonts.Regular },
 
   infoCard: {
     position: 'absolute',

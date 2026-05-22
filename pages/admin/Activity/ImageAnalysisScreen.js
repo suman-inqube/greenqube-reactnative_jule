@@ -13,19 +13,19 @@ import {
   Alert,
   NativeModules,
 } from 'react-native';
-import React, {useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import AIResultCard from '../../Components/AIResultCard';
 import * as ort from 'onnxruntime-react-native';
 import RNFS from 'react-native-fs';
-import {launchImageLibrary, launchCamera} from 'react-native-image-picker';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import jpeg from 'jpeg-js';
-import {Buffer} from 'buffer';
-const {AssetPackModule} = NativeModules;
+import { Buffer } from 'buffer';
+const { AssetPackModule } = NativeModules;
 global.Buffer = Buffer;
 import ModelDot from '../../Components/ModelDot';
-import {captureRef} from 'react-native-view-shot';
-import {Fonts} from '../../utils/Constants';
+import { captureRef } from 'react-native-view-shot';
+import { Fonts } from '../../utils/Constants';
 import CustomAlert from '../../Common/CustomAlert';
 import { CURRENT_ENV } from '../../../config/environment';
 export const MODELS = [
@@ -77,7 +77,7 @@ function sigmoid(x) {
 // PREDICT
 // ─────────────────────────────────────────────
 function predict(logits, positiveLabel, negativeLabel) {
-  if (!logits || logits.length === 0) return {label: 'Invalid', confidence: 0};
+  if (!logits || logits.length === 0) return { label: 'Invalid', confidence: 0 };
 
   let prob;
   if (logits.length === 1) {
@@ -216,7 +216,7 @@ export async function imageToTensor(uri) {
       formatAsRGBA: true,
     });
 
-    const {data, width, height} = raw;
+    const { data, width, height } = raw;
 
     if (width !== 224 || height !== 224) {
       throw new Error('Image resize failed');
@@ -284,7 +284,7 @@ const ImageAnalysisScreen = ({
   // ── Pick from gallery ──
   const pickImage = () => {
     setisReady(false);
-    launchImageLibrary({mediaType: 'photo', quality: 1}, res => {
+    launchImageLibrary({ mediaType: 'photo', quality: 1 }, res => {
       if (res.didCancel || !res.assets) return;
       setImage(res.assets[0]);
       setResult(null);
@@ -302,7 +302,7 @@ const ImageAnalysisScreen = ({
       includeExtra: true,
     };
     setisReady(false);
-    launchCamera({options, mediaType: 'photo', quality: 1}, async response => {
+    launchCamera({ options, mediaType: 'photo', quality: 1 }, async response => {
       if (response.didCancel || !response.assets) return;
       setResult(null);
       setLoading(false);
@@ -332,11 +332,11 @@ const ImageAnalysisScreen = ({
             CustomAlert('Error', 'No image captured', true, 'OK');
             return;
           }
-          const {latitude: lat, longitude: lon} = mapLatLon || {
+          const { latitude: lat, longitude: lon } = mapLatLon || {
             lat: 'N/A',
             lon: 'N/A',
           };
-          console.log('Captured image with location:', {lat, lon});
+          console.log('Captured image with location:', { lat, lon });
           const timestamp = Date.now();
           const formattedDate = new Intl.DateTimeFormat('en-US', {
             year: 'numeric',
@@ -372,7 +372,7 @@ const ImageAnalysisScreen = ({
                   [`${cameraItem}Long`]: lon,
                 }));
               } else {
-                const {arrayPosition, imgPosition} = replaceImgKey || {};
+                const { arrayPosition, imgPosition } = replaceImgKey || {};
                 setPipeDetails(prev => {
                   const updated = JSON.parse(JSON.stringify(prev));
                   const currentImage = updated[arrayPosition][1][imgPosition];
@@ -408,7 +408,7 @@ const ImageAnalysisScreen = ({
 
   const saveWatermarkedImage = async () => {
     let timeoutId;
-    const {latitude: lat, longitude: lon} = mapLatLon || {
+    const { latitude: lat, longitude: lon } = mapLatLon || {
       lat: 'N/A',
       lon: 'N/A',
     };
@@ -456,7 +456,7 @@ const ImageAnalysisScreen = ({
   const completeProcess = async () => {
     try {
       const imgWatermark = await saveWatermarkedImage();
-      const {path, fileName, lat, lon} = imgWatermark || {};
+      const { path, fileName, lat, lon } = imgWatermark || {};
       if (replaceImgKey?.arrayPosition === '') {
         setSelectedImagePipe(prev => ({
           ...prev,
@@ -466,7 +466,7 @@ const ImageAnalysisScreen = ({
           [`${cameraItem}Long`]: lon,
         }));
       } else {
-        const {arrayPosition, imgPosition} = replaceImgKey || {};
+        const { arrayPosition, imgPosition } = replaceImgKey || {};
         setPipeDetails(prev => {
           const updated = JSON.parse(JSON.stringify(prev));
           const currentImage = updated[arrayPosition][1][imgPosition];
@@ -516,41 +516,41 @@ const ImageAnalysisScreen = ({
       // PIPE
       failed.pipe = pipe
         ? {
-            label: 'Pipe Present',
-            confidence: 'Pipe detected.',
-            isPositive: true,
-          }
+          label: 'Pipe Present',
+          confidence: 'Pipe detected.',
+          isPositive: true,
+        }
         : {
-            label: 'No Pipe',
-            confidence: 'No pipe in the image.',
-            isPositive: false,
-          };
+          label: 'No Pipe',
+          confidence: 'No pipe in the image.',
+          isPositive: false,
+        };
 
       // CLARITY
       failed.clarity = clarity
         ? {
-            label: 'Clear Image',
-            confidence: 'Image is clear.',
-            isPositive: true,
-          }
+          label: 'Clear Image',
+          confidence: 'Image is clear.',
+          isPositive: true,
+        }
         : {
-            label: 'Unclear Image',
-            confidence: 'Image is unclear.',
-            isPositive: false,
-          };
+          label: 'Unclear Image',
+          confidence: 'Image is unclear.',
+          isPositive: false,
+        };
 
       // OBSTACLE
       failed.obstacle = obstacle
         ? {
-            label: 'Obstructed Pipe',
-            confidence: 'Pipe is obstructed.',
-            isPositive: false,
-          }
+          label: 'Obstructed Pipe',
+          confidence: 'Pipe is obstructed.',
+          isPositive: false,
+        }
         : {
-            label: 'No Obstacle',
-            confidence: 'Pipe is clear.',
-            isPositive: true,
-          };
+          label: 'No Obstacle',
+          confidence: 'Pipe is clear.',
+          isPositive: true,
+        };
       // if (act_type == "Pipe Installation") {
       //   failed.moisture = moisture
       //     ? {
@@ -568,28 +568,30 @@ const ImageAnalysisScreen = ({
       if (activity.toLowerCase().includes('drying')) {
         failed.moisture = moisture
           ? {
-              label: 'Moisture Detected',
-              confidence: 'Soil has moisture.',
-              isPositive: false,
-            }
+            label: 'Moisture Detected',
+            confidence: 'Soil has moisture.',
+            isPositive: false,
+          }
           : {
-              label: 'No Moisture',
-              confidence: 'Soil is dry.',
-              isPositive: true,
-            };
+            label: 'No Moisture',
+            confidence: 'Soil is dry.',
+            isPositive: true,
+          };
 
         // RULER
-        failed.ruler = ruler
-          ? {
+        if (cameraItem == 'firstItem') {
+          failed.ruler = ruler
+            ? {
               label: 'Ruler Detected',
               confidence: 'Ruler detected.',
               isPositive: true,
             }
-          : {
+            : {
               label: 'Ruler Not Detected',
               confidence: 'Ruler not detected.',
               isPositive: false,
             };
+        }
       }
 
       return {
@@ -648,7 +650,7 @@ const ImageAnalysisScreen = ({
               style={styles.watermarkView}
               collapsable={false}>
               <Image
-                source={{uri: tempImage}}
+                source={{ uri: tempImage }}
                 style={styles.watermarkImage}
                 resizeMode="cover"
               />
@@ -669,7 +671,7 @@ const ImageAnalysisScreen = ({
               <Text style={styles.headerSub}>AI-powered pipe inspection</Text>
             </Animated.View>
           ) : (
-            <View style={{marginTop: 100}} />
+            <View style={{ marginTop: 100 }} />
           )}
 
           <TouchableOpacity
@@ -678,7 +680,7 @@ const ImageAnalysisScreen = ({
             onPress={takePhoto}
             activeOpacity={0.85}>
             {image ? (
-              <Image source={{uri: image.uri}} style={styles.previewImage} />
+              <Image source={{ uri: image.uri }} style={styles.previewImage} />
             ) : (
               <View style={styles.imagePlaceholder}>
                 <Text style={styles.placeholderIcon}>📷</Text>
@@ -824,7 +826,7 @@ const ImageAnalysisScreen = ({
             </View>
           )}
 
-          <View style={{height: 40}} />
+          <View style={{ height: 40 }} />
         </ScrollView>
       </SafeAreaView>
     </Modal>

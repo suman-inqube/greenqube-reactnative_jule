@@ -408,9 +408,12 @@ const ListOfCoFarmer = ({
               .replace(/\s/g, '')
               .trim();
             const cleanedOCR = cleanText(rawText);
-            const isNameFound = cleanedOCR.includes(
-              cleanText(userName?.toLowerCase()?.replace(/\s/g, '')),
-            );
+            const isNameFound = cleanedOCR.includes(cleanText(userName?.toLowerCase()?.replace(/\s/g, '')));
+            let nameFound = false;
+            if (!isNameFound) {
+              const parts = userName?.toLowerCase()?.trim()?.split(/\s+/);
+              nameFound = cleanedOCR.includes(cleanText([...parts].reverse().join('')));
+            }
             if (!userName?.includes(' ')) {
               Alert.alert(
                 'Name Format Warning',
@@ -439,7 +442,7 @@ const ListOfCoFarmer = ({
               );
               return;
             } else {
-              if (!isNameFound) {
+              if (!isNameFound && !nameFound) {
                 Alert.alert(
                   'Name Verification Failed',
                   "The farmer's name and the document owner's name do not match.",

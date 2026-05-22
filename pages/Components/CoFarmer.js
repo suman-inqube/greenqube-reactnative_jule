@@ -68,11 +68,12 @@ function CoFarmerComponent({
               .replace(/\s/g, '')
               .trim();
             const cleanedOCR = cleanText(rawText);
-            const isNameFound = cleanedOCR.includes(
-              cleanText(
-                coFarmerDetails?.name?.toLowerCase()?.replace(/\s/g, ''),
-              ),
-            );
+            const isNameFound = cleanedOCR.includes(cleanText(coFarmerDetails?.name?.toLowerCase()?.replace(/\s/g, '')));
+            let nameFound = false;
+            if (!isNameFound) {
+              const parts = coFarmerDetails?.name?.toLowerCase()?.trim()?.split(/\s+/);
+              nameFound = cleanedOCR.includes(cleanText([...parts].reverse().join('')));
+            }
             if (!coFarmerDetails?.name?.includes(' ')) {
               Alert.alert(
                 'Name Format Warning',
@@ -101,7 +102,7 @@ function CoFarmerComponent({
               );
               return;
             } else {
-              if (!isNameFound) {
+              if (!isNameFound && !nameFound) {
                 Alert.alert(
                   'Name Verification Failed',
                   "The farmer's name and the document owner's name do not match.",

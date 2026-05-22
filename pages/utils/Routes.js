@@ -26,6 +26,7 @@ export const ROUTES = {
     ADD_ACTIVITY_IMG: `landRoute/uploadPipeImages`,
     PROBLEM_COMMENT_SAVE: `questionRoute/addComment`,
     INPUT_OUTPUT_SAVE: `inputOutputRoute/add`,
+    CHECK_PLOT_DOCS: `loanEntityRoute/checkPlotDocs`,
   },
 
   GET: {
@@ -391,6 +392,7 @@ export const ROUTES = {
 
     PROBLEM_COMMENTS_LIST: ({questionId = ''}) =>
       `questionRoute/listComment/1/0/2?search_key=&comment_type=2&comment_qid=${questionId}&farming_type=crop`,
+    CHECK_PIPE_COUNT:({plot_fid ="",activity_id="",season_date_fid=""})=>`loanEntityRoute/checkPipeCount?plot_fid=${plot_fid}&activity_id=${activity_id}&season_date_fid=${season_date_fid}`
   },
 
   PUT: {
