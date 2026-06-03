@@ -62,6 +62,7 @@ import {axiosGet, axiosPut, axiosPost} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
 import {formatISODateWithSuffix} from '../../Common/CommonFunction';
+import {CURRENT_ENV} from '../../../config/environment';
 const PlotSiteProduceInformation = () => {
   //GQR-65
   const today = new Date();
@@ -1332,6 +1333,7 @@ const PlotSiteProduceInformation = () => {
           turf.booleanOverlap(existingGeo, newGeo) ||
           turf.booleanWithin(newGeo, existingGeo)
         ) {
+          if(CURRENT_ENV=="LIVE")
           overlapFound = true;
         }
       });

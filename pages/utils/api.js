@@ -245,7 +245,7 @@ export const axiosPut = async (
     return {data: {message: 'Queued Locally'}, status: 202, isOffline: true};
   }
   const payload = isUrlEncoded ? qs.stringify(body) : body;
-  logCurl({url, method: 'PUT', headers, body: payload});
+  // logCurl({url, method: 'PUT', headers, body: payload});
 
   try {
     return await instance.put(url, payload, {

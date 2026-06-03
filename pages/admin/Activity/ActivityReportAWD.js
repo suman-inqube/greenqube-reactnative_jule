@@ -1011,10 +1011,10 @@ const ActivityReportAWD = ({ navigation, route }) => {
       Toast.show({ text: 'Plot is not geofenced ', ...AlertMesg[0] });
       return;
     }
-    if (!outofRangeCheck) {
-      Toast.show({ text: 'You are out of range', ...AlertMesg[0] });
-      return;
-    }
+    // if (!outofRangeCheck) {
+    //   Toast.show({ text: 'You are out of range', ...AlertMesg[0] });
+    //   return;
+    // }
 
     return true;
   };
@@ -1148,7 +1148,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
           //   formData,
           //   pipeDetails.length,
           // );
-          database_res = await axiosPost(ROUTES.GET.ADD_USER_PIPE_ACTIVITY, formData, token, '', {
+          database_res = await axiosPost(ROUTES.POST.ADD_USER_PIPE_ACTIVITY, formData, token, '', {
             information: `${dbname},${lan_id},${farmerID}`,
             pipe_count: pipeDetails.length,
           })
@@ -1160,7 +1160,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
               longitude,
             });
             if (distances < 10) {
-              database_res = await axiosPost(ROUTES.GET.PROBLEM_PLOT_AGAINST_FARMER, formData, token, '', {
+              database_res = await axiosPost(ROUTES.POST.UPDATE_PIPE_ACTIVITY, formData, token, '', {
                 information: `${dbname},${lan_id},${farmerID}`,
                 pipe_count: 1,
               })
@@ -1256,6 +1256,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
   const handleActivityType = useCallback(
     async item => {
       try {
+        
         let dataArray = [];
         var response;
         if (isOnline) {
@@ -2227,23 +2228,23 @@ const ActivityReportAWD = ({ navigation, route }) => {
                         saveData?.checkPipeCount?.pipes_required ? (<>
                           <View style={styles.plotSiteContainer}>
                             <View style={styles.detailRow}>
-                              <Text style={styles.label}>Pipes Required</Text>
+                              <Text style={styles.label}>Instrument wise Activity</Text>
                               <View style={styles.bulletPointContainer}>
                                 <Text style={styles.bulletPoint}>•</Text>
                                 <Text style={[styles.value1, styles.leftAlign]}>
-                                  Pipes Required {saveData?.checkPipeCount?.pipes_required}
+                                  Pipes Required: {saveData?.checkPipeCount?.pipes_required}
                                 </Text>
                               </View>
                               <View style={styles.bulletPointContainer}>
                                 <Text style={styles.bulletPoint}>•</Text>
                                 <Text style={[styles.value1, styles.leftAlign]}>
-                                  Pipes Installed {saveData?.checkPipeCount?.pipes_installed}
+                                  {saveData.act_type}: {saveData?.checkPipeCount?.pipes_installed}
                                 </Text>
                               </View>
                               <View style={styles.bulletPointContainer}>
                                 <Text style={styles.bulletPoint}>•</Text>
                                 <Text style={[styles.value1, styles.leftAlign]}>
-                                  Pipes Remaining {saveData?.checkPipeCount?.pipes_remaining}
+                                  Pipes Remaining: {saveData?.checkPipeCount?.pipes_remaining}
                                 </Text>
                               </View>
                             </View>

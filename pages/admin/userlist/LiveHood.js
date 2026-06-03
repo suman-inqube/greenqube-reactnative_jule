@@ -1863,36 +1863,6 @@ const LiveHood = ({
         );
         const minDistance = Math.min(...distances);
       }
-
-      // if (area != null && area != undefined && area != '' && area != 0) {
-      //   const deviation =
-      //     (Math.abs(farmerData?.ConvertedreportedLandsize - area) /
-      //       ((farmerData?.ConvertedreportedLandsize + area) / 2)) *
-      //     100;
-      //   if (
-      //     ![
-      //       'APPROVED',
-      //       'CARBON_DOCUMENTS_SUBMITTED',
-      //       'CARBON_DOCUMENTS_APPROVED',
-      //       'CARBON_DOCUMENTS_REJECTED',
-      //     ].includes(statuslevel.label)
-      //   ) {
-      //     if (deviation >= -5 && deviation <= 5) {
-      //     } else {
-      //       Alert.alert(
-      //         'Deviation',
-      //         'The deviation between reported area and google area is not within 5%',
-      //         [{text: 'OK', onPress: () => console.log(area)}],
-      //         {cancelable: false},
-      //       );
-      //       setIsLoading(false);
-      //       return;
-      //     }
-      //   } else {
-      //   }
-      // }
-
-      // latest code 5% area
       if (area != null && area != undefined && area != '' && area != 0) {
         const reportedArea = farmerData?.ConvertedreportedLandsize;
         const googleArea = area;
@@ -2079,25 +2049,6 @@ const LiveHood = ({
         formdata.append('yield_unit', farmerData.unitProductValue);
         formdata.append('sowing_date', farmerData.cycleStartDate);
         formdata.append('harvesting_date', farmerData.cycleEndDate);
-
-        // formdata.append('plantation_method', farmerData.plantation_method);
-        // formdata.append('seeding_date', farmerData.seeding_date);
-        // formdata.append('water_source', farmerData.water_source);
-        // formdata.append('gap_seeding_firrig', farmerData.gap_seeding_firrig);
-        // formdata.append('irri_practice', farmerData.irri_practice);
-        // formdata.append('drying_period_prac', farmerData.drying_period_prac);
-        // formdata.append(
-        //   'gap_draining_harvest',
-        //   farmerData.gap_draining_harvest,
-        // );
-        // formdata.append(
-        //   'after_harvest_rice_stubble',
-        //   farmerData.after_harvest_rice_stubble,
-        // );
-        // formdata.append('after_harvest_straw', farmerData.after_harvest_straw);
-        // formdata.append('straw_removed', farmerData.straw_removed);
-        // formdata.append('straw_incorporate', farmerData.straw_incorporate);
-        // formdata.append('end_usg_rm_straw', farmerData.end_usg_rm_straw);
         if (
           farmerData?.google_area > 0 &&
           farmerData?.google_area != undefined
@@ -2301,40 +2252,21 @@ const LiveHood = ({
           });
           formDataPlotImg.append('rel_id', plotId);
           formDataPlotImg.append('user_id', farmeruserID);
-          // const [deletePlotImageAPIRes, addPlotImageAPIRes] = await Promise.all(
-          //   [
-          //     isOnline deletePlotImageAPI(dbname, lan_id, token, formDataDelete),
-          //     axiosPost(ROUTES.POST.ADD_PLOTI_MGS,formDataPlotImg,token,{information: `${dbname},${lan_id},${farmeruserID}`})
-          //     // addPlotImageAPI(
-          //     //   dbname,
-          //     //   lan_id,
-          //     //   token,
-          //     //   farmeruserID,
-          //     //   formDataPlotImg,
-          //     // ),
-          //   ],
-          // );
-          const checkPlotDocs = await axiosPost(
-            ROUTES.POST.CHECK_PLOT_DOCS,
-            formDataPlotImg, token, false, {
-            information: `${dbname},${lan_id},${farmeruserID}`,
-          })
+          const plot_image_length = formDataPlotImg._parts.filter(item => item[0] === 'plot_image');
           const [deletePlotImageAPIRes, addPlotImageAPIRes] = await Promise.all(
             [
               isOnline
                 ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
                 : Promise.resolve(null),
-
-              checkPlotDocs?.status == 200 ?
-                axiosPost(
-                  ROUTES.POST.ADD_PLOTI_MGS,
-                  formDataPlotImg,
-                  token,
-                  false,
-                  {
-                    information: `${dbname},${lan_id},${farmeruserID}`,
-                  },
-                ) : Promise.resolve(null),
+              plot_image_length?.length > 0 ? axiosPost(
+                ROUTES.POST.ADD_PLOTI_MGS,
+                formDataPlotImg,
+                token,
+                false,
+                {
+                  information: `${dbname},${lan_id},${farmeruserID}`,
+                },
+              ) : Promise.resolve(null),
               addCropInputAPI(
                 dbname,
                 lan_id,
@@ -2344,7 +2276,7 @@ const LiveHood = ({
               ),
             ],
           );
-          if (addPlotImageAPIRes.data?.error?.errorCode == 400) {
+          if (addPlotImageAPIRes?.data?.error?.errorCode == 400) {
             Alert.alert(
               'File',
               addPlotImageAPIRes.data?.error?.errorMessage,
@@ -2592,7 +2524,9 @@ const LiveHood = ({
             turf.booleanOverlap(existingGeo, newGeo) ||
             turf.booleanWithin(newGeo, existingGeo)
           ) {
-            overlapFound = false;
+            if (CURRENT_ENV == 'LIVE') {
+              overlapFound = true;
+            }
           }
         });
         // setPolygons([newPolygon]);

@@ -3248,6 +3248,7 @@ export const getUniquePipeNames = async (
     // console.log(response);
     return response;
   } catch (error) {
+    console.log(error)
     CrashlyticsRecordError(error.response);
     return console.log('error in activityInfoAPI333 ' + error.response);
   }
