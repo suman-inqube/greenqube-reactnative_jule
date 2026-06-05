@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext, useMemo} from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -10,20 +10,20 @@ import {
 } from 'react-native';
 import PlotMap from './PlotMap';
 import FilterModal from './FilterModal';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 
-import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
-import {getDistance} from 'geolib';
+import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
+import { getDistance } from 'geolib';
 import {
   useFocusEffect,
   useNavigation,
   useIsFocused,
 } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {axiosGet} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
+import { axiosGet } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const PlotWiseMap = () => {
   const navigation = useNavigation();
@@ -40,8 +40,8 @@ const PlotWiseMap = () => {
     getItem,
     Root,
   } = useContext(userCreateContext);
-  const {carbonFlag} = loginUser_data;
-  const {dbname, lan_id, token, user_id, FcmUserToken, owner} = loginUser_data;
+  const { carbonFlag } = loginUser_data;
+  const { dbname, lan_id, token, user_id, FcmUserToken, owner } = loginUser_data;
   const [polygons, setPolygons] = useState([]);
   const [baseLatLong, setBaseLatLong] = useState({
     latitude: 0,
@@ -100,7 +100,7 @@ const PlotWiseMap = () => {
   useEffect(() => {
     const keys = Object.keys(groupedData);
     if (keys.length > 0) {
-      setExpandedSections({[keys[0]]: true});
+      setExpandedSections({ [keys[0]]: true });
     }
   }, [groupedData]);
 
@@ -129,9 +129,9 @@ const PlotWiseMap = () => {
 
   const loadDistricts = async state => {
     const response = await axiosGet(
-      ROUTES.GET.DISTRICT_API({stateID: state.value}),
+      ROUTES.GET.DISTRICT_API({ stateID: state.value }),
       '',
-      {information: `${dbname},${lan_id}`},
+      { information: `${dbname},${lan_id}` },
     );
 
     if (response?.status === 200) {
@@ -145,9 +145,9 @@ const PlotWiseMap = () => {
 
   const loadPanchayats = async district => {
     const response = await axiosGet(
-      ROUTES.GET.BLOCK_API({districtID: district.value}),
+      ROUTES.GET.BLOCK_API({ districtID: district.value }),
       '',
-      {information: `${dbname},${lan_id}`},
+      { information: `${dbname},${lan_id}` },
     );
 
     if (response?.status === 200) {
@@ -244,7 +244,7 @@ const PlotWiseMap = () => {
         distance: '',
       }),
       token,
-      {information: `${dbname}`},
+      { information: `${dbname}` },
     );
 
     if (res?.status == 200) {
@@ -323,7 +323,7 @@ const PlotWiseMap = () => {
           createdBy: user_id,
         }),
         token,
-        {information: `${dbname}`},
+        { information: `${dbname}` },
       );
       if (response?.status === 200) {
         // const formattedData = transformData(response);
@@ -367,9 +367,8 @@ const PlotWiseMap = () => {
               land_unit_id: found.land_unit_id,
             }),
             token,
-            {information: `${dbname}`},
+            { information: `${dbname}` },
           ),
-
           axiosGet(
             ROUTES.GET.PLOTWISE_ACTIVITY({
               plot_id: found.id,
@@ -381,20 +380,14 @@ const PlotWiseMap = () => {
             },
           ),
         ]);
-
         if (actRes?.status === 200) {
           setActivityData(actRes?.data?.data);
         }
         if (farmerDetails?.status == 200) {
           const userData = farmerDetails?.data?.data?.userData;
           const unitData = farmerDetails?.data?.data?.unitData;
-          const district =
-            farmerDetails?.data?.data?.userData?.userAdd?.districtDetails
-              ?.district_name;
-          const subDivision =
-            farmerDetails?.data?.data?.userData?.userAdd?.subDivDetails
-              ?.subdiv_name;
-
+          const district = farmerDetails?.data?.data?.userData?.userAdd?.districtDetails?.district_name;
+          const subDivision = farmerDetails?.data?.data?.userData?.userAdd?.subDivDetails?.subdiv_name;
           const updatedFound = {
             ...found,
             userName: userData?.userName,
@@ -403,9 +396,7 @@ const PlotWiseMap = () => {
             district: district,
             subDivision: subDivision,
           };
-
           setSelectedPlot(updatedFound);
-
           setPolygons(formatPolygonsForMap(plotData, updatedFound));
         }
       }
@@ -426,10 +417,10 @@ const PlotWiseMap = () => {
   };
   return (
     <FarmerDrawerScreenWrapper1>
-      <SafeAreaView style={{flex: 1}} edges={['top', 'bottom']}>
+      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
         <Root>
           <MyErrorBoundary>
-            <View style={{flex: 1}}>
+            <View style={{ flex: 1 }}>
               <CustomHeader
                 path="Dashboard"
                 HandlerGoBack={HandlerGoBack}
@@ -488,8 +479,8 @@ const PlotWiseMap = () => {
                         flex: 1,
                       }}>
                       <MaterialIcons name="person" size={22} color="#16A34A" />
-                      <View style={{marginLeft: 10}}>
-                        <Text style={{fontSize: 12, color: '#6B7280'}}>
+                      <View style={{ marginLeft: 10 }}>
+                        <Text style={{ fontSize: 12, color: '#6B7280' }}>
                           {t('User')}
                         </Text>
                         <Text
@@ -508,10 +499,10 @@ const PlotWiseMap = () => {
                       onPress={() => {
                         Linking.openURL(`tel:${selectedPlot.contactNumber}`);
                       }}
-                      style={{alignItems: 'flex-end'}}>
+                      style={{ alignItems: 'flex-end' }}>
                       <MaterialIcons name="phone" size={20} color="#2563EB" />
 
-                      <Text style={{fontSize: 14, color: '#2563EB'}}>
+                      <Text style={{ fontSize: 14, color: '#2563EB' }}>
                         {' '}
                         {selectedPlot.contactNumber}
                       </Text>
@@ -525,26 +516,26 @@ const PlotWiseMap = () => {
                       justifyContent: 'space-between',
                       marginBottom: 12,
                     }}>
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                       {/* <MaterialIcons name="landscape" size={20} color="#16A34A" /> */}
                       <Image
                         source={require('../../Common/images/management.png')}
-                        style={{width: 20, height: 20}}
+                        style={{ width: 20, height: 20 }}
                         resizeMode="contain"
                       />
 
-                      <View style={{marginLeft: 10}}>
-                        <Text style={{fontSize: 12, color: '#6B7280'}}>
+                      <View style={{ marginLeft: 10 }}>
+                        <Text style={{ fontSize: 12, color: '#6B7280' }}>
                           {t('plot_name')}
                         </Text>
-                        <Text style={{fontSize: 14, fontWeight: '500'}}>
+                        <Text style={{ fontSize: 14, fontWeight: '500' }}>
                           {selectedPlot.plotName}
                         </Text>
                       </View>
                     </View>
 
-                    <View style={{alignItems: 'flex-end'}}>
-                      <Text style={{fontSize: 12, color: '#6B7280'}}>Area</Text>
+                    <View style={{ alignItems: 'flex-end' }}>
+                      <Text style={{ fontSize: 12, color: '#6B7280' }}>Area</Text>
                       <Text
                         style={{
                           fontSize: 14,
@@ -563,34 +554,34 @@ const PlotWiseMap = () => {
                       marginBottom: 12,
                     }}>
                     {/* DISTRICT */}
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                       <MaterialIcons
                         name="location-city"
                         size={20}
                         color="#F59E0B"
                       />
-                      <View style={{marginLeft: 10}}>
-                        <Text style={{fontSize: 12, color: '#6B7280'}}>
+                      <View style={{ marginLeft: 10 }}>
+                        <Text style={{ fontSize: 12, color: '#6B7280' }}>
                           {regionaldatas.district == ''
                             ? t('pre_district_county')
                             : t(`${regionaldatas.district}`)}
                         </Text>
-                        <Text style={{fontSize: 14, fontWeight: '500'}}>
+                        <Text style={{ fontSize: 14, fontWeight: '500' }}>
                           {selectedPlot.district}
                         </Text>
                       </View>
                     </View>
 
                     {/* PANCHAYAT */}
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                       <MaterialIcons name="place" size={20} color="#DC2626" />
-                      <View style={{marginLeft: 10, alignItems: 'flex-end'}}>
-                        <Text style={{fontSize: 12, color: '#6B7280'}}>
+                      <View style={{ marginLeft: 10, alignItems: 'flex-end' }}>
+                        <Text style={{ fontSize: 12, color: '#6B7280' }}>
                           {regionaldatas.block == ''
                             ? t('select_block_sub_county_upzila')
                             : t(`${regionaldatas.block}`)}
                         </Text>
-                        <Text style={{fontSize: 14, fontWeight: '500'}}>
+                        <Text style={{ fontSize: 14, fontWeight: '500' }}>
                           {selectedPlot.subDivision}
                         </Text>
                       </View>
@@ -632,10 +623,10 @@ const PlotWiseMap = () => {
 
                       {/* 🔹 CONTENT */}
                       <ScrollView
-                        style={{maxHeight: 220}}
+                        style={{ maxHeight: 220 }}
                         showsVerticalScrollIndicator={true}>
                         {Object.keys(groupedData).length === 0 && (
-                          <Text style={{textAlign: 'center', color: '#6B7280'}}>
+                          <Text style={{ textAlign: 'center', color: '#6B7280' }}>
                             {t('no_activity_found')}
                           </Text>
                         )}
@@ -661,16 +652,16 @@ const PlotWiseMap = () => {
                               {category === 'Pipe Installation' && (
                                 <Image
                                   source={require('../../Common/images/pipes.png')}
-                                  style={{width: 15, height: 15}}
+                                  style={{ width: 15, height: 15 }}
                                   resizeMode="contain"
                                 />
                               )}
                               {category.toLowerCase().includes('dry') && (
                                 <Image
                                   source={require('../../Common/images/pipes.png')}
-                                  style={{width: 15, height: 15}}
+                                  style={{ width: 15, height: 15 }}
                                   resizeMode="contain"
-                                  // tintColor={'red'}
+                                // tintColor={'red'}
                                 />
                               )}
 
@@ -707,30 +698,30 @@ const PlotWiseMap = () => {
                                   }}>
                                   {(category === 'Pipe Installation' ||
                                     category.toLowerCase().includes('dry')) && (
-                                    <View
-                                      style={{
-                                        backgroundColor:
-                                          category === 'Pipe Installation'
-                                            ? '#157037'
-                                            : '#3B82F6',
-                                        width: 20,
-                                        height: 20,
-                                        borderRadius: 10,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                      }}>
-                                      <Text
-                                        style={{color: '#fff', fontSize: 11}}>
-                                        {i + 1}
-                                      </Text>
-                                    </View>
-                                  )}
+                                      <View
+                                        style={{
+                                          backgroundColor:
+                                            category === 'Pipe Installation'
+                                              ? '#157037'
+                                              : '#3B82F6',
+                                          width: 20,
+                                          height: 20,
+                                          borderRadius: 10,
+                                          justifyContent: 'center',
+                                          alignItems: 'center',
+                                        }}>
+                                        <Text
+                                          style={{ color: '#fff', fontSize: 11 }}>
+                                          {i + 1}
+                                        </Text>
+                                      </View>
+                                    )}
 
                                   <Text
                                     style={{
                                       marginLeft:
                                         category === 'Pipe Installation' ||
-                                        category.toLowerCase().includes('dry')
+                                          category.toLowerCase().includes('dry')
                                           ? 8
                                           : 0,
                                       color: '#111827',
@@ -789,7 +780,7 @@ const PlotWiseMap = () => {
                         borderRadius: 8,
                         alignItems: 'center',
                       }}>
-                      <Text style={{color: '#fff', fontWeight: 'bold'}}>
+                      <Text style={{ color: '#fff', fontWeight: 'bold' }}>
                         {t('activity_nreporting')}
                       </Text>
                     </TouchableOpacity>

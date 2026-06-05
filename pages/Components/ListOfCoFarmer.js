@@ -19,31 +19,31 @@ import React, {
   useContext,
   useRef,
 } from 'react';
-import {axiosGet, axiosPut} from '../utils/api';
-import {ROUTES} from '../utils/Routes';
+import { axiosGet, axiosPut } from '../utils/api';
+import { ROUTES } from '../utils/Routes';
 import CheckBoxComp from '../Common/CheckBoxComp';
 import InputTextForm from '../Common/InputTextForm';
-import {Fonts} from '../utils/Constants';
-import {pick, types} from '@react-native-documents/picker';
-import {Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
-import {AlertMesg} from '../Common/ToastAlert';
-import {useNavigation} from '@react-navigation/native';
-import {resizeImage} from '../utils/imageUtils';
+import { Fonts } from '../utils/Constants';
+import { pick, types } from '@react-native-documents/picker';
+import { Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
+import { AlertMesg } from '../Common/ToastAlert';
+import { useNavigation } from '@react-navigation/native';
+import { resizeImage } from '../utils/imageUtils';
 import LinearGradient from 'react-native-linear-gradient';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
-import {Colors} from '../utils/Constants';
+import { Colors } from '../utils/Constants';
 import DatePickerComp from '../Common/DatePickerComp';
-import {formatToDDMMYYYY, getAgeLimitDates} from '../utils/helpers';
-const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
+import { detectDocumentType, formatToDDMMYYYY, getAgeLimitDates, getOwnerName } from '../utils/helpers';
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 import PaginationNav from '../../pages/Components/PaginationNav';
-import {userCreateContext} from '../../pages/Context/usersCreateContext';
+import { userCreateContext } from '../../pages/Context/usersCreateContext';
 import FileViewer from 'react-native-file-viewer';
 import RNFS from 'react-native-fs';
 import TextRecognition from '@react-native-ml-kit/text-recognition';
 import DocumentScanner from 'react-native-document-scanner-plugin';
-const Button = memo(({label, onPress, disabled}) => {
+const Button = memo(({ label, onPress, disabled }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = () => {
@@ -70,11 +70,11 @@ const Button = memo(({label, onPress, disabled}) => {
       onPressOut={handlePressOut}
       activeOpacity={1}
       style={styles.btnWrapper}>
-      <Animated.View style={{transform: [{scale: scaleAnim}]}}>
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
         <LinearGradient
           colors={disabled ? ['#d1d5db', '#d1d5db'] : ['#10b981', '#059669']}
-          start={{x: 0, y: 0}}
-          end={{x: 1, y: 0}}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
           style={[styles.btn, disabled && styles.btnDisabled]}>
           {/* <MaterialIcons name="check-circle" size={20} color="#fff" /> */}
           <Text style={styles.btnText}>{label}</Text>
@@ -101,8 +101,8 @@ const ListOfCoFarmer = ({
   modalVisibleCoFarmer,
   ai_camera_id_proof = '0',
 }) => {
-  const {t, LoadingScreen} = useContext(userCreateContext);
-  const {minimumDate, maximumDate} = getAgeLimitDates();
+  const { t, LoadingScreen } = useContext(userCreateContext);
+  const { minimumDate, maximumDate } = getAgeLimitDates();
   const [coFarmerList, setCoFarmerList] = useState([]);
   const [newDate, setnewDate] = useState(new Date());
   const [penCycleStart, setopenCycleStart] = useState(false);
@@ -141,7 +141,7 @@ const ListOfCoFarmer = ({
             searchKey: searchText || '',
           }),
           token,
-          {information: `${dbname},${lan_id},${user_id}`},
+          { information: `${dbname},${lan_id},${user_id}` },
         );
         if (response?.status === 200) {
           setTotalPages(Math.ceil(response?.data?.data.count / 10));
@@ -308,8 +308,8 @@ const ListOfCoFarmer = ({
               : item?.coFInfo?.userType == 22 &&
                 (item?.coFInfo?.alternate_contact_num == null ||
                   item?.coFInfo?.alternate_contact_num == '')
-              ? ''
-              : item?.coFInfo?.contactNumber ?? '',
+                ? ''
+                : item?.coFInfo?.contactNumber ?? '',
           addressProof: addressProof,
           idProof: idProof,
           profile: profile,
@@ -319,7 +319,7 @@ const ListOfCoFarmer = ({
         Toast.show({
           text: `This is an approved plot. Farmer shuffling is not allowed
                 `,
-          ...{...AlertMesg[0], position: 'top'},
+          ...{ ...AlertMesg[0], position: 'top' },
         });
       }
     },
@@ -328,7 +328,7 @@ const ListOfCoFarmer = ({
 
   const onCheckCoFarmerEdit = useCallback(
     (index, co_farmer_id, phoneNum, item) => {
-      const {coFInfo} = item || {};
+      const { coFInfo } = item || {};
       try {
         if (['PENDING', 'REJECTED'].includes(status)) {
           const details = {
@@ -338,8 +338,8 @@ const ListOfCoFarmer = ({
             gender: coFInfo?.gender,
             phone:
               item?.coFInfo?.userType == 22 &&
-              (item?.coFInfo?.alternate_contact_num == null ||
-                item?.coFInfo?.alternate_contact_num == '')
+                (item?.coFInfo?.alternate_contact_num == null ||
+                  item?.coFInfo?.alternate_contact_num == '')
                 ? ''
                 : item?.coFInfo?.contactNumber ?? '',
             CoFarmer: '',
@@ -377,7 +377,7 @@ const ListOfCoFarmer = ({
           Toast.show({
             text: `This is an approved plot. Farmer shuffling is not allowed
                 `,
-            ...{...AlertMesg[0], position: 'top'},
+            ...{ ...AlertMesg[0], position: 'top' },
           });
         }
       } catch (error) {
@@ -403,51 +403,16 @@ const ListOfCoFarmer = ({
           try {
             const result = await TextRecognition.recognize(uri);
             const rawText = result.text;
-            const normalizedOCR = rawText
-              .toLowerCase()
-              .replace(/\s/g, '')
-              .trim();
-            const cleanedOCR = cleanText(rawText);
-            const isNameFound = cleanedOCR.includes(cleanText(userName?.toLowerCase()?.replace(/\s/g, '')));
-            let nameFound = false;
-            if (!isNameFound) {
-              const parts = userName?.toLowerCase()?.trim()?.split(/\s+/);
-              nameFound = cleanedOCR.includes(cleanText([...parts].reverse().join('')));
-            }
-            if (!userName?.includes(' ')) {
-              Alert.alert(
-                'Name Format Warning',
-                'Please enter your full name (First and Last name separated by a space)',
-              );
-              return;
-            }
-            let documentType = 'Unknown Document';
-            if (
-              normalizedOCR.includes('uidai') ||
-              normalizedOCR.includes('governmentofindia') ||
-              /\d{12}/.test(normalizedOCR)
-            ) {
-              documentType = 'Aadhaar Card';
-            } else if (
-              normalizedOCR.includes('electioncommissionofindia') ||
-              normalizedOCR.includes('elector') ||
-              /[a-z]{3}\d{7}/.test(normalizedOCR)
-            ) {
-              documentType = 'Voter Card';
-            }
-            if (documentType == 'Unknown Document') {
+            const detectedType = detectDocumentType(rawText);
+            if (detectedType === 'Unknown Document') {
               Alert.alert(
                 'Document Type Not Detected',
                 "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.",
               );
               return;
             } else {
-              if (!isNameFound && !nameFound) {
-                Alert.alert(
-                  'Name Verification Failed',
-                  "The farmer's name and the document owner's name do not match.",
-                );
-              } else {
+              const extractedName = getOwnerName(rawText, detectedType);
+              if (extractedName.toLowerCase().replace(/\s/g, '').trim() == coFarmerDetails?.name?.toLowerCase()?.replace(/\s/g, '')) {
                 setCoFarmerDetails(prev => ({
                   ...prev,
                   [fieldName]: {
@@ -457,6 +422,35 @@ const ListOfCoFarmer = ({
                     type: 'image/jpeg',
                   },
                 }));
+              } else {
+                if (userName?.toLowerCase().trim().split(' ')[0] == extractedName.toLowerCase().trim().split(' ')[0]) {
+                  setCoFarmerDetails(prev => ({
+                    ...prev,
+                    [fieldName]: {
+                      uri: uri,
+                      name: uri.split('/').pop(),
+                      fileName: uri.split('/').pop(),
+                      type: 'image/jpeg',
+                    },
+                  }));
+                } else {
+                  if (isNameMatch(userName, extractedName)) {
+                    setCoFarmerDetails(prev => ({
+                      ...prev,
+                      [fieldName]: {
+                        uri: uri,
+                        name: uri.split('/').pop(),
+                        fileName: uri.split('/').pop(),
+                        type: 'image/jpeg',
+                      },
+                    }));
+                  } else {
+                    Alert.alert(
+                      'Name Verification Failed',
+                      "The farmer's name and the document owner's name do not match.",
+                    );
+                  }
+                }
               }
             }
           } catch (error) {
@@ -535,20 +529,20 @@ const ListOfCoFarmer = ({
         formdata,
         token,
         false,
-        {information: `${dbname},${lan_id},${user_id}`},
+        { information: `${dbname},${lan_id},${user_id}` },
       );
 
       if (updateOwnerShipRes?.status == 200) {
         setIsSubmit(false);
         Toast.show({
           text: 'Data submitted successfully',
-          ...{...AlertMesg[0], position: 'top'},
+          ...{ ...AlertMesg[0], position: 'top' },
         });
         navigation.popToTop();
         navigation.navigate('userList');
         Toast.show({
           text: 'Data submitted successfully',
-          ...{...AlertMesg[0], position: 'top'},
+          ...{ ...AlertMesg[0], position: 'top' },
         });
         Alert.alert('Data submitted successfully');
       }
@@ -618,8 +612,8 @@ const ListOfCoFarmer = ({
       {/* Header with Gradient */}
       <LinearGradient
         colors={['#10b981', '#059669', '#047857']}
-        start={{x: 0, y: 0}}
-        end={{x: 1, y: 1}}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
         style={styles.headerGradient}>
         <View style={styles.headerContent}>
           <View style={styles.headerIconContainer}>
@@ -899,9 +893,9 @@ const ListOfCoFarmer = ({
                           onPress={() =>
                             ai_camera_id_proof == '1'
                               ? pickFileTextRecognition(
-                                  'idProof',
-                                  item?.coFInfo?.userName,
-                                )
+                                'idProof',
+                                item?.coFInfo?.userName,
+                              )
                               : pickFile('idProof', item?.coFInfo?.userName)
                           }
                           activeOpacity={0.7}>
@@ -962,7 +956,7 @@ const ListOfCoFarmer = ({
                       // label={isFormValid ? "Submit & Switch Ownership" : "Complete All Fields"}
                       label={t('save')}
                       onPress={onSave}
-                      // disabled={!isFormValid}
+                    // disabled={!isFormValid}
                     />
                   </View>
                 )}
@@ -1016,7 +1010,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
     elevation: 8,
     shadowColor: '#10b981',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
@@ -1108,7 +1102,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 4,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     borderWidth: 2,
@@ -1197,7 +1191,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
     alignItems: 'center',
@@ -1222,7 +1216,7 @@ const styles = StyleSheet.create({
     padding: 20,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
   },
@@ -1337,7 +1331,7 @@ const styles = StyleSheet.create({
     padding: 4,
     elevation: 4,
     shadowColor: '#10b981',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -1368,7 +1362,7 @@ const styles = StyleSheet.create({
     gap: 8,
     elevation: 6,
     shadowColor: '#10b981',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },

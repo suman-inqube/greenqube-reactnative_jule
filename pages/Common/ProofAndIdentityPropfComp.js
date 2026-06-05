@@ -19,7 +19,7 @@ import { Colors, Fonts } from '../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import TextRecognition from '@react-native-ml-kit/text-recognition';
 import { userCreateContext } from '../Context/usersCreateContext';
-
+import { detectDocumentType, getOwnerName, isNameMatch } from '../utils/helpers';
 const PDF_SIZE_LIMIT = 3;
 const ProofAndIdentityPropfComp = ({
   stateValue,
@@ -36,17 +36,6 @@ const ProofAndIdentityPropfComp = ({
 }) => {
   const { loginUser_data, t } = useContext(userCreateContext);
   const [loading, setLoading] = useState(false);
-  const logFileSize = async (uri, label = '') => {
-    try {
-      const path = uri.startsWith('file://') ? uri.replace('file://', '') : uri;
-      const stat = await RNFS.stat(path);
-      const sizeInMB = (stat.size / (1024 * 1024)).toFixed(2);
-      console.log(`${label} size: ${sizeInMB} MB (${stat.size} bytes)`);
-      alert(`${label} size: ${sizeInMB} MB (${stat.size} bytes)`);
-    } catch (err) {
-      console.warn(`Could not get file size for ${label}:`, err.message);
-    }
-  };
   const resizeImage = async (
     uri,
     width = 1200,
@@ -61,7 +50,6 @@ const ProofAndIdentityPropfComp = ({
         'JPEG',
         quality,
       );
-      // await logFileSize(resized.uri, 'Resized Image');
       return resized.uri;
     } catch (err) {
       console.error('Resize failed:', err);
@@ -175,15 +163,10 @@ const ProofAndIdentityPropfComp = ({
           croppedImageMaxSize: 1600, // limit size
         });
         if (status !== 'success' || !scannedImages?.length) return;
-        const resized = await Promise.all(
-          scannedImages.map(uri => resizeImage(uri)),
-        );
+        const resized = await Promise.all(scannedImages.map(uri => resizeImage(uri)));
         const fileName = `document_${Date.now()}.pdf`;
         const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-        let pdfPath = await createPdf({
-          pages: resized.map(uri => ({ imagePath: uri })),
-          outputPath,
-        });
+        let pdfPath = await createPdf({ pages: resized.map(uri => ({ imagePath: uri })), outputPath, });
         pdfPath = await compressIfNeeded(pdfPath, scannedImages);
         const values = [...stateValue];
         markPhotoDeleted(index, values);
@@ -243,6 +226,7 @@ const ProofAndIdentityPropfComp = ({
       Alert.alert('File error', err.message);
     }
   };
+
   const IDPickImage = async (data, index) => {
     try {
       if (InputTextFormEdit) {
@@ -260,10 +244,103 @@ const ProofAndIdentityPropfComp = ({
           try {
             const result = await TextRecognition.recognize(uri);
             const rawText = result.text;
-            const normalizedOCR = rawText
-              .toLowerCase()
-              .replace(/\s/g, '')
-              .trim();
+            const detectedType = detectDocumentType(rawText);
+            if (detectedType === 'Unknown Document') {
+              Alert.alert(
+                'Document Type Not Detected',
+                "We couldn't recognize the document type. Please make sure you are uploading a clear Aadhaar or Voter ID card and try again.",
+              );
+              return;
+            } else {
+              //add code here to check name match and then save document if matched
+              const extractedName = getOwnerName(rawText, detectedType);
+              if (extractedName.toLowerCase().replace(/\s/g, '').trim() == farmerName?.toLowerCase()?.replace(/\s/g, '')) {
+                const values = [...stateValue];
+                markPhotoDeleted(index, values);
+                values[index] = {
+                  ...values[index],
+                  uri: uri,
+                  name: uri.split('/').pop(),
+                  fileName: uri.split('/').pop(),
+                  type: 'image/jpeg',
+                  imageType: data?.imageType || 'identity',
+                  value: '1',
+                  id: '',
+                };
+                setStateValue(values);
+              } else {
+                if (farmerName?.toLowerCase().trim().split(' ')[0] == extractedName.toLowerCase().trim().split(' ')[0]) {
+                  const values = [...stateValue];
+                  markPhotoDeleted(index, values);
+                  values[index] = {
+                    ...values[index],
+                    uri: uri,
+                    name: uri.split('/').pop(),
+                    fileName: uri.split('/').pop(),
+                    type: 'image/jpeg',
+                    imageType: data?.imageType || 'identity',
+                    value: '1',
+                    id: '',
+                  };
+                  setStateValue(values);
+                } else {
+                  if (isNameMatch(farmerName, extractedName)) {
+                    const values = [...stateValue];
+                    values[index] = {
+                      ...values[index],
+                      uri: uri,
+                      name: uri.split('/').pop(),
+                      fileName: uri.split('/').pop(),
+                      type: 'image/jpeg',
+                      imageType: data?.imageType || 'identity',
+                      value: '1',
+                      id: '',
+                    };
+                    setStateValue(values);
+                  } else {
+                    Alert.alert(
+                      'Name Verification Failed',
+                      "The farmer's name and the document owner's name do not match.",
+                    );
+                  }
+                }
+              }
+              //  farmerName?.toLowerCase()?.replace(/\s/g, '')
+            }
+          } catch (error) {
+            console.error('Text recognition error:', error);
+            Alert.alert('Error', 'Text recognition failed. Please try again.');
+          }
+        }
+      } else {
+        const fileUrl = data?.file_path || data?.uri;
+        if (!fileUrl) return;
+        containsHttp(fileUrl)
+          ? await downloadAndOpenFile(fileUrl)
+          : await openFile(fileUrl);
+      }
+    } catch (error) {
+      console.log('SCAN ERROR:', error);
+    }
+  };
+  const IDPickImage_old = async (data, index) => {
+    try {
+      if (InputTextFormEdit) {
+        const result = await DocumentScanner.scanDocument({
+          maxNumDocuments: 1,
+          letUserAdjustCrop: true,
+          responseType: 'imageFilePath',
+          croppedImageQuality: 100,
+          saveInAppDocument: false,
+        });
+
+        if (result.scannedImages && result.scannedImages.length > 0) {
+          const uri = result.scannedImages[0];
+          // scanText(uri, data, index);
+          try {
+            const result = await TextRecognition.recognize(uri);
+            const rawText = result.text;
+            const normalizedOCR = rawText.toLowerCase().replace(/\s/g, '').trim();
             const cleanedOCR = cleanText(rawText);
             const isNameFound = cleanedOCR.includes(cleanText(farmerName?.toLowerCase()?.replace(/\s/g, '')));
             let nameFound = false;
