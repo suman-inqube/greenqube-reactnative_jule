@@ -397,13 +397,12 @@ const ActivityMap = ({
             )}
           </MapView>
         </View>
-        {outofRange && (
+
           <TouchableOpacity
             style={styles.captureButton}
             onPress={() => TakePhoto(replaceImgKey, userLocation)}>
             <Text style={styles.captureIcon}>📷</Text>
           </TouchableOpacity>
-        )}
         {selectedMarker && (
           <View style={styles.markerInfo}>
             <Text

@@ -31,6 +31,8 @@ import SearchSubBy from '../Inputs/SearchSubBy';
 import {FloatingAction} from 'react-native-floating-action';
 import {inputViewPast} from '../../utils/options';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const FarmerInputList = ({navigation}) => {
   const {
     loginUser_data,
@@ -69,7 +71,17 @@ const FarmerInputList = ({navigation}) => {
       setInputSubCategory([]);
     } else {
       const [inputFound, inputSubCategoryList] = await Promise.all([
-        inputListAPI(dbname, lan_id, token, user_id, search.value),
+        axiosGet(
+          ROUTES.GET.INPUT_LIST_API({
+            category_id: '',
+            // search_key: '',
+          }),
+          token,
+          {
+            information: `${dbname},${lan_id},${user_id}`,
+          },
+        ),
+        // inputListAPI(dbname, lan_id, token, user_id, search.value),
         inputSubCategoryAPI(dbname, lan_id, token, user_id, search.value),
       ]);
       if (inputFound.status == 200) {
@@ -88,21 +100,46 @@ const FarmerInputList = ({navigation}) => {
     }
   };
   const handleSubCategory = async search => {
-    const inputList = await inputListAPI(
-      dbname,
-      lan_id,
+    const inputList = await axiosGet(
+      ROUTES.GET.INPUT_LIST_API({
+        category_id: '',
+        // search_key: '',
+      }),
       token,
-      user_id,
-      search.value,
+      {
+        information: `${dbname},${lan_id},${user_id}`,
+      },
     );
+
+    // inputListAPI(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   user_id,
+    //   search.value,
+    // );
     if (inputList.status == 200) {
       setInputListAll(inputList.data.data.rows);
     }
   };
   const onPageLoad = async () => {
     const [inputList, inputCategoryList, currency_res] = await Promise.all([
-      inputListAPI(dbname, lan_id, token, user_id, ''),
-      inputCategoryAPI(dbname, lan_id, token, user_id),
+      axiosGet(
+        ROUTES.GET.INPUT_LIST_API({
+          category_id: '',
+          // search_key: '',
+        }),
+        token,
+        {
+          information: `${dbname},${lan_id},${user_id}`,
+        },
+      ),
+      // inputListAPI(dbname, lan_id, token, user_id, ''),
+
+      axiosGet(ROUTES.GET.INPUT_CATEGORY_API(), token, {
+        information: `${dbname},${lan_id},${user_id}`,
+      }),
+      // inputCategoryAPI(dbname, lan_id, token, user_id),
       getItem('currency'),
     ]);
     setCurrencyt(currency_res);

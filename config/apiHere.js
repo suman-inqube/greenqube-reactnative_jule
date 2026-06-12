@@ -630,6 +630,13 @@ export const setCycleDateAPI = async (
       'Content-Type': 'application/x-www-form-urlencoded',
     },
   };
+
+  console.log(
+    'ttttt',
+    `${config.BASE_URL}cropRoute/editUserCrop/${cuRelID}`,
+    save_data,
+    axiosHeaders,
+  );
   try {
     let response = await axios.put(
       `${config.BASE_URL}cropRoute/editUserCrop/${cuRelID}`,

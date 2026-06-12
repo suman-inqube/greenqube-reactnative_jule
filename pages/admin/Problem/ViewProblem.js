@@ -96,7 +96,6 @@ const ViewProblem = ({navigation}) => {
         false,
         {
           information: `${dbname},${lan_id},${user_id}`,
-          cof_count: '1',
         },
       );
 

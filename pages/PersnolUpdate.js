@@ -569,7 +569,7 @@ const PersnolUpdate = () => {
                           setIdentityProofIdentityPropf(values);
                         }}
                       />
-                      <View>
+                      {/* <View>
                         <Text style={{fontSize: 16, color: '#000'}}>
                           Gender
                         </Text>
@@ -593,7 +593,7 @@ const PersnolUpdate = () => {
                             })
                           }
                         />
-                      </View>
+                      </View> */}
                       <SafeAreaView style={{flex: 1}} edges={['top', 'bottom']}>
                         <Root>
                           <MyErrorBoundary>

@@ -17,22 +17,22 @@ import React, {
   useContext,
   useMemo,
 } from 'react';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import {useFocusEffect, useRoute} from '@react-navigation/native';
 import {
   inputEnquiryViewAPI,
   FarmerinputPastEnquiryListAPI,
 } from '../../../config/apiHere';
 import FarmerPastEnquiriesModel from './FarmerPastEnquiriesModel';
 import Filter from '../../Common/FarmerFilter';
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { Colors, Fonts } from '../../utils/Constants';
-import { axiosGet } from '../../utils/api';
-import { ROUTES } from '../../utils/Routes';
+import {userCreateContext} from '../../Context/usersCreateContext';
+import {Colors, Fonts} from '../../utils/Constants';
+import {axiosGet} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 import AnimatedCard from '../../Components/AnimatedCard';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 
-const FarmerPastEnquiries = ({ navigation }) => {
+const FarmerPastEnquiries = ({navigation}) => {
   //GQR-67
   const {
     loginUser_data,
@@ -48,7 +48,7 @@ const FarmerPastEnquiries = ({ navigation }) => {
     effective_dates,
     navigationBarHeight,
   } = useContext(userCreateContext);
-  const { dbname, lan_id, token, user_id } = loginUser_data;
+  const {dbname, lan_id, token, user_id} = loginUser_data;
   //GQR-67
   const route = useRoute();
   const [isLoading, setIsLoading] = useState(true);
@@ -82,13 +82,19 @@ const FarmerPastEnquiries = ({ navigation }) => {
     const input_past_enquiry_Data = await getItem('input_past_enquiry_Data');
     const EnquiryFound = input_past_enquiry_Data.find(user => user.fid === fid);
     setPastEnquirySingle(EnquiryFound);
-    const response = await inputEnquiryViewAPI(
-      dbname,
-      lan_id,
+    const response = await axiosGet(
+      ROUTES.GET.INPUT_ENQUIRY_VIEW({farmer_id: fid}),
+
       token,
-      user_id,
-      fid,
+      {information: `${dbname},${lan_id},${user_id}`},
     );
+    // inputEnquiryViewAPI(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   user_id,
+    //   fid,
+    // );
     if (response?.status == 200) {
       setPastEnquiryView(response.data.data);
       var qty = 0;
@@ -128,6 +134,7 @@ const FarmerPastEnquiries = ({ navigation }) => {
         information: `${dbname},${lan_id}`,
       },
     );
+    console.log('response', response);
     if (response?.status == 200) {
       setInputPastEnquiryAll(response?.data?.data?.rows);
       setItem('input_past_enquiry_Data', response?.data?.data?.rows);
@@ -141,14 +148,28 @@ const FarmerPastEnquiries = ({ navigation }) => {
     const effective_date = effective_dates(item);
     setFromDate(effective_date);
     if (toDate) {
-      const inputList = await FarmerinputPastEnquiryListAPI(
-        dbname,
-        lan_id,
+      const inputList = await axiosGet(
+        ROUTES.GET.INPUT_OUTPUT_ROUTE({
+          userId: user_id,
+          fromDate: fromDate,
+          toDate: toDate,
+        }),
         token,
-        user_id,
-        fromDate,
-        toDate,
+        {
+          information: `${dbname},${lan_id}`,
+        },
       );
+
+      // FarmerinputPastEnquiryListAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   user_id,
+      //   fromDate,
+      //   toDate,
+      // );
+
+      console.log('inputList', inputList);
       if (inputList?.status == 200) {
         setInputPastEnquiryAll(inputList?.data?.data?.rows);
         setItem('input_past_enquiry_Data', inputList?.data?.data?.rows);
@@ -160,14 +181,28 @@ const FarmerPastEnquiries = ({ navigation }) => {
     const effective_date = effective_dates(item);
     setToDate(effective_date);
     if (fromDate) {
-      const inputList = await FarmerinputPastEnquiryListAPI(
-        dbname,
-        lan_id,
+      const inputList = await axiosGet(
+        ROUTES.GET.INPUT_OUTPUT_ROUTE({
+          userId: user_id,
+          fromDate: fromDate,
+          toDate: effective_date,
+        }),
         token,
-        user_id,
-        fromDate,
-        effective_date,
+        {
+          information: `${dbname},${lan_id}`,
+        },
       );
+
+      // FarmerinputPastEnquiryListAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   user_id,
+      //   fromDate,
+      //   effective_date,
+      // );
+      console.log('inputList2222', inputList);
+
       if (inputList?.status == 200) {
         setInputPastEnquiryAll(inputList?.data?.data?.rows);
         setItem('input_past_enquiry_Data', inputList?.data?.data?.rows);
@@ -204,14 +239,27 @@ const FarmerPastEnquiries = ({ navigation }) => {
     setFilterOption(false);
     setToDate('');
     setFromDate('');
-    const inputList = await FarmerinputPastEnquiryListAPI(
-      dbname,
-      lan_id,
+    const inputList = await axiosGet(
+      ROUTES.GET.INPUT_OUTPUT_ROUTE({
+        userId: user_id,
+        fromDate: '',
+        toDate: '',
+      }),
       token,
-      user_id,
-      '',
-      '',
+      {
+        information: `${dbname},${lan_id}`,
+      },
     );
+    // FarmerinputPastEnquiryListAPI(
+    //   dbname,
+    //   lan_id,
+    //   token,
+    //   user_id,
+    //   '',
+    //   '',
+    // );
+    console.log('inputList333', inputList);
+
     if (inputList?.status == 200) {
       setInputPastEnquiryAll(inputList?.data?.data?.rows);
       setItem('input_past_enquiry_Data', inputList?.data?.data?.rows);
@@ -228,7 +276,7 @@ const FarmerPastEnquiries = ({ navigation }) => {
 
   const filterOptionShow = useCallback(async () => {
     try {
-      const { openFilterSheet } = await import('../../Components/FilterSheet');
+      const {openFilterSheet} = await import('../../Components/FilterSheet');
       openFilterSheet({
         options: ['', '', 'date'],
         t: t,
@@ -262,8 +310,8 @@ const FarmerPastEnquiries = ({ navigation }) => {
     }) => {
       try {
         onPageLoad(fromDate, toDate);
-        setFromDate(fromDate)
-        setToDate(toDate)
+        setFromDate(fromDate);
+        setToDate(toDate);
       } catch (error) {
         console.error(error);
       }
@@ -281,20 +329,13 @@ const FarmerPastEnquiries = ({ navigation }) => {
     }
   };
   const renderCustomHeader = useMemo(
-    () => (
-      <CustomHeader
-        logoImage={logoImage}
-        topBanner={topBanner}
-        filterOptionShow={filterOptionShow}
-        t={t}
-      />
-    ),
+    () => <CustomHeader logoImage={logoImage} topBanner={topBanner} t={t} />,
     [filterOptionShow],
   );
   return (
     <FarmerDrawerScreenWrapper1>
       <>
-        <View style={{ flex: 1, backgroundColor: Colors.background_light }}>
+        <View style={{flex: 1, backgroundColor: Colors.background_light}}>
           {renderCustomHeader}
           <DatePickerComp
             openDate={openFromDate}
@@ -311,9 +352,10 @@ const FarmerPastEnquiries = ({ navigation }) => {
               fromDate == ''
                 ? ''
                 : new Date(
-                  `${new Date(fromDate).getFullYear()}-${new Date(fromDate).getMonth() + 1
-                  }-${new Date(fromDate).getDate() + 1}`,
-                )
+                    `${new Date(fromDate).getFullYear()}-${
+                      new Date(fromDate).getMonth() + 1
+                    }-${new Date(fromDate).getDate() + 1}`,
+                  )
             }
           />
           {/* { <Filter
@@ -344,8 +386,8 @@ const FarmerPastEnquiries = ({ navigation }) => {
           />
 
           <FlatList
-            data={isLoading ? Array.from({ length: 5 }) : inputPastEnquiryAll}
-            renderItem={({ item, index }) =>
+            data={isLoading ? Array.from({length: 5}) : inputPastEnquiryAll}
+            renderItem={({item, index}) =>
               isLoading ? (
                 <SkeletonProblemCard Colors={Colors} Fonts={Fonts} />
               ) : (
@@ -484,7 +526,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     // elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',

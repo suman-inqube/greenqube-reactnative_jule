@@ -37,7 +37,7 @@ const FarmerListProblem = ({navigation}) => {
     logoImage,
     topBanner,
     DeviceInfo,
-    isOnline
+    isOnline,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data;
   const {farmerId, pageNo} = dbLanTokUsr;
@@ -56,15 +56,25 @@ const FarmerListProblem = ({navigation}) => {
     setActiveBtn(1);
     setdbLanTokUsr({...dbLanTokUsr, pageNo: 1});
     if (isOnline) {
-      var response = await farmerProblemListAPI(
-        dbname,
-        lan_id,
+      var response = await axiosGet(
+        ROUTES.GET.FARMER_PROBLEM_LIST({
+          farmer_type: 1,
+          page_no: 1,
+          question_type: 'crop_problem',
+        }),
         token,
-        farmerId,
-        1,
-        1,
-        'crop_problem',
+        {information: `${dbname},${farmerId}`},
       );
+
+      // farmerProblemListAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   farmerId,
+      //   1,
+      //   1,
+      //   'crop_problem',
+      // );
       await setItem('farmerProblemList', response);
     } else {
       var response = await getItem('farmerProblemList');
@@ -78,20 +88,30 @@ const FarmerListProblem = ({navigation}) => {
   const otherProblemList = async () => {
     setActiveBtn(2);
     if (isOnline) {
-      var response = await farmerProblemListAPI(
-        dbname,
-        lan_id,
+      var response = await axiosGet(
+        ROUTES.GET.FARMER_PROBLEM_LIST({
+          farmer_type: 2,
+          page_no: 1,
+          question_type: 'crop_problem',
+        }),
         token,
-        farmerId,
-        1,
-        2,
-        'crop_problem',
+        {information: `${dbname},${farmerId}`},
       );
+
+      // farmerProblemListAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   farmerId,
+      //   1,
+      //   2,
+      //   'crop_problem',
+      // );
       await setItem('otherFarmerProblemList', response);
     } else {
       var response = await getItem('otherFarmerProblemList');
     }
-    // console.log('problem', response);
+    console.log('problem', response);
     if (response?.status == 200) {
       setProblemAll(response.data.data.rows);
       setItem('problem_Data', response.data.data);
@@ -101,21 +121,31 @@ const FarmerListProblem = ({navigation}) => {
     setActiveBtn(1);
     setIsLoading(true);
     if (isOnline) {
-      var response = await farmerProblemListAPI(
-        dbname,
-        lan_id,
+      var response = await axiosGet(
+        ROUTES.GET.FARMER_PROBLEM_LIST({
+          farmer_type: 1,
+          page_no: page,
+          question_type: 'crop_problem',
+        }),
         token,
-        farmerId,
-        1,
-        page,
-        'crop_problem',
+        {information: `${dbname},${farmerId}`},
       );
+
+      // farmerProblemListAPI(
+      //   dbname,
+      //   lan_id,
+      //   token,
+      //   farmerId,
+      //   1,
+      //   page,
+      //   'crop_problem',
+      // );
 
       await setItem('farmerProblemList', response);
     } else {
       var response = await getItem('farmerProblemList');
     }
-    console.log('farmerProblemListAPI', response);
+    console.log('farmerProblemListAPI2222', response);
     if (response?.status == 200) {
       setTotalPages(Math.ceil(response.data.data.count / 20));
       setProblemAll(response.data.data.rows);
@@ -357,7 +387,7 @@ const styles = StyleSheet.create({
   cardContent: {
     padding: 16,
   },
-infoRow: {
+  infoRow: {
     // flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',

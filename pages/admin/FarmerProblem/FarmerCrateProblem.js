@@ -42,6 +42,8 @@ import {Colors, Fronts} from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import DatePickerField from '../../Common/DatePickerField';
 import {captureRef} from 'react-native-view-shot';
+import {axiosGet, axiosPost} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
 const FarmerCreateProblem = ({navigation}) => {
   //GQR-67
   const {
@@ -172,12 +174,22 @@ const FarmerCreateProblem = ({navigation}) => {
     //   production_process: '',
     // });
     if (isOnline) {
-      var response = await problemProduceAgainstPlotAPI(
-        dbLanTokUsr.dbName,
-        dbLanTokUsr.languageId,
-        farmerID,
-        relId.value,
+      var response = await axiosGet(
+        ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+          relID: relId.value,
+        }),
+        '',
+        {
+          information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${farmerID}`,
+        },
       );
+
+      // problemProduceAgainstPlotAPI(
+      //   dbLanTokUsr.dbName,
+      //   dbLanTokUsr.languageId,
+      //   farmerID,
+      //   relId.value,
+      // );
       await setItem('problemProduceAgainstPlot' + relId.value, response);
     } else {
       var response = await getItem('problemProduceAgainstPlot' + relId.value);
@@ -207,12 +219,21 @@ const FarmerCreateProblem = ({navigation}) => {
           agent_id: supervisorId,
         }));
         if (isOnline) {
-          var productionStage_res = await problemProductionStageAPI(
-            dbLanTokUsr.dbName,
-            dbLanTokUsr.languageId,
-            response?.data?.data?.crop_type_id,
-            response?.data?.data?.crop_name_id,
+          var productionStage_res = await axiosGet(
+            ROUTES.GET.PRODUCTION_STAGE({
+              languageID: dbLanTokUsr.languageId,
+              cropTypeId: response?.data?.data?.crop_type_id,
+              cropNameID: response?.data?.data?.crop_name_id,
+            }),
+            '',
+            {information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId}`},
           );
+          // problemProductionStageAPI(
+          //   dbLanTokUsr.dbName,
+          //   dbLanTokUsr.languageId,
+          //   response?.data?.data?.crop_type_id,
+          //   response?.data?.data?.crop_name_id,
+          // );
           await setItem(
             'problemProductionStage' +
               response?.data?.data?.crop_type_id +
@@ -366,8 +387,15 @@ const FarmerCreateProblem = ({navigation}) => {
     setSaveData(prev => ({...prev, latitude: latitude, longitude: longitude}));
     if (isOnline) {
       var [problemName_res, severity_res] = await Promise.all([
-        problemTypeNameAPI(dbname, lan_id, token),
-        problemSeverityAPI(dbname, lan_id),
+        axiosGet(ROUTES.GET.PROBLEM_TYPE_NAME(), token, {
+          information: `${dbname},${lan_id}`,
+        }),
+        // problemTypeNameAPI(dbname, lan_id, token),
+
+        axiosGet(ROUTES.GET.PROBLEM_SEVERITY(), '', {
+          information: `${dbname},${lan_id}`,
+        }),
+        // problemSeverityAPI(dbname, lan_id),
       ]);
       await setItem('problemTypeName', problemName_res);
       await setItem('severity_res', severity_res);
@@ -436,15 +464,6 @@ const FarmerCreateProblem = ({navigation}) => {
     return true;
   };
   const handleSave = async () => {
-    console.log('Final saveData before API call:', saveData);
-    console.log('Selected images:', selectedImage);
-    console.log('Sound records:', {
-      firstItem: soundRecordFirstItem,
-      secondItem: soundRecordSecoundItem,
-      thirdItem: soundRecordThirdItem,
-    });
-    console.log('Photos to upload:', myphotoAll);
-    console.log('Titles to upload:', myTitleAll);
     if (validateForm()) {
       let array = [];
       const formData = new FormData();
@@ -499,14 +518,22 @@ const FarmerCreateProblem = ({navigation}) => {
       formData.append('question_desc', saveData.question_desc);
       formData.append('severity_id', saveData.severity_id);
       if (isOnline) {
-        const database_res = await problemSaveAPI(
-          dbLanTokUsr.dbName,
-          dbLanTokUsr.languageId,
-          dbLanTokUsr.token,
-          farmerID,
+        const database_res = await axiosPost(
+          ROUTES.POST.PROBLEM_SAVE(),
           formData,
+          dbLanTokUsr.token,
+          false,
+          {
+            information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${farmerID}`,
+          },
         );
-        console.log('API Response:', database_res);
+        // problemSaveAPI(
+        //   dbLanTokUsr.dbName,
+        //   dbLanTokUsr.languageId,
+        //   dbLanTokUsr.token,
+        //   farmerID,
+        //   formData,
+        // );
         if (database_res.status === 200) {
           addModuleForView(
             dbLanTokUsr.dbName,
@@ -691,10 +718,16 @@ const FarmerCreateProblem = ({navigation}) => {
       setSaveData(saveData => ({...saveData, question_title: item.value})),
     [],
   );
-  const handleChangeQuestionDescription = useCallback(
-    item => setSaveData(saveData => ({...saveData, question_desc: item.value})),
-    [],
-  );
+  const handleChangeQuestionDescription = useCallback(item => {
+    setSaveData(saveData => {
+      const updatedData = {
+        ...saveData,
+        question_desc: item,
+      };
+
+      return updatedData;
+    });
+  }, []);
   const handleSeverityChange = useCallback(
     item => setSaveData(saveData => ({...saveData, severity_id: item.value})),
     [],

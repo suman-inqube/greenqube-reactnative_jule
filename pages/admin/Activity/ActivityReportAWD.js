@@ -55,8 +55,8 @@ import {isWithin20Meters} from '../../Common/calculateAreaFun';
 import ScannerModal from '../../Common/ScannerModal';
 import ImageAnalysisScreen from './ImageAnalysisScreen';
 import {MODELS, loadModelFromAssets, loadModel} from './ImageAnalysisScreen';
-import {FEATURES} from '../../../config/featureFlags';
 import {CURRENT_ENV} from '../../../config/environment';
+import {FEATURES} from '../../../config/featureFlags';
 // import { useDownload, formatBytes, STAGE_LABELS, STAGE_COLORS } from '../../hooks/ModelDownload';
 const ActivityReportAWD = ({navigation, route}) => {
   const {farmer, plot} = route?.params || {};
@@ -374,24 +374,6 @@ const ActivityReportAWD = ({navigation, route}) => {
       console.log('Error in checkPipeDistance:', error);
       return true; // Allow proceeding if there's an error
     }
-  };
-  const requestCameraPermission = async () => {
-    const result = await request(
-      Platform.OS === 'android'
-        ? PERMISSIONS.ANDROID.CAMERA
-        : PERMISSIONS.IOS.CAMERA,
-    );
-
-    if (result !== RESULTS.GRANTED) {
-      CustomAlert(
-        'Permission Denied',
-        'Camera permission is required',
-        true,
-        'OK',
-      );
-      return false;
-    }
-    return true;
   };
   const handleDatePicker = async item => {
     const effective_date = effective_dates(item);
@@ -1158,6 +1140,7 @@ const ActivityReportAWD = ({navigation, route}) => {
               latitude,
               longitude,
             });
+            alert(distances);
             if (distances < 10) {
               database_res = await addPrevPipeActivity(
                 dbname,

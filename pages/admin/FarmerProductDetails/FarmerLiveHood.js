@@ -323,8 +323,11 @@ const FarmerLiveHood = ({
 
     const newItem = {
       ...formData,
+      quantity: Number(formData.quantity),
+      no_of_applications: Number(formData.no_of_applications),
       type: selectedType,
       uniqueKey: Date.now(),
+      isFromAPI: false,
     };
 
     setAllItems(prev => [...prev, newItem]);
@@ -351,10 +354,15 @@ const FarmerLiveHood = ({
     };
 
     allItems.forEach(item => {
-      const {type, uniqueKey, ...rest} = item;
+      const {type, uniqueKey, isFromAPI, ...rest} = item;
 
-      if (groupedData[type]) {
-        groupedData[type].push(rest);
+      // Only send newly added items
+      if (!isFromAPI && groupedData[type]) {
+        groupedData[type].push({
+          ...rest,
+          quantity: Number(rest.quantity),
+          no_of_applications: Number(rest.no_of_applications),
+        });
       }
     });
 
@@ -474,7 +482,21 @@ const FarmerLiveHood = ({
         LandUnitArea_res,
         LandUnitsquare_metre_res,
       ] = await Promise.all([
-        nearestLatLong(dbname, lan_id, token, lat, lon),
+        axiosPost(
+          ROUTES.POST.NEAREST_LATLONG,
+          {
+            latitude: lat,
+            longitude: lon,
+            distance: 200,
+            data_limit: 100,
+          },
+          token,
+          false,
+          {
+            information: `${dbname},${lan_id}`,
+          },
+        ),
+        // nearestLatLong(dbname, lan_id, token, lat, lon),
         axiosGet(ROUTES.GET.UNIT_CONVERSION_DEFAULT({}), token, {
           information: `${dbname},${lan_id}`,
         }),
@@ -487,8 +509,17 @@ const FarmerLiveHood = ({
           {information: `${dbname},${lan_id}`},
         ),
         // PlotSiteUserLandDetails(dbname, lan_id, token, user_id),
-        LandUnitArea(dbname, lan_id, token),
-        LandUnitsquare_metre(dbname, lan_id, token),
+        axiosGet(ROUTES.GET.LAND_UNIT_AREA({}), token, {
+          information: `${dbname},${lan_id}`,
+          'Content-Type': 'multipart/form-data',
+        }),
+        // LandUnitArea(dbname, lan_id, token),
+
+        axiosGet(ROUTES.GET.LAND_UNIT_SQUARE({}), token, {
+          information: `${dbname},${lan_id}`,
+          'Content-Type': 'multipart/form-data',
+        }),
+        // LandUnitsquare_metre(dbname, lan_id, token),
         terraintype_resAPI(axiosConfig),
         soilType_resAPI(axiosConfig),
         landType_resAPI(axiosConfig),
@@ -556,7 +587,18 @@ const FarmerLiveHood = ({
       }
       setIsLoading(false);
     } catch (error) {
-      CrashlyticsRecordError(error.response);
+      console.log('SUBMIT ERROR =>', error);
+      console.log('SUBMIT ERROR RESPONSE =>', error?.response?.data);
+
+      CrashlyticsRecordError(error);
+
+      Toast.show({
+        text:
+          error?.response?.data?.error?.errorMessage ||
+          error?.message ||
+          'Something went wrong',
+        ...AlertMesg[0],
+      });
     }
   };
   const handleBackPress = () => {
@@ -631,6 +673,20 @@ const FarmerLiveHood = ({
         productionSeasonValue: '',
         cycleStartDate: '',
         cycleEndDate: '',
+        final_yield_qty: '',
+        final_yield_unit: '',
+        plantation_method: '',
+        seeding_date: '',
+        water_source: '',
+        gap_seeding_firrig: '',
+        irri_practice: '',
+        drying_period_prac: '',
+        gap_draining_harvest: '',
+        after_harvest_rice_stubble: '',
+        after_harvest_straw: '',
+        straw_removed: '',
+        straw_incorporate: '',
+        end_usg_rm_straw: '',
       });
     } else {
       setFarmerData({
@@ -655,8 +711,27 @@ const FarmerLiveHood = ({
         IOTLatLong: '',
         IOTLatlat: '',
         crop_cycl_start_date: '',
+        final_yield_qty: '',
+        final_yield_unit: '',
+        plantation_method: '',
+        seeding_date: '',
+        water_source: '',
+        gap_seeding_firrig: '',
+        irri_practice: '',
+        drying_period_prac: '',
+        gap_draining_harvest: '',
+        after_harvest_rice_stubble: '',
+        after_harvest_straw: '',
+        straw_removed: '',
+        straw_incorporate: '',
+        end_usg_rm_straw: '',
       });
     }
+    setSelectedTab('CROP');
+  };
+  const handleseedDatePicker = async item => {
+    const selectedDate = effective_dates(item);
+    setFarmerData(prev => ({...prev, ['seeding_date']: selectedDate}));
   };
   const handleDatePicker = async item => {
     const selectedDate = effective_dates(item);
@@ -1077,7 +1152,7 @@ const FarmerLiveHood = ({
   const handleUserListUpdate = useCallback(async () => {
     try {
       Keyboard.dismiss();
-      // setIsLoading(true);
+      setIsLoading(true);
       const locationArry = [];
       const latlongArr = [];
       if (location?.[0]?.editing == true && statuslevel.label != '') {
@@ -1455,14 +1530,24 @@ const FarmerLiveHood = ({
             end_usg_rm_straw: farmerData.end_usg_rm_straw,
           });
           var [setCycleDate] = await Promise.all([
-            setCycleDateAPI(
-              dbname,
-              lan_id,
-              user_id,
-              token,
-              farmerData.cu_rel_id,
+            axiosPut(
+              ROUTES.PUT.SET_CYCLE_DATE({cuRelID: farmerData.cu_rel_id}),
               save_extradata,
+              token,
+              false,
+              {
+                information: `${dbname},${lan_id},${user_id}`,
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
             ),
+            // setCycleDateAPI(
+            //   dbname,
+            //   lan_id,
+            //   user_id,
+            //   token,
+            //   farmerData.cu_rel_id,
+            //   save_extradata,
+            // ),
           ]);
 
           const finalPayload = formatAmendmentPayload(
@@ -1490,7 +1575,17 @@ const FarmerLiveHood = ({
             await Promise.all([
               deletePlotImageAPI(dbname, lan_id, token, formDataDelete),
               addPlotImageAPI(dbname, lan_id, token, user_id, formDataPlotImg),
-              addCropInputAPI(dbname, lan_id, token, user_id, finalPayload),
+
+              axiosPost(
+                ROUTES.POST.ADD_CROP_INOUT,
+                finalPayload,
+                token,
+                false,
+                {
+                  information: `${dbname},${lan_id},${user_id}`,
+                },
+              ),
+              // addCropInputAPI(dbname, lan_id, token, user_id, finalPayload),
             ]);
 
           if (addPlotImageAPIRes.data?.error?.errorCode == 400) {
@@ -1570,13 +1665,23 @@ const FarmerLiveHood = ({
 
             if (hasSignature || hasCarbonAgreement) {
               if (!historyData) {
-                const carbonRes = await uploadCarbonAgrDocs(
-                  dbname,
-                  lan_id,
-                  token,
-                  user_id,
+                const carbonRes = await axiosPost(
+                  ROUTES.POST.UP_CARBON_AGR_DOC,
                   formdataCarbon,
+                  token,
+                  false,
+                  {
+                    information: `${dbname},${lan_id},${user_id}`,
+                  },
                 );
+
+                // uploadCarbonAgrDocs(
+                //   dbname,
+                //   lan_id,
+                //   token,
+                //   user_id,
+                //   formdataCarbon,
+                // );
               }
             }
           }
@@ -1613,6 +1718,7 @@ const FarmerLiveHood = ({
         }
       }
     } catch (error) {
+      console.log('eeeeeeerrr', error);
       Toast.show({
         text: error,
         ...AlertMesg[0],
@@ -1678,21 +1784,47 @@ const FarmerLiveHood = ({
         //   user_id,
         //   findData.value,
         // ),
-        getPlotDocAPI(dbname, lan_id, token, user_id, findData.value),
-        nearestLatLong(
-          dbname,
-          lan_id,
+
+        axiosGet(
+          ROUTES.GET.GET_PLOT_DOC({
+            plotId: findData.value,
+          }),
           token,
-          findData?.latitude,
-          findData?.longitude,
+          {
+            information: `${dbname},${lan_id},${user_id}`,
+          },
         ),
+        // getPlotDocAPI(dbname, lan_id, token, user_id, findData.value),
+
+        axiosPost(
+          ROUTES.POST.NEAREST_LATLONG,
+          {
+            latitude: findData?.latitude,
+            longitude: findData?.longitude,
+            distance: 200,
+            data_limit: 100,
+          },
+          token,
+          false,
+          {
+            information: `${dbname},${lan_id}`,
+          },
+        ),
+        // nearestLatLong(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   findData?.latitude,
+        //   findData?.longitude,
+        // ),
       ]);
 
       setPlotId(findData.value);
+      console.log('');
       if (getPlotDoc?.status == 200) {
         //basudev
-        const {count} = getPlotDoc?.data?.data;
-        const {plot_img, landUserImgs} = getPlotDoc?.data?.data?.rows[0] || {};
+        const {count} = getPlotDoc?.data;
+        const {plot_img, landUserImgs} = getPlotDoc?.data?.rows[0] || {};
         const values = [...addressProof];
         const carbonCertificateValues = [...carboncertificate];
         const filteredPlotImages = plot_img.filter(
@@ -1977,11 +2109,11 @@ const FarmerLiveHood = ({
                 jl_no: dataLandDetails?.jl_no,
                 mouja: dataLandDetails?.mouja,
                 land_size: dataLandDetails?.land_size,
-                plot_Site: findData.value,
-                plot_Site_Name: findData.label,
-                expectedProduction: data.yield_amount,
-                cycleStartDate: data.sowing_date,
-                cycleEndDate: data.harvesting_date.substring(-1, 10),
+                plot_Site: findData?.value,
+                plot_Site_Name: findData?.label,
+                expectedProduction: data?.yield_amount,
+                cycleStartDate: data?.sowing_date,
+                cycleEndDate: data?.harvesting_date.substring(-1, 10),
                 terrainType: dataLandDetails?.terrain_type?.name,
                 terrainTypeValue: dataLandDetails?.terrain_type?.fid,
                 landType: dataLandDetails?.lan_type?.name,
@@ -2016,6 +2148,21 @@ const FarmerLiveHood = ({
                 ConvertedreportedLandsize:
                   Number(dataLandDetails?.land_unit?.defined_unit_value) *
                   Number(dataLandDetails?.land_size),
+
+                final_yield_qty: data?.final_yield_qty,
+                final_yield_unit: data?.final_yield_unit,
+                plantation_method: data?.plantation_method,
+                seeding_date: data?.seeding_date,
+                water_source: data?.water_source,
+                gap_seeding_firrig: String(data?.gap_seeding_firrig ?? ''),
+                irri_practice: data?.irri_practice,
+                drying_period_prac: data?.drying_period_prac,
+                gap_draining_harvest: String(data?.gap_draining_harvest ?? ''),
+                after_harvest_rice_stubble: data?.after_harvest_rice_stubble,
+                after_harvest_straw: data?.after_harvest_straw,
+                straw_removed: data?.straw_removed,
+                straw_incorporate: data?.straw_incorporate,
+                end_usg_rm_straw: data?.end_usg_rm_straw,
               }));
               fetchAndGroupPestDetails(data?.cu_rel_id);
             }
@@ -2595,13 +2742,28 @@ const FarmerLiveHood = ({
 
       if (isSameLat && isSameLng) {
         try {
-          const nearestLatLong_res = await nearestLatLong(
-            dbname,
-            lan_id,
+          const nearestLatLong_res = await axiosPost(
+            ROUTES.POST.NEAREST_LATLONG,
+            {
+              latitude: latitude,
+              longitude: longitude,
+              distance: 200,
+              data_limit: 100,
+            },
             token,
-            latitude,
-            longitude,
+            false,
+            {
+              information: `${dbname},${lan_id}`,
+            },
           );
+
+          // nearestLatLong(
+          //   dbname,
+          //   lan_id,
+          //   token,
+          //   latitude,
+          //   longitude,
+          // );
           if (nearestLatLong_res?.status === 200) {
             const data = nearestLatLong_res.data.data;
             setnearPolData(data);
@@ -2674,6 +2836,12 @@ const FarmerLiveHood = ({
   }, [statuslevel.label, harvested]);
   return (
     <MyErrorBoundary>
+      <DatePickerComp
+        openDate={seddingData}
+        newDate={minStartDate}
+        setOpenDate={setseddingData}
+        handleDatePicker={handleseedDatePicker}
+      />
       <DatePickerComp
         openDate={penCycleStart}
         newDate={minStartDate}

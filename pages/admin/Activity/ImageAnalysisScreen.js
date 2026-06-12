@@ -27,6 +27,7 @@ import ModelDot from '../../Components/ModelDot';
 import {captureRef} from 'react-native-view-shot';
 import {Fonts} from '../../utils/Constants';
 import CustomAlert from '../../Common/CustomAlert';
+import { CURRENT_ENV } from '../../../config/environment';
 export const MODELS = [
   {
     key: 'clarity',
@@ -127,9 +128,9 @@ export async function loadModelFromAssets(fileName, retries = 2) {
         // console.log(`Copied ${fileName}`);
       }
 
-      console.log(`Creating session for ${fileName}...`);
+      // console.log(`Creating session for ${fileName}...`);
       const session = await ort.InferenceSession.create(res.path);
-      console.log(`✅ Session created for ${fileName}`);
+      // console.log(`✅ Session created for ${fileName}`);
       return session;
     } catch (e) {
       console.error(`Attempt ${attempt} failed for ${fileName}:`, e);
@@ -690,12 +691,11 @@ const ImageAnalysisScreen = ({
           </TouchableOpacity>
 
           <View style={styles.buttonRow}>
-            <TouchableOpacity
-              style={[styles.btn, styles.btnSecondary]}
-              onPress={pickImage}>
+            {CURRENT_ENV == 'DEMO' && <TouchableOpacity style={[styles.btn, styles.btnSecondary]} onPress={pickImage}>
               <Text style={styles.btnIcon}>🖼</Text>
               <Text style={styles.btnSecondaryText}>Gallery</Text>
-            </TouchableOpacity>
+            </TouchableOpacity>}
+
 
             <TouchableOpacity
               style={[styles.btn, styles.btnSecondary]}

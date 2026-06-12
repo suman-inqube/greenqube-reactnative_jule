@@ -26,6 +26,7 @@ export const ROUTES = {
     ADD_ACTIVITY_IMG: `landRoute/uploadPipeImages`,
     PROBLEM_COMMENT_SAVE: `questionRoute/addComment`,
     INPUT_OUTPUT_SAVE: `inputOutputRoute/add`,
+    ADD_MODULE_VIEW: `optionRoute/addDigitalAdaption`,
   },
 
   GET: {
@@ -391,6 +392,13 @@ export const ROUTES = {
 
     PROBLEM_COMMENTS_LIST: ({questionId = ''}) =>
       `questionRoute/listComment/1/0/2?search_key=&comment_type=2&comment_qid=${questionId}&farming_type=crop`,
+
+    FARMER_PROBLEM_LIST: ({
+      farmer_type = '',
+      page_no = '',
+      question_type = '',
+    }) =>
+      `questionRoute/questionList/${farmer_type}/1/${page_no}/2?question_type=${question_type}`,
   },
 
   PUT: {

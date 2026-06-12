@@ -26,7 +26,7 @@ import {userCreateContext} from '../../Context/usersCreateContext';
 import {plotHook} from '../../hooks/plotHook';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import {Colors, Fronts} from '../../utils/Constants';
-import {axiosGet} from '../../utils/api';
+import {axiosGet, axiosPost} from '../../utils/api';
 import {ROUTES} from '../../utils/Routes';
 
 const FarmerWantToBuy = ({navigation}) => {
@@ -127,12 +127,21 @@ const FarmerWantToBuy = ({navigation}) => {
       district_id: agri_user_addresses[0]?.district,
       subdiv_id: agri_user_addresses[0]?.subdivision,
     });
-    const response = await problemProduceAgainstPlotAPI(
-      dbname,
-      lan_id,
-      farmerID,
-      relId.value,
+    const response = await axiosGet(
+      ROUTES.GET.PROBLEM_PRODUCE_AGAINST_PLOT({
+        relID: relId.value,
+      }),
+      '',
+      {
+        information: `${dbname},${lan_id},${farmerID}`,
+      },
     );
+    // problemProduceAgainstPlotAPI(
+    //   dbname,
+    //   lan_id,
+    //   farmerID,
+    //   relId.value,
+    // );
     console.log('inputData', response?.data?.data?.crop_variety.name);
     if (response?.status == 200) {
       setNameVarityStartEnd({
@@ -184,7 +193,15 @@ const FarmerWantToBuy = ({navigation}) => {
     let unit_id = item.label;
     let entity_variety_id = item.value;
     let pp_qty = item.pp_qty;
-    const unitRes = await unitByListAPI(dbname, lan_id, 1, item.sub_type);
+    const unitRes = await axiosGet(
+      ROUTES.GET.UNIT_BY_LIST({
+        is_default: 1,
+        sub_type: item.sub_type,
+      }),
+      '',
+      {information: `${dbname},${lan_id}`},
+    );
+    // unitByListAPI(dbname, lan_id, 1, item.sub_type);
     if (unitRes?.status == 200) {
       const rows = unitRes?.data?.data?.rows[0];
       const defined_unit_value = inputSingle.agri_product_prices.filter(
@@ -288,13 +305,22 @@ const FarmerWantToBuy = ({navigation}) => {
         formData.append('default_unit_fid', saveData.filter_unit_fid);
 
         formData.append('pp_qty', saveData.pp_qty);
-        const database_res = await inputSaveAPI(
-          dbname,
-          lan_id,
-          token,
-          saveData.farmer_id,
+        const database_res = await axiosPost(
+          ROUTES.POST.INPUT_OUTPUT_SAVE,
           formData,
+          token,
+          false,
+          {
+            information: `${dbname},${lan_id},${saveData.farmer_id}`,
+          },
         );
+        // inputSaveAPI(
+        //   dbname,
+        //   lan_id,
+        //   token,
+        //   saveData.farmer_id,
+        //   formData,
+        // );
         if (database_res?.status == 200) {
           addModuleForView(
             dbname,
@@ -544,13 +570,11 @@ const FarmerWantToBuy = ({navigation}) => {
                   label={t('select_district_county')}
                   value={saveData.district_name}
                   editable={false}
-
                 />
                 <InputTextForm
                   label={t('select_block_sub_county_upzila')}
                   value={saveData.subdiv_name}
                   editable={false}
-
                 />
                 <View>
                   <Text style={{color: '#000'}}>{t('approximate_date')}</Text>

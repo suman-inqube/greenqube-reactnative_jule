@@ -3,6 +3,7 @@ import {Alert, BackHandler, AppState, View, Text, Linking} from 'react-native';
 import JailMonkey from 'jail-monkey';
 import NetInfo from '@react-native-community/netinfo';
 import VersionCheck from 'react-native-version-check';
+import { CURRENT_ENV } from '../../config/environment';
 
 const PLAY_STORE_URL =
   'https://play.google.com/store/apps/details?id=com.inqube.greenqube';
@@ -99,8 +100,10 @@ const withSecurityCheck = WrappedComponent => {
           nextState === 'active'
         ) {
           alertShownRef.current = false;
-          runSecurityCheck();
-          runVersionCheck();
+          if (CURRENT_ENV !== 'DEMO') {
+            runSecurityCheck();
+            runVersionCheck();
+          }
         }
         appStateRef.current = nextState;
       });
@@ -114,7 +117,9 @@ const withSecurityCheck = WrappedComponent => {
 
       if (!isChecking && isSecure) {
         timer = setTimeout(() => {
-          runVersionCheck();
+          if (CURRENT_ENV !== 'DEMO') {
+            runVersionCheck();
+          }
         }, 1200);
       }
 
