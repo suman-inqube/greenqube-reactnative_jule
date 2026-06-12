@@ -144,6 +144,7 @@ export const axiosGet = async (
   }
   console.log("url",url)
   console.log("extraHeaders",extraHeaders)
+  logCurl({url, method: 'GET', headers: {...(token && {Authorization: token}), ...extraHeaders}});
   try {
     const response = await instance.get(url, {
       headers: {...(token && {Authorization: token}), ...extraHeaders},
@@ -245,7 +246,7 @@ export const axiosPut = async (
     return {data: {message: 'Queued Locally'}, status: 202, isOffline: true};
   }
   const payload = isUrlEncoded ? qs.stringify(body) : body;
-  // logCurl({url, method: 'PUT', headers, body: payload});
+  logCurl({url, method: 'PUT', headers, body: payload});
 
   try {
     return await instance.put(url, payload, {

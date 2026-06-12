@@ -8,15 +8,15 @@ import {
   Alert,
   StatusBar,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import DropdownForm from './Common/DropdownForm';
 import Logo from './Common/Logo';
 import ImagePlaceHolderCircle from './Common/ImagePlaceHolderCircle';
 import InputTextForm from './Common/InputTextForm';
 import RadioForm from './Common/RadioForm';
 import ButtonForm from './Common/ButtonForm';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import MyErrorBoundary from './Common/MyErrorBoundary';
 
 import {
@@ -25,25 +25,25 @@ import {
   languageDataListAPI,
   stateInfoDataListAPI,
 } from '../config/apiHere';
-import {getItem, setItem} from '../config/getDataFromStorage';
-import {isNotEmpty} from './Common/ValidationFunctions';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import { getItem, setItem } from '../config/getDataFromStorage';
+import { isNotEmpty } from './Common/ValidationFunctions';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import {
   Root,
   Popup,
   Toast,
 } from '@sekizlipenguen/react-native-popup-confirm-toast';
-import {AlertMesg} from './Common/ToastAlert';
-import {useTranslation} from 'react-i18next';
-import DocumentPicker, {types} from '@react-native-documents/picker';
+import { AlertMesg } from './Common/ToastAlert';
+import { useTranslation } from 'react-i18next';
+import DocumentPicker, { types } from '@react-native-documents/picker';
 import ProofAndIdentityPropfComp from './Common/ProofAndIdentityPropfComp';
-import {Colors, Fonts} from './utils/Constants';
+import { Colors, Fonts } from './utils/Constants';
 
 const PersnolUpdate = () => {
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const route = useRoute();
-  const {pagename} = route.params;
+  const { pagename } = route.params;
   const [dbName, setdbName] = useState();
   const [languageData, setlanguageData] = useState([]);
   const [stateInfoData, setstateInfoData] = useState([]);
@@ -64,8 +64,8 @@ const PersnolUpdate = () => {
     img: '',
   });
   const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
-    {uri: '', name: '', type: '', fileName: '', imageType: 'address'},
-    {uri: '', name: '', type: '', fileName: '', imageType: 'identity'},
+    { uri: '', name: '', type: '', fileName: '', imageType: 'address' },
+    { uri: '', name: '', type: '', fileName: '', imageType: 'identity' },
   ]);
   let languageDataList = async dbname => {
     // console.log(dbname);
@@ -87,7 +87,7 @@ const PersnolUpdate = () => {
   };
 
   const handleLanguage = language => {
-    setstorePersnolInfo({...storePersnolInfo, language: language});
+    setstorePersnolInfo({ ...storePersnolInfo, language: language });
     stateInfoDataList(dbName, language);
   };
 
@@ -109,7 +109,7 @@ const PersnolUpdate = () => {
     }
   };
   const handleStateInfo = stateInfo => {
-    setstorePersnolInfo({...storePersnolInfo, stateInfo: stateInfo});
+    setstorePersnolInfo({ ...storePersnolInfo, stateInfo: stateInfo });
     districtDataList(dbName, storePersnolInfo.language, stateInfo);
   };
 
@@ -132,7 +132,7 @@ const PersnolUpdate = () => {
   };
 
   const handleDistrict = district => {
-    setstorePersnolInfo({...storePersnolInfo, district: district});
+    setstorePersnolInfo({ ...storePersnolInfo, district: district });
     blockDataList(dbName, storePersnolInfo.language, district);
   };
   let blockDataList = async (dbName, language, district) => {
@@ -221,7 +221,7 @@ const PersnolUpdate = () => {
     };
     if (validateForm()) {
       await setItem('storePersnolInfo_data', newstorePersnolInfo);
-      navigation.navigate(pagename, {pagename: 'ProduceInfo'});
+      navigation.navigate(pagename, { pagename: 'ProduceInfo' });
     }
   };
   const onPageLoad = async () => {
@@ -288,581 +288,280 @@ const PersnolUpdate = () => {
   useEffect(() => {
     onPageLoad();
   }, []);
-  const handleDocumentSelection = async (data, index) => {
-    try {
-      const response = await DocumentPicker.pick({
-        presentationStyle: 'fullScreen',
-        type: [types.pdf, types.images],
-      });
-      const values = [...identityProofIdentityPropf];
-      values[index]['uri'] = response[0].uri;
-      values[index]['name'] = response[0].name;
-      values[index]['type'] = response[0].type;
-      values[index]['fileName'] = response[0].name;
-      values[index]['imageType'] = data;
-      setIdentityProofIdentityPropf(values);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  const handleDocumentSelectionRemove = index => {
-    const values = [...identityProofIdentityPropf];
-    values[index]['uri'] = '';
-    values[index]['name'] = '';
-    values[index]['type'] = '';
-    values[index]['fileName'] = '';
-    setIdentityProofIdentityPropf(values);
-  };
-  // return (
-  //   <>
-  //     <StatusBar barStyle="light-content" backgroundColor={Colors.green} />
-  //     <View style={styles.container}>
-  //       <View
-  //         style={{
-  //           // height: 100,
-  //           backgroundColor: Colors.green,
-  //           borderBottomLeftRadius: 25,
-  //           borderBottomRightRadius: 25,
-  //           justifyContent: 'flex-end',
-  //         }}>
-  //         <View style={styles.headersContainer}>
-  //           <Text style={styles.headersTitle}>{t('personal_information')}</Text>
-  //         </View>
-  //       </View>
-  //       <View style={{flex: 1, justifyContent: 'center'}}>
-  //         <ScrollView showsVerticalScrollIndicator={false}>
-  //           <View style={{alignItems: 'center'}}>
-  //             <Image
-  //               source={require('../pages/Common/images/logo.png')}
-  //               style={styles.logo}
-  //             />
-  //           </View>
-  //           <View style={{flex: 1}}>
-  //             <View style={styles.firatFormContainer}>
-  //               <View style={styles.profileImg}>
-  //                 <ImagePlaceHolderCircle
-  //                   openImagePicker={openImagePicker}
-  //                   selectedImage={selectedImage}
-  //                 />
-  //               </View>
-  //               <View style={styles.inputContainer}>
-  //                 <InputTextForm
-  //                   label={t('name')}
-  //                   required={true}
-  //                   value={storePersnolInfo.name ?? name}
-  //                   onChangeText={name => {
-  //                     setstorePersnolInfo({...storePersnolInfo, name: name});
-  //                   }}
-  //                 />
-  //                 <View>
-  //                   <Text style={{fontSize: 16, color: '#000'}}>Gender</Text>
-  //                   <RadioForm
-  //                     label={t('farmer_reg_male')}
-  //                     selected={storePersnolInfo.gender === '1'}
-  //                     onSelect={() =>
-  //                       setstorePersnolInfo({...storePersnolInfo, gender: '1'})
-  //                     }
-  //                   />
-  //                   <RadioForm
-  //                     label={t('farmer_reg_female')}
-  //                     selected={storePersnolInfo.gender === '2'}
-  //                     onSelect={() =>
-  //                       setstorePersnolInfo({...storePersnolInfo, gender: '2'})
-  //                     }
-  //                   />
-  //                 </View>
-
-  //                 <View style={{marginBottom: 15}}>
-  //                   <Text style={{fontSize: 16, marginTop: 15, color: '#000'}}>
-  //                     User Type
-  //                   </Text>
-  //                   <RadioForm
-  //                     label={t('grower')}
-  //                     selected={storePersnolInfo.userType === '1'}
-  //                     onSelect={() =>
-  //                       setstorePersnolInfo({
-  //                         ...storePersnolInfo,
-  //                         userType: '1',
-  //                       })
-  //                     }
-  //                   />
-  //                   <RadioForm
-  //                     label={t('small_holder')}
-  //                     selected={storePersnolInfo.userType === '2'}
-  //                     onSelect={() =>
-  //                       setstorePersnolInfo({
-  //                         ...storePersnolInfo,
-  //                         userType: '2',
-  //                       })
-  //                     }
-  //                   />
-  //                   <RadioForm
-  //                     label={t('farm_worker')}
-  //                     selected={storePersnolInfo.userType === '3'}
-  //                     onSelect={() =>
-  //                       setstorePersnolInfo({
-  //                         ...storePersnolInfo,
-  //                         userType: '3',
-  //                       })
-  //                     }
-  //                   />
-  //                 </View>
-
-  //                 <InputTextForm
-  //                   label={t('age')}
-  //                   required={true}
-  //                   value={storePersnolInfo.age ?? age}
-  //                   onChangeText={age => {
-  //                     setstorePersnolInfo({...storePersnolInfo, age: age});
-  //                   }}
-  //                   keyboardType="numeric"
-  //                 />
-
-  //                 <DropdownForm
-  //                   label={t('select_language')}
-  //                   required={true}
-  //                   data={languageData}
-  //                   onChange={item => {
-  //                     handleLanguage(item);
-  //                   }}
-  //                   val={storePersnolInfo.language.label}
-  //                 />
-
-  //                 <DropdownForm
-  //                   label={t('select_state')}
-  //                   required={true}
-  //                   data={stateInfoData}
-  //                   onChange={item => {
-  //                     handleStateInfo(item);
-  //                   }}
-  //                   val={storePersnolInfo.stateInfo.label}
-  //                 />
-
-  //                 <DropdownForm
-  //                   label={t('select_district_county')}
-  //                   required={true}
-  //                   data={districtData}
-  //                   onChange={item => {
-  //                     handleDistrict(item);
-  //                   }}
-  //                   val={storePersnolInfo.district.label}
-  //                 />
-
-  //                 <DropdownForm
-  //                   label={t('select_block_sub_county_upzila')}
-  //                   required={true}
-  //                   data={blockData}
-  //                   onChange={item => {
-  //                     setstorePersnolInfo({...storePersnolInfo, block: item});
-  //                   }}
-  //                   val={storePersnolInfo.block.label}
-  //                 />
-
-  //                 <InputTextForm
-  //                   label={t('enter_address')}
-  //                   value={storePersnolInfo.address ?? address}
-  //                   onChangeText={address => {
-  //                     setstorePersnolInfo({
-  //                       ...storePersnolInfo,
-  //                       address: address,
-  //                     });
-  //                   }}
-  //                 />
-
-  //                 <InputTextForm
-  //                   label={t('valid_pin_code')}
-  //                   value={storePersnolInfo.zip ?? zip}
-  //                   onChangeText={zip => {
-  //                     setstorePersnolInfo({...storePersnolInfo, zip: zip});
-  //                   }}
-  //                   maxLength={6}
-  //                 />
-
-  //                 {/* <ProofAndIdentityPropfComp
-  //               identityProofIdentityPropf={identityProofIdentityPropf}
-  //               t={t}
-  //               title={t('address_proofAndIdentityPropf')}
-  //               handleDocumentSelection={handleDocumentSelection}
-  //               handleDocumentSelectionRemove={handleDocumentSelectionRemove}
-  //             /> */}
-  //                 <ProofAndIdentityPropfComp
-  //                   identityProofIdentityPropf={identityProofIdentityPropf}
-  //                   t={t}
-  //                   title={t('address_proofAndIdentityPropf')}
-  //                   setStateValue={setIdentityProofIdentityPropf}
-  //                   stateValue={identityProofIdentityPropf}
-  //                   disable={true}
-  //                   InputTextFormEdit={true}
-  //                   // photoDeletedValue={photoDeletedValue}
-  //                   // setPhotoDeletedValue={setPhotoDeletedValue}
-  //                   // loginUser_data={loginUser_data}
-  //                 />
-  //               </View>
-  //             </View>
-  //           </View>
-  //         </ScrollView>
-  //       </View>
-  //     </View>
-  //     <ButtonForm label={t('next')} onPress={() => handleSave('Financial')} />
-  //     <Root></Root>
-  //   </>
-  // );
-
   return (
-    <SafeAreaView style={{flex: 1}} edges={['top', 'bottom']}>
+    <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
       <Root>
         <MyErrorBoundary>
           <StatusBar barStyle="light-content" backgroundColor={Colors.green} />
           <View style={styles.container}>
-            <View
-              style={{
-                height: 60,
-                backgroundColor: Colors.green,
-                borderBottomLeftRadius: 25,
-                borderBottomRightRadius: 25,
-                justifyContent: 'flex-end',
-              }}>
-              <View style={styles.headersContainer}>
-                <Text style={styles.headersTitle}>
-                  {t('personal_information')}
-                </Text>
-              </View>
-            </View>
-            <View style={{flex: 1, justifyContent: 'center'}}>
-              <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={{alignItems: 'center'}}>
-                  <Image
-                    source={require('../pages/Common/images/logo.png')}
-                    style={styles.logo}
-                  />
+            <View style={{ flex: 1, justifyContent: 'center' }}>
+              <View
+                style={{
+                  height: 60,
+                  backgroundColor: Colors.green,
+                  borderBottomLeftRadius: 25,
+                  borderBottomRightRadius: 25,
+                  justifyContent: 'flex-end',
+                }}>
+                <View style={styles.headersContainer}>
+                  <Text style={styles.headersTitle}>
+                    {t('personal_information')}
+                  </Text>
                 </View>
-                <View style={{flex: 1}}>
+              </View>
+              <ScrollView showsVerticalScrollIndicator={false}>
+
+                <View style={{ flex: 1 }}>
                   <View style={styles.firatFormContainer}>
-                    <View style={styles.profileImg}>
-                      <ImagePlaceHolderCircle
-                        openImagePicker={openImagePicker}
-                        selectedImage={selectedImage}
-                      />
-                    </View>
-                    <View style={styles.inputContainer}>
-                      <InputTextForm
-                        label={t('name')}
-                        required={true}
-                        value={storePersnolInfo.name ?? name}
-                        onChangeText={name => {
-                          setstorePersnolInfo({
-                            ...storePersnolInfo,
-                            name: name,
-                          });
-                          const values = [...identityProofIdentityPropf];
-                          values[1] = {
-                            ...values[1],
-                            uri: '',
-                            name: '',
-                            fileName: '',
-                            type: 'image/jpeg',
-                            imageType: 'identity',
-                            value: '1',
-                            id: '',
-                          };
 
-                          setIdentityProofIdentityPropf(values);
-                        }}
-                      />
-                      <View>
-                        <Text style={{fontSize: 16, color: '#000'}}>
-                          Gender
-                        </Text>
-                        <RadioForm
-                          label={t('farmer_reg_male')}
-                          selected={storePersnolInfo.gender === '1'}
-                          onSelect={() =>
-                            setstorePersnolInfo({
-                              ...storePersnolInfo,
-                              gender: '1',
-                            })
-                          }
-                        />
-                        <RadioForm
-                          label={t('farmer_reg_female')}
-                          selected={storePersnolInfo.gender === '2'}
-                          onSelect={() =>
-                            setstorePersnolInfo({
-                              ...storePersnolInfo,
-                              gender: '2',
-                            })
-                          }
-                        />
-                      </View>
-                      <SafeAreaView style={{flex: 1}} edges={['top', 'bottom']}>
-                        <Root>
-                          <MyErrorBoundary>
-                            <StatusBar
-                              barStyle="light-content"
-                              backgroundColor={Colors.green}
-                            />
-                            <View style={styles.container}>
-                              <View
-                                style={{
-                                  height: 60,
-                                  backgroundColor: Colors.green,
-                                  borderBottomLeftRadius: 25,
-                                  borderBottomRightRadius: 25,
-                                  justifyContent: 'flex-end',
-                                }}>
-                                <View style={styles.headersContainer}>
-                                  <Text style={styles.headersTitle}>
-                                    {t('personal_information')}
-                                  </Text>
-                                </View>
+
+                    <View style={{ flex: 1, justifyContent: 'center' }}>
+                      <ScrollView
+                        showsVerticalScrollIndicator={false}>
+                        <View style={{ alignItems: 'center' }}>
+                          <Image
+                            source={require('../pages/Common/images/logo.png')}
+                            style={styles.logo}
+                          />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <View style={styles.firatFormContainer}>
+                            <View style={styles.profileImg}>
+                              <ImagePlaceHolderCircle
+                                openImagePicker={openImagePicker}
+                                selectedImage={selectedImage}
+                              />
+                            </View>
+                            <View style={styles.inputContainer}>
+                              <InputTextForm
+                                label={t('name')}
+                                required={true}
+                                value={storePersnolInfo.name ?? name}
+                                onChangeText={name => {
+                                  setstorePersnolInfo({
+                                    ...storePersnolInfo,
+                                    name: name,
+                                  });
+                                }}
+                              />
+                              <View>
+                                <Text
+                                  style={{
+                                    fontSize: 16,
+                                    color: '#000',
+                                  }}>
+                                  Gender
+                                </Text>
+                                <RadioForm
+                                  label={t('farmer_reg_male')}
+                                  selected={
+                                    storePersnolInfo.gender === '1'
+                                  }
+                                  onSelect={() =>
+                                    setstorePersnolInfo({
+                                      ...storePersnolInfo,
+                                      gender: '1',
+                                    })
+                                  }
+                                />
+                                <RadioForm
+                                  label={t('farmer_reg_female')}
+                                  selected={
+                                    storePersnolInfo.gender === '2'
+                                  }
+                                  onSelect={() =>
+                                    setstorePersnolInfo({
+                                      ...storePersnolInfo,
+                                      gender: '2',
+                                    })
+                                  }
+                                />
                               </View>
-                              <View style={{flex: 1, justifyContent: 'center'}}>
-                                <ScrollView
-                                  showsVerticalScrollIndicator={false}>
-                                  <View style={{alignItems: 'center'}}>
-                                    <Image
-                                      source={require('../pages/Common/images/logo.png')}
-                                      style={styles.logo}
-                                    />
-                                  </View>
-                                  <View style={{flex: 1}}>
-                                    <View style={styles.firatFormContainer}>
-                                      <View style={styles.profileImg}>
-                                        <ImagePlaceHolderCircle
-                                          openImagePicker={openImagePicker}
-                                          selectedImage={selectedImage}
-                                        />
-                                      </View>
-                                      <View style={styles.inputContainer}>
-                                        <InputTextForm
-                                          label={t('name')}
-                                          required={true}
-                                          value={storePersnolInfo.name ?? name}
-                                          onChangeText={name => {
-                                            setstorePersnolInfo({
-                                              ...storePersnolInfo,
-                                              name: name,
-                                            });
-                                          }}
-                                        />
-                                        <View>
-                                          <Text
-                                            style={{
-                                              fontSize: 16,
-                                              color: '#000',
-                                            }}>
-                                            Gender
-                                          </Text>
-                                          <RadioForm
-                                            label={t('farmer_reg_male')}
-                                            selected={
-                                              storePersnolInfo.gender === '1'
-                                            }
-                                            onSelect={() =>
-                                              setstorePersnolInfo({
-                                                ...storePersnolInfo,
-                                                gender: '1',
-                                              })
-                                            }
-                                          />
-                                          <RadioForm
-                                            label={t('farmer_reg_female')}
-                                            selected={
-                                              storePersnolInfo.gender === '2'
-                                            }
-                                            onSelect={() =>
-                                              setstorePersnolInfo({
-                                                ...storePersnolInfo,
-                                                gender: '2',
-                                              })
-                                            }
-                                          />
-                                        </View>
 
-                                        <View style={{marginBottom: 15}}>
-                                          <Text
-                                            style={{
-                                              fontSize: 16,
-                                              marginTop: 15,
-                                              color: '#000',
-                                            }}>
-                                            User Type
-                                          </Text>
-                                          <RadioForm
-                                            label={t('grower')}
-                                            selected={
-                                              storePersnolInfo.userType === '1'
-                                            }
-                                            onSelect={() =>
-                                              setstorePersnolInfo({
-                                                ...storePersnolInfo,
-                                                userType: '1',
-                                              })
-                                            }
-                                          />
-                                          <RadioForm
-                                            label={t('small_holder')}
-                                            selected={
-                                              storePersnolInfo.userType === '2'
-                                            }
-                                            onSelect={() =>
-                                              setstorePersnolInfo({
-                                                ...storePersnolInfo,
-                                                userType: '2',
-                                              })
-                                            }
-                                          />
-                                          <RadioForm
-                                            label={t('farm_worker')}
-                                            selected={
-                                              storePersnolInfo.userType === '3'
-                                            }
-                                            onSelect={() =>
-                                              setstorePersnolInfo({
-                                                ...storePersnolInfo,
-                                                userType: '3',
-                                              })
-                                            }
-                                          />
-                                        </View>
+                              <View style={{ marginBottom: 15 }}>
+                                <Text
+                                  style={{
+                                    fontSize: 16,
+                                    marginTop: 15,
+                                    color: '#000',
+                                  }}>
+                                  User Type
+                                </Text>
+                                <RadioForm
+                                  label={t('grower')}
+                                  selected={
+                                    storePersnolInfo.userType === '1'
+                                  }
+                                  onSelect={() =>
+                                    setstorePersnolInfo({
+                                      ...storePersnolInfo,
+                                      userType: '1',
+                                    })
+                                  }
+                                />
+                                <RadioForm
+                                  label={t('small_holder')}
+                                  selected={
+                                    storePersnolInfo.userType === '2'
+                                  }
+                                  onSelect={() =>
+                                    setstorePersnolInfo({
+                                      ...storePersnolInfo,
+                                      userType: '2',
+                                    })
+                                  }
+                                />
+                                <RadioForm
+                                  label={t('farm_worker')}
+                                  selected={
+                                    storePersnolInfo.userType === '3'
+                                  }
+                                  onSelect={() =>
+                                    setstorePersnolInfo({
+                                      ...storePersnolInfo,
+                                      userType: '3',
+                                    })
+                                  }
+                                />
+                              </View>
 
-                                        <InputTextForm
-                                          label={t('age')}
-                                          required={true}
-                                          value={storePersnolInfo.age ?? age}
-                                          onChangeText={age => {
-                                            setstorePersnolInfo({
-                                              ...storePersnolInfo,
-                                              age: age,
-                                            });
-                                          }}
-                                          keyboardType="numeric"
-                                        />
+                              <InputTextForm
+                                label={t('age')}
+                                required={true}
+                                value={storePersnolInfo.age ?? age}
+                                onChangeText={age => {
+                                  setstorePersnolInfo({
+                                    ...storePersnolInfo,
+                                    age: age,
+                                  });
+                                }}
+                                keyboardType="numeric"
+                              />
 
-                                        <DropdownForm
-                                          label={t('select_language')}
-                                          required={true}
-                                          data={languageData}
-                                          onChange={item => {
-                                            handleLanguage(item);
-                                          }}
-                                          val={storePersnolInfo.language.label}
-                                        />
-                                        <DropdownForm
-                                          label={t('select_language')}
-                                          required={true}
-                                          data={languageData}
-                                          onChange={item => {
-                                            handleLanguage(item);
-                                          }}
-                                          val={storePersnolInfo.language.label}
-                                        />
+                              <DropdownForm
+                                label={t('select_language')}
+                                required={true}
+                                data={languageData}
+                                onChange={item => {
+                                  handleLanguage(item);
+                                }}
+                                val={storePersnolInfo.language.label}
+                              />
+                              <DropdownForm
+                                label={t('select_language')}
+                                required={true}
+                                data={languageData}
+                                onChange={item => {
+                                  handleLanguage(item);
+                                }}
+                                val={storePersnolInfo.language.label}
+                              />
 
-                                        <DropdownForm
-                                          label={t('select_state')}
-                                          required={true}
-                                          data={stateInfoData}
-                                          onChange={item => {
-                                            handleStateInfo(item);
-                                          }}
-                                          val={storePersnolInfo.stateInfo.label}
-                                        />
-                                        <DropdownForm
-                                          label={t('select_state')}
-                                          required={true}
-                                          data={stateInfoData}
-                                          onChange={item => {
-                                            handleStateInfo(item);
-                                          }}
-                                          val={storePersnolInfo.stateInfo.label}
-                                        />
+                              <DropdownForm
+                                label={t('select_state')}
+                                required={true}
+                                data={stateInfoData}
+                                onChange={item => {
+                                  handleStateInfo(item);
+                                }}
+                                val={storePersnolInfo.stateInfo.label}
+                              />
+                              <DropdownForm
+                                label={t('select_state')}
+                                required={true}
+                                data={stateInfoData}
+                                onChange={item => {
+                                  handleStateInfo(item);
+                                }}
+                                val={storePersnolInfo.stateInfo.label}
+                              />
 
-                                        <DropdownForm
-                                          label={t('select_district_county')}
-                                          required={true}
-                                          data={districtData}
-                                          onChange={item => {
-                                            handleDistrict(item);
-                                          }}
-                                          val={storePersnolInfo.district.label}
-                                        />
-                                        <DropdownForm
-                                          label={t('select_district_county')}
-                                          required={true}
-                                          data={districtData}
-                                          onChange={item => {
-                                            handleDistrict(item);
-                                          }}
-                                          val={storePersnolInfo.district.label}
-                                        />
+                              <DropdownForm
+                                label={t('select_district_county')}
+                                required={true}
+                                data={districtData}
+                                onChange={item => {
+                                  handleDistrict(item);
+                                }}
+                                val={storePersnolInfo.district.label}
+                              />
+                              <DropdownForm
+                                label={t('select_district_county')}
+                                required={true}
+                                data={districtData}
+                                onChange={item => {
+                                  handleDistrict(item);
+                                }}
+                                val={storePersnolInfo.district.label}
+                              />
 
-                                        <DropdownForm
-                                          label={t(
-                                            'select_block_sub_county_upzila',
-                                          )}
-                                          required={true}
-                                          data={blockData}
-                                          onChange={item => {
-                                            setstorePersnolInfo({
-                                              ...storePersnolInfo,
-                                              block: item,
-                                            });
-                                          }}
-                                          val={storePersnolInfo.block.label}
-                                        />
-                                        <DropdownForm
-                                          label={t(
-                                            'select_block_sub_county_upzila',
-                                          )}
-                                          required={true}
-                                          data={blockData}
-                                          onChange={item => {
-                                            setstorePersnolInfo({
-                                              ...storePersnolInfo,
-                                              block: item,
-                                            });
-                                          }}
-                                          val={storePersnolInfo.block.label}
-                                        />
+                              <DropdownForm
+                                label={t(
+                                  'select_block_sub_county_upzila',
+                                )}
+                                required={true}
+                                data={blockData}
+                                onChange={item => {
+                                  setstorePersnolInfo({
+                                    ...storePersnolInfo,
+                                    block: item,
+                                  });
+                                }}
+                                val={storePersnolInfo.block.label}
+                              />
+                              <DropdownForm
+                                label={t(
+                                  'select_block_sub_county_upzila',
+                                )}
+                                required={true}
+                                data={blockData}
+                                onChange={item => {
+                                  setstorePersnolInfo({
+                                    ...storePersnolInfo,
+                                    block: item,
+                                  });
+                                }}
+                                val={storePersnolInfo.block.label}
+                              />
 
-                                        <InputTextForm
-                                          label={t('enter_address')}
-                                          value={
-                                            storePersnolInfo.address ?? address
-                                          }
-                                          onChangeText={address => {
-                                            setstorePersnolInfo({
-                                              ...storePersnolInfo,
-                                              address: address,
-                                            });
-                                          }}
-                                        />
-                                        <InputTextForm
-                                          label={t('enter_address')}
-                                          value={
-                                            storePersnolInfo.address ?? address
-                                          }
-                                          onChangeText={address => {
-                                            setstorePersnolInfo({
-                                              ...storePersnolInfo,
-                                              address: address,
-                                            });
-                                          }}
-                                        />
+                              <InputTextForm
+                                label={t('enter_address')}
+                                value={
+                                  storePersnolInfo.address ?? address
+                                }
+                                onChangeText={address => {
+                                  setstorePersnolInfo({
+                                    ...storePersnolInfo,
+                                    address: address,
+                                  });
+                                }}
+                              />
+                              <InputTextForm
+                                label={t('enter_address')}
+                                value={
+                                  storePersnolInfo.address ?? address
+                                }
+                                onChangeText={address => {
+                                  setstorePersnolInfo({
+                                    ...storePersnolInfo,
+                                    address: address,
+                                  });
+                                }}
+                              />
 
-                                        <InputTextForm
-                                          label={t('valid_pin_code')}
-                                          value={storePersnolInfo.zip ?? zip}
-                                          onChangeText={zip => {
-                                            setstorePersnolInfo({
-                                              ...storePersnolInfo,
-                                              zip: zip,
-                                            });
-                                          }}
-                                          maxLength={6}
-                                        />
+                              <InputTextForm
+                                label={t('valid_pin_code')}
+                                value={storePersnolInfo.zip ?? zip}
+                                onChangeText={zip => {
+                                  setstorePersnolInfo({
+                                    ...storePersnolInfo,
+                                    zip: zip,
+                                  });
+                                }}
+                                maxLength={6}
+                              />
 
-                                        {/* <ProofAndIdentityPropfComp
+                              {/* <ProofAndIdentityPropfComp
                       {/* <ProofAndIdentityPropfComp
                 identityProofIdentityPropf={identityProofIdentityPropf}
                 t={t}
@@ -870,52 +569,30 @@ const PersnolUpdate = () => {
                 handleDocumentSelection={handleDocumentSelection}
                 handleDocumentSelectionRemove={handleDocumentSelectionRemove}
               /> */}
-                                        <ProofAndIdentityPropfComp
-                                          identityProofIdentityPropf={
-                                            identityProofIdentityPropf
-                                          }
-                                          t={t}
-                                          title={t(
-                                            'address_proofAndIdentityPropf',
-                                          )}
-                                          setStateValue={
-                                            setIdentityProofIdentityPropf
-                                          }
-                                          stateValue={
-                                            identityProofIdentityPropf
-                                          }
-                                          disable={true}
-                                          InputTextFormEdit={true}
-                                          // photoDeletedValue={photoDeletedValue}
-                                          // setPhotoDeletedValue={setPhotoDeletedValue}
-                                          // loginUser_data={loginUser_data}
-                                        />
-                                      </View>
-                                    </View>
-                                  </View>
-                                </ScrollView>
-                              </View>
+                              <ProofAndIdentityPropfComp
+                                identityProofIdentityPropf={
+                                  identityProofIdentityPropf
+                                }
+                                t={t}
+                                title={t(
+                                  'address_proofAndIdentityPropf',
+                                )}
+                                setStateValue={
+                                  setIdentityProofIdentityPropf
+                                }
+                                stateValue={
+                                  identityProofIdentityPropf
+                                }
+                                disable={true}
+                                InputTextFormEdit={true}
+                              // photoDeletedValue={photoDeletedValue}
+                              // setPhotoDeletedValue={setPhotoDeletedValue}
+                              // loginUser_data={loginUser_data}
+                              />
                             </View>
-                            <ButtonForm
-                              label={t('next')}
-                              onPress={() => handleSave('Financial')}
-                            />
-                          </MyErrorBoundary>
-                        </Root>
-                      </SafeAreaView>
-                      <ProofAndIdentityPropfComp
-                        identityProofIdentityPropf={identityProofIdentityPropf}
-                        t={t}
-                        title={t('address_proofAndIdentityPropf')}
-                        setStateValue={setIdentityProofIdentityPropf}
-                        stateValue={identityProofIdentityPropf}
-                        disable={true}
-                        InputTextFormEdit={true}
-                        farmerName={storePersnolInfo.name}
-                        // photoDeletedValue={photoDeletedValue}
-                        // setPhotoDeletedValue={setPhotoDeletedValue}
-                        // loginUser_data={loginUser_data}
-                      />
+                          </View>
+                        </View>
+                      </ScrollView>
                     </View>
                   </View>
                 </View>
@@ -982,7 +659,7 @@ const styles = StyleSheet.create({
     zIndex: 2,
     elevation: 5, // For Android shadow
     shadowColor: '#000', // For iOS shadow
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
     justifyContent: 'center',

@@ -53,7 +53,9 @@ const Dashboard = ({ navigation }) => {
     loginUser_data,
     startWatchingLocation,
     stopWatchingLocation,
+    dbLanTokUsr
   } = useContext(userCreateContext);
+  const { carbonType } = dbLanTokUsr || {}
   const [refreshing, setRefreshing] = useState(false);
   const route = useRoute();
   const {
@@ -391,6 +393,7 @@ const Dashboard = ({ navigation }) => {
           informationNavigationPath="UsefulInformationList"
           leftButtonText={t('plot_status')}
           dashboardType="admin"
+          // carbonType={carbonType}
         />
         <View
           style={{

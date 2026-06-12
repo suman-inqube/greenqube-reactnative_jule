@@ -1,12 +1,5 @@
 import React, { memo, useCallback, useState, useContext } from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Image,
-  Alert,
-} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Alert } from 'react-native';
 import { SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import DocumentPicker, { types, pick } from '@react-native-documents/picker';
 import { createPdf } from 'react-native-images-to-pdf';
@@ -33,6 +26,7 @@ const ProofAndIdentityPropfComp = ({
   allowAddMore,
   farmerName = '',
   ai_camera_id_proof = '0',
+  is_id_proof
 }) => {
   const { loginUser_data, t } = useContext(userCreateContext);
   const [loading, setLoading] = useState(false);
@@ -66,6 +60,8 @@ const ProofAndIdentityPropfComp = ({
   const onHandleDocumentSelection = useCallback(
     async (imageType, index) => {
       try {
+        console.log("identityProofIdentityPropf",is_id_proof?.[1]?.imageType)
+        //check id proof not null and then allow to select document otherwise show alert
         const [res] = await pick({
           type: [types.pdf, types.images],
         });
@@ -85,6 +81,7 @@ const ProofAndIdentityPropfComp = ({
           imageType,
           value: '1',
           id: '',
+          // isvalid: false,
         };
         setStateValue(values);
       } catch (err) {
@@ -154,6 +151,7 @@ const ProofAndIdentityPropfComp = ({
   const handleScanAndCreatePdf = useCallback(
     async (imageType, index) => {
       setLoading(true);
+    //  check id proof not null and then allow scan otherwise show alert
       try {
         const { scannedImages, status } = await DocumentScanner.scanDocument({
           letUserAdjustCrop: false,
@@ -552,7 +550,7 @@ const ProofAndIdentityPropfComp = ({
               <View
                 style={{
                   borderWidth: 1,
-                  borderColor: '#c6c6c68b',
+                   borderColor: data?.isvalid ? '#ff0000' : '#c6c6c68b',
                   borderStyle: 'dotted',
                   justifyContent: 'center',
                   alignItems: 'center',

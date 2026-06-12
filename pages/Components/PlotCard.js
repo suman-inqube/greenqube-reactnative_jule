@@ -1,12 +1,12 @@
-import React, {memo, useCallback, useContext} from 'react';
-import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
-import {Colors, Fonts} from '../utils/Constants';
+import React, { memo, useCallback, useContext } from 'react';
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { Colors, Fonts } from '../utils/Constants';
 import CollapsibleCard from '../Common/CollapsibleCard';
 import StatusBadge from './StatusBadge';
 import CropHistorySheet from './CropHistorySheet';
-import {useBottomSheet} from '../Common/BottomSheetProvider';
-import {useNavigation} from '@react-navigation/native';
-import {userCreateContext} from '../Context/usersCreateContext';
+import { useBottomSheet } from '../Common/BottomSheetProvider';
+import { useNavigation } from '@react-navigation/native';
+import { userCreateContext } from '../Context/usersCreateContext';
 
 const PlotCard = memo(
   ({
@@ -19,8 +19,8 @@ const PlotCard = memo(
     role = 'farmer',
     activityApi,
   }) => {
-    const {t} = useContext(userCreateContext);
-    const {showBottomSheet} = useBottomSheet();
+    const { t } = useContext(userCreateContext);
+    const { showBottomSheet } = useBottomSheet();
     const navigation = useNavigation();
     // console.log(JSON.stringify(item));
 
@@ -115,7 +115,7 @@ const PlotCard = memo(
                     </Text>
                   ))}
                 </View>
-                <View style={{marginLeft: 10}}>
+                <View style={{ marginLeft: 10 }}>
                   <Text style={styles.label}>: {item?.plot_no}</Text>
                   <Text style={styles.label}>
                     : {item?.land_size} {item?.land_unit?.name}
@@ -138,14 +138,14 @@ const PlotCard = memo(
                   </Text>
                 </View>
               </View>
-
-              {item?.plot_status === 'REJECTED' && (
+              {/* change logic to show reject reason if plot is rejected or comment is there add ||item?.plot_status_comment!="" */}
+              {item?.plot_status === 'REJECTED' || item?.plot_status_comment !== "" ? (
                 <View style={styles.rejectBox}>
                   <Text style={styles.rejectText}>
                     {item?.plot_status_comment}
                   </Text>
                 </View>
-              )}
+              ) : <></>}
             </>
           }
           footer={

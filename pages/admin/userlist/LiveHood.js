@@ -115,6 +115,7 @@ const LiveHood = ({
   //GQR-65
   const navigation = useNavigation();
   const route = useRoute();
+  const scrollViewRef = useRef(null);
   const { farmeruserID, agri_land_user_rels, userName } = route.params;
   const [polygons, setPolygons] = useState([]);
   const [newPolygon, setNewPolygon] = useState([]);
@@ -172,6 +173,7 @@ const LiveHood = ({
     IOTLatlat: '',
     ConvertedreportedLandsize: 0,
     crop_cycl_start_date: '',
+    plotRejectComment: dataProps?.plot_status_comment,
   });
   const emptyLandDoc = () => ({
     uri: '',
@@ -179,6 +181,7 @@ const LiveHood = ({
     type: '',
     fileName: '',
     id: '',
+    isvalid: false,
   });
   const [addressProof, setAddressProof] = useState([
     emptyLandDoc(),
@@ -822,10 +825,11 @@ const LiveHood = ({
                 label: dataLandDetails?.plot_status,
                 value: dataLandDetails?.plot_status,
               }));
+              // alert(dataLandDetails?.status_level)
               setstatuslevel(prev => ({
                 ...prev,
-                label: dataLandDetails?.status_level,
-                value: dataLandDetails?.status_level,
+                label: dataLandDetails?.plot_status,
+                value: dataLandDetails?.plot_status,
               }));
               if (!historyData) {
                 if (new Date() < new Date(data.harvesting_date) != true) {
@@ -1297,11 +1301,11 @@ const LiveHood = ({
       crop_cycl_start_date: '',
     });
     setAddressProof([
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
+      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
+      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
+      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
+      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
+      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
     ]);
   };
   const [carboncertificate, setCarboncertificate] = useState([
@@ -1389,34 +1393,6 @@ const LiveHood = ({
   };
   const handleDatePicker = async item => {
     const selectedDate = effective_dates(item);
-    // const seasonData = await axiosGet(
-    //   ROUTES.GET.PRODUCE_SEASON({
-    //     from_date: selectedDate,
-    //   }),
-    //   '',
-    //   {
-    //     information: `${dbname},${lan_id},${user_id}`,
-    //     Authorization: `${token}`,
-    //   },
-    // );
-    // setFarmerData(prev => ({
-    //   ...prev,
-    //   productionSeason: '',
-    //   productionSeasonValue: '',
-    //   productionSeasonSdId: '',
-    //   productionSeasonYear: '',
-    // }));
-    // let prodctionSeasionArray = [];
-    // if (seasonData?.status === 200) {
-    //   prodctionSeasionArray = seasonData?.data?.data?.rows?.map(data => ({
-    //     value: data.season_info.fid,
-    //     label: `${data.season_info.name} (${data.year})`,
-    //     sd_id: data.sd_id, // NEW FIELD - stores season detail ID
-    //     year: data.year,
-    //     originalName: data.season_info.name,
-    //   }));
-    // }
-    // setProductionSeason(prodctionSeasionArray);
     setFarmerData(prev => ({
       ...prev,
       cycleStartDate: selectedDate,
@@ -1428,53 +1404,6 @@ const LiveHood = ({
       ...prev,
       cycleEndDate: effective_dates(item),
     }));
-
-  // const handleCurrentLatLong = useCallback(async index => {
-  //   const values = [...location];
-  //   const {latitude, longitude} = (await getItem('fusedLocation')) || {};
-  //   var latlong;
-  //   if (latitude == '' && longitude == '') {
-  //     latlong = await getHighAccuracyLocation();
-  //   }
-  //   const lat = latitude === '' ? latlong.latitude : latitude;
-  //   const lon = longitude === '' ? latlong.longitude : longitude;
-  //   if (
-  //     coords != null &&
-  //     // longitude.toString().length == 10 &&
-  //     // latitude.toString().length == 10 &&
-  //     lat > 0 &&
-  //     lon > 0
-  //   ) {
-  //     values[index] = {latitude: lat, longitude: lon};
-  //     setLocation(values);
-  //     const filteredDatalatLong = values.filter(
-  //       item => item?.latitude !== '' && item?.latitude != 0,
-  //     );
-  //     if (filteredDatalatLong.length >= 3) {
-  //       setNewPolygon(convertedArrayLatLong(filteredDatalatLong));
-  //       // setArea(calculateAreaFun(filteredDatalatLong));
-  //       setFarmerData(prev => ({
-  //         ...prev,
-  //         google_area: geolib.getAreaOfPolygon(filteredDatalatLong),
-  //       }));
-  //       if (landUnitsquareMetre?.[0]?.defined_unit_value) {
-  //         setArea(
-  //           Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-  //             geolib.getAreaOfPolygon(filteredDatalatLong),
-  //         );
-  //       } else {
-  //         setArea(geolib.getAreaOfPolygon(filteredDatalatLong));
-  //       }
-  //     } else {
-  //       setArea(0);
-  //     }
-  //   } else {
-  //     Toast.show({
-  //       text: t('Please_try_again_to_reach_the_accurancy'),
-  //       ...AlertMesg[0],
-  //     });
-  //   }
-  // }, []);
 
   const handleCurrentLatLong = useCallback(async index => {
     const values = [...location];
@@ -1535,15 +1464,6 @@ const LiveHood = ({
         productionSeasonYear: item.year,
         cycleStartDate: '',
         cycleEndDate: '',
-
-        // livelihoodType: '',
-        // livelihoodTypeValue: '',
-        // produceName: '',
-        // produceNameValue: '',
-        // produceVariety: '',
-        // produceVarietyValue: '',
-        // productionProcess: '',
-        // productionProcessValue: '',
       }));
       const seasonData = await axiosGet(
         ROUTES.GET.PRODUCE_SEASON({
@@ -2064,10 +1984,7 @@ const LiveHood = ({
         let formDataDelete = qs.stringify({
           file_delete_ids: photoDeletedvalidValues?.toString(),
         });
-        const filterAddressImage = addressProof.filter(
-          item => item.name !== '',
-        );
-
+        const filterAddressImage = addressProof.filter(item => item.name !== '');
         if (userData == 'addUserData' || addPlot == true) {
           addressProof.map((data, index) => {
             if (data.name != '') {
@@ -2093,11 +2010,56 @@ const LiveHood = ({
           //   '',
           //   '',
           // );
+          console.log('AddLandCropDetails_res==', JSON.stringify(AddLandCropDetails_res?.data?.data?.validationResponse?.rejected_documents));
           if (
             AddLandCropDetails_res?.status === 200 ||
             AddLandCropDetails_res?.status === 202
           ) {
-            setIsLoading(false);
+            // const { plot_status, missing, rejected_documents } = AddLandCropDetails_res?.data?.data?.validationResponse || {}
+            // setIsLoading(false);
+            // const addressVal = [...addressProof];
+            // if (missing?.length > 0) {
+            //   setSelectedTab('PLOT');
+            //   setFarmerData(prev => ({
+            //     ...prev,
+            //     plotRejectComment: missing ,
+            //   }));
+            //   setPlotStatus({
+            //     label: plot_status,
+            //     value: plot_status,
+            //   })
+            //   addressProof?.map((data, index) => {
+            //     if (rejected_documents?.[index]) {
+            //       const pdf_url = rejected_documents?.[index]?.pdf_url;
+            //       addressVal[index] = {
+            //         fileName: pdf_url.split('/').pop(),
+            //         id: "",
+            //         isvalid: true,
+            //         name: pdf_url.split('/').pop(),
+            //         type: "image/jpeg",
+            //         uri: pdf_url,
+            //         value: ''
+            //       };
+            //     } else {
+            //       addressVal[index] = {
+            //         fileName: "",
+            //         id: "",
+            //         isvalid: false,
+            //         name: "",
+            //         type: "",
+            //         uri: "",
+            //         value: ''
+            //       };
+            //     }
+            //   })
+            //   setAddressProof(addressVal);
+            //   scrollToTop();
+            //   setIsLoading(false);
+            //   Toast.show({ text: missing, ...AlertMesg[0] });
+            //   return;
+            // } else {
+            //   // onTabPress(0);
+            // }
             removesetLocation();
             Toast.show({ text: t('l_c_add_succ'), ...AlertMesg[0] });
             onTabPress(0);
@@ -2276,6 +2238,7 @@ const LiveHood = ({
               ),
             ],
           );
+
           if (addPlotImageAPIRes?.data?.error?.errorCode == 400) {
             Alert.alert(
               'File',
@@ -2373,22 +2336,59 @@ const LiveHood = ({
                     information: `${dbname},${lan_id},${farmeruserID}`,
                   },
                 );
-
-                // uploadCarbonAgrDocs(
-                //   dbname,
-                //   lan_id,
-                //   token,
-                //   farmeruserID,
-                //   formdataCarbon,
-                // );
               }
             }
           }
+          console.log('addPlotImageAPIRes==', JSON.stringify(addPlotImageAPIRes?.data));
+          const { plot_status, missing, rejected_documents } = addPlotImageAPIRes?.data?.data?.validationResponse || {}
+          if (missing?.length > 0) {
+            const addressVal = [...addressProof];
+            setSelectedTab('PLOT');
+            setFarmerData(prev => ({
+              ...prev,
+              plotRejectComment: missing,
+            }));
+            setPlotStatus({
+              label: plot_status,
+              value: plot_status,
+            })
+            addressProof?.map((data, index) => {
+              if (rejected_documents?.[index]) {
+                const pdf_url = rejected_documents?.[index]?.pdf_url;
+                addressVal[index] = {
+                  fileName: pdf_url.split('/').pop(),
+                  id: "",
+                  isvalid: true,
+                  name: pdf_url.split('/').pop(),
+                  type: "image/jpeg",
+                  uri: pdf_url,
+                  value: ''
+                };
+              } else {
+                addressVal[index] = {
+                  fileName: "",
+                  id: "",
+                  isvalid: false,
+                  name: "",
+                  type: "",
+                  uri: "",
+                  value: ''
+                };
+              }
+            })
+            setAddressProof(addressVal);
+            scrollToTop();
+            Toast.show({ text: missing, ...AlertMesg[0] });
+            setIsLoading(false);
+            return;
+          } else {
+            onTabPress(0);
+          }
           if (!historyData) {
             if (updateLandCropdetails_res?.status === 200) {
-              removesetLocation();
+              // removesetLocation();
               Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
-              onTabPress(0);
+              // onTabPress(0);
             } else {
               setIsLoading(false);
               Toast.show({
@@ -2397,11 +2397,10 @@ const LiveHood = ({
               });
             }
           } else {
-            console.log('cropInputRes', cropInputRes);
             if (cropInputRes?.status === 200) {
-              removesetLocation();
+              // removesetLocation();
               Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
-              onTabPress(0);
+              // onTabPress(0); stop basudev
             } else {
               setIsLoading(false);
               Toast.show({
@@ -3135,6 +3134,13 @@ const LiveHood = ({
       }),
     );
   };
+
+  const scrollToTop = () => {
+    scrollViewRef.current?.scrollTo({
+      y: 0,
+      animated: true,
+    });
+  };
   return (
     <MyErrorBoundary>
       <>
@@ -3285,9 +3291,9 @@ const LiveHood = ({
             padding: 15,
             backgroundColor: Colors.background,
           }}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false} ref={scrollViewRef}>
           <View style={{ marginBottom: 40 }}>
-            {plotStatus.label == 'REJECTED' && (
+            {plotStatus.label == 'REJECTED' || farmerData?.plotRejectComment !== '' ? (
               <View
                 style={{
                   paddingVertical: 10,
@@ -3304,10 +3310,10 @@ const LiveHood = ({
                     fontFamily: 'Poppins-Regular',
                     fontSize: 14,
                   }}>
-                  {dataProps?.plot_status_comment}
+                  {farmerData?.plotRejectComment}
                 </Text>
               </View>
-            )}
+            ) : <></>}
 
             {selectedTab === 'PLOT' && (
               <View>
@@ -3485,6 +3491,7 @@ const LiveHood = ({
                   marginBottom={navigationBarHeight}
                   allowAddMore={true}
                   ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
+                  is_id_proof={identityProofIdentityPropf}
                 />
 
                 <View style={{ marginTop: 15 }}>
@@ -3896,32 +3903,17 @@ const LiveHood = ({
             onPressItem={name => {
               const plotStatusValue = plotStatus?.label;
               const statusLevelValue = statuslevel?.label;
-
-              console.log('📊 STATUS CHECK =>', {
-                plotStatusValue,
-                statusLevelValue,
-                clicked: name,
-              });
-
               const restrictedActions = [
                 'coFarmer',
                 'coFarmerList',
                 'AddCoFarmerList',
               ];
-
               // ✅ FINAL CONDITIONS
-              const isPendingCarbonSubmitted =
-                plotStatusValue === 'PENDING' &&
-                statusLevelValue === 'CARBON_DOCUMENTS_SUBMITTED';
-
+              const isPendingCarbonSubmitted = plotStatusValue === 'PENDING' && statusLevelValue === 'CARBON_DOCUMENTS_SUBMITTED';
               const isApproved = plotStatusValue === 'APPROVED';
-
               const isBlocked = isPendingCarbonSubmitted || isApproved;
-
               // 🚫 BLOCK
               if (isBlocked && restrictedActions.includes(name)) {
-                console.log('🚫 BLOCKED ACTION:', name);
-
                 Toast?.show({
                   text:
                     plotStatusValue === 'APPROVED'

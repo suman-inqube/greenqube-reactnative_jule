@@ -97,6 +97,7 @@ const FarmerLiveHood = ({
     ButtonFormBottom,
     ButtonForm,
     coords,
+    dbLanTokUsr
   } = useContext(userCreateContext);
   const [maxStartDate, setMaxStartDate] = useState(new Date());
   const [minStartDate, setMinStartDate] = useState(new Date());
@@ -3034,6 +3035,7 @@ const FarmerLiveHood = ({
                       : true
                   }
                   farmerName={loginUser_data?.userName}
+                  ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
                 />
               </View>
               {area != 0 && area != null && (

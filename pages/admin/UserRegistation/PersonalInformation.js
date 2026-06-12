@@ -162,6 +162,8 @@ const PersonalInformation = () => {
     }
     setstateAll(dataArray);
   };
+    // 3. LOAD STATE API + CONTACT DIGIT API
+    const { dbName, languageId, country_id, languageConpany, ai_camera_id_proof, carbonType } = dbLanTokUsr;
   const onPageLoad = async () => {
     setIsLoading(true);
     const saved = await getItem('storePersnolInfo_data');
@@ -192,8 +194,7 @@ const PersonalInformation = () => {
       block,
     });
 
-    // 3. LOAD STATE API + CONTACT DIGIT API
-    const { dbName, languageId, country_id, languageConpany,ai_camera_id_proof } = dbLanTokUsr;
+  
 
     const [checkPhoneNumberDigit] = await Promise.all([
       axiosGet(ROUTES.GET.CHECK_PHONE_DIGIT({ countryId: country_id }), '', {
@@ -474,7 +475,7 @@ const PersonalInformation = () => {
       name: "",
       fileName: "",
       type: "image/jpeg",
-      imageType:'identity',
+      imageType: 'identity',
       value: '1',
       id: '',
     };
@@ -622,7 +623,7 @@ const PersonalInformation = () => {
                             selected={farmerData.userType === '3'}
                           />
                         </View>
-                        <InputTextForm
+                       <InputTextForm
                           label={t('age')}
                           required={true}
                           keyboardType={'number-pad'}
@@ -630,6 +631,7 @@ const PersonalInformation = () => {
                           onChangeText={handleAddDataAge}
                           value={farmerData.age}
                         />
+
                         <DropdownForm
                           label={
                             regionaldatas.state == ''
@@ -691,22 +693,24 @@ const PersonalInformation = () => {
                           value={farmerData.cpassword}
                           required={true}
                         />
-                        <ProofAndIdentityPropfComp
-                          identityProofIdentityPropf={
-                            identityProofIdentityPropf
-                          }
-                          t={t}
-                          title={t('address_proofAndIdentityPropf')}
-                          setStateValue={setIdentityProofIdentityPropf}
-                          stateValue={identityProofIdentityPropf}
-                          disable={true}
-                          InputTextFormEdit={true}
-                          farmerName={farmerData.name}
-                        // photoDeletedValue={photoDeletedValue}
-                        // setPhotoDeletedValue={setPhotoDeletedValue}
-                        // loginUser_data={loginUser_data}
-                        ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
-                        />
+                        {carbonType !== 'mangrove' && (
+                          <ProofAndIdentityPropfComp
+                            identityProofIdentityPropf={
+                              identityProofIdentityPropf
+                            }
+                            t={t}
+                            title={t('address_proofAndIdentityPropf')}
+                            setStateValue={setIdentityProofIdentityPropf}
+                            stateValue={identityProofIdentityPropf}
+                            disable={true}
+                            InputTextFormEdit={true}
+                            farmerName={farmerData.name}
+                            // photoDeletedValue={photoDeletedValue}
+                            // setPhotoDeletedValue={setPhotoDeletedValue}
+                            // loginUser_data={loginUser_data}
+                            ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
+                          />
+                        )}
                       </View>
                     </View>
                   </View>

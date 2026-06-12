@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect, memo} from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,7 +7,7 @@ import {
   Animated,
   FlatList,
 } from 'react-native';
-import {Colors, Fonts} from '../utils/Constants';
+import { Colors, Fonts } from '../utils/Constants';
 import moment from 'moment';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
@@ -27,8 +27,11 @@ const TrackingInformation = ({
   informationNavigationParams,
   leftButtonText,
   dashboardType = 'admin',
+  carbonType
 }) => {
-  const [activeTab, setActiveTab] = useState('tracking');
+  const [activeTab, setActiveTab] = useState(
+    carbonType === 'mangrove' ? 'information' : 'tracking',
+  );
   const trackingScale = useRef(new Animated.Value(1)).current;
   const infoScale = useRef(new Animated.Value(1)).current;
   const handleToggle = tab => {
@@ -89,10 +92,10 @@ const TrackingInformation = ({
       scrollEnabled={false}
       data={plotStatus.slice(0, 3)}
       keyExtractor={(item, index) => index.toString()}
-      contentContainerStyle={{paddingBottom: 16, height: 218}}
-      renderItem={({item, index}) => {
+      contentContainerStyle={{ paddingBottom: 16, height: 218 }}
+      renderItem={({ item, index }) => {
         const isLastItem = index === plotStatus.slice(0, 3).length - 1;
-        const {farmer_data, plot_no} = item || {};
+        const { farmer_data, plot_no } = item || {};
         return (
           <TouchableOpacity
             style={{
@@ -108,15 +111,15 @@ const TrackingInformation = ({
             <Text
               style={[
                 styles.text,
-                {color: Colors.text, fontFamily: Fonts.Medium},
+                { color: Colors.text, fontFamily: Fonts.Medium },
               ]}>
               {item?.farmer_data?.userName || t('activity_name_nil')}
             </Text>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={[styles.text, {color: '#ff0101ff'}]}>
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={[styles.text, { color: '#ff0101ff' }]}>
                 {t('Rejected_Plot')}:{' '}
               </Text>
-              <Text style={[styles.text, {color: Colors.text}]}>{plot_no}</Text>
+              <Text style={[styles.text, { color: Colors.text }]}>{plot_no}</Text>
             </View>
           </TouchableOpacity>
         );
@@ -134,8 +137,8 @@ const TrackingInformation = ({
       scrollEnabled={false}
       data={latestActivities.slice(0, 3)}
       keyExtractor={(item, index) => index.toString()}
-      contentContainerStyle={{paddingBottom: 16, height: 218}}
-      renderItem={({item, index}) => {
+      contentContainerStyle={{ paddingBottom: 16, height: 218 }}
+      renderItem={({ item, index }) => {
         const isLastItem = index === latestActivities.slice(0, 3).length - 1;
         return (
           <TouchableOpacity
@@ -152,15 +155,15 @@ const TrackingInformation = ({
             <Text
               style={[
                 styles.text,
-                {color: Colors.text, fontFamily: Fonts.Medium},
+                { color: Colors.text, fontFamily: Fonts.Medium },
               ]}>
               {item?.typeActivity?.categoryName || t('activity_name_nil')}
             </Text>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={[styles.text, {color: Colors.text}]}>
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={[styles.text, { color: Colors.text }]}>
                 {t('perf_date')}:{' '}
               </Text>
-              <Text style={[styles.text, {color: Colors.text}]}>
+              <Text style={[styles.text, { color: Colors.text }]}>
                 {moment(item.act_perform_date).utc().format('YYYY-MM-DD')}
               </Text>
             </View>
@@ -174,35 +177,37 @@ const TrackingInformation = ({
       <View style={styles.headerContainer}>
         <View style={styles.toggleWrapper}>
           {/* Tracking Button */}
-          <Animated.View style={{transform: [{scale: trackingScale}], flex: 1}}>
-            <TouchableOpacity
-              style={[
-                styles.toggleButton,
-                {
-                  backgroundColor:
-                    activeTab === 'tracking' ? Colors.useGreen : 'transparent',
-                  borderTopLeftRadius: 20,
-                  borderBottomLeftRadius: 20,
-                },
-              ]}
-              onPress={() => handleToggle('tracking')}>
-              <Text
+          {carbonType !== 'mangrove' && (
+            <Animated.View style={{ transform: [{ scale: trackingScale }], flex: 1 }}>
+              <TouchableOpacity
                 style={[
-                  styles.toggleText,
+                  styles.toggleButton,
                   {
-                    color:
-                      activeTab === 'tracking'
-                        ? Colors.background
-                        : Colors.text,
+                    backgroundColor:
+                      activeTab === 'tracking' ? Colors.useGreen : 'transparent',
+                    borderTopLeftRadius: 20,
+                    borderBottomLeftRadius: 20,
                   },
-                ]}>
-                {leftButtonText}
-              </Text>
-            </TouchableOpacity>
-          </Animated.View>
+                ]}
+                onPress={() => handleToggle('tracking')}>
+                <Text
+                  style={[
+                    styles.toggleText,
+                    {
+                      color:
+                        activeTab === 'tracking'
+                          ? Colors.background
+                          : Colors.text,
+                    },
+                  ]}>
+                  {leftButtonText}
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
+          )}
 
           {/* Information Button */}
-          <Animated.View style={{transform: [{scale: infoScale}], flex: 1}}>
+          <Animated.View style={{ transform: [{ scale: infoScale }], flex: 1 }}>
             <TouchableOpacity
               style={[
                 styles.toggleButton,
@@ -255,8 +260,8 @@ const TrackingInformation = ({
             scrollEnabled={false}
             data={usefulInfoList.slice(0, 3)}
             keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={{paddingBottom: 16, height: 218}}
-            renderItem={({item, index}) => {
+            contentContainerStyle={{ paddingBottom: 16, height: 218 }}
+            renderItem={({ item, index }) => {
               const isLastItem =
                 index === usefulInfoList.slice(0, 3).length - 1;
 
@@ -278,16 +283,16 @@ const TrackingInformation = ({
                   <Text
                     style={[
                       styles.text,
-                      {color: Colors.text, fontFamily: Fonts.Medium},
+                      { color: Colors.text, fontFamily: Fonts.Medium },
                     ]}>
                     {item?.post_name || 'Information Name: Nill'}
                   </Text>
 
-                  <View style={{flexDirection: 'row'}}>
-                    <Text style={[styles.text, {color: Colors.text}]}>
+                  <View style={{ flexDirection: 'row' }}>
+                    <Text style={[styles.text, { color: Colors.text }]}>
                       {t('perf_date')}:{' '}
                     </Text>
-                    <Text style={[styles.text, {color: Colors.text}]}>
+                    <Text style={[styles.text, { color: Colors.text }]}>
                       {moment(item.updated_at).utc().format('YYYY-MM-DD')}
                     </Text>
                   </View>
