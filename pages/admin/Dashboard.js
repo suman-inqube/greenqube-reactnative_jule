@@ -393,7 +393,7 @@ const Dashboard = ({ navigation }) => {
           informationNavigationPath="UsefulInformationList"
           leftButtonText={t('plot_status')}
           dashboardType="admin"
-          // carbonType={carbonType}
+          carbonType={carbonType}
         />
         <View
           style={{

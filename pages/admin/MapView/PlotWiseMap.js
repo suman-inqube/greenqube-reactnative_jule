@@ -326,27 +326,6 @@ const PlotWiseMap = () => {
         { information: `${dbname}` },
       );
       if (response?.status === 200) {
-        // const formattedData = transformData(response);
-        // 🔥 500m FILTER
-        // const nearbyPlots = formattedData.filter(plot => {
-        //   if (!plot.center_lat || !plot.center_lng) return false;
-
-        //   const distance = getDistance(
-        //     {
-        //       latitude: baseLatLong.latitude,
-        //       longitude: baseLatLong.longitude,
-        //     },
-        //     {
-        //       latitude: plot.center_lat,
-        //       longitude: plot.center_lng,
-        //     },
-        //   );
-
-        //   return distance <= 90000;
-        // });
-        // console.log('nearbyPlots', nearbyPlots);
-        // setPlotData(nearbyPlots);
-        // setPolygons(formatPolygonsForMap(nearbyPlots, null));
         const formattedData = transformData(response);
         setPlotData(formattedData);
         setPolygons(formatPolygonsForMap(formattedData, null));

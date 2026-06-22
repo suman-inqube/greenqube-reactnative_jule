@@ -11,12 +11,12 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Logo from './Common/Logo';
 import DropdownForm from './Common/DropdownForm';
 import ButtonForm from './Common/ButtonForm';
 import InputTextForm from './Common/InputTextForm';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import MessageDialog from './Common/MessageDialog';
 import {
   countryDataListAPI,
@@ -27,27 +27,27 @@ import {
 } from '../config/apiHere';
 import axios from 'axios';
 import config from '../config';
-import {isNotEmpty} from './Common/ValidationFunctions';
-import {Permission, PERMISSIONS_TYPE} from './Common/AppPermission';
-import {request, PERMISSIONS} from 'react-native-permissions';
-import {Root, Popup, Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
-import {AlertMesg} from './Common/ToastAlert';
-import {getItem, setItem} from '../config/getDataFromStorage';
-import {useTranslation} from 'react-i18next';
+import { isNotEmpty } from './Common/ValidationFunctions';
+import { Permission, PERMISSIONS_TYPE } from './Common/AppPermission';
+import { request, PERMISSIONS } from 'react-native-permissions';
+import { Root, Popup, Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
+import { AlertMesg } from './Common/ToastAlert';
+import { getItem, setItem } from '../config/getDataFromStorage';
+import { useTranslation } from 'react-i18next';
 import PasswordComp from './Common/PasswordComp';
 import ForegroundLocationService from './BackgroundService/ForegroundLocationService';
-import {CrashlyticsRecordError} from './Crashlytics/CrashlyticsRecordError';
+import { CrashlyticsRecordError } from './Crashlytics/CrashlyticsRecordError';
 import DeviceInfo from './DeviceInfo';
-import {Colors, Fonts} from './utils/Constants';
-import {axiosPost, axiosGet} from './utils/api';
-import {ROUTES} from './utils/Routes';
+import { Colors, Fonts } from './utils/Constants';
+import { axiosPost, axiosGet } from './utils/api';
+import { ROUTES } from './utils/Routes';
 import MyErrorBoundary from './Common/MyErrorBoundary';
-import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 
 const Signup = () => {
   const keyboardVerticalOffset = Platform.OS === 'ios' ? 40 : -40;
-  const {netConnection} = DeviceInfo();
-  const {t} = useTranslation();
+  const { netConnection } = DeviceInfo();
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const language_id = 1;
   const [isLoading, setIsLoading] = useState(false);
@@ -148,7 +148,7 @@ const Signup = () => {
               });
             }
           } else {
-            company_list_arr.push({[country_id]: JSON.stringify(companyArray)});
+            company_list_arr.push({ [country_id]: JSON.stringify(companyArray) });
             companyData_list_local_data = company_list_arr;
           }
           await setItem('companyDataListAPI', companyData_list_local_data);
@@ -174,13 +174,13 @@ const Signup = () => {
     }
   };
   const companyHandle = async company => {
-    setstoreSignup({...storeSignup, company: company, supervisor: ''});
+    setstoreSignup({ ...storeSignup, company: company, supervisor: '' });
     const resCarbonFlag = await axiosGet(ROUTES.GET.SHOW_CARBON_FLAG, '', {
       information: `${company.dbname},1`,
     });
-  const {option_value} = resCarbonFlag?.data?.data || {};
-  await setItem('carbon_status', option_value);
-   
+    const { option_value, option_name } = resCarbonFlag?.data?.data || {};
+    await setItem('carbon_status', option_value);
+    await setItem('carbon_option', option_name == "Carbon mangrove" ? 'mangrove' : option_name);
     supervisorDataList(company.value);
   };
   let supervisorDataList = async company_id => {
@@ -189,13 +189,13 @@ const Signup = () => {
       let supervisory_ofline_list_arr = [];
       let supervisory_ofline_list = await getItem('supervisoryDataListAPI');
       if (netConnection) {
-        
+
         let supervisor_res = await axiosGet(
           ROUTES.GET.SUPERVISOR_DATA_LIST({
             company_id: company_id,
           }),
           '',
-          {information: `localhost,1`},
+          { information: `localhost,1` },
         );
         // supervisoryDataListAPI(company_id);
         if (supervisor_res.data.data) {
@@ -269,7 +269,7 @@ const Signup = () => {
         ...AlertMesg[0],
       });
       // MessageDialog({ title: 'Require', message: 'Please fill in all required fields with valid data.' })
-      setstoreSignup({...storeSignup, phone: ''});
+      setstoreSignup({ ...storeSignup, phone: '' });
       phoneInputRef.current.focus();
     }
   };
@@ -278,7 +278,7 @@ const Signup = () => {
     try {
       if (netConnection) {
         let check_phone_digit_res = await axiosGet(
-          ROUTES.GET.CHECK_PHONE_DIGIT({countryId: storeSignup.country.value}),
+          ROUTES.GET.CHECK_PHONE_DIGIT({ countryId: storeSignup.country.value }),
           '',
           {
             information: `${storeSignup.company.dbname},${language_id}`,
@@ -305,7 +305,7 @@ const Signup = () => {
             });
             Keyboard.dismiss();
             // phoneInputRef.current.focus();
-            setstoreSignup({...storeSignup, phone: ''});
+            setstoreSignup({ ...storeSignup, phone: '' });
           }
         }
       }
@@ -341,7 +341,7 @@ const Signup = () => {
         text: `This ${storeSignup.phone} Not Available`,
         ...AlertMesg[0],
       });
-      setstoreSignup({...storeSignup, phone: ''});
+      setstoreSignup({ ...storeSignup, phone: '' });
       phoneInputRef.current.focus();
     }
   };
@@ -355,7 +355,7 @@ const Signup = () => {
       return false;
     }
     if (!storeSignup.company.value) {
-      Toast.show({time: 3, text: `${t('pls_sel_com_first')}`, ...AlertMesg[0]});
+      Toast.show({ time: 3, text: `${t('pls_sel_com_first')}`, ...AlertMesg[0] });
       return false;
     }
     if (!storeSignup.supervisor.value) {
@@ -375,17 +375,17 @@ const Signup = () => {
       return false;
     }
     if (!storeSignup.password) {
-      Toast.show({time: 3, text: `${t('enter_pass')}`, ...AlertMesg[0]});
+      Toast.show({ time: 3, text: `${t('enter_pass')}`, ...AlertMesg[0] });
       return false;
     }
     if (!storeSignup.cpassword) {
-      Toast.show({time: 3, text: `${t('enter_conf_pass')}`, ...AlertMesg[0]});
+      Toast.show({ time: 3, text: `${t('enter_conf_pass')}`, ...AlertMesg[0] });
       return false;
     }
     const password = storeSignup.password;
     const cpassword = storeSignup.cpassword;
     if (password != cpassword) {
-      Toast.show({time: 3, text: `${t('same_con_password')}`, ...AlertMesg[0]});
+      Toast.show({ time: 3, text: `${t('same_con_password')}`, ...AlertMesg[0] });
       return false;
     }
     return true;
@@ -394,7 +394,7 @@ const Signup = () => {
     Keyboard.dismiss();
     if (validateForm()) {
       await setItem('storeSignup_data', storeSignup);
-      navigation.navigate('Persnol', {pagename: 'Financial'});
+      navigation.navigate('Persnol', { pagename: 'Financial' });
     }
   };
   const getDataFromLocalStorage = async () => {
@@ -411,7 +411,7 @@ const Signup = () => {
     }
   };
   const handleAddData = (name, value) => {
-    setstoreSignup({...storeSignup, [name]: value});
+    setstoreSignup({ ...storeSignup, [name]: value });
   };
   useEffect(() => {
     getDataFromLocalStorage();
@@ -420,150 +420,150 @@ const Signup = () => {
 
   return (
     <SafeAreaProvider>
-     <SafeAreaView
-        style={{flex: 1, backgroundColor: '#1d3122'}}
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: '#1d3122' }}
         edges={['top', 'right', 'bottom', 'left']}>
-      <Root>
-      <>
-        {/* <StatusBar barStyle="light-content" backgroundColor={"#003c04"} /> */}
-        <StatusBar barStyle="light-content" backgroundColor={Colors.green} />
-        <View style={styles.container}>
-          <View
-            style={{
-              // height: 100,
-              backgroundColor: Colors.green,
-              borderBottomLeftRadius: 30,
-              borderBottomRightRadius: 30,
-              justifyContent: 'flex-end',
-            }}>
-            <View style={styles.headersContainer}>
-              <Text style={styles.headersTitle}>{t('Sign Up')}</Text>
-            </View>
-            <View style={styles.headerSubContainer}>
-              <Text style={styles.headerSubTitle}>
-                {t('Hello there, sign up to continue!')}
-              </Text>
-            </View>
-          </View>
-          <View style={{flex: 1, justifyContent: 'center'}}>
-            {/* <KeyboardAvoidingView
-              // behavior='position' keyboardVerticalOffset={keyboardVerticalOffset}
-              behavior={Platform.OS === 'ios' ? 'padding' : null}
-              keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 50}> */}
-            <ScrollView showsVerticalScrollIndicator={false}>
+        <Root>
+          <>
+            {/* <StatusBar barStyle="light-content" backgroundColor={"#003c04"} /> */}
+            <StatusBar barStyle="light-content" backgroundColor={Colors.green} />
+            <View style={styles.container}>
               <View
                 style={{
-                  backgroundColor: Colors.useGreen,
-                  alignSelf: 'flex-end',
-                  marginTop: 10,
-                  borderRadius: 40,
-                  width: '10%',
-                  // height: 30,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginRight: 20,
+                  // height: 100,
+                  backgroundColor: Colors.green,
+                  borderBottomLeftRadius: 30,
+                  borderBottomRightRadius: 30,
+                  justifyContent: 'flex-end',
                 }}>
-                <Text
-                  style={{
-                    color: 'white',
-                  }}>
-                  1/4
-                </Text>
-              </View>
-              <View style={{alignItems: 'center'}}>
-                <Image
-                  source={require('../pages/Common/images/logo.png')}
-                  style={styles.logo}
-                />
-              </View>
-              <View style={styles.formContainer}>
-                <DropdownForm
-                  data={countryData}
-                  label={t('country')}
-                  iconName="flag"
-                  required={true}
-                  // color="red"
-                  onChange={country => {
-                    countryHandle(country);
-                  }}
-                  val={storeSignup?.country?.label}
-                />
-                <DropdownForm
-                  data={companyData}
-                  label={t('new_reg_select_company')}
-                  iconName="apartment"
-                  required={true}
-                  onChange={company => {
-                    companyHandle(company);
-                  }}
-                  val={storeSignup.company.label}
-                />
-                <DropdownForm
-                  data={supervisorData}
-                  label={t('select_supervisor')}
-                  iconName="supervisor-account"
-                  required={true}
-                  onChange={supervisor => {
-                    setstoreSignup({...storeSignup, supervisor: supervisor});
-                  }}
-                  val={storeSignup.supervisor.label}
-                />
-                <InputTextForm
-                  label={t('farmer_reg_mb')}
-                  // color="red"
-                  required={true}
-                  value={storeSignup.phone}
-                  onChangeText={phone => {
-                    const numericPhone = phone.replace(/[^0-9]/g, ''); // Allow only digits
-                    setstoreSignup({...storeSignup, phone: numericPhone});
-                  }}
-                  keyboardType="numeric"
-                  onBlur={phone => checkPhone(phone)}
-                  refname={phoneInputRef}
-                  maxLength={10}
-                />
-
-                <PasswordComp
-                  setPasswordVisibility={setPasswordVisibility}
-                  passwordVisibility={passwordVisibility}
-                  label={t('new_reg_password')}
-                  onChangeText={value => handleAddData('password', value)}
-                  value={storeSignup.password}
-                  required={true}
-                />
-                <PasswordComp
-                  setPasswordVisibility={setcPasswordVisibility}
-                  passwordVisibility={cpasswordVisibility}
-                  label={t('new_reg_confirm_password')}
-                  onChangeText={value => handleAddData('cpassword', value)}
-                  value={storeSignup.cpassword}
-                  required={true}
-                />
-                <View style={styles.backLogin}>
-                  <Text style={styles.allReady}>Already have an account ?</Text>
-
-                  <Text
-                    style={styles.login}
-                    onPress={() => navigation.navigate('Login')}>
-                    {t('Sign In')}
+                <View style={styles.headersContainer}>
+                  <Text style={styles.headersTitle}>{t('Sign Up')}</Text>
+                </View>
+                <View style={styles.headerSubContainer}>
+                  <Text style={styles.headerSubTitle}>
+                    {t('Hello there, sign up to continue!')}
                   </Text>
                 </View>
               </View>
-            </ScrollView>
-            <ButtonForm
-              label={t('next')}
-              onPress={() => saveHandle()}
-              iconName="arrow-forward"
-              iconColor="#fff"
-              iconSize={25}
-              loading={isLoading}
-            />
-            {/* </KeyboardAvoidingView>
+              <View style={{ flex: 1, justifyContent: 'center' }}>
+                {/* <KeyboardAvoidingView
+              // behavior='position' keyboardVerticalOffset={keyboardVerticalOffset}
+              behavior={Platform.OS === 'ios' ? 'padding' : null}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 50}> */}
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  <View
+                    style={{
+                      backgroundColor: Colors.useGreen,
+                      alignSelf: 'flex-end',
+                      marginTop: 10,
+                      borderRadius: 40,
+                      width: '10%',
+                      // height: 30,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginRight: 20,
+                    }}>
+                    <Text
+                      style={{
+                        color: 'white',
+                      }}>
+                      1/4
+                    </Text>
+                  </View>
+                  <View style={{ alignItems: 'center' }}>
+                    <Image
+                      source={require('../pages/Common/images/logo.png')}
+                      style={styles.logo}
+                    />
+                  </View>
+                  <View style={styles.formContainer}>
+                    <DropdownForm
+                      data={countryData}
+                      label={t('country')}
+                      iconName="flag"
+                      required={true}
+                      // color="red"
+                      onChange={country => {
+                        countryHandle(country);
+                      }}
+                      val={storeSignup?.country?.label}
+                    />
+                    <DropdownForm
+                      data={companyData}
+                      label={t('new_reg_select_company')}
+                      iconName="apartment"
+                      required={true}
+                      onChange={company => {
+                        companyHandle(company);
+                      }}
+                      val={storeSignup.company.label}
+                    />
+                    <DropdownForm
+                      data={supervisorData}
+                      label={t('select_supervisor')}
+                      iconName="supervisor-account"
+                      required={true}
+                      onChange={supervisor => {
+                        setstoreSignup({ ...storeSignup, supervisor: supervisor });
+                      }}
+                      val={storeSignup.supervisor.label}
+                    />
+                    <InputTextForm
+                      label={t('farmer_reg_mb')}
+                      // color="red"
+                      required={true}
+                      value={storeSignup.phone}
+                      onChangeText={phone => {
+                        const numericPhone = phone.replace(/[^0-9]/g, ''); // Allow only digits
+                        setstoreSignup({ ...storeSignup, phone: numericPhone });
+                      }}
+                      keyboardType="numeric"
+                      onBlur={phone => checkPhone(phone)}
+                      refname={phoneInputRef}
+                      maxLength={10}
+                    />
+
+                    <PasswordComp
+                      setPasswordVisibility={setPasswordVisibility}
+                      passwordVisibility={passwordVisibility}
+                      label={t('new_reg_password')}
+                      onChangeText={value => handleAddData('password', value)}
+                      value={storeSignup.password}
+                      required={true}
+                    />
+                    <PasswordComp
+                      setPasswordVisibility={setcPasswordVisibility}
+                      passwordVisibility={cpasswordVisibility}
+                      label={t('new_reg_confirm_password')}
+                      onChangeText={value => handleAddData('cpassword', value)}
+                      value={storeSignup.cpassword}
+                      required={true}
+                    />
+                    <View style={styles.backLogin}>
+                      <Text style={styles.allReady}>Already have an account ?</Text>
+
+                      <Text
+                        style={styles.login}
+                        onPress={() => navigation.navigate('Login')}>
+                        {t('Sign In')}
+                      </Text>
+                    </View>
+                  </View>
+                </ScrollView>
+                <ButtonForm
+                  label={t('next')}
+                  onPress={() => saveHandle()}
+                  iconName="arrow-forward"
+                  iconColor="#fff"
+                  iconSize={25}
+                  loading={isLoading}
+                />
+                {/* </KeyboardAvoidingView>
              */}
-          </View>
-        </View>
-      </>
-      </Root>
+              </View>
+            </View>
+          </>
+        </Root>
       </SafeAreaView>
     </SafeAreaProvider>
   );

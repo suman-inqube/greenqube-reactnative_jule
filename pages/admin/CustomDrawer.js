@@ -1,4 +1,4 @@
-import React, {memo, useCallback, useState, useMemo, useContext} from 'react';
+import React, { memo, useCallback, useState, useMemo, useContext } from 'react';
 import {
   Alert,
   ScrollView,
@@ -7,12 +7,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {removeItem} from '../../config/getDataFromStorage';
-import {StackActions, useNavigation} from '@react-navigation/native';
-import {useTranslation} from 'react-i18next';
+import { removeItem } from '../../config/getDataFromStorage';
+import { StackActions, useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {Colors, Fonts} from '../utils/Constants';
-import {userCreateContext} from '../Context/usersCreateContext';
+import { Colors, Fonts } from '../utils/Constants';
+import { userCreateContext } from '../Context/usersCreateContext';
 const MENU_TYPES = {
   PROFILE: 'profile',
   BUSINESS: 'business',
@@ -51,16 +51,16 @@ const MenuItem = memo(
             name={isExpanded ? 'expand-less' : 'expand-more'}
             size={22}
             color="#d5dbd7"
-            style={{marginRight: expandIconMarginRight}}
+            style={{ marginRight: expandIconMarginRight }}
           />
         )}
       </View>
     </TouchableOpacity>
   ),
 );
-const SubMenuItem = memo(({iconName, title, onPress}) => (
+const SubMenuItem = memo(({ iconName, title, onPress }) => (
   <TouchableOpacity
-    style={[styles.subMenu, {paddingLeft: 30}]}
+    style={[styles.subMenu, { paddingLeft: 30 }]}
     onPress={onPress}>
     <View style={styles.subMenuItem}>
       <MaterialIcons name={iconName} size={22} color="#eaf3ee" />
@@ -68,9 +68,9 @@ const SubMenuItem = memo(({iconName, title, onPress}) => (
     </View>
   </TouchableOpacity>
 ));
-const CustomDrawer = memo(({state}) => {
-  const {isOnline, dbLanTokUsr} = useContext(userCreateContext) || {};
-  const {t} = useTranslation();
+const CustomDrawer = memo(({ state }) => {
+  const { isOnline, dbLanTokUsr } = useContext(userCreateContext) || {};
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const activeRouteName = useMemo(
     () => state?.routes[state.index]?.name,
@@ -96,7 +96,7 @@ const CustomDrawer = memo(({state}) => {
           onPress: removeData,
         },
       ],
-      {cancelable: false},
+      { cancelable: false },
     );
   }, [t]);
 
@@ -109,7 +109,7 @@ const CustomDrawer = memo(({state}) => {
       await Promise.all(STORAGE_KEYS.map(key => removeItem(key)));
       navigation.reset({
         index: 0,
-        routes: [{name: 'Login'}],
+        routes: [{ name: 'Login' }],
       });
     } catch (error) {
       console.error('Error during logout:', error);
@@ -121,7 +121,7 @@ const CustomDrawer = memo(({state}) => {
       if (isOnline) {
         navigation.navigate('AdminNavigation', {
           screen: 'AdminStack',
-          params: {screen: pageName},
+          params: { screen: pageName },
         });
       }
     },
@@ -249,12 +249,15 @@ const CustomDrawer = memo(({state}) => {
         title: t('training_support'),
         onPress: () => navigateToPages('TraingList'),
       },
-      {
-        id: 'instrument',
-        iconName: 'local-activity',
-        title: t('instrument_Wise_Activity_View'),
-        onPress: () => navigateToPages('InstrumentWiseActivityView'),
-      },
+      ...(dbLanTokUsr?.carbonType !== 'mangrove'
+        ? [
+          {
+            id: 'instrument',
+            iconName: 'local-activity',
+            title: t('instrument_Wise_Activity_View'),
+            onPress: () => navigateToPages('InstrumentWiseActivityView'),
+          },
+        ] : []),
       // {
       //   id: 'Offline',
       //   iconName: 'local-activity',
@@ -263,13 +266,13 @@ const CustomDrawer = memo(({state}) => {
       // },
       ...(dbLanTokUsr?.offline_mode == 1
         ? [
-            {
-              id: 'Offline',
-              iconName: 'local-activity',
-              title: t('Offline'),
-              onPress: () => navigateToPages('Offline'),
-            },
-          ]
+          {
+            id: 'Offline',
+            iconName: 'local-activity',
+            title: t('Offline'),
+            onPress: () => navigateToPages('Offline'),
+          },
+        ]
         : []),
       {
         id: 'logout',

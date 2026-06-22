@@ -209,6 +209,7 @@ export const axiosPost = async (
       signal: abortController?.signal,
     });
   } catch (error) {
+    console.log("url",url)
     console.log('gggg', error);
 
     throw await handleError(error);

@@ -9,37 +9,37 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import React, {useEffect, useState, useRef, useCallback} from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Logo from './Common/Logo';
 import ButtonForm from './Common/ButtonForm';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import InputTextForm from './Common/InputTextForm';
 import DropdownForm from './Common/DropdownForm';
 import config from '../config';
 import axios from 'axios';
 import ImageForm from './Common/ImageForm';
 import DatePicker from 'react-native-date-picker';
-import {getItem, setItem, removeItem} from '../config/getDataFromStorage';
-import {isNotEmpty} from './Common/ValidationFunctions';
+import { getItem, setItem, removeItem } from '../config/getDataFromStorage';
+import { isNotEmpty } from './Common/ValidationFunctions';
 import MessageDialog from './Common/MessageDialog';
-import {useFocusEffect} from '@react-navigation/native';
-import {useTranslation} from 'react-i18next';
-import {CrashlyticsRecordError} from './Crashlytics/CrashlyticsRecordError';
+import { useFocusEffect } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import { CrashlyticsRecordError } from './Crashlytics/CrashlyticsRecordError';
 import DeviceInfo from './DeviceInfo';
-import {Root, Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
-import {AlertMesg} from './Common/ToastAlert';
+import { Root, Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
+import { AlertMesg } from './Common/ToastAlert';
 import Map from './admin/Map';
 import * as geolib from 'geolib';
-import {Colors, Fonts} from './utils/Constants';
+import { Colors, Fonts } from './utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {getActionsMapView} from './utils/options';
+import { getActionsMapView } from './utils/options';
 import FloatingActionButton from './Components/FloatingActionButton';
 import {
   convertedArrayLatLong,
   calculateAreaFun,
   calculatePolygonArea,
 } from './Common/calculateAreaFun';
-import DocumentPicker, {types} from '@react-native-documents/picker';
+import DocumentPicker, { types } from '@react-native-documents/picker';
 import ProofAndIdentityPropfComp from './Common/ProofAndIdentityPropfComp';
 import {
   LandUnitArea,
@@ -47,15 +47,15 @@ import {
   nearestLatLong,
 } from '../config/apiHere';
 import * as turf from '@turf/turf';
-import {ROUTES} from './utils/Routes';
-import {axiosGet} from './utils/api';
-import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
-import {formatISODateWithSuffix} from './Common/CommonFunction';
+import { ROUTES } from './utils/Routes';
+import { axiosGet } from './utils/api';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import { formatISODateWithSuffix } from './Common/CommonFunction';
 const ProduceInfoUpdate = () => {
-  const {netConnection} = DeviceInfo();
-  const {t} = useTranslation();
+  const { netConnection } = DeviceInfo();
+  const { t } = useTranslation();
   const route = useRoute();
-  const {pagename, arrayIndex} = route.params;
+  const { pagename, arrayIndex } = route.params;
   const navigation = useNavigation();
   const [dbName, setdbName] = useState();
   const [lanID, setlanID] = useState();
@@ -91,14 +91,16 @@ const ProduceInfoUpdate = () => {
     IOTLatLong: '',
     IOTLatlat: '',
     ConvertedreportedLandsize: 0,
+    is_id_proof: []
   });
+  const [carbonOption, setcarbonOption] = useState("")
   const [landProof, setLandProof] = useState([
-    {uri: '', name: '', type: '', fileName: ''},
-    {uri: '', name: '', type: '', fileName: ''},
-    {uri: '', name: '', type: '', fileName: ''},
-    {uri: '', name: '', type: '', fileName: ''},
-    {uri: '', name: '', type: '', fileName: ''},
-    {uri: '', name: '', type: '', fileName: ''},
+    { uri: '', name: '', type: '', fileName: '' },
+    { uri: '', name: '', type: '', fileName: '' },
+    { uri: '', name: '', type: '', fileName: '' },
+    { uri: '', name: '', type: '', fileName: '' },
+    { uri: '', name: '', type: '', fileName: '' },
+    { uri: '', name: '', type: '', fileName: '' },
   ]);
   const [newdate, setnewDate] = useState(new Date());
   const [opencycleStarts, setOpencycleStarts] = useState(false);
@@ -219,7 +221,6 @@ const ProduceInfoUpdate = () => {
     var landUnitArray = [];
     var productionProcessArray = [];
     var produceProductionUnitArray = [];
-    console.log('hhhdhdh', produceName);
     try {
       if (netConnection) {
         const [
@@ -357,7 +358,7 @@ const ProduceInfoUpdate = () => {
   };
 
   const HandlelivehoodType = async livelihoodType => {
-    setstoreProduceInfo({...storeProduceInfo, livelihoodType: livelihoodType});
+    setstoreProduceInfo({ ...storeProduceInfo, livelihoodType: livelihoodType });
     produceNameDataList(livelihoodType, lanID, dbName);
   };
 
@@ -618,29 +619,7 @@ const ProduceInfoUpdate = () => {
         ...storeProduceInfo,
         cycleStarts: cycleStarts,
       });
-      // const seasonData = await axiosGet(
-      //   ROUTES.GET.PRODUCE_SEASON({
-      //     from_date: cycleStarts,
-      //   }),
-      //   '',
-      //   {
-      //     information: `${dbName},${lanID}`,
-      //   },
-      // );
-      // if (seasonData?.status === 200) {
-      //   const seasonDataArr = seasonData?.data?.data?.rows?.map(data => ({
-      //     value: data.season_info.fid,
-      //     label: `${data.season_info.name} (${data.year})`,
-      //     sd_id: data.sd_id,
-      //   }));
-      //   setprodctionSeasionData(seasonDataArr);
-      // } else {
-      //   setprodctionSeasionData([]);
-      //   Toast.show({
-      //     text: seasonData?.data?.error?.errorMessage,
-      //     ...AlertMesg[0],
-      //   });
-      // }
+
     } catch (error) {
       console.error(error);
     }
@@ -651,7 +630,7 @@ const ProduceInfoUpdate = () => {
     const x = dt.toISOString().split('T');
     const x1 = x[0].split('-');
     const cycleEnds = x1[0] + '-' + x1[1] + '-' + x1[2];
-    setstoreProduceInfo({...storeProduceInfo, cycleEnds: cycleEnds});
+    setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: cycleEnds });
   };
   const handleLandUnit = async item => {
     let landUnitSize;
@@ -673,23 +652,7 @@ const ProduceInfoUpdate = () => {
   };
 
   const handleSave = async () => {
-    // if (area != null && area != undefined && area != '' && area != 0) {
-    //   const deviation =
-    //     (Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) /
-    //       ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2)) *
-    //     100;
-    //   if (deviation >= -5 && deviation <= 5) {
-    //   } else {
-    //     // setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: "" });
-    //     Alert.alert(
-    //       'Deviation',
-    //       'The deviation between reported area and google area is not within 5%',
-    //       [{text: 'OK', onPress: () => console.log(area)}],
-    //       {cancelable: false},
-    //     );
-    //     return;
-    //   }
-    // }
+
 
     //latest code 5%--
     if (area != null && area != undefined && area != '' && area != 0) {
@@ -719,21 +682,21 @@ const ProduceInfoUpdate = () => {
                   ),
               },
             ],
-            {cancelable: false},
+            { cancelable: false },
           );
           return;
         }
       }
     }
     const locationEmpty = location.filter(item => item.latitude !== '');
-    if (carbonFlag && !storeProduceInfo.daagNo) {
+    if (carbonFlag && carbonOption !== 'mangrove' && !storeProduceInfo.daagNo) {
       Toast.show({
         text: 'Please enter Daag Number',
         ...AlertMesg[0],
       });
       return;
     }
-    if (carbonFlag && !storeProduceInfo.jl_no) {
+    if (carbonFlag && carbonOption !== 'mangrove' && !storeProduceInfo.jl_no) {
       Toast.show({
         text: 'Please enter JL Number',
         ...AlertMesg[0],
@@ -741,8 +704,8 @@ const ProduceInfoUpdate = () => {
       return;
     }
     if (storeProduceInfo.plotSize == '') {
-      Toast.show({time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0]});
-    } else if (!storeProduceInfo.productionProcess.value) {
+      Toast.show({ time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0] });
+    } else if (carbonOption !== 'mangrove' && !storeProduceInfo.productionProcess.value) {
       Toast.show({
         time: 3,
         text: `${t('please_give_yeild_size')}`,
@@ -777,13 +740,13 @@ const ProduceInfoUpdate = () => {
       storeProduceInfoInArray[arrayIndex].storeProduceInfo = storeProduceInfo;
       storeProduceInfoInArray[arrayIndex].location = location;
       await setItem('storeProduceInfo_data', storeProduceInfoInArray);
-      navigation.navigate(pagename, {pagename: ''});
+      navigation.navigate(pagename, { pagename: '' });
     }
   };
 
   const onPageLoad = async () => {
     const fusedLocation = await getItem('fusedLocation');
-    const {latitude, longitude} = fusedLocation;
+    const { latitude, longitude } = fusedLocation;
     let groupedData;
     const [
       storeSignup_data,
@@ -791,17 +754,25 @@ const ProduceInfoUpdate = () => {
       storeProduceInfo_data,
       produceVariety,
       carbonStatus,
+      carbonOption
     ] = await Promise.all([
       getItem('storeSignup_data'),
       getItem('storePersnolInfo_data'),
       getItem('storeProduceInfo_data'),
       getItem('produceVariety'),
       getItem('carbon_status'),
+      getItem('carbon_option'),
     ]);
+    if (carbonOption) {
+      setcarbonOption(carbonOption)
+    }
     setCarbonStatus(carbonStatus);
     const dbName = storeSignup_data.company.dbname;
     const languageID = storePersnolInfo_data.language.value;
-    console.log('s==', JSON.stringify(storeSignup_data.company.dbname));
+    setstoreProduceInfo(prev => ({
+      ...prev,
+      is_id_proof: storePersnolInfo_data?.identityProofIdentityPropf
+    }));
     const [nearestLatLong_res, LandUnitArea_res, LandUnitsquare_metre_res] =
       await Promise.all([
         nearestLatLong(dbName, languageID, '', latitude, longitude),
@@ -822,7 +793,7 @@ const ProduceInfoUpdate = () => {
       }
     }
     if (LandUnitArea_res?.status == 200) {
-      const {count, rows} = LandUnitArea_res?.data?.data || {};
+      const { count, rows } = LandUnitArea_res?.data?.data || {};
       if (count > 0) {
         setLandAreaUnit(rows);
       } else {
@@ -830,7 +801,7 @@ const ProduceInfoUpdate = () => {
       }
     }
     if (LandUnitsquare_metre_res?.status == 200) {
-      const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
+      const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
       if (count > 0) {
         setLandUnitsquareMetre(rows);
       } else {
@@ -969,7 +940,7 @@ const ProduceInfoUpdate = () => {
   const handleCurrentLatLong = async index => {
     const fusedLocation = await getItem('fusedLocation');
     const values = [...location];
-    const {latitude, longitude} = fusedLocation;
+    const { latitude, longitude } = fusedLocation;
     if (
       fusedLocation != null &&
       longitude.toString().length == 10 &&
@@ -977,7 +948,7 @@ const ProduceInfoUpdate = () => {
       latitude > 0 &&
       longitude > 0
     ) {
-      values[index] = {latitude: latitude, longitude: longitude};
+      values[index] = { latitude: latitude, longitude: longitude };
       setLocation(values);
       const filteredDatalatLong = values.filter(item => item.latitude !== '');
       setNewPolygon(convertedArrayLatLong(filteredDatalatLong));
@@ -986,7 +957,7 @@ const ProduceInfoUpdate = () => {
         if (landUnitsquareMetre?.[0]?.defined_unit_value) {
           setArea(
             Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-              geolib.getAreaOfPolygon(filteredDatalatLong).toFixed(3),
+            geolib.getAreaOfPolygon(filteredDatalatLong).toFixed(3),
           );
           setstoreProduceInfo({
             ...storeProduceInfo,
@@ -1023,7 +994,7 @@ const ProduceInfoUpdate = () => {
   const addMoreLocation = async () => {
     if (locationType != 'location_tap') {
       const locationLatLong = Array.apply(null, Array(location.length + 1)).map(
-        (val, idx) => ({latitude: '', longitude: ''}),
+        (val, idx) => ({ latitude: '', longitude: '' }),
       );
       setLocation(locationLatLong);
       setLocationType('location_tap');
@@ -1031,7 +1002,7 @@ const ProduceInfoUpdate = () => {
       setNewPolygon([]);
     } else {
       setNewPolygon([]);
-      setLocation([...location, {latitude: '', longitude: ''}]);
+      setLocation([...location, { latitude: '', longitude: '' }]);
     }
   };
   // GRQ-1130
@@ -1042,8 +1013,8 @@ const ProduceInfoUpdate = () => {
   const [showModal, setShowModal] = useState(false);
   const handleMapPress = event => {
     if (!editing) return;
-    const {latitude, longitude} = event.nativeEvent.coordinate;
-    setNewPolygon([...newPolygon, {latitude, longitude}]);
+    const { latitude, longitude } = event.nativeEvent.coordinate;
+    setNewPolygon([...newPolygon, { latitude, longitude }]);
   };
   // GRQ-1132
   const finalizePolygon = () => {
@@ -1060,7 +1031,7 @@ const ProduceInfoUpdate = () => {
       if (landUnitsquareMetre?.[0]?.defined_unit_value) {
         setArea(
           Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-            geolib.getAreaOfPolygon(newPolygon),
+          geolib.getAreaOfPolygon(newPolygon),
         );
         setstoreProduceInfo({
           ...storeProduceInfo,
@@ -1084,7 +1055,7 @@ const ProduceInfoUpdate = () => {
     setLocationType('polygon_tap');
   };
   const clearNewPolygon = () => {
-    setstoreProduceInfo({...storeProduceInfo, google_area: 0});
+    setstoreProduceInfo({ ...storeProduceInfo, google_area: 0 });
     setNewPolygon([]);
     setPolygons(nearPolSet);
     setArea(0);
@@ -1108,7 +1079,7 @@ const ProduceInfoUpdate = () => {
   // GRQ-1135
   const removesetLocation = () => {
     setLocation([
-      {latitude: '', longitude: ''},
+      { latitude: '', longitude: '' },
       // {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
     ]);
@@ -1143,7 +1114,7 @@ const ProduceInfoUpdate = () => {
   };
   const handleCurrentLatLongIOT = async () => {
     const fusedLocation = await getItem('fusedLocation');
-    const {latitude, longitude} = fusedLocation;
+    const { latitude, longitude } = fusedLocation;
     setstoreProduceInfo({
       ...storeProduceInfo,
       IOTLatlat: latitude,
@@ -1153,7 +1124,7 @@ const ProduceInfoUpdate = () => {
   const regionRef = useRef(null);
   const timeoutRef = useRef(null);
   const handleRegionChangeComplete = async newRegion => {
-    const {latitude, longitude} = newRegion;
+    const { latitude, longitude } = newRegion;
     regionRef.current = newRegion;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -1194,7 +1165,7 @@ const ProduceInfoUpdate = () => {
   return (
     <SafeAreaProvider>
       <SafeAreaView
-        style={{flex: 1, backgroundColor: '#1d3122'}}
+        style={{ flex: 1, backgroundColor: '#1d3122' }}
         edges={['top', 'right', 'bottom', 'left']}>
         <Root>
           {/* <ForegroundLocationService /> */}
@@ -1219,13 +1190,13 @@ const ProduceInfoUpdate = () => {
               <View style={styles.formContainer}>
                 {/* <Logo iheight={100} iwidth={100} /> */}
                 <View style={styles.firatFormContainer}>
-                  <View style={{alignItems: 'center'}}>
+                  <View style={{ alignItems: 'center' }}>
                     <Image
                       source={require('../pages/Common/images/logo.png')}
                       style={styles.logo}
                     />
                   </View>
-                  <View style={{paddingHorizontal: 10}}>
+                  <View style={{ paddingHorizontal: 10 }}>
                     <InputTextForm
                       label={t('pre_plot_name')}
                       color="black"
@@ -1237,25 +1208,33 @@ const ProduceInfoUpdate = () => {
                       }
                       value={storeProduceInfo.plotSiteName}
                     />
-                    <InputTextForm
-                      label={t('daag_no')}
-                      onChangeText={item =>
-                        setstoreProduceInfo({...storeProduceInfo, daagNo: item})
-                      }
-                      value={storeProduceInfo.daagNo}
-                      required={carbonFlag === true}
-                    />
-                    <InputTextForm
-                      label={t('khatian_no')}
-                      onChangeText={item =>
-                        setstoreProduceInfo({
-                          ...storeProduceInfo,
-                          khatianNo: item,
-                        })
-                      }
-                      value={storeProduceInfo.khatianNo}
-                    />
-                    {carbonFlag == true ? (
+                    {
+                      carbonOption !== 'mangrove' && (
+                        <>
+                          <InputTextForm
+                            label={t('daag_no')}
+                            onChangeText={item =>
+                              setstoreProduceInfo({ ...storeProduceInfo, daagNo: item })
+                            }
+                            value={storeProduceInfo.daagNo}
+                            required={carbonFlag === true}
+                          />
+                          <InputTextForm
+                            label={t('khatian_no')}
+                            onChangeText={item =>
+                              setstoreProduceInfo({
+                                ...storeProduceInfo,
+                                khatianNo: item,
+                              })
+                            }
+                            value={storeProduceInfo.khatianNo}
+                          />
+
+
+                        </>
+                      )
+                    }
+                    {carbonFlag == true && carbonOption !== 'mangrove' ? (
                       <InputTextForm
                         label={t('JL No')}
                         onChangeText={item =>
@@ -1359,142 +1338,105 @@ const ProduceInfoUpdate = () => {
                         <InputTextForm
                           label={
                             t('Converted reported Land size ') +
-                            `${
-                              landAreaUnit?.[0]?.defined_unit_value
-                                ? `(${landAreaUnit?.[0]?.unit_name})`
-                                : '(Square meter)'
+                            `${landAreaUnit?.[0]?.defined_unit_value
+                              ? `(${landAreaUnit?.[0]?.unit_name})`
+                              : '(Square meter)'
                             }`
                           }
                           value={storeProduceInfo?.ConvertedreportedLandsize?.toString()}
                           editable={false}
                         />
                       )}
-                    {/* <View style={styles.idcontainer}>
-            <Text style={styles.title}>{t('land_records')}</Text>
-            <View style={styles.idItemContainer}>
-              {landProof &&
-                landProof.map((data, index) => {
-                  return (
-                    <TouchableOpacity
-                      style={styles.idItem}
-                      onPress={() =>
-                        handleDocumentSelection('LandProof', index)
-                      }
-                      key={index}>
-                      <Image
-                        source={require('./Common/images/document.png')}
-                        style={styles.idImage}
-                      />
-                      <Text>{data.name == '' ? '' : data.name}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-            </View>
-          </View> */}
-                    {/* <ProofAndIdentityPropfComp
-            identityProofIdentityPropf={landProof}
-            t={t}
-            title={t('address_proof')}
-            handleDocumentSelection={handleDocumentSelection}
-            handleDocumentSelectionRemove={handleDocumentSelectionRemove}
-          /> */}
+                    {
+                      carbonOption !== 'mangrove' && (
+                        <>
+                          <View style={{ marginTop: 10 }}>
+                            <InputTextForm
+                              label={t('Enter IOT Device Id')}
+                              onChangeText={item =>
+                                setstoreProduceInfo({
+                                  ...storeProduceInfo,
+                                  IOTId: item,
+                                })
+                              }
+                              value={storeProduceInfo.IOTId}
+                            />
+                          </View>
 
-                    <View style={{marginTop: 10}}>
-                      <InputTextForm
-                        label={t('Enter IOT Device Id')}
-                        onChangeText={item =>
-                          setstoreProduceInfo({
-                            ...storeProduceInfo,
-                            IOTId: item,
-                          })
-                        }
-                        value={storeProduceInfo.IOTId}
-                      />
-                    </View>
+                          <View style={styles.locationContainer}>
+                            <View style={styles.locationHeader}>
+                              <Text style={styles.locationTitle}>
+                                {t('Geo tag IOT Device')}
+                              </Text>
 
-                    <View style={styles.locationContainer}>
-                      <View style={styles.locationHeader}>
-                        <Text style={styles.locationTitle}>
-                          {t('Geo tag IOT Device')}
-                        </Text>
+                              <TouchableOpacity
+                                onPress={() => handleCurrentLatLongIOT()}
+                                style={styles.locationStatusInactive}>
+                                <MaterialIcons
+                                  name="location-on"
+                                  size={20}
+                                  color="#F44336"
+                                />
+                                <Text style={styles.locationStatusText}>
+                                  {t('tap_to_tag')}
+                                </Text>
+                              </TouchableOpacity>
+                            </View>
+                            <View style={styles.coordinatesContainer}>
+                              <View style={styles.coordinateItem}>
+                                <MaterialIcons
+                                  name="pin-drop"
+                                  size={16}
+                                  color="#2196F3"
+                                />
+                                <Text style={styles.coordinateText}>
+                                  {t('lat')}: {storeProduceInfo.IOTLatlat}
+                                </Text>
+                              </View>
+                              <View style={styles.coordinateItem}>
+                                <MaterialIcons
+                                  name="pin-drop"
+                                  size={16}
+                                  color="#2196F3"
+                                />
+                                <Text style={styles.coordinateText}>
+                                  {t('long')}:{storeProduceInfo.IOTLatLong}
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                        </>
+                      )
+                    }
 
-                        <TouchableOpacity
-                          onPress={() => handleCurrentLatLongIOT()}
-                          style={styles.locationStatusInactive}>
-                          <MaterialIcons
-                            name="location-on"
-                            size={20}
-                            color="#F44336"
-                          />
-                          <Text style={styles.locationStatusText}>
-                            {t('tap_to_tag')}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-                      <View style={styles.coordinatesContainer}>
-                        <View style={styles.coordinateItem}>
-                          <MaterialIcons
-                            name="pin-drop"
-                            size={16}
-                            color="#2196F3"
-                          />
-                          <Text style={styles.coordinateText}>
-                            {t('lat')}: {storeProduceInfo.IOTLatlat}
-                          </Text>
-                        </View>
-                        <View style={styles.coordinateItem}>
-                          <MaterialIcons
-                            name="pin-drop"
-                            size={16}
-                            color="#2196F3"
-                          />
-                          <Text style={styles.coordinateText}>
-                            {t('long')}:{storeProduceInfo.IOTLatLong}
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
+                    {
+                      carbonOption !== 'mangrove'(
+                        <ProofAndIdentityPropfComp
+                          identityProofIdentityPropf={landProof}
+                          t={t}
+                          title={t('address_proof')}
+                          setStateValue={setLandProof}
+                          stateValue={landProof}
+                          disable={true}
+                          InputTextFormEdit={true}
+                          allowAddMore={true}
+                          // photoDeletedValue={photoDeletedValue}
+                          // setPhotoDeletedValue={setPhotoDeletedValue}
+                          // loginUser_data={loginUser_data}
+                          is_id_proof={storeProduceInfo?.is_id_proof}
+                        />
 
-                    {/* <TouchableOpacity onPress={() => handleCurrentLatLongIOT()}>
-                  <View style={styles.latlongContainer}>
-                    <Text style={styles.title}>
-                      {storeProduceInfo.IOTLatlat}
-                    </Text>
-                    <Text style={styles.title}>
-                      {storeProduceInfo.IOTLatLong}
-                    </Text>
-                  </View>
-                  <View style={styles.latlongContainer}>
-                    <Text style={styles.title}>{t('Geo tag IOT Device')}</Text>
-                    <Image
-                      source={require('./Common/images/map.png')}
-                      style={{width: 50, height: 50}}
-                    />
-                  </View>
-                </TouchableOpacity> */}
-                    <ProofAndIdentityPropfComp
-                      identityProofIdentityPropf={landProof}
-                      t={t}
-                      title={t('address_proof')}
-                      setStateValue={setLandProof}
-                      stateValue={landProof}
-                      disable={true}
-                      InputTextFormEdit={true}
-                      allowAddMore={true}
-                      // photoDeletedValue={photoDeletedValue}
-                      // setPhotoDeletedValue={setPhotoDeletedValue}
-                      // loginUser_data={loginUser_data}
-                    />
+                      )
+                    }
                     {/* basudev  */}
                     {area != 0 && (
                       <InputTextForm
                         label={
                           t('Calculated Map Area ') +
                           '(' +
-                          `${
-                            landAreaUnit?.[0]?.defined_unit_value
-                              ? landAreaUnit?.[0]?.unit_name
-                              : 'Square meter'
+                          `${landAreaUnit?.[0]?.defined_unit_value
+                            ? landAreaUnit?.[0]?.unit_name
+                            : 'Square meter'
                           }` +
                           ')'
                         }
@@ -1508,41 +1450,7 @@ const ProduceInfoUpdate = () => {
                       </Text>
                     </View>
                     {renderLocationTags()}
-                    {/* {location &&
-                  location.map((data, index) => {
-                    return (
-                      // GRQ-1134
-                      <TouchableOpacity
-                        key={index}
-                        onPress={() =>
-                          data.latitude != 10 && data.latitude.length != ''
-                            ? ''
-                            : handleCurrentLatLong(index)
-                        }>
-                        <View style={styles.latlongContainer}>
-                          <Text style={styles.title}>
-                            {data && data.latitude && data.latitude == ''
-                              ? '0.0'
-                              : data.latitude}
-                          </Text>
-                          <Text style={styles.title}>
-                            {data && data.longitude && data.longitude == ''
-                              ? '0.0'
-                              : data.longitude}
-                          </Text>
-                        </View>
-                        <View style={styles.latlongContainer}>
-                          <Text style={styles.title}>
-                            {t('tap_to_get_latitude_and_longitude')}
-                          </Text>
-                          <Image
-                            source={require('./Common/images/map.png')}
-                            style={{width: 50, height: 50}}
-                          />
-                        </View>
-                      </TouchableOpacity>
-                    );
-                  })} */}
+
                     <DropdownForm
                       label={t('addcrop_croptype')}
                       color="black"
@@ -1581,31 +1489,38 @@ const ProduceInfoUpdate = () => {
                       }}
                       val={storeProduceInfo.productionProcess.label}
                     />
-                    <InputTextForm
-                      label={t('expected_yield')}
-                      color="black"
-                      onChangeText={item =>
-                        setstoreProduceInfo({
-                          ...storeProduceInfo,
-                          expectedProduction: item,
-                        })
-                      }
-                      value={storeProduceInfo.expectedProduction}
-                    />
-                    <DropdownForm
-                      label={t('select_unit')}
-                      color="black"
-                      data={produceProductionUnitData}
-                      onChange={item => {
-                        setstoreProduceInfo({
-                          ...storeProduceInfo,
-                          produceProductionUnit: item,
-                        });
-                      }}
-                      val={storeProduceInfo.produceProductionUnit.label}
-                    />
+                    {
+                      carbonOption !== 'mangrove' && (
+                        <>
+                          <InputTextForm
+                            label={t('expected_yield')}
+                            color="black"
+                            onChangeText={item =>
+                              setstoreProduceInfo({
+                                ...storeProduceInfo,
+                                expectedProduction: item,
+                              })
+                            }
+                            value={storeProduceInfo.expectedProduction}
+                          />
+                          <DropdownForm
+                            label={t('select_unit')}
+                            color="black"
+                            data={produceProductionUnitData}
+                            onChange={item => {
+                              setstoreProduceInfo({
+                                ...storeProduceInfo,
+                                produceProductionUnit: item,
+                              });
+                            }}
+                            val={storeProduceInfo.produceProductionUnit.label}
+                          />
 
-                    <View style={{marginTop: 5}}>
+                        </>
+                      )
+                    }
+
+                    <View style={{ marginTop: 5 }}>
                       <DropdownForm
                         label={t('addcrop_cultivating_season')}
                         required={true}
@@ -1620,7 +1535,7 @@ const ProduceInfoUpdate = () => {
                         val={storeProduceInfo.prodctionSeasion.label}
                       />
                     </View>
-                    <View style={{marginVertical: 10}}>
+                    <View style={{ marginVertical: 10 }}>
                       <View
                         style={{
                           flexDirection: 'row',
@@ -1685,7 +1600,7 @@ const ProduceInfoUpdate = () => {
                       </View>
                     </View>
 
-                    <View style={{marginVertical: 10}}>
+                    <View style={{ marginVertical: 10 }}>
                       <View
                         style={{
                           flexDirection: 'row',
@@ -1768,7 +1683,7 @@ const ProduceInfoUpdate = () => {
               onPressItem={() => setShowModal(!showModal)}
               showBackground={true}
               overlayColor="rgba(22, 17, 17, 0.35)"
-              distanceToEdge={{vertical: 80, horizontal: 25}}
+              distanceToEdge={{ vertical: 80, horizontal: 25 }}
             />
             {/* <TouchableOpacity
           style={[styles.locationAddMoreContainer, {bottom: 250}]}
@@ -1840,7 +1755,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontFamily: 'Poppins-SemiBold',
   },
-  mainContainer: {flex: 1, backgroundColor: 'white'},
+  mainContainer: { flex: 1, backgroundColor: 'white' },
 
   formContainer: {
     // backgroundColor: Colors.background, // marginTop: 30,

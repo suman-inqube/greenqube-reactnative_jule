@@ -19,11 +19,11 @@ import React, {
   useMemo,
 } from 'react';
 
-import {useNavigation, useRoute} from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-import {LandUnitArea, LandUnitsquare_metre} from '../../../config/apiHere';
+import { LandUnitArea, LandUnitsquare_metre } from '../../../config/apiHere';
 
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 
 import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
 import FloatingActionButton from '../../Components/FloatingActionButton';
@@ -31,16 +31,16 @@ import TabBar from '../../Components/TabBar';
 import PlotCard from '../../Components/PlotCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 
-import {Colors} from '../../utils/Constants';
-import {getActionsPlot} from '../../utils/options';
+import { Colors } from '../../utils/Constants';
+import { getActionsPlot } from '../../utils/options';
 
-import {ROUTES} from '../../utils/Routes';
-import {axiosGet} from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
+import { axiosGet } from '../../utils/api';
 
 import FarmerLiveHood from './FarmerLiveHood';
 import LoadingScreen from '../../Common/LoadingScreen';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const PlotListFarmer = () => {
   const navigation = useNavigation();
@@ -62,9 +62,9 @@ const PlotListFarmer = () => {
   const scrollRef = useRef(null);
   const animatedValue = useRef(new Animated.Value(0)).current;
 
-  const {loginUser_data, t, Root, CustomHeader} = useContext(userCreateContext);
+  const { loginUser_data, t, Root, CustomHeader,dbLanTokUsr } = useContext(userCreateContext);
 
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
 
   // -----------------------------
   // HANDLE PLOT CLICK
@@ -97,7 +97,7 @@ const PlotListFarmer = () => {
     setActiveTab(index);
     setDataProps(data);
 
-    scrollRef.current?.scrollTo({x: index * width, animated: true});
+    scrollRef.current?.scrollTo({ x: index * width, animated: true });
   }, []);
 
   // -----------------------------
@@ -109,7 +109,7 @@ const PlotListFarmer = () => {
       setIsLoading(true);
 
       const [plotsRes, unitAreaRes, unitSqRes] = await Promise.all([
-        axiosGet(ROUTES.GET.USERLANDLIST_E({farmer_id: user_id}), token, {
+        axiosGet(ROUTES.GET.USERLANDLIST_E({ farmer_id: user_id }), token, {
           Information: `${dbname},${lan_id}`,
         }),
 
@@ -193,7 +193,7 @@ const PlotListFarmer = () => {
     setIsLoadinglandActiveCrop(true);
     try {
       const res = await axiosGet(
-        ROUTES.GET.LANDACTIVECROP_E({rel_id: item.rel_id}),
+        ROUTES.GET.LANDACTIVECROP_E({ rel_id: item.rel_id }),
         token,
         {
           Information: `${dbname},${lan_id}`,
@@ -205,8 +205,8 @@ const PlotListFarmer = () => {
         setIsLoadinglandActiveCrop(false);
         const {
           harvesting_date,
-          crop_name: {name: cropName} = {},
-          crop_variety: {name: varietyName} = {},
+          crop_name: { name: cropName } = {},
+          crop_variety: { name: varietyName } = {},
           sowing_date,
         } = res.data?.[0] || {};
         setPlotList(prev => {
@@ -215,8 +215,8 @@ const PlotListFarmer = () => {
             ...copy[index],
             plot_crops: [
               {
-                crop_name: {name: cropName},
-                crop_variety: {name: varietyName},
+                crop_name: { name: cropName },
+                crop_variety: { name: varietyName },
                 sowing_date: sowing_date,
                 harvesting_date: harvesting_date,
                 // season:,
@@ -291,8 +291,8 @@ const PlotListFarmer = () => {
                 showsHorizontalScrollIndicator={false}
                 scrollEnabled={false}
                 onScroll={Animated.event(
-                  [{nativeEvent: {contentOffset: {x: animatedValue}}}],
-                  {useNativeDriver: false},
+                  [{ nativeEvent: { contentOffset: { x: animatedValue } } }],
+                  { useNativeDriver: false },
                 )}
                 scrollEventThrottle={16}
                 onMomentumScrollEnd={e =>
@@ -304,15 +304,15 @@ const PlotListFarmer = () => {
 
                 <View style={styles.page}>
                   <FlatList
-                    data={isLoading ? Array.from({length: 5}) : plotList}
+                    data={isLoading ? Array.from({ length: 5 }) : plotList}
                     keyExtractor={(item, index) =>
                       item?.id?.toString() || index
                     }
                     refreshing={refreshing}
                     onRefresh={() => setRefreshing(false)}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{padding: 15}}
-                    renderItem={({item, index}) =>
+                    contentContainerStyle={{ padding: 15 }}
+                    renderItem={({ item, index }) =>
                       isLoading ? (
                         <PlotStatusSkeletonScreen />
                       ) : (
@@ -325,6 +325,7 @@ const PlotListFarmer = () => {
                           apiCall={landActiveCrop}
                           // role="farmer"
                           activityApi={getPlotActivities}
+                          carbonType={dbLanTokUsr?.carbonType}
                         />
                       )
                     }
@@ -359,8 +360,8 @@ const PlotListFarmer = () => {
                 showsHorizontalScrollIndicator={false}
                 scrollEnabled={false}
                 onScroll={Animated.event(
-                  [{nativeEvent: {contentOffset: {x: animatedValue}}}],
-                  {useNativeDriver: false},
+                  [{ nativeEvent: { contentOffset: { x: animatedValue } } }],
+                  { useNativeDriver: false },
                 )}
                 scrollEventThrottle={16}
                 onMomentumScrollEnd={e =>
@@ -383,7 +384,7 @@ const PlotListFarmer = () => {
             </>
           )}
 
-          {activeTab === 0 && (
+          {activeTab === 0 && dbLanTokUsr?.carbonType !== 'mangrove' && dbLanTokUsr?.carbonFlag && (
             <FloatingActionButton
               position="right"
               actions={getActionsPlot(t, styles, Colors)}
@@ -393,7 +394,7 @@ const PlotListFarmer = () => {
                 setAddPlot(true);
               }}
               overlayColor="rgba(22, 17, 17, 0.35)"
-              distanceToEdge={{vertical: 80, horizontal: 25}}
+              distanceToEdge={{ vertical: 80, horizontal: 25 }}
             />
           )}
         </View>
@@ -405,7 +406,7 @@ const PlotListFarmer = () => {
 export default memo(PlotListFarmer);
 
 const styles = StyleSheet.create({
-  container: {flex: 1},
+  container: { flex: 1 },
   page: {
     width,
     flex: 1,

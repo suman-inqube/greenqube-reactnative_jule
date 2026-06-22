@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Modal,
-  Alert,
+  Alert, Dimensions
 } from 'react-native';
 import React, {
   useEffect,
@@ -41,7 +41,7 @@ import {
   LandUnitArea,
   nearestLatLong,
 } from '../../../config/apiHere';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import Map from '../Map';
 import * as geolib from 'geolib';
 import {
@@ -49,20 +49,26 @@ import {
   convertedArrayLatLong,
   calculatePolygonArea,
 } from '../../Common/calculateAreaFun';
-import DocumentPicker, {types} from '@react-native-documents/picker';
+import DocumentPicker, { types } from '@react-native-documents/picker';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import * as turf from '@turf/turf';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {Colors, Fronts} from '../../utils/Constants';
+import { Colors, Fronts } from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {getActionsMapView} from '../../utils/options';
+import { getActionsMapView } from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import useSingleBackToNavigate from '../../utils/useSingleBackToNavigate';
-import {axiosGet, axiosPut, axiosPost} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
-import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
-import {formatISODateWithSuffix} from '../../Common/CommonFunction';
-import {CURRENT_ENV} from '../../../config/environment';
+import { axiosGet, axiosPut, axiosPost } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
+import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
+import { formatISODateWithSuffix } from '../../Common/CommonFunction';
+import { CURRENT_ENV } from '../../../config/environment';
+// add co farmer
+import { getActionsPlot } from '../../utils/options';
+import CoFarmer from '../../Components/CoFarmer';
+import CoFarmerList from '../../../Components/CoFarmerList';
+import ListOfCoFarmer from '../../Components/ListOfCoFarmer';
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const PlotSiteProduceInformation = () => {
   //GQR-65
   const today = new Date();
@@ -92,7 +98,7 @@ const PlotSiteProduceInformation = () => {
     loginUser_data,
   } = useContext(userCreateContext);
   //GQR-65
-  const {carbonFlag} = loginUser_data;
+  const { carbonFlag } = loginUser_data;
   //GQR-65
   useSingleBackToNavigate('FinancialInformation');
   const route = useRoute();
@@ -133,6 +139,7 @@ const PlotSiteProduceInformation = () => {
     IOTLatLong: '',
     IOTLatlat: '',
     ConvertedreportedLandsize: 0,
+    is_id_proof: []
   });
   const emptyLandDoc = () => ({
     uri: '',
@@ -145,7 +152,7 @@ const PlotSiteProduceInformation = () => {
   const MIN_LAND_DOC = 5;
 
   const [landProof, setLandProof] = useState(
-    Array.from({length: MIN_LAND_DOC}, emptyLandDoc),
+    Array.from({ length: MIN_LAND_DOC }, emptyLandDoc),
   );
   const [newdate, setnewDate] = useState(new Date());
   const [opencycleStarts, setOpencycleStarts] = useState(false);
@@ -163,7 +170,7 @@ const PlotSiteProduceInformation = () => {
     [],
   );
   const [produceAddDetails, setProduceAddDetails] = useState([]);
-  const [currentlatlong, setCurrentlatlong] = useState({lat: '', long: ''});
+  const [currentlatlong, setCurrentlatlong] = useState({ lat: '', long: '' });
   const [locationType, setLocationType] = useState('location_tap');
   const [remove, setRemove] = useState('');
   const [path, setPath] = useState('');
@@ -180,7 +187,124 @@ const PlotSiteProduceInformation = () => {
   const [minStartDate, setMinStartDate] = useState(new Date());
   const [maxHarvestDate, setMaxHarvestDate] = useState(new Date());
   const [minHarvestDate, setMinHarvestDate] = useState(new Date());
+  // add co farmer
 
+  const [modalVisibleCoFarmer, setModalVisibleCoFarmer] = useState(false);
+  const [ListOFmodalVisibleCoFarmer, setListOfModalVisibleCoFarmer] =
+    useState(false);
+  const [ListOFmodalVisibleCoFarmerAdd, setListOfModalVisibleCoFarmerAdd] =
+    useState(false);
+  const [coFarmerDetails, setCoFarmerDetails] = useState({
+    name: '',
+    phone: '',
+    CoFarmer: '',
+    addressProof: null,
+    idProof: null,
+    profile: null,
+    gender: '1',
+    aadhar_number: '',
+    age: '',
+    type: '',
+    co_farmer_id: '',
+    password: '',
+  });
+
+  const [coFarmerList, setCoFarmerList] = useState([]);
+
+
+  const handleAddCoFarmer = async () => {
+    try {
+      if (!coFarmerDetails?.name?.trim()) {
+        Alert.alert('Validation', 'Please enter farmer name');
+        return;
+      }
+
+      const newCoFarmer = {
+        id: Date.now().toString(),
+        name: coFarmerDetails.name,
+        phone: coFarmerDetails.phone,
+        date_of_birth: coFarmerDetails.date_of_birth,
+        aadhar_number: coFarmerDetails.aadhar_number,
+        gender: coFarmerDetails.gender,
+        land_area: coFarmerDetails.landArea,
+        unit: coFarmerDetails.unit,
+        unit_value: coFarmerDetails.unitValue,
+        converted_land_area: coFarmerDetails.convertedLandArea,
+        profile: coFarmerDetails.profile,
+        id_proof: coFarmerDetails.idProof,
+        address_proof: coFarmerDetails.addressProof,
+      };
+
+      console.log('Co Farmer Payload:', newCoFarmer);
+
+      const updatedList = [...coFarmerList, newCoFarmer];
+
+      setCoFarmerList(updatedList);
+
+      setstoreProduceInfo(prev => ({
+        ...prev,
+        coFarmerList: updatedList,
+      }));
+
+      setCoFarmerDetails({
+        name: '',
+        phone: '',
+        addressProof: null,
+        idProof: null,
+        profile: null,
+        gender: '1',
+        type: '',
+        co_farmer_id: '',
+        password: '',
+      });
+
+      setModalVisibleCoFarmer(false);
+      setListOfModalVisibleCoFarmer(false);
+
+      Toast.show({
+        time: 2,
+        text: 'Co-Farmer added successfully',
+        ...AlertMesg[0],
+      });
+    } catch (error) {
+      console.log('Error in handleAddCoFarmer', error);
+
+      Toast.show({
+        text: error?.data?.error?.errorMessage || 'Something went wrong',
+        ...{ ...AlertMesg[0], position: 'top' },
+      });
+    }
+  };
+
+  const handleDeleteCoFarmer = id => {
+    Alert.alert(
+      'Delete Co-Farmer',
+      'Are you sure you want to delete this co-farmer?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            const updatedList = coFarmerList.filter(item => item.id !== id);
+
+            setModalVisibleCoFarmer(false);
+            setListOfModalVisibleCoFarmer(false);
+
+            setCoFarmerList(updatedList);
+
+            setstoreProduceInfo(prev => ({
+              ...prev,
+              coFarmerList: updatedList,
+            }));
+          },
+        },
+      ],
+    );
+  };
   const renderLocationTags = () => {
     return location.map((data, index) => (
       <View key={index} style={styles.locationContainer}>
@@ -253,13 +377,12 @@ const PlotSiteProduceInformation = () => {
     return Object.values(grouped);
   };
   //GQR-65
-  const {dbName, languageId, token, supervisorId, company, country} =
-    dbLanTokUsr;
+  const { dbName, languageId, token, supervisorId, company, country, carbonType } = dbLanTokUsr;
   //GQR-65
   var prodctionSeasionArray = [];
   const onPageLoad = async () => {
     // const { latitude, longitude } = coords;
-    const {latitude, longitude} = await getHighAccuracyLocation();
+    const { latitude, longitude } = await getHighAccuracyLocation();
 
     let groupedData;
     var terraintypeArray = [];
@@ -283,21 +406,8 @@ const PlotSiteProduceInformation = () => {
         produceProductionUnitData_res,
         LandUnitArea_res,
         LandUnitsquare_metre_res,
+        storePersnolInfo_data_res
       ] = await Promise.all([
-        // axiosPost(
-        //   ROUTES.POST.NEAREST_LATLONG,
-        //   {
-        //     latitude: latitude,
-        //     longitude: longitude,
-        //     distance: 200,
-        //     data_limit: 100,
-        //   },
-        //   token,
-        //   false,
-        //   {
-        //     information: `${dbName},${languageId}`,
-        //   },
-        // ),
         axiosPost(
           ROUTES.POST.NEAREST_LATLONG,
           {
@@ -352,7 +462,7 @@ const PlotSiteProduceInformation = () => {
             cropNameID: '',
           }),
           '',
-          {information: `${dbName},${languageId}`},
+          { information: `${dbName},${languageId}` },
         ),
         // livelihoodTypeAPI(dbName, languageId),
 
@@ -375,8 +485,13 @@ const PlotSiteProduceInformation = () => {
           information: `${dbName},${languageId}`,
         }),
         // LandUnitsquare_metre(dbName, languageId, token),
+        getItem("storePersnolInfo_data")
       ]);
-      setreferencelatLong({latitude, longitude});
+      setstoreProduceInfo(prev => ({
+        ...prev,
+        is_id_proof: storePersnolInfo_data_res?.identityProofIdentityPropf
+      }));
+      setreferencelatLong({ latitude, longitude });
       if (nearestLatLong_res.status == 200) {
         groupedData = groupByRelId(nearestLatLong_res.data.data);
         setnearPolSet(groupByRelId(nearestLatLong_res.data.data));
@@ -389,7 +504,7 @@ const PlotSiteProduceInformation = () => {
       }
 
       if (LandUnitArea_res?.status == 200) {
-        const {count, rows} = LandUnitArea_res?.data?.data || {};
+        const { count, rows } = LandUnitArea_res?.data?.data || {};
         if (count > 0) {
           setLandAreaUnit(rows);
         } else {
@@ -398,7 +513,7 @@ const PlotSiteProduceInformation = () => {
       }
 
       if (LandUnitsquare_metre_res?.status == 200) {
-        const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
+        const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
         if (count > 0) {
           setLandUnitsquareMetre(rows);
         } else {
@@ -442,7 +557,7 @@ const PlotSiteProduceInformation = () => {
 
       if (livelihoodType_res?.status === 200) {
         livelihoodTypeArray = livelihoodType_res?.data?.data?.crop_type?.map(
-          data => ({value: data.fid, label: data.name}),
+          data => ({ value: data.fid, label: data.name }),
         );
       }
 
@@ -522,10 +637,14 @@ const PlotSiteProduceInformation = () => {
     if (isFocused) {
       onPageLoad();
       if (route?.params?.editItem) {
-        setstoreProduceInfo({
-          ...storeProduceInfo,
+        setstoreProduceInfo(prev => ({
+          ...prev,
+          // ...storeProduceInfo,
           ...route?.params?.editItem?.storeProduceInfo,
-        });
+        }))
+        setCoFarmerList(
+          route?.params?.editItem?.storeProduceInfo?.coFarmerList || [],
+        );
         const MIN_LAND_DOC = 5;
 
         const emptyLandDoc = () => ({
@@ -589,7 +708,7 @@ const PlotSiteProduceInformation = () => {
           setPath('');
         }
         if (route.params.editItem == undefined) {
-          setCurrentlatlong({...currentlatlong, lat: '', long: ''});
+          setCurrentlatlong({ ...currentlatlong, lat: '', long: '' });
         }
       } else {
         setPath('');
@@ -600,11 +719,6 @@ const PlotSiteProduceInformation = () => {
     navigation.navigate(path != '' ? path : 'FinancialInformation');
     return true;
   };
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     onBackPress(handleBackPress);
-  //   }),
-  // );
   const emptyData = () => {
     setstoreProduceInfo({
       plotSiteName: '',
@@ -638,6 +752,7 @@ const PlotSiteProduceInformation = () => {
       IOTLatLong: '',
       IOTLatlat: '',
       ConvertedreportedLandsize: 0,
+      is_id_proof: []
     });
   };
   const HandlelivehoodType = useCallback(async livelihoodType => {
@@ -790,7 +905,7 @@ const PlotSiteProduceInformation = () => {
           cropNameID: produceName,
         }),
         '',
-        {information: `${dbName},${languageId}`},
+        { information: `${dbName},${languageId}` },
       );
       // produceVarietyAPI(
       //   dbName,
@@ -847,7 +962,7 @@ const PlotSiteProduceInformation = () => {
   const handlecycleEnd = async item => {
     const cycleEnds = effective_dates(item);
     if (storeProduceInfo.cycleStarts != '') {
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: cycleEnds});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: cycleEnds });
     }
   };
   const saveInObject = async () => {
@@ -896,7 +1011,7 @@ const PlotSiteProduceInformation = () => {
                   ),
               },
             ],
-            {cancelable: false},
+            { cancelable: false },
           );
           setIsLoading(false);
           return;
@@ -907,7 +1022,7 @@ const PlotSiteProduceInformation = () => {
       if (route.params.arrayIndex == undefined) {
         const newData = [
           ...storeProduceInfoInArray,
-          {storeProduceInfo: storeProduceInfo, location: location, landProof},
+          { storeProduceInfo: storeProduceInfo, location: location, landProof },
         ];
         setstoreProduceInfoInArray(newData);
         emptyFieldsValue();
@@ -920,11 +1035,11 @@ const PlotSiteProduceInformation = () => {
           setPolygons(nearPolSet);
         }
         setLandProof([
-          {uri: '', name: '', type: '', fileName: ''},
-          {uri: '', name: '', type: '', fileName: ''},
-          {uri: '', name: '', type: '', fileName: ''},
-          {uri: '', name: '', type: '', fileName: ''},
-          {uri: '', name: '', type: '', fileName: ''},
+          { uri: '', name: '', type: '', fileName: '' },
+          { uri: '', name: '', type: '', fileName: '' },
+          { uri: '', name: '', type: '', fileName: '' },
+          { uri: '', name: '', type: '', fileName: '' },
+          { uri: '', name: '', type: '', fileName: '' },
         ]);
       }
     }
@@ -940,23 +1055,23 @@ const PlotSiteProduceInformation = () => {
     setstoreProduceInfoInArray(values);
   };
   const validationData = () => {
-    if (carbonFlag && !storeProduceInfo.jlNo) {
+    if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && !storeProduceInfo.jlNo) {
       Toast.show({
         time: 3,
         text: 'Please enter JL Number',
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
 
-    if (carbonFlag && !storeProduceInfo.daagNo) {
+    if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && !storeProduceInfo.daagNo) {
       Toast.show({
         time: 3,
         text: 'Please enter Daag No',
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
     if (!storeProduceInfo.plotSiteName) {
@@ -965,7 +1080,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('pl_en_plot_name_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
     if (!storeProduceInfo.terrainType) {
@@ -974,7 +1089,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_terrain_type_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
     if (!storeProduceInfo.landType) {
@@ -983,7 +1098,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_land_type_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
     if (!storeProduceInfo.soilType) {
@@ -992,12 +1107,12 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_soil_type_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
     if (!storeProduceInfo.plotSize) {
-      Toast.show({time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0]});
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      Toast.show({ time: 3, text: `${t('please_enter_unit')}`, ...AlertMesg[0] });
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
     if (!storeProduceInfo.landUnit) {
@@ -1006,7 +1121,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_unit_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
     if (!storeProduceInfo.prodctionSeasion) {
@@ -1015,7 +1130,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_cultiveting_season_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
     if (!storeProduceInfo.livelihoodType) {
@@ -1024,7 +1139,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_crop_type_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
     if (!storeProduceInfo.produceName) {
@@ -1033,7 +1148,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_crop_name_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
     if (!storeProduceInfo.produceVariety) {
@@ -1042,25 +1157,25 @@ const PlotSiteProduceInformation = () => {
         text: `${t('please_select_crop_veriety_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
-    if (!storeProduceInfo.productionProcess) {
+    if (dbLanTokUsr?.carbonType !== 'mangrove' && !storeProduceInfo.productionProcess) {
       Toast.show({
         time: 3,
         text: `${t('please_select_production_system_first')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
-    if (!storeProduceInfo.produceProductionUnit) {
+    if (dbLanTokUsr?.carbonType !== 'mangrove' && !storeProduceInfo.produceProductionUnit) {
       Toast.show({
         time: 3,
         text: `${t('please_give_yeild_size')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
     if (location[0].latitude == '') {
@@ -1069,7 +1184,7 @@ const PlotSiteProduceInformation = () => {
         text: `${t('tap_to_get_latitude_and_longitude')}`,
         ...AlertMesg[0],
       });
-      setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+      setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
       return false;
     }
     if (!storeProduceInfo.cycleStarts) {
@@ -1142,11 +1257,11 @@ const PlotSiteProduceInformation = () => {
       IOTLatlat: '',
     });
     setLandProof([
-      {uri: '', name: '', type: '', fileName: ''},
-      {uri: '', name: '', type: '', fileName: ''},
-      {uri: '', name: '', type: '', fileName: ''},
-      {uri: '', name: '', type: '', fileName: ''},
-      {uri: '', name: '', type: '', fileName: ''},
+      { uri: '', name: '', type: '', fileName: '' },
+      { uri: '', name: '', type: '', fileName: '' },
+      { uri: '', name: '', type: '', fileName: '' },
+      { uri: '', name: '', type: '', fileName: '' },
+      { uri: '', name: '', type: '', fileName: '' },
     ]);
   };
   const handleSave = async () => {
@@ -1180,7 +1295,7 @@ const PlotSiteProduceInformation = () => {
             ((reportedArea + googleArea) / 2)) *
           100;
         if (deviation > 5) {
-          setstoreProduceInfo({...storeProduceInfo, cycleEnds: ''});
+          setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: '' });
           Alert.alert(
             'Deviation',
             'The deviation between reported area and google area is not within 5%',
@@ -1198,7 +1313,7 @@ const PlotSiteProduceInformation = () => {
                   ),
               },
             ],
-            {cancelable: false},
+            { cancelable: false },
           );
           setIsLoading(false);
           return;
@@ -1219,11 +1334,11 @@ const PlotSiteProduceInformation = () => {
         };
         await setItem('storeProduceInfo_data', values);
         if (validationData()) {
-          navigation.navigate('RegistationSignUpViwer', {data: remove});
+          navigation.navigate('RegistationSignUpViwer', { data: remove });
         }
       } else if (storeProduceInfoInArray.length !== 0) {
         await setItem('storeProduceInfo_data', storeProduceInfoInArray);
-        navigation.navigate('RegistationSignUpViwer', {data: remove});
+        navigation.navigate('RegistationSignUpViwer', { data: remove });
       } else if (storeProduceInfoInArray.length === 0) {
         if (validationData()) {
           // await setItem('storeProduceInfo_data', storeProduceInfoInArray);
@@ -1242,7 +1357,7 @@ const PlotSiteProduceInformation = () => {
     navigation.navigate(pagename != '' ? pagename : 'FinancialInformation');
   };
   const [location, setLocation] = useState([
-    {latitude: '', longitude: ''},
+    { latitude: '', longitude: '' },
     // {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
@@ -1251,9 +1366,9 @@ const PlotSiteProduceInformation = () => {
   const handleCurrentLatLong = async index => {
     const values = [...location];
     // const { latitude, longitude } = coords;
-    const {latitude, longitude} = await getHighAccuracyLocation();
+    const { latitude, longitude } = await getHighAccuracyLocation();
     if (longitude != '' && latitude != '') {
-      values[index] = {latitude: latitude, longitude: longitude};
+      values[index] = { latitude: latitude, longitude: longitude };
       setLocation(values);
       const filteredDatalatLong = values.filter(item => item.latitude !== '');
       if (filteredDatalatLong.length >= 3) {
@@ -1261,7 +1376,7 @@ const PlotSiteProduceInformation = () => {
         if (landUnitsquareMetre?.[0]?.defined_unit_value) {
           setArea(
             Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-              geolib.getAreaOfPolygon(filteredDatalatLong),
+            geolib.getAreaOfPolygon(filteredDatalatLong),
           );
           setstoreProduceInfo({
             ...storeProduceInfo,
@@ -1290,7 +1405,7 @@ const PlotSiteProduceInformation = () => {
   };
   const handleCurrentLatLongIOT = async () => {
     // const { latitude, longitude } = coords || {};
-    const {latitude, longitude} = await getHighAccuracyLocation();
+    const { latitude, longitude } = await getHighAccuracyLocation();
     setstoreProduceInfo(prev => ({
       ...prev,
       IOTLatlat: latitude,
@@ -1305,8 +1420,8 @@ const PlotSiteProduceInformation = () => {
   const [showModal, setShowModal] = useState(false);
   const handleMapPress = event => {
     if (!editing) return;
-    const {latitude, longitude} = event.nativeEvent.coordinate;
-    setNewPolygon([...newPolygon, {latitude, longitude}]);
+    const { latitude, longitude } = event.nativeEvent.coordinate;
+    setNewPolygon([...newPolygon, { latitude, longitude }]);
   };
   // GRQ-1132
   const finalizePolygon = () => {
@@ -1333,8 +1448,8 @@ const PlotSiteProduceInformation = () => {
           turf.booleanOverlap(existingGeo, newGeo) ||
           turf.booleanWithin(newGeo, existingGeo)
         ) {
-          if(CURRENT_ENV=="LIVE")
-          overlapFound = true;
+          if (CURRENT_ENV == "LIVE")
+            overlapFound = true;
         }
       });
       // stop
@@ -1343,8 +1458,8 @@ const PlotSiteProduceInformation = () => {
         Alert.alert(
           'Overlap Detected',
           'Coordinates are overlapping',
-          [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-          {cancelable: false},
+          [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
+          { cancelable: false },
         );
         return;
       }
@@ -1367,7 +1482,7 @@ const PlotSiteProduceInformation = () => {
       if (landUnitsquareMetre?.[0]?.defined_unit_value) {
         setArea(
           Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-            geolib.getAreaOfPolygon(newPolygon),
+          geolib.getAreaOfPolygon(newPolygon),
         );
         setstoreProduceInfo({
           ...storeProduceInfo,
@@ -1402,7 +1517,7 @@ const PlotSiteProduceInformation = () => {
     }
   };
   const clearNewPolygon = () => {
-    setstoreProduceInfo({...storeProduceInfo, google_area: 0});
+    setstoreProduceInfo({ ...storeProduceInfo, google_area: 0 });
     setNewPolygon([]);
     setPolygons(nearPolSet);
     removesetLocation();
@@ -1411,7 +1526,7 @@ const PlotSiteProduceInformation = () => {
   const regionRef = useRef(null);
   const timeoutRef = useRef(null);
   const handleRegionChangeComplete = async newRegion => {
-    const {latitude, longitude} = newRegion;
+    const { latitude, longitude } = newRegion;
     regionRef.current = newRegion;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -1463,7 +1578,7 @@ const PlotSiteProduceInformation = () => {
   // GRQ-1135
   const removesetLocation = () => {
     setLocation([
-      {latitude: '', longitude: ''},
+      { latitude: '', longitude: '' },
       // {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
     ]);
@@ -1630,6 +1745,73 @@ const PlotSiteProduceInformation = () => {
     <FarmerDrawerScreenWrapper1>
       <View style={styles.mainContainer}>
         {renderCustomHeader}
+        <Modal
+          visible={modalVisibleCoFarmer}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setModalVisibleCoFarmer(!modalVisibleCoFarmer)}>
+          <View style={styles.overlayLisCoFarmer}>
+            <View style={styles.modalBox}>
+              <CoFarmer
+                title="CO-Farmer"
+                coFarmerDetails={coFarmerDetails}
+                setCoFarmerDetails={setCoFarmerDetails}
+                onCancel={() => {
+                  setCoFarmerDetails({
+                    name: '',
+                    phone: '',
+                    addressProof: null,
+                    idProof: null,
+                    profile: null,
+                    gender: '1',
+                    type: '',
+                    co_farmer_id: '',
+                    password: '',
+                  });
+                  setModalVisibleCoFarmer(!modalVisibleCoFarmer);
+                }}
+                onSave={() => {
+                  handleAddCoFarmer();
+                }}
+                registration={true}
+
+              />
+            </View>
+          </View>
+          {/* </View> */}
+        </Modal>
+        <Modal
+          visible={ListOFmodalVisibleCoFarmer}
+          transparent
+          animationType="fade"
+          onRequestClose={() => {
+            setListOfModalVisibleCoFarmer(!ListOFmodalVisibleCoFarmer),
+              setCoFarmerDetails({
+                name: '',
+                phone: '',
+                addressProof: null,
+                idProof: null,
+                profile: null,
+                gender: '1',
+                type: '',
+                co_farmer_id: '',
+                password: '',
+              });
+          }}>
+          <View style={styles.overlayLisCoFarmer}>
+            <View style={styles.modalBox}>
+              <ListOfCoFarmer
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+                setModalVisibleCoFarmer={setModalVisibleCoFarmer}
+                modalVisibleCoFarmer={modalVisibleCoFarmer}
+                setCoFarmerDetails={coFarmerList}
+                registration={false}
+                handleDeleteCoFarmer={handleDeleteCoFarmer}
+              />
+            </View>
+          </View>
+        </Modal>
         {/* <FormsTitle title={t('reg_land_crop_information')} /> */}
         <View style={styles.fromContainer}>
           {isLoading ? (
@@ -1661,30 +1843,31 @@ const PlotSiteProduceInformation = () => {
           </View>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.firatFormContainer}>
-              <View style={{paddingHorizontal: 10}}>
+              <View style={{ paddingHorizontal: 10 }}>
                 <InputTextForm
                   label={t('add_plot')}
                   required={true}
                   onChangeText={handelPlotName}
                   value={storeProduceInfo.plotSiteName}
                 />
-                <InputTextForm
+                {dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag == true ? (<InputTextForm
                   label={t('daag_no')}
                   onChangeText={handelDaagNo}
                   value={storeProduceInfo.daagNo}
                   required={carbonFlag === true}
-                />
-                <InputTextForm
-                  label={t('khatian_no')}
-                  onChangeText={handelKhatianNo}
-                  value={storeProduceInfo.khatianNo}
-                />
+                />) : (<></>)}
+                {dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag == true ? (
+                  <InputTextForm
+                    label={t('khatian_no')}
+                    onChangeText={handelKhatianNo}
+                    value={storeProduceInfo.khatianNo}
+                  />) : (<></>)}
                 <InputTextForm
                   label={t('no_of_plants')}
                   onChangeText={handelNoOfPlants}
                   value={storeProduceInfo.noOfPlants}
                 />
-                {carbonFlag == true ? (
+                {dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag == true ? (
                   <InputTextForm
                     label={t('JL_No')}
                     onChangeText={handelJLNo}
@@ -1729,7 +1912,7 @@ const PlotSiteProduceInformation = () => {
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                   }}>
-                  <View style={{width: '45%'}}>
+                  <View style={{ width: '45%' }}>
                     <InputTextForm
                       label={t('plot_size')}
                       required={true}
@@ -1738,7 +1921,7 @@ const PlotSiteProduceInformation = () => {
                       keyboardType="numeric"
                     />
                   </View>
-                  <View style={{width: '45%'}}>
+                  <View style={{ width: '45%' }}>
                     <DropdownForm
                       label={t('select_unit')}
                       required={true}
@@ -1754,93 +1937,97 @@ const PlotSiteProduceInformation = () => {
                     <InputTextForm
                       label={
                         t('Converted reported Land size ') +
-                        `${
-                          landAreaUnit?.[0]?.defined_unit_value
-                            ? `(${landAreaUnit?.[0]?.unit_name})`
-                            : '(Square meter)'
+                        `${landAreaUnit?.[0]?.defined_unit_value
+                          ? `(${landAreaUnit?.[0]?.unit_name})`
+                          : '(Square meter)'
                         }`
                       }
                       value={storeProduceInfo?.ConvertedreportedLandsize?.toString()}
                       editable={false}
                     />
                   )}
-
-                <View style={{marginTop: 10}}>
-                  <InputTextForm
-                    label={t('enter_iot_device_id')}
-                    onChangeText={handleIOTId}
-                    value={storeProduceInfo.IOTId}
-                  />
-                </View>
-                <View style={styles.locationContainer}>
-                  <View style={styles.locationHeader}>
-                    <Text style={styles.locationTitle}>
-                      {t('geo_tag_iot_device')}
-                    </Text>
-
-                    <TouchableOpacity
-                      onPress={() => handleCurrentLatLongIOT()}
-                      style={styles.locationStatusInactive}>
-                      <MaterialIcons
-                        name="location-on"
-                        size={20}
-                        color="#F44336"
-                      />
-                      <Text style={styles.locationStatusText}>
-                        {t('tap_to_tag')}
-                      </Text>
-                    </TouchableOpacity>
+                {dbLanTokUsr?.carbonType !== 'mangrove' && (
+                  <View style={{ marginTop: 10 }}>
+                    <InputTextForm
+                      label={t('enter_iot_device_id')}
+                      onChangeText={handleIOTId}
+                      value={storeProduceInfo.IOTId}
+                    />
                   </View>
-                  <View style={styles.coordinatesContainer}>
-                    <View style={styles.coordinateItem}>
-                      <MaterialIcons
-                        name="pin-drop"
-                        size={16}
-                        color="#2196F3"
-                      />
-                      <Text style={styles.coordinateText}>
-                        {t('lat')}: {storeProduceInfo.IOTLatlat}
+                )}
+                {dbLanTokUsr?.carbonType !== 'mangrove' && (
+                  <View style={styles.locationContainer}>
+                    <View style={styles.locationHeader}>
+                      <Text style={styles.locationTitle}>
+                        {t('geo_tag_iot_device')}
                       </Text>
-                    </View>
-                    <View style={styles.coordinateItem}>
-                      <MaterialIcons
-                        name="pin-drop"
-                        size={16}
-                        color="#2196F3"
-                      />
-                      <Text style={styles.coordinateText}>
-                        {t('long')}: {storeProduceInfo.IOTLatLong}
-                      </Text>
-                    </View>
-                  </View>
 
-                  {/* <View style={styles.latlongContainer}>
+                      <TouchableOpacity
+                        onPress={() => handleCurrentLatLongIOT()}
+                        style={styles.locationStatusInactive}>
+                        <MaterialIcons
+                          name="location-on"
+                          size={20}
+                          color="#F44336"
+                        />
+                        <Text style={styles.locationStatusText}>
+                          {t('tap_to_tag')}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                    <View style={styles.coordinatesContainer}>
+                      <View style={styles.coordinateItem}>
+                        <MaterialIcons
+                          name="pin-drop"
+                          size={16}
+                          color="#2196F3"
+                        />
+                        <Text style={styles.coordinateText}>
+                          {t('lat')}: {storeProduceInfo.IOTLatlat}
+                        </Text>
+                      </View>
+                      <View style={styles.coordinateItem}>
+                        <MaterialIcons
+                          name="pin-drop"
+                          size={16}
+                          color="#2196F3"
+                        />
+                        <Text style={styles.coordinateText}>
+                          {t('long')}: {storeProduceInfo.IOTLatLong}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* <View style={styles.latlongContainer}>
                     <Text style={styles.title}>{t('Geo tag IOT Device')}</Text>
                     <Image
                       source={require('../../Common/images/map.png')}
                       style={{width: 50, height: 50}}
                     />
                   </View> */}
-                </View>
+                  </View>
+                )}
+                {dbLanTokUsr?.carbonType !== 'mangrove' && (
+                  <ProofAndIdentityPropfComp
+                    identityProofIdentityPropf={landProof}
+                    t={t}
+                    title={t('address_proof')}
+                    setStateValue={setLandProof}
+                    stateValue={landProof}
+                    disable={true}
+                    InputTextFormEdit={true}
+                    allowAddMore={true}
+                    is_id_proof={storeProduceInfo?.is_id_proof}
+                  />
 
-                <ProofAndIdentityPropfComp
-                  identityProofIdentityPropf={landProof}
-                  t={t}
-                  title={t('address_proof')}
-                  setStateValue={setLandProof}
-                  stateValue={landProof}
-                  disable={true}
-                  InputTextFormEdit={true}
-                  allowAddMore={true}
-                />
+                )}
                 {area != 0 && area != null && (
                   <InputTextForm
                     label={
                       t('Calculated Map Area ') +
-                      `${
-                        landAreaUnit?.[0]?.defined_unit_value
-                          ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                          : '(Square meter)'
+                      `${landAreaUnit?.[0]?.defined_unit_value
+                        ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                        : '(Square meter)'
                       }`
                     }
                     value={area.toString()}
@@ -1925,21 +2112,22 @@ const PlotSiteProduceInformation = () => {
                   onChange={HandleProductionSystem}
                   val={storeProduceInfo.productionProcess}
                 />
-                <InputTextForm
+                {dbLanTokUsr?.carbonType !== 'mangrove' && (<InputTextForm
                   label={t('expected_yield')}
                   required={true}
                   onChangeText={HandlEexpectedYield}
                   value={storeProduceInfo.expectedProduction}
                   keyboardType="numeric"
-                />
-                <DropdownForm
-                  label={t('select_unit')}
-                  required={true}
-                  data={produceProductionUnitData}
-                  onChange={HandlEexpectedUnit}
-                  val={storeProduceInfo.produceProductionUnit}
-                />
-
+                />)}
+                {dbLanTokUsr?.carbonType !== 'mangrove' && (
+                  <DropdownForm
+                    label={t('select_unit')}
+                    required={true}
+                    data={produceProductionUnitData}
+                    onChange={HandlEexpectedUnit}
+                    val={storeProduceInfo.produceProductionUnit}
+                  />
+                )}
                 <DropdownForm
                   label={t('addcrop_select_cultivating_season')}
                   required={true}
@@ -1947,7 +2135,7 @@ const PlotSiteProduceInformation = () => {
                   onChange={handelChangeAddCrop}
                   val={storeProduceInfo.prodctionSeasion}
                 />
-                <View style={{marginVertical: 10}}>
+                <View style={{ marginVertical: 10 }}>
                   <Text
                     style={{
                       marginBottom: 5,
@@ -1963,7 +2151,7 @@ const PlotSiteProduceInformation = () => {
                       style={styles.passwordContainer}
                       onPress={() => setOpencycleStarts(true)}>
                       {/* onPress={() => getSeasonCycleStarts()}> */}
-                      <View style={{width: '90%'}}>
+                      <View style={{ width: '90%' }}>
                         <Text style={styles.text}>
                           {storeProduceInfo.cycleStarts}
                         </Text>
@@ -1992,13 +2180,13 @@ const PlotSiteProduceInformation = () => {
                         title={`Select Date Range from (${formatISODateWithSuffix(
                           minStartDate,
                         )} - ${formatISODateWithSuffix(maxStartDate)})`}
-                        // maximumDate={today}
+                      // maximumDate={today}
                       />
                     </TouchableOpacity>
                   </View>
                 </View>
 
-                <View style={{marginVertical: 10}}>
+                <View style={{ marginVertical: 10 }}>
                   <Text
                     style={{
                       marginBottom: 5,
@@ -2013,7 +2201,7 @@ const PlotSiteProduceInformation = () => {
                     <TouchableOpacity
                       style={styles.passwordContainer}
                       onPress={() => setOpencycleEnds(true)}>
-                      <View style={{width: '90%'}}>
+                      <View style={{ width: '90%' }}>
                         <Text style={styles.text}>
                           {storeProduceInfo.cycleEnds}
                         </Text>
@@ -2047,10 +2235,11 @@ const PlotSiteProduceInformation = () => {
                   </View>
                 </View>
 
-                {route.params.arrayIndex == undefined ? (
+                {dbLanTokUsr?.carbonType !== 'mangrove' &&
+                  route.params.arrayIndex == undefined ? (
                   <TouchableOpacity
                     onPress={saveInObject}
-                    style={{alignItems: 'center'}}
+                    style={{ alignItems: 'center' }}
                     activeOpacity={0.7}>
                     <Text style={styles.addBtn}>
                       {t('click_to_add_more_plot')}
@@ -2059,32 +2248,32 @@ const PlotSiteProduceInformation = () => {
                 ) : (
                   ''
                 )}
-                <View style={{marginBottom: 10}}>
+                <View style={{ marginBottom: 10 }}>
                   {route.params.arrayIndex == undefined
                     ? storeProduceInfoInArray.map((data, index) => {
-                        return (
-                          <View style={styles.moreContainer} key={index}>
-                            <View style={styles.moreTextContainer}>
-                              <Text style={styles.moreText}>
-                                {data.storeProduceInfo.plotSiteName}
-                              </Text>
-                              <Text style={styles.moreText}>
-                                {data.storeProduceInfo.produceName}
-                              </Text>
-                              <Text style={styles.moreText}>
-                                {data.storeProduceInfo.produceVariety}
-                              </Text>
-                            </View>
-                            <TouchableOpacity
-                              onPress={() => produceRemoveDetails(index)}>
-                              <Image
-                                source={require('../../Common/images/x-mark.png')}
-                                style={styles.xMarkImage}
-                              />
-                            </TouchableOpacity>
+                      return (
+                        <View style={styles.moreContainer} key={index}>
+                          <View style={styles.moreTextContainer}>
+                            <Text style={styles.moreText}>
+                              {data.storeProduceInfo.plotSiteName}
+                            </Text>
+                            <Text style={styles.moreText}>
+                              {data.storeProduceInfo.produceName}
+                            </Text>
+                            <Text style={styles.moreText}>
+                              {data.storeProduceInfo.produceVariety}
+                            </Text>
                           </View>
-                        );
-                      })
+                          <TouchableOpacity
+                            onPress={() => produceRemoveDetails(index)}>
+                            <Image
+                              source={require('../../Common/images/x-mark.png')}
+                              style={styles.xMarkImage}
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      );
+                    })
                     : null}
                 </View>
               </View>
@@ -2097,7 +2286,7 @@ const PlotSiteProduceInformation = () => {
             onPressItem={() => setShowModal(!showModal)}
             showBackground={true}
             overlayColor="rgba(22, 17, 17, 0.35)"
-            distanceToEdge={{vertical: 80, horizontal: 25}}
+            distanceToEdge={{ vertical: 80, horizontal: 25 }}
           />
           {/* <TouchableOpacity
             style={[styles.locationAddMoreContainer, {bottom: 250}]}
@@ -2106,7 +2295,36 @@ const PlotSiteProduceInformation = () => {
               {t('MapView')}
             </Text>
           </TouchableOpacity> */}
+          <FloatingActionButton
+            position="right"
+            actions={getActionsPlot(
+              t,
+              styles,
+              Colors,
+              true,
+              false,
+              1,
+              1,
+              '',
+              1,
+              dbLanTokUsr?.carbonType
+            )}
+            color={Colors.useGreen}
+            onPressItem={name => {
 
+              if (name === 'MapView') {
+                setShowModal(prev => !prev);
+              } else if (name === 'coFarmer') {
+                setModalVisibleCoFarmer(prev => !prev);
+              } else if (name === 'coFarmerList') {
+                setListOfModalVisibleCoFarmer(prev => !prev);
+              } else if (name === 'AddCoFarmerList') {
+                setListOfModalVisibleCoFarmerAdd(prev => !prev);
+              }
+            }}
+            overlayColor="rgba(22, 17, 17, 0.35)"
+            distanceToEdge={{ vertical: 80, horizontal: 25 }}
+          />
           <ButtonForm
             label={
               route.params.arrayIndex == undefined
@@ -2163,7 +2381,7 @@ const PlotSiteProduceInformation = () => {
 export default PlotSiteProduceInformation;
 
 const styles = StyleSheet.create({
-  mainContainer: {flex: 1, backgroundColor: Colors.background_light},
+  mainContainer: { flex: 1, backgroundColor: Colors.background_light },
 
   formContainer: {
     backgroundColor: Colors.background, // marginTop: 30,
@@ -2401,5 +2619,17 @@ const styles = StyleSheet.create({
     // marginBottom: -20,
     // marginLeft: 20,
     marginTop: 10,
+  },
+  overlayLisCoFarmer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBox: {
+    width: SCREEN_WIDTH * 0.9,
+    height: SCREEN_HEIGHT / 2.1,
+    borderRadius: 14,
+    overflow: 'hidden',
   },
 });

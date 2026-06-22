@@ -63,6 +63,8 @@ const PersnolUpdate = () => {
     zip: '',
     img: '',
   });
+  const [carbonOption, setcarbonOption] = useState("")
+  const [carbonFlag, setCarbonStatus] = useState(false);
   const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
     { uri: '', name: '', type: '', fileName: '', imageType: 'address' },
     { uri: '', name: '', type: '', fileName: '', imageType: 'identity' },
@@ -163,7 +165,7 @@ const PersnolUpdate = () => {
       return false;
     }
 
-    if (!storePersnolInfo.age) {
+    if (carbonOption !== 'mangrove' && !storePersnolInfo.age) {
       Toast.show({
         time: 3,
         text: `${t('please_enter_birth_date')}`,
@@ -171,7 +173,7 @@ const PersnolUpdate = () => {
       });
       return false;
     }
-    if (storePersnolInfo.age <= 17) {
+    if (carbonOption !== 'mangrove' && storePersnolInfo.age <= 17) {
       Toast.show({
         time: 3,
         text: `${t('please_eligible_birth_date')}`,
@@ -225,10 +227,18 @@ const PersnolUpdate = () => {
     }
   };
   const onPageLoad = async () => {
-    const storeSignup_data = await getItem('storeSignup_data');
+    const [storeSignup_data, storePersnolInfo_data, carbonStatus, carbonOption] = await Promise.all([
+      getItem('storeSignup_data'),
+      getItem('storePersnolInfo_data'),
+      getItem('carbon_status'),
+      getItem('carbon_option'),
+    ])
+    setCarbonStatus(carbonStatus);
+    if (carbonOption) {
+      setcarbonOption(carbonOption)
+    }
     setdbName(storeSignup_data.company.dbname);
     languageDataList(storeSignup_data.company.dbname);
-    const storePersnolInfo_data = await getItem('storePersnolInfo_data');
     console.log(storePersnolInfo_data?.identityProofIdentityPropf);
     if (storePersnolInfo_data) {
       setSelectedImage(storePersnolInfo_data.img);
@@ -424,20 +434,21 @@ const PersnolUpdate = () => {
                                   }
                                 />
                               </View>
-
-                              <InputTextForm
-                                label={t('age')}
-                                required={true}
-                                value={storePersnolInfo.age ?? age}
-                                onChangeText={age => {
-                                  setstorePersnolInfo({
-                                    ...storePersnolInfo,
-                                    age: age,
-                                  });
-                                }}
-                                keyboardType="numeric"
-                              />
-
+                              {
+                                carbonOption !== 'mangrove' && (
+                                  <InputTextForm
+                                    label={t('age')}
+                                    required={true}
+                                    value={storePersnolInfo.age ?? age}
+                                    onChangeText={age => {
+                                      setstorePersnolInfo({
+                                        ...storePersnolInfo,
+                                        age: age,
+                                      });
+                                    }}
+                                    keyboardType="numeric"
+                                  />
+                                )}
                               <DropdownForm
                                 label={t('select_language')}
                                 required={true}
@@ -561,34 +572,31 @@ const PersnolUpdate = () => {
                                 maxLength={6}
                               />
 
-                              {/* <ProofAndIdentityPropfComp
-                      {/* <ProofAndIdentityPropfComp
-                identityProofIdentityPropf={identityProofIdentityPropf}
-                t={t}
-                title={t('address_proofAndIdentityPropf')}
-                handleDocumentSelection={handleDocumentSelection}
-                handleDocumentSelectionRemove={handleDocumentSelectionRemove}
-              /> */}
-                              <ProofAndIdentityPropfComp
-                                identityProofIdentityPropf={
-                                  identityProofIdentityPropf
-                                }
-                                t={t}
-                                title={t(
-                                  'address_proofAndIdentityPropf',
-                                )}
-                                setStateValue={
-                                  setIdentityProofIdentityPropf
-                                }
-                                stateValue={
-                                  identityProofIdentityPropf
-                                }
-                                disable={true}
-                                InputTextFormEdit={true}
-                              // photoDeletedValue={photoDeletedValue}
-                              // setPhotoDeletedValue={setPhotoDeletedValue}
-                              // loginUser_data={loginUser_data}
-                              />
+                              {
+                                carbonOption !== 'mangrove' && (
+                                  <ProofAndIdentityPropfComp
+                                    identityProofIdentityPropf={
+                                      identityProofIdentityPropf
+                                    }
+                                    t={t}
+                                    title={t(
+                                      'address_proofAndIdentityPropf',
+                                    )}
+                                    setStateValue={
+                                      setIdentityProofIdentityPropf
+                                    }
+                                    stateValue={
+                                      identityProofIdentityPropf
+                                    }
+                                    disable={true}
+                                    InputTextFormEdit={true}
+                                  // photoDeletedValue={photoDeletedValue}
+                                  // setPhotoDeletedValue={setPhotoDeletedValue}
+                                  // loginUser_data={loginUser_data}
+                                  />
+
+                                )
+                              }
                             </View>
                           </View>
                         </View>

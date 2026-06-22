@@ -42,6 +42,7 @@ function CoFarmerComponent({
   unit_valueArr,
   landAreaUnit,
   ai_camera_id_proof = '0',
+  registration = true,
 }) {
   const { t, r } = useContext(userCreateContext);
   const { minimumDate, maximumDate } = getAgeLimitDates();
@@ -213,6 +214,7 @@ function CoFarmerComponent({
                         <Text style={styles.subtitle}>Fill in the farmer information below</Text>
                     </View> */}
           {/* Profile Image Section */}
+           {registration === false ? (
           <View style={styles.profileContainer}>
             <View style={styles.profileImageWrapper}>
               <ImagePlaceHolderCircle
@@ -224,6 +226,7 @@ function CoFarmerComponent({
                             </View> */}
             </View>
           </View>
+           ):null}
 
           {/* Form Container */}
           <View style={styles.formContainer}>
@@ -284,37 +287,39 @@ function CoFarmerComponent({
               </View>
             </View>
 
-            <View style={styles.inputGroup}>
-              <View style={styles.labelContainer}>
-                {/* <Feather name="phone" size={16} color="#10b981" /> */}
-                <Text style={styles.label}>{t('date_of_birth')}</Text>
-                <View style={styles.optionalBadge}>
-                  <Text style={styles.optionalText}>{t('optional')}</Text>
+            {registration === false ? (
+              <>
+                <View style={styles.inputGroup}>
+                  <View style={styles.labelContainer}>
+                    {/* <Feather name="phone" size={16} color="#10b981" /> */}
+                    <Text style={styles.label}>{t('date_of_birth')}</Text>
+                    <View style={styles.optionalBadge}>
+                      <Text style={styles.optionalText}>{t('optional')}</Text>
+                    </View>
+                  </View>
+                  <View style={[styles.inputWrapper]}>
+                    <TouchableOpacity
+                      onPress={() => setopenCycleStart(!penCycleStart)}>
+                      <TextInput
+                        label=""
+                        placeholder={t('date_of_birth')}
+                        // keyboardType="numeric"
+                        // maxLength={2}
+                        value={coFarmerDetails.date_of_birth}
+                        // onChangeText={(text) =>
+                        //     setCoFarmerDetails(prev => ({
+                        //         ...prev,
+                        //         date_of_birth: text.replace(/[^0-9]/g, ""),
+                        //     }))
+                        // }
+                        style={[styles.input]}
+                        editable={false}
+                        placeholderTextColor="#9ca3af"
+                      />
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-              <View style={[styles.inputWrapper]}>
-                <TouchableOpacity
-                  onPress={() => setopenCycleStart(!penCycleStart)}>
-                  <TextInput
-                    label=""
-                    placeholder={t('date_of_birth')}
-                    // keyboardType="numeric"
-                    // maxLength={2}
-                    value={coFarmerDetails.date_of_birth}
-                    // onChangeText={(text) =>
-                    //     setCoFarmerDetails(prev => ({
-                    //         ...prev,
-                    //         date_of_birth: text.replace(/[^0-9]/g, ""),
-                    //     }))
-                    // }
-                    style={[styles.input]}
-                    editable={false}
-                    placeholderTextColor="#9ca3af"
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-            {/* {coFarmerDetails.type == "edit" ? <>
+                {/* {coFarmerDetails.type == "edit" ? <>
                             <View style={styles.inputGroup}>
                                 <View style={styles.labelContainer}>
 
@@ -340,60 +345,60 @@ function CoFarmerComponent({
                             </View>
                         </> : <></>} */}
 
-            {coFarmerDetails.type == '' ? (
-              <View style={styles.inputGroup}>
-                <View style={styles.labelContainer}>
-                  {/* <Feather name="phone" size={16} color="#10b981" /> */}
-                  <Text style={styles.label}>{t('aadhar_number')}</Text>
-                  <View style={styles.optionalBadge}>
-                    <Text style={styles.optionalText}>{t('optional')}</Text>
+                {coFarmerDetails.type == '' ? (
+                  <View style={styles.inputGroup}>
+                    <View style={styles.labelContainer}>
+                      {/* <Feather name="phone" size={16} color="#10b981" /> */}
+                      <Text style={styles.label}>{t('aadhar_number')}</Text>
+                      <View style={styles.optionalBadge}>
+                        <Text style={styles.optionalText}>{t('optional')}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.inputWrapper}>
+                      <TextInput
+                        placeholder={t('enter_aadhar_number')}
+                        keyboardType="numeric"
+                        maxLength={12}
+                        value={coFarmerDetails.aadhar_number}
+                        onChangeText={text =>
+                          setCoFarmerDetails(prev => ({
+                            ...prev,
+                            aadhar_number: text.replace(/[^0-9]/g, ''),
+                          }))
+                        }
+                        style={styles.input}
+                        placeholderTextColor="#9ca3af"
+                      />
+                    </View>
                   </View>
-                </View>
-                <View style={styles.inputWrapper}>
-                  <TextInput
-                    placeholder={t('enter_aadhar_number')}
-                    keyboardType="numeric"
-                    maxLength={12}
-                    value={coFarmerDetails.aadhar_number}
-                    onChangeText={text =>
-                      setCoFarmerDetails(prev => ({
-                        ...prev,
-                        aadhar_number: text.replace(/[^0-9]/g, ''),
-                      }))
-                    }
-                    style={styles.input}
-                    placeholderTextColor="#9ca3af"
-                  />
-                </View>
-              </View>
-            ) : (
-              <></>
-            )}
-            {coFarmerDetails.type == '' ? (
-              <View style={{ marginBottom: 15, paddingHorizontal: 10 }}>
-                <Text style={styles.label}>{t('gender')}</Text>
-                <RadioForm
-                  label={t('male')}
-                  onSelect={() => handleAddDataGender('gender', '1')}
-                  selected={coFarmerDetails.gender === '1'}
-                />
-                <RadioForm
-                  label={t('female')}
-                  onSelect={() => handleAddDataGender('gender', '2')}
-                  selected={coFarmerDetails.gender === '2'}
-                />
-                <RadioForm
-                  label={t('others')}
-                  onSelect={() => handleAddDataGender('gender', '3')}
-                  selected={coFarmerDetails.gender === '3'}
-                />
-              </View>
-            ) : (
-              <></>
-            )}
+                ) : (
+                  <></>
+                )}
+                {coFarmerDetails.type == '' ? (
+                  <View style={{marginBottom: 15, paddingHorizontal: 10}}>
+                    <Text style={styles.label}>{t('gender')}</Text>
+                    <RadioForm
+                      label={t('male')}
+                      onSelect={() => handleAddDataGender('gender', '1')}
+                      selected={coFarmerDetails.gender === '1'}
+                    />
+                    <RadioForm
+                      label={t('female')}
+                      onSelect={() => handleAddDataGender('gender', '2')}
+                      selected={coFarmerDetails.gender === '2'}
+                    />
+                    <RadioForm
+                      label={t('others')}
+                      onSelect={() => handleAddDataGender('gender', '3')}
+                      selected={coFarmerDetails.gender === '3'}
+                    />
+                  </View>
+                ) : (
+                  <></>
+                )}
 
-            {/* Section Divider */}
-            {/* <View style={styles.sectionDivider}>
+                {/* Section Divider */}
+                {/* <View style={styles.sectionDivider}>
                             <View style={styles.dividerLine} />
                             <View style={styles.dividerTextContainer}>
                                 <MaterialIcons name="verified-user" size={16} color="#10b981" />
@@ -402,15 +407,15 @@ function CoFarmerComponent({
                             <View style={styles.dividerLine} />
                         </View> */}
 
-            {/* Document Upload Info */}
-            {/* <View style={styles.infoBox}>
+                {/* Document Upload Info */}
+                {/* <View style={styles.infoBox}>
                             <Feather name="info" size={16} color="#3b82f6" />
                             <Text style={styles.infoText}>Upload clear images or PDFs of government ID proofs</Text>
                         </View> */}
 
-            {/* Upload Cards */}
-            <View style={styles.uploadRow}>
-              {/* <TouchableOpacity
+                {/* Upload Cards */}
+                <View style={styles.uploadRow}>
+                  {/* <TouchableOpacity
                                 style={styles.uploadCard}
                                 onPress={() => handleGovtIdPick("addressProof")}
                                 activeOpacity={0.7}
@@ -452,8 +457,8 @@ function CoFarmerComponent({
                                 )}
                             </TouchableOpacity> */}
 
-              {/* ID Proof */}
-              {/* <TouchableOpacity
+                  {/* ID Proof */}
+                  {/* <TouchableOpacity
                                 style={styles.uploadCard}
                                 onPress={() => handleGovtIdPick("idProof")}
                                 activeOpacity={0.7}
@@ -494,69 +499,81 @@ function CoFarmerComponent({
                                     </View>
                                 )}
                             </TouchableOpacity> */}
-            </View>
-            <View style={styles.uploadRow}>
-              <TouchableOpacity
-                style={styles.uploadCard}
-                activeOpacity={0.8}
-                onPress={() =>
-                  coFarmerDetails.idProof?.uri
-                    ? openFile(coFarmerDetails.idProof)
-                    : ai_camera_id_proof == '1'
-                      ? handleGovtIdPickTextRecognition('idProof')
-                      : handleGovtIdPick('idProof')
-                }>
-                {coFarmerDetails.idProof?.uri ? (
-                  <View style={styles.uploadedContainer}>
-                    {coFarmerDetails.idProof.type?.startsWith('image/') ? (
-                      <Image
-                        source={{ uri: coFarmerDetails.idProof.uri }}
-                        style={styles.previewImage}
-                      />
+                </View>
+                <View style={styles.uploadRow}>
+                  <TouchableOpacity
+                    style={styles.uploadCard}
+                    activeOpacity={0.8}
+                    onPress={() =>
+                      coFarmerDetails.idProof?.uri
+                        ? openFile(coFarmerDetails.idProof)
+                        : ai_camera_id_proof == '1'
+                        ? handleGovtIdPickTextRecognition('idProof')
+                        : handleGovtIdPick('idProof')
+                    }>
+                    {coFarmerDetails.idProof?.uri ? (
+                      <View style={styles.uploadedContainer}>
+                        {coFarmerDetails.idProof.type?.startsWith('image/') ? (
+                          <Image
+                            source={{uri: coFarmerDetails.idProof.uri}}
+                            style={styles.previewImage}
+                          />
+                        ) : (
+                          <View style={styles.pdfContainer}>
+                            <AntDesign
+                              name="pdffile1"
+                              size={36}
+                              color="#ef4444"
+                            />
+                            <Text style={styles.pdfText}>
+                              T{t('tap_to_view_pdf')}
+                            </Text>
+                          </View>
+                        )}
+
+                        {/* VIEW ICON */}
+                        <TouchableOpacity
+                          style={styles.viewBadge}
+                          onPress={() =>
+                            ai_camera_id_proof == '1'
+                              ? handleGovtIdPickTextRecognition('idProof')
+                              : openFile(coFarmerDetails.idProof)
+                          }>
+                          <MaterialIcons
+                            name="visibility"
+                            size={18}
+                            color="#fff"
+                          />
+                        </TouchableOpacity>
+
+                        {/* REPLACE ICON */}
+                        <TouchableOpacity
+                          style={styles.replaceBadge}
+                          onPress={() =>
+                            ai_camera_id_proof == '1'
+                              ? handleGovtIdPickTextRecognition('idProof')
+                              : handleGovtIdPick('idProof')
+                          }>
+                          <Feather name="refresh-cw" size={16} color="#fff" />
+                        </TouchableOpacity>
+                      </View>
                     ) : (
-                      <View style={styles.pdfContainer}>
-                        <AntDesign name="pdffile1" size={36} color="#ef4444" />
-                        <Text style={styles.pdfText}>
-                          T{t('tap_to_view_pdf')}
+                      <View style={styles.uploadPlaceholder}>
+                        <Feather
+                          name="upload-cloud"
+                          size={28}
+                          color="#10b981"
+                        />
+                        <Text style={styles.uploadTitle}> {t('id_proof')}</Text>
+                        <Text style={styles.uploadSubtitle}>
+                          {t('tap_to_upload')}
                         </Text>
                       </View>
                     )}
-
-                    {/* VIEW ICON */}
-                    <TouchableOpacity
-                      style={styles.viewBadge}
-                      onPress={() =>
-                        ai_camera_id_proof == '1'
-                          ? handleGovtIdPickTextRecognition('idProof')
-                          : openFile(coFarmerDetails.idProof)
-                      }>
-                      <MaterialIcons name="visibility" size={18} color="#fff" />
-                    </TouchableOpacity>
-
-                    {/* REPLACE ICON */}
-                    <TouchableOpacity
-                      style={styles.replaceBadge}
-                      onPress={() =>
-                        ai_camera_id_proof == '1'
-                          ? handleGovtIdPickTextRecognition('idProof')
-                          : handleGovtIdPick('idProof')
-                      }>
-                      <Feather name="refresh-cw" size={16} color="#fff" />
-                    </TouchableOpacity>
-                  </View>
-                ) : (
-                  <View style={styles.uploadPlaceholder}>
-                    <Feather name="upload-cloud" size={28} color="#10b981" />
-                    <Text style={styles.uploadTitle}> {t('id_proof')}</Text>
-                    <Text style={styles.uploadSubtitle}>
-                      {t('tap_to_upload')}
-                    </Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            </View>
-            {/* Section Divider */}
-            {/* <View style={styles.sectionDivider}>
+                  </TouchableOpacity>
+                </View>
+                {/* Section Divider */}
+                {/* <View style={styles.sectionDivider}>
                             <View style={styles.dividerLine} />
                             <View style={styles.dividerTextContainer}>
                                 <MaterialIcons name="landscape" size={16} color="#10b981" />
@@ -565,103 +582,117 @@ function CoFarmerComponent({
                             <View style={styles.dividerLine} />
                         </View> */}
 
-            {/* Land Area */}
-            {coFarmerDetails.type == '' ? (
-              <>
-                <View style={[styles.inputGroup, { marginTop: 12 }]}>
-                  <View style={styles.labelContainer}>
-                    {/* <MaterialIcons name="landscape" size={16} color="#10b981" /> */}
-                    <Text style={styles.label}>{t('land_area')}</Text>
-                    <View style={styles.optionalBadge}>
-                      <Text style={styles.optionalText}>{t('optional')}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.inputWrapper}>
-                    <TextInput
-                      placeholder={t('enter_land_area')}
-                      keyboardType="numeric"
-                      value={coFarmerDetails.landArea}
-                      onChangeText={text => {
-                        setCoFarmerDetails(prev => {
-                          const clean = text.replace(/[^0-9.]/g, '');
-                          const unit = Number(prev?.UnitValueNum) || 0;
-                          return {
-                            ...prev,
-                            landArea: clean,
-                            convertedLandArea: String(unit * Number(clean)),
-                          };
-                        });
-                      }}
-                      style={styles.input}
-                      placeholderTextColor="#9ca3af"
-                    />
-                  </View>
-                </View>
-
-                {/* Land Unit */}
-                <View style={styles.inputGroup}>
-                  <View style={styles.labelContainer}>
-                    {/* <MaterialIcons name="square-foot" size={16} color="#10b981" /> */}
-                    <Text style={styles.label}>{t('land_unit')}</Text>
-                    <View style={styles.optionalBadge}>
-                      <Text style={styles.optionalText}>{t('optional')}</Text>
-                    </View>
-                  </View>
-                  <DropdownForm
-                    data={unitAll}
-                    onChange={item => {
-                      let selectUnitValue = '';
-                      let UnitValueNum = '';
-                      if (unit_valueArr !== '') {
-                        JSON.parse(unit_valueArr).map(data => {
-                          if (item.value === data?.fid) {
-                            selectUnitValue = data.unit_value;
-                            UnitValueNum = data.unit_value;
-                          }
-                        });
-                      }
-                      setCoFarmerDetails(prev => ({
-                        ...prev,
-                        convertedLandArea: `${Number(selectUnitValue) *
-                          Number(coFarmerDetails.landArea)
-                          }`,
-                        unit: item.label,
-                        unitValue: item.value,
-                        UnitValueNum: UnitValueNum,
-                      }));
-                    }}
-                    val={coFarmerDetails.unit}
-                  />
-                </View>
-
-                {/* Converted Land Area */}
-                <View style={[styles.inputGroup, { marginTop: -20 }]}>
-                  <View style={styles.labelContainer}>
-                    {/* <MaterialIcons name="calculate" size={16} color="#10b981" /> */}
-                    <Text style={styles.label}>{t('converted_land_area')}</Text>
-                    {landAreaUnit && (
-                      <View style={styles.unitBadge}>
-                        <Text style={styles.unitBadgeText}>{landAreaUnit}</Text>
+                {/* Land Area */}
+                {coFarmerDetails.type == '' ? (
+                  <>
+                    <View style={[styles.inputGroup, {marginTop: 12}]}>
+                      <View style={styles.labelContainer}>
+                        {/* <MaterialIcons name="landscape" size={16} color="#10b981" /> */}
+                        <Text style={styles.label}>{t('land_area')}</Text>
+                        <View style={styles.optionalBadge}>
+                          <Text style={styles.optionalText}>
+                            {t('optional')}
+                          </Text>
+                        </View>
                       </View>
-                    )}
-                  </View>
-                  <View
-                    style={[styles.inputWrapper, styles.disabledInputWrapper]}>
-                    <TextInput
-                      editable={false}
-                      value={coFarmerDetails.convertedLandArea}
-                      style={[styles.input, styles.disabledInput]}
-                      placeholderTextColor="#9ca3af"
-                    />
-                    <View style={styles.lockIconContainer}>
-                      <Feather name="lock" size={16} color="#9ca3af" />
+                      <View style={styles.inputWrapper}>
+                        <TextInput
+                          placeholder={t('enter_land_area')}
+                          keyboardType="numeric"
+                          value={coFarmerDetails.landArea}
+                          onChangeText={text => {
+                            setCoFarmerDetails(prev => {
+                              const clean = text.replace(/[^0-9.]/g, '');
+                              const unit = Number(prev?.UnitValueNum) || 0;
+                              return {
+                                ...prev,
+                                landArea: clean,
+                                convertedLandArea: String(unit * Number(clean)),
+                              };
+                            });
+                          }}
+                          style={styles.input}
+                          placeholderTextColor="#9ca3af"
+                        />
+                      </View>
                     </View>
-                  </View>
-                </View>
+
+                    {/* Land Unit */}
+                    <View style={styles.inputGroup}>
+                      <View style={styles.labelContainer}>
+                        {/* <MaterialIcons name="square-foot" size={16} color="#10b981" /> */}
+                        <Text style={styles.label}>{t('land_unit')}</Text>
+                        <View style={styles.optionalBadge}>
+                          <Text style={styles.optionalText}>
+                            {t('optional')}
+                          </Text>
+                        </View>
+                      </View>
+                      <DropdownForm
+                        data={unitAll}
+                        onChange={item => {
+                          let selectUnitValue = '';
+                          let UnitValueNum = '';
+                          if (unit_valueArr !== '') {
+                            JSON.parse(unit_valueArr).map(data => {
+                              if (item.value === data?.fid) {
+                                selectUnitValue = data.unit_value;
+                                UnitValueNum = data.unit_value;
+                              }
+                            });
+                          }
+                          setCoFarmerDetails(prev => ({
+                            ...prev,
+                            convertedLandArea: `${
+                              Number(selectUnitValue) *
+                              Number(coFarmerDetails.landArea)
+                            }`,
+                            unit: item.label,
+                            unitValue: item.value,
+                            UnitValueNum: UnitValueNum,
+                          }));
+                        }}
+                        val={coFarmerDetails.unit}
+                      />
+                    </View>
+
+                    {/* Converted Land Area */}
+                    <View style={[styles.inputGroup, {marginTop: -20}]}>
+                      <View style={styles.labelContainer}>
+                        {/* <MaterialIcons name="calculate" size={16} color="#10b981" /> */}
+                        <Text style={styles.label}>
+                          {t('converted_land_area')}
+                        </Text>
+                        {landAreaUnit && (
+                          <View style={styles.unitBadge}>
+                            <Text style={styles.unitBadgeText}>
+                              {landAreaUnit}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                      <View
+                        style={[
+                          styles.inputWrapper,
+                          styles.disabledInputWrapper,
+                        ]}>
+                        <TextInput
+                          editable={false}
+                          value={coFarmerDetails.convertedLandArea}
+                          style={[styles.input, styles.disabledInput]}
+                          placeholderTextColor="#9ca3af"
+                        />
+                        <View style={styles.lockIconContainer}>
+                          <Feather name="lock" size={16} color="#9ca3af" />
+                        </View>
+                      </View>
+                    </View>
+                  </>
+                ) : (
+                  <></>
+                )}
               </>
-            ) : (
-              <></>
-            )}
+            ) : null}
           </View>
 
           {/* Action Buttons */}
@@ -694,8 +725,6 @@ function CoFarmerComponent({
 }
 
 const CoFarmer = memo(CoFarmerComponent);
-export default CoFarmer;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -1004,6 +1033,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
     borderTopWidth: 1,
     borderTopColor: '#e5e7eb',
+    marginTop: 30,
   },
   cancelButton: {
     flex: 1,
@@ -1067,3 +1097,4 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
 });
+export default CoFarmer;

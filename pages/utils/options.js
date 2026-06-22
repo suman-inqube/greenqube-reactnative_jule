@@ -169,9 +169,10 @@ const getActionsPlot = (
   plotId = '',
   statuslevel = '',
   co_farmer = 0,
+  mangrove
 ) => {
   const actions = [];
-  if (activeTab == 1 && plotId != '' && co_farmer == 1) {
+  if (activeTab == 1 && plotId != '' && co_farmer == 1 && mangrove !=="mangrove") {
     if (!addPlot) {
       actions.push(
         {

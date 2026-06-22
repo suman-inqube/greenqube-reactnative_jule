@@ -476,7 +476,9 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
       );
       formData.append('status', 1);
       formData.append('userName', farmerData.userName);
-      formData.append('date_of_birth', dob);
+      if (dbLanTokUsr?.carbonType !== 'mangrove') {
+        formData.append('date_of_birth', dob);
+      }
       formData.append('unique_id', '');
       formData.append('has_farmer_smart_phone', '');
       formData.append('finance_agriculture_campagin', '');
@@ -607,10 +609,10 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
     if (farmerData.userName.length < 1) {
       Toast.show({ text: t('please_enter_valid_name'), ...AlertMesg[0] });
       return false;
-    } else if (farmerData.age == '') {
+    } else if (dbLanTokUsr?.carbonType !== 'mangrove' && farmerData.age == '') {
       Toast.show({ text: t('please_enter_birth_date'), ...AlertMesg[0] });
       return false;
-    } else if (farmerData.age < 18) {
+    } else if (dbLanTokUsr?.carbonType !== 'mangrove' && farmerData.age < 18) {
       Toast.show({ text: t('please_eligible_birth_date'), ...AlertMesg[0] });
       return false;
     } else if (farmerData.state == '' || farmerData.state == undefined) {
@@ -816,12 +818,15 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                         onSelect={() => onChangeGrower(3)}
                       />
                     </View>
-                    <InputTextForm
-                      label={t('age')}
-                      value={farmerData.age ?? farmerData.age}
-                      keyboardType="numeric"
-                      onChange={onChangeAge}
-                    />
+                    {dbLanTokUsr?.carbonType !== 'mangrove' && (
+                      <InputTextForm
+                        label={t('age')}
+                        value={farmerData.age ?? farmerData.age}
+                        keyboardType="numeric"
+                        onChange={onChangeAge}
+                      />
+
+                    )}
                     <DropdownForm
                       label={t('add_class_language')}
                       color="black"
@@ -861,19 +866,23 @@ const FarmerProfile = ({ sendDataToParent, farmerID }) => {
                       }}
                       val={farmerData.blockName}
                     />
-                    <ProofAndIdentityPropfComp
-                      t={t}
-                      title={t('address_proofAndIdentityPropf')}
-                      setStateValue={setIdentityProofIdentityPropf}
-                      stateValue={identityProofIdentityPropf}
-                      photoDeletedValue={photoDeletedValue}
-                      setPhotoDeletedValue={setPhotoDeletedValue}
-                      loginUser_data={loginUser_data}
-                      disable={true}
-                      InputTextFormEdit={true}
-                      farmerName={farmerData.userName}
-                      ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
-                    />
+                    {
+                      dbLanTokUsr?.carbonType !== 'mangrove' && (
+                        <ProofAndIdentityPropfComp
+                          t={t}
+                          title={t('address_proofAndIdentityPropf')}
+                          setStateValue={setIdentityProofIdentityPropf}
+                          stateValue={identityProofIdentityPropf}
+                          photoDeletedValue={photoDeletedValue}
+                          setPhotoDeletedValue={setPhotoDeletedValue}
+                          loginUser_data={loginUser_data}
+                          disable={true}
+                          InputTextFormEdit={true}
+                          farmerName={farmerData.userName}
+                          ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
+                        />
+
+                      )}
                   </View>
                 </View>
               </View>

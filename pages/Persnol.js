@@ -64,6 +64,7 @@ const Persnol = () => {
     imgType: '',
     imgName: '',
   });
+  const [carbonOption, setcarbonOption] = useState("")
   const [identityProofIdentityPropf, setIdentityProofIdentityPropf] = useState([
     { uri: '', name: '', type: '', fileName: '', imageType: 'address' },
     { uri: '', name: '', type: '', fileName: '', imageType: 'identity' },
@@ -330,7 +331,7 @@ const Persnol = () => {
       });
       return false;
     }
-    if (!storePersnolInfo.age) {
+    if (carbonOption !== 'mangrove' && !storePersnolInfo.age) {
       Toast.show({
         time: 3,
         text: `${t('please_enter_birth_date')}`,
@@ -338,7 +339,7 @@ const Persnol = () => {
       });
       return false;
     }
-    if (storePersnolInfo.age <= 17) {
+    if (carbonOption !== 'mangrove' && storePersnolInfo.age <= 17) {
       Toast.show({
         time: 3,
         text: `${t('please_eligible_birth_date')}`,
@@ -395,10 +396,16 @@ const Persnol = () => {
     }
   };
   const onPageLoad = async () => {
-    const storeSignup_data = await getItem('storeSignup_data');
+    const [carbonOption, storeSignup_data, storePersnolInfo_data] = await Promise.all([
+      getItem('carbon_option'),
+      getItem('storeSignup_data'),
+      getItem('storePersnolInfo_data')
+    ])
+    if (carbonOption) {
+      setcarbonOption(carbonOption)
+    }
     setdbName(storeSignup_data.company.dbname);
     languageDataList(storeSignup_data.company.dbname);
-    const storePersnolInfo_data = await getItem('storePersnolInfo_data');
     if (storePersnolInfo_data) {
       setstorePersnolInfo(storePersnolInfo_data);
       if (storePersnolInfo_data.language) {
@@ -596,17 +603,20 @@ const Persnol = () => {
                         }
                       />
                     </View>
-
-                    <InputTextForm
-                      label={t('age')}
-                      required={true}
-                      value={storePersnolInfo.age ?? age}
-                      onChangeText={age => {
-                        setstorePersnolInfo({ ...storePersnolInfo, age: age });
-                      }}
-                      maxLength={2}
-                      keyboardType="numeric"
-                    />
+                    {
+                      carbonOption !== 'mangrove' && (
+                        <InputTextForm
+                          label={t('age')}
+                          required={true}
+                          value={storePersnolInfo.age ?? age}
+                          onChangeText={age => {
+                            setstorePersnolInfo({ ...storePersnolInfo, age: age });
+                          }}
+                          maxLength={2}
+                          keyboardType="numeric"
+                        />
+                      )
+                    }
 
                     <DropdownForm
                       label={t('select_language')}
@@ -665,53 +675,24 @@ const Persnol = () => {
                       maxLength={6}
                       keyboardType="numeric"
                     />
-                    {/* <View style={styles.idcontainer}>
-                    <Text style={styles.text}>
-                      {t('address_proofAndIdentityPropf')}
-                    </Text>
-                    <View style={styles.idItemContainer}>
-                      {identityProofIdentityPropf &&
-                        identityProofIdentityPropf.map((data, index) => {
-                          return (
-                            <TouchableOpacity
-                              style={styles.idItem}
-                              onPress={() =>
-                                handleDocumentSelection(data.ImageType, index)
-                              }
-                              key={index}>
-                              <Image
-                                source={require('./Common/images/document.png')}
-                                style={styles.idImage}
-                              />
-                              <Text>
-                                {data.name == '' ? '' : data.name}
-                                {data.name}
-                              </Text>
-                            </TouchableOpacity>
-                          );
-                        })}
-                    </View>
-                  </View> */}
-                    {/* <ProofAndIdentityPropfComp
-                  identityProofIdentityPropf={identityProofIdentityPropf}
-                  t={t}
-                  title={t('address_proofAndIdentityPropf')}
-                  handleDocumentSelection={handleDocumentSelection}
-                  handleDocumentSelectionRemove={handleDocumentSelectionRemove}
-                /> */}
-                    <ProofAndIdentityPropfComp
-                      identityProofIdentityPropf={identityProofIdentityPropf}
-                      t={t}
-                      title={t('address_proofAndIdentityPropf')}
-                      setStateValue={setIdentityProofIdentityPropf}
-                      stateValue={identityProofIdentityPropf}
-                      disable={true}
-                      InputTextFormEdit={true}
-                      farmerName={storePersnolInfo.name}
-                    // photoDeletedValue={photoDeletedValue}
-                    // setPhotoDeletedValue={setPhotoDeletedValue}
-                    // loginUser_data={loginUser_data}
-                    />
+                    {
+                      carbonOption !== 'mangrove' && (
+                        <ProofAndIdentityPropfComp
+                          identityProofIdentityPropf={identityProofIdentityPropf}
+                          t={t}
+                          title={t('address_proofAndIdentityPropf')}
+                          setStateValue={setIdentityProofIdentityPropf}
+                          stateValue={identityProofIdentityPropf}
+                          disable={true}
+                          InputTextFormEdit={true}
+                          farmerName={storePersnolInfo.name}
+                        // photoDeletedValue={photoDeletedValue}
+                        // setPhotoDeletedValue={setPhotoDeletedValue}
+                        // loginUser_data={loginUser_data}
+                        />
+
+                      )
+                    }
                   </View>
                 </View>
               </View>

@@ -18,6 +18,7 @@ const PlotCard = memo(
     index,
     role = 'farmer',
     activityApi,
+    carbonType
   }) => {
     const { t } = useContext(userCreateContext);
     const { showBottomSheet } = useBottomSheet();
@@ -66,23 +67,23 @@ const PlotCard = memo(
                 <Text style={styles.plotName} numberOfLines={1}>
                   {item?.plot_no}
                 </Text>
-
-                <View style={styles.statusRow}>
-                  <StatusBadge type="Plot" status={item?.plot_status} />
-                  <StatusBadge
-                    type="Carbon"
-                    status={
-                      [
-                        'CARBON_DOCUMENTS_SUBMITTED',
-                        'CARBON_DOCUMENTS_APPROVED',
-                        'CARBON_DOCUMENTS_REJECTED',
-                      ].includes(item?.status_level)
-                        ? item?.status_level
-                        : 'PENDING'
-                    }
-                  />
-                  {/* <StatusBadge type="Carbon" status={item?.status_level} /> */}
-                </View>
+                {carbonType !== 'mangrove' && (
+                  <View style={styles.statusRow}>
+                    <StatusBadge type="Plot" status={item?.plot_status} />
+                    <StatusBadge
+                      type="Carbon"
+                      status={
+                        [
+                          'CARBON_DOCUMENTS_SUBMITTED',
+                          'CARBON_DOCUMENTS_APPROVED',
+                          'CARBON_DOCUMENTS_REJECTED',
+                        ].includes(item?.status_level)
+                          ? item?.status_level
+                          : 'PENDING'
+                      }
+                    />
+                    {/* <StatusBadge type="Carbon" status={item?.status_level} /> */}
+                  </View>)}
               </View>
 
               {/* Area Row */}
@@ -139,7 +140,7 @@ const PlotCard = memo(
                 </View>
               </View>
               {/* change logic to show reject reason if plot is rejected or comment is there add ||item?.plot_status_comment!="" */}
-              {item?.plot_status === 'REJECTED' || item?.plot_status_comment !== "" ? (
+              {carbonType !== 'mangrove' && item?.plot_status === 'REJECTED'  ? (
                 <View style={styles.rejectBox}>
                   <Text style={styles.rejectText}>
                     {item?.plot_status_comment}

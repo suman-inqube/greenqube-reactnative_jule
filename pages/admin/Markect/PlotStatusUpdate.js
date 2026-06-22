@@ -98,6 +98,7 @@ const PlotStatusUpdate = () => {
     isOnline
   } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
+  const { carbonType } = dbLanTokUsr || {}
   //GQR-65
   const navigation = useNavigation();
   const route = useRoute();
@@ -349,20 +350,20 @@ const PlotStatusUpdate = () => {
         }),
         // productionProcessAPI(dbname, lan_id),
 
-        axiosPost(
-          ROUTES.POST.NEAREST_LATLONG,
-          {
-            latitude: lat,
-            longitude: lon,
-            distance: 200,
-            data_limit: 100,
-          },
-          token,
-          false,
-          {
-            information: `${dbname},${lan_id}`,
-          },
-        ),
+        // axiosPost(
+        //   ROUTES.POST.NEAREST_LATLONG,
+        //   {
+        //     latitude: lat,
+        //     longitude: lon,
+        //     distance: 200,
+        //     data_limit: 100,
+        //   },
+        //   token,
+        //   false,
+        //   {
+        //     information: `${dbname},${lan_id}`,
+        //   },
+        // ),
       ]);
       setreferencelatLong({ latitude: lat, longitude: lon });
       if (nearestLatLong_res?.status == 200) {
@@ -531,20 +532,20 @@ const PlotStatusUpdate = () => {
       ),
       // getPlotDocAPI(dbname, lan_id, token, farmer_data.user_id, findData.value),
 
-      axiosPost(
-        ROUTES.POST.NEAREST_LATLONG,
-        {
-          latitude: lat,
-          longitude: lon,
-          distance: 200,
-          data_limit: 100,
-        },
-        token,
-        false,
-        {
-          information: `${dbname},${lan_id}`,
-        },
-      ),
+      // axiosPost(
+      //   ROUTES.POST.NEAREST_LATLONG,
+      //   {
+      //     latitude: lat,
+      //     longitude: lon,
+      //     distance: 200,
+      //     data_limit: 100,
+      //   },
+      //   token,
+      //   false,
+      //   {
+      //     information: `${dbname},${lan_id}`,
+      //   },
+      // ),
       // nearestLatLong(dbname, lan_id, token, lat, lon),
 
       terraintype_resAPI(dbname, lan_id, 'terrain_type'),
@@ -635,7 +636,6 @@ const PlotStatusUpdate = () => {
     if (plotSiteUserLandDetails_res?.status === 200) {
       setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
     }
-    console.log('getPlotDoc', JSON.stringify(getPlotDoc));
     if (getPlotDoc?.status == 200) {
       // console.log('getPlotDoc', getPlotDoc?.data?.data?.rows[0]);
       const { count } = getPlotDoc?.data;
@@ -811,7 +811,7 @@ const PlotStatusUpdate = () => {
             plot_Site: findData?.value,
             plot_Site_Name: findData?.label,
             expectedProduction: data?.yield_amount,
-            cycleStartDate: data?.sowing_date,
+            cycleStartDate: data?.sowing_date?.split('T')[0],
             cycleEndDate: data?.harvesting_date.substring(-1, 10),
             terrainType: dataLandDetails?.terrain_type?.name,
             terrainTypeValue: dataLandDetails?.terrain_type?.fid,
@@ -845,7 +845,9 @@ const PlotStatusUpdate = () => {
             IOTId: data.land_info?.device_no,
             IOTLatlat: data.land_info?.device_lat,
             IOTLatLong: data.land_info?.device_long,
-            crop_cycl_start_date: data.crop_cycl_start_date,
+            crop_cycl_start_date: data?.crop_cycl_start_date
+    ? data.crop_cycl_start_date
+    : data?.sowing_date?.split('T')[0],
             ConvertedreportedLandsize:
               Number(dataLandDetails?.land_unit?.defined_unit_value) *
               Number(dataLandDetails?.land_size),
@@ -1583,7 +1585,7 @@ const PlotStatusUpdate = () => {
         }
       });
 
-      if (carbonFlag && !farmerData.jl_no) {
+      if (carbonType !== 'mangrove' && carbonFlag && !farmerData.jl_no) {
         Toast.show({
           text: 'Please enter JL-Number',
           ...AlertMesg[0],
@@ -1591,7 +1593,7 @@ const PlotStatusUpdate = () => {
         return;
       }
 
-      if (carbonFlag && !farmerData.daag_no) {
+      if (carbonType !== 'mangrove' && carbonFlag && !farmerData.daag_no) {
         Toast.show({
           text: 'Please enter Daag Number',
           ...AlertMesg[0],
@@ -1649,9 +1651,9 @@ const PlotStatusUpdate = () => {
           text: `${t('please_select_production_system_first')}`,
           ...AlertMesg[0],
         });
-      } else if (farmerData.expectedProduction == '') {
+      } else if (carbonType !== 'mangrove' && farmerData.expectedProduction == '') {
         Toast.show({ text: `${t('please_give_yeild_size')}`, ...AlertMesg[0] });
-      } else if (farmerData.unitProductValue == '') {
+      } else if (carbonType !== 'mangrove' && farmerData.unitProductValue == '') {
         Toast.show({ text: `${t('please_select_yeild_unit')}`, ...AlertMesg[0] });
       } else if (farmerData.cycleStartDate == '') {
         Toast.show({ text: 'Please Select Planting Date', ...AlertMesg[0] });
@@ -1827,146 +1829,137 @@ const PlotStatusUpdate = () => {
             true,
             { information: `${dbname},${lan_id},${farmer_data.user_id}` },
           );
-
-          // UpdateLandCropdetailsAPI(
-          //   dbname,
-          //   lan_id,
-          //   farmer_data.user_id,
-          //   token,
-          //   save_data,
-          //   farmerData.land_rel_id,
-          //   farmerData.cu_rel_id,
-          // );
-
-          addressProof.map((data, index) => {
-            if (data.name != '' && data.id == '') {
-              formDataPlotImg.append('plot_image', data);
+          if(carbonType !== 'mangrove'){
+            addressProof.map((data, index) => {
+              if (data.name != '' && data.id == '') {
+                formDataPlotImg.append('plot_image', data);
+              }
+            });
+            formDataPlotImg.append('rel_id', plotId);
+            formDataPlotImg.append('user_id', farmer_data.user_id);
+            const plot_image_length = formDataPlotImg._parts.filter(item => item[0] === 'plot_image');
+            const [deletePlotImageAPIRes, addPlotImageAPIRes] = await Promise.all([
+              isOnline
+                ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
+                : Promise.resolve(null),
+              plot_image_length?.length > 0 ? axiosPost(
+                ROUTES.POST.ADD_PLOTI_MGS,
+                formDataPlotImg,
+                token,
+                false,
+                {
+                  information: `${dbname},${lan_id},${farmer_data.user_id}`,
+                },
+              ) : Promise.resolve(null),
+              // addPlotImageAPI(
+              //   dbname,
+              //   lan_id,
+              //   token,
+              //   farmer_data.user_id,
+              //   formDataPlotImg,
+              // ),
+            ]);
+            if (addPlotImageAPIRes.data?.error?.errorCode == 400) {
+              Alert.alert(
+                'File',
+                addPlotImageAPIRes.data?.error?.errorMessage,
+                [{ text: 'OK', onPress: () => console.log(area) }],
+                { cancelable: false },
+              );
+              setIsLoading(false);
+              return;
             }
-          });
-          formDataPlotImg.append('rel_id', plotId);
-          formDataPlotImg.append('user_id', farmer_data.user_id);
-          const plot_image_length = formDataPlotImg._parts.filter(item => item[0] === 'plot_image');
-          const [deletePlotImageAPIRes, addPlotImageAPIRes] = await Promise.all([
-            isOnline
-              ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
-              : Promise.resolve(null),
-            plot_image_length?.length > 0 ? axiosPost(
-              ROUTES.POST.ADD_PLOTI_MGS,
-              formDataPlotImg,
-              token,
-              false,
-              {
-                information: `${dbname},${lan_id},${farmer_data.user_id}`,
-              },
-            ) : Promise.resolve(null),
-            // addPlotImageAPI(
-            //   dbname,
-            //   lan_id,
-            //   token,
-            //   farmer_data.user_id,
-            //   formDataPlotImg,
-            // ),
-          ]);
-          if (addPlotImageAPIRes.data?.error?.errorCode == 400) {
-            Alert.alert(
-              'File',
-              addPlotImageAPIRes.data?.error?.errorMessage,
-              [{ text: 'OK', onPress: () => console.log(area) }],
-              { cancelable: false },
-            );
-            setIsLoading(false);
-            return;
-          }
-
-          if (statuslevel.label == 'REJECTED' || statuslevel.label == 'PENDING') {
-            const formdatauploadFarmerIdAdd = new FormData();
-            if (identityProofIdentityPropf[0]?.uri != '') {
-              const { uri, type, name } = identityProofIdentityPropf[0];
-              formdatauploadFarmerIdAdd.append('farmer_address', {
-                uri,
-                type,
-                name,
-              });
-            }
-            if (identityProofIdentityPropf[1]?.id == '') {
-              const { uri, type, name } = identityProofIdentityPropf[1];
-              formdatauploadFarmerIdAdd.append('farmer_identity', {
-                uri,
-                type,
-                name,
-              });
-            }
-            formdatauploadFarmerIdAdd.append('rel_id', farmerData.land_rel_id);
-            formdatauploadFarmerIdAdd.append('user_id', farmer_data.user_id);
-
-            // const resOocUpdate = await axiosPut(
-            //   ROUTES.PUT.UPLOAD_FARMER_ID_ADD,
-            //   formdatauploadFarmerIdAdd,
-            //   token,
-            //   false,
-            //   {
-            //     information: `${dbname},${lan_id},${farmer_data.user_id}`,
-            //       'Content-Type': 'multipart/form-data',
-            //   },
-            // );
-            const resOocUpdate = await uploadFarmerIdAdd(
-              dbname,
-              lan_id,
-              farmer_data.user_id,
-              token,
-              formdatauploadFarmerIdAdd,
-            );
-            if (resOocUpdate?.status == 200) {
-              Toast.show({
-                text: 'hoyeche',
-                ...AlertMesg[0],
-              });
-            }
-            if (resOocUpdate?.status != 200) {
-              Toast.show({
-                text: resOocUpdate?.data?.error?.errorMessage,
-                ...AlertMesg[0],
-              });
-            }
-          }
-          if (
-            statuslevel.label == 'APPROVED' ||
-            (statuslevel.label == 'CARBON_DOCUMENTS_REJECTED' &&
-              carbonFlag == true)
-          ) {
-            const formdataCarbon = new FormData();
-            formdataCarbon.append('rel_id', farmerData.land_rel_id);
-            if (
-              carboncertificate[0]?.id != undefined &&
-              carboncertificate[0]?.id == '' &&
-              carboncertificate[0].uri != ''
-            ) {
-              formdataCarbon.append('carbon_agreement', carboncertificate[0]);
+  
+            if (statuslevel.label == 'REJECTED' || statuslevel.label == 'PENDING') {
+              const formdatauploadFarmerIdAdd = new FormData();
+              if (identityProofIdentityPropf[0]?.uri != '') {
+                const { uri, type, name } = identityProofIdentityPropf[0];
+                formdatauploadFarmerIdAdd.append('farmer_address', {
+                  uri,
+                  type,
+                  name,
+                });
+              }
+              if (identityProofIdentityPropf[1]?.id == '') {
+                const { uri, type, name } = identityProofIdentityPropf[1];
+                formdatauploadFarmerIdAdd.append('farmer_identity', {
+                  uri,
+                  type,
+                  name,
+                });
+              }
+              formdatauploadFarmerIdAdd.append('rel_id', farmerData.land_rel_id);
+              formdatauploadFarmerIdAdd.append('user_id', farmer_data.user_id);
+  
+              // const resOocUpdate = await axiosPut(
+              //   ROUTES.PUT.UPLOAD_FARMER_ID_ADD,
+              //   formdatauploadFarmerIdAdd,
+              //   token,
+              //   false,
+              //   {
+              //     information: `${dbname},${lan_id},${farmer_data.user_id}`,
+              //       'Content-Type': 'multipart/form-data',
+              //   },
+              // );
+              const resOocUpdate = await uploadFarmerIdAdd(
+                dbname,
+                lan_id,
+                farmer_data.user_id,
+                token,
+                formdatauploadFarmerIdAdd,
+              );
+              if (resOocUpdate?.status == 200) {
+                Toast.show({
+                  text: 'hoyeche',
+                  ...AlertMesg[0],
+                });
+              }
+              if (resOocUpdate?.status != 200) {
+                Toast.show({
+                  text: resOocUpdate?.data?.error?.errorMessage,
+                  ...AlertMesg[0],
+                });
+              }
             }
             if (
-              signature?.id != undefined &&
-              signature?.id == '' &&
-              signature.uri != ''
+              statuslevel.label == 'APPROVED' ||
+              (statuslevel.label == 'CARBON_DOCUMENTS_REJECTED' &&
+                carbonFlag == true)
             ) {
-              formdataCarbon.append('signature', signature);
+              const formdataCarbon = new FormData();
+              formdataCarbon.append('rel_id', farmerData.land_rel_id);
+              if (
+                carboncertificate[0]?.id != undefined &&
+                carboncertificate[0]?.id == '' &&
+                carboncertificate[0].uri != ''
+              ) {
+                formdataCarbon.append('carbon_agreement', carboncertificate[0]);
+              }
+              if (
+                signature?.id != undefined &&
+                signature?.id == '' &&
+                signature.uri != ''
+              ) {
+                formdataCarbon.append('signature', signature);
+              }
+              // const carbonRes = await axiosPost(
+              //   ROUTES.POST.UP_CARBON_AGR_DOC,
+              //   formdataCarbon,
+              //   token,
+              //   false,
+              //   {
+              //     information: `${dbname},${lan_id},${farmer_data.user_id}`,
+              //   },
+              // );
+  
+              uploadCarbonAgrDocs(
+                dbname,
+                lan_id,
+                token,
+                farmer_data.user_id,
+                formdataCarbon,
+              );
             }
-            // const carbonRes = await axiosPost(
-            //   ROUTES.POST.UP_CARBON_AGR_DOC,
-            //   formdataCarbon,
-            //   token,
-            //   false,
-            //   {
-            //     information: `${dbname},${lan_id},${farmer_data.user_id}`,
-            //   },
-            // );
-
-            uploadCarbonAgrDocs(
-              dbname,
-              lan_id,
-              token,
-              farmer_data.user_id,
-              formdataCarbon,
-            );
           }
 
           if (updateLandCropdetails_res?.status === 200) {
@@ -2410,26 +2403,30 @@ const PlotStatusUpdate = () => {
                     handleAddUserData('plot_Site_Name', text)
                   }
                 />
-                <InputTextForm
-                  label={t('daag_no')}
-                  value={farmerData.daag_no}
-                  onChangeText={text => handleAddUserData('daag_no', text)}
-                  editable={InputTextFormEdit}
-                  required={carbonFlag === true}
-                />
-                <InputTextForm
-                  label={t('khatian_no')}
-                  value={farmerData.khatian_no}
-                  onChangeText={text => handleAddUserData('khatian_no', text)}
-                  editable={InputTextFormEdit}
-                />
+                {carbonType !== 'mangrove' && (
+                  <>
+                    <InputTextForm
+                      label={t('daag_no')}
+                      value={farmerData.daag_no}
+                      onChangeText={text => handleAddUserData('daag_no', text)}
+                      editable={InputTextFormEdit}
+                      required={carbonFlag === true}
+                    />
+                    <InputTextForm
+                      label={t('khatian_no')}
+                      value={farmerData.khatian_no}
+                      onChangeText={text => handleAddUserData('khatian_no', text)}
+                      editable={InputTextFormEdit}
+                    />
+                  </>
+                )}
                 <InputTextForm
                   label={t('no_of_plants')}
                   value={farmerData.plant_number}
                   onChangeText={text => handleAddUserData('plant_number', text)}
                   editable={InputTextFormEdit}
                 />
-                {carbonFlag == true ? (
+                {carbonType !== 'mangrove' && carbonFlag == true ? (
                   <InputTextForm
                     label={t('JL_No')}
                     value={farmerData.jl_no}
@@ -2535,49 +2532,53 @@ const PlotStatusUpdate = () => {
                     editable={false}
                   />
                 )}
-                <ProofAndIdentityPropfComp
-                  t={t}
-                  title={t('address_proof')}
-                  setStateValue={setAddressProof}
-                  stateValue={addressProof}
-                  // !="APPROVED"
-                  //basudev
-                  status_level={statuslevel.label}
-                  photoDeletedValue={photoDeletedValue}
-                  setPhotoDeletedValue={setPhotoDeletedValue}
-                  loginUser_data={loginUser_data}
-                  disable={
-                    statuslevel.label == 'APPROVED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                      ? false
-                      : statuslevel.label == 'PENDING' ||
-                        statuslevel.label == 'REJECTED'
-                        ? false
-                        : true
-                  }
-                  InputTextFormEdit={InputTextFormEdit}
-                  allowAddMore={true}
-
-                />
-                <View style={{ marginTop: 15 }}>
+                {carbonType !== 'mangrove' &&(
+                  <>
+                  
+                  <View style={{ marginTop: 15 }}>
+                    <ProofAndIdentityPropfComp
+                      identityProofIdentityPropf={identityProofIdentityPropf}
+                      t={t}
+                      title={t('address_proofAndIdentityPropf')}
+                      setStateValue={setIdentityProofIdentityPropf}
+                      stateValue={identityProofIdentityPropf}
+                      photoDeletedValue={identityPhotoDeletedValue}
+                      setPhotoDeletedValue={setIdentityPhotoDeletedValue}
+                      loginUser_data={loginUser_data}
+                      status_level={statuslevel.label}
+                      InputTextFormEdit={
+                        statuslevel.label == 'PENDING' ||
+                          statuslevel.label == 'REJECTED'
+                          ? true
+                          : false
+                      }
+                      disable={
+                        statuslevel.label == 'APPROVED' ||
+                          statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                          statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                          statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                          ? false
+                          : statuslevel.label == 'PENDING' ||
+                            statuslevel.label == 'REJECTED'
+                            ? false
+                            : true
+                      }
+                      farmerName={farmer_data?.userName}
+                      ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
+                      is_id_proof={identityProofIdentityPropf}
+                    />
+                  </View>
                   <ProofAndIdentityPropfComp
-                    identityProofIdentityPropf={identityProofIdentityPropf}
                     t={t}
-                    title={t('address_proofAndIdentityPropf')}
-                    setStateValue={setIdentityProofIdentityPropf}
-                    stateValue={identityProofIdentityPropf}
-                    photoDeletedValue={identityPhotoDeletedValue}
-                    setPhotoDeletedValue={setIdentityPhotoDeletedValue}
-                    loginUser_data={loginUser_data}
+                    title={t('address_proof')}
+                    setStateValue={setAddressProof}
+                    stateValue={addressProof}
+                    // !="APPROVED"
+                    //basudev
                     status_level={statuslevel.label}
-                    InputTextFormEdit={
-                      statuslevel.label == 'PENDING' ||
-                        statuslevel.label == 'REJECTED'
-                        ? true
-                        : false
-                    }
+                    photoDeletedValue={photoDeletedValue}
+                    setPhotoDeletedValue={setPhotoDeletedValue}
+                    loginUser_data={loginUser_data}
                     disable={
                       statuslevel.label == 'APPROVED' ||
                         statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
@@ -2589,11 +2590,13 @@ const PlotStatusUpdate = () => {
                           ? false
                           : true
                     }
-                    farmerName={farmer_data?.userName}
-                    ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
-                  />
-                </View>
+                    InputTextFormEdit={InputTextFormEdit}
+                    allowAddMore={true}
 
+                  />
+                  
+                  </>
+                )}
                 {area != 0 && area != null && (
                   <>
                     {console.log('Calculated Map  AREA:', area)}
@@ -2611,72 +2614,64 @@ const PlotStatusUpdate = () => {
                     />
                   </>
                 )}
-                <View style={{ marginTop: 10 }}>
-                  <InputTextForm
-                    label={t('enter_iot_id')}
-                    onChangeText={text => handleIOTId('IOTId', text)}
-                    value={farmerData.IOTId}
-                  // editable={(statuslevel.label != 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED') && harvested == '' || harvested == 'same produce' ? false : true}
-                  // editable={InputTextFormEdit}
-                  />
-                </View>
-                <View style={styles.locationContainer}>
-                  <View style={styles.locationHeader}>
-                    <Text style={styles.locationTitle}>
-                      {t('geo_tag_iot_device')}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => handleCurrentLatLongIOT()}
-                      style={styles.locationStatusInactive}>
-                      <MaterialIcons
-                        name="location-on"
-                        size={20}
-                        color="#F44336"
+                {carbonType !== 'mangrove' && (
+                  <>
+                    <View style={{ marginTop: 10 }}>
+                      <InputTextForm
+                        label={t('enter_iot_id')}
+                        onChangeText={text => handleIOTId('IOTId', text)}
+                        value={farmerData.IOTId}
+                      // editable={(statuslevel.label != 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED') && harvested == '' || harvested == 'same produce' ? false : true}
+                      // editable={InputTextFormEdit}
                       />
-                      <Text style={styles.locationStatusText}>
-                        {t('tap_to_tag')}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.coordinatesContainer}>
-                    <View style={styles.coordinateItem}>
-                      <MaterialIcons
-                        name="pin-drop"
-                        size={16}
-                        color="#2196F3"
-                      />
-                      <Text style={styles.coordinateText}>
-                        {t('lat')}: {Number(farmerData.IOTLatLong).toFixed(6)}
-                      </Text>
                     </View>
 
-                    <View style={styles.coordinateItem}>
-                      <MaterialIcons
-                        name="pin-drop"
-                        size={16}
-                        color="#2196F3"
-                      />
-                      <Text style={styles.coordinateText}>
-                        {t('long')}:{Number(farmerData.IOTLatlat).toFixed(6)}
-                      </Text>
-                    </View>
-                    {/* <View style={styles.latlongContainer}>
-                                  <Text style={styles.title}>{farmerData.IOTLatlat}</Text>
-                                  <Text style={styles.title}>{farmerData.IOTLatLong}</Text>
-                                </View> */}
-                  </View>
+                    <View style={styles.locationContainer}>
+                      <View style={styles.locationHeader}>
+                        <Text style={styles.locationTitle}>
+                          {t('geo_tag_iot_device')}
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => handleCurrentLatLongIOT()}
+                          style={styles.locationStatusInactive}>
+                          <MaterialIcons
+                            name="location-on"
+                            size={20}
+                            color="#F44336"
+                          />
+                          <Text style={styles.locationStatusText}>
+                            {t('tap_to_tag')}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                      <View style={styles.coordinatesContainer}>
+                        <View style={styles.coordinateItem}>
+                          <MaterialIcons
+                            name="pin-drop"
+                            size={16}
+                            color="#2196F3"
+                          />
+                          <Text style={styles.coordinateText}>
+                            {t('lat')}: {Number(farmerData.IOTLatLong).toFixed(6)}
+                          </Text>
+                        </View>
 
-                  {/* <View style={styles.latlongContainer}>
-                                <Text style={styles.title}>
-                                  {t('Tap to take IOT lat long')}
-                                </Text>
-                                <Image
-                                  source={require('../../Common/images/location.png')}
-                                  style={{width: 40, height: 40}}
-                                  resizeMode="contain"
-                                />
-                              </View> */}
-                </View>
+                        <View style={styles.coordinateItem}>
+                          <MaterialIcons
+                            name="pin-drop"
+                            size={16}
+                            color="#2196F3"
+                          />
+                          <Text style={styles.coordinateText}>
+                            {t('long')}:{Number(farmerData.IOTLatlat).toFixed(6)}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  </>
+
+                )}
+
                 <View style={styles.labelContainer}>
                   <Text style={styles.sectionTitle}>
                     {t('plot_location_points')}
@@ -2847,7 +2842,7 @@ const PlotStatusUpdate = () => {
                       : edit
                   }
                 />
-                <View style={styles.plotSiteUnit}>
+                {dbLanTokUsr?.carbonType !== 'mangrove' && (<View style={styles.plotSiteUnit}>
                   <View style={{ width: '45%' }}>
                     <InputTextForm
                       label={t('expected_yield')}
@@ -2885,7 +2880,7 @@ const PlotStatusUpdate = () => {
                     // }
                     />
                   </View>
-                </View>
+                </View>)}
 
                 <View style={{ marginTop: 5 }}>
                   <DropdownForm
@@ -2976,7 +2971,7 @@ const PlotStatusUpdate = () => {
                   statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
                   statuslevel.label === 'CARBON_DOCUMENTS_REJECTED' ||
                   statuslevel.label == 'CARBON_DOCUMENTS_REJECTED') &&
-                  carbonFlag == true ? (
+                  carbonFlag == true && dbLanTokUsr?.carbonType !== 'mangrove' ? (
                   <View style={{ marginTop: 15 }}>
                     <CarbonCertificate
                       identityProofIdentityPropf={carboncertificate}

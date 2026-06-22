@@ -585,7 +585,7 @@ const LiveHood = ({
         const { count, rows = [] } = landUnitSquare_res.data?.data || {};
         setLandUnitsquareMetre(count > 0 ? rows : []);
       }
-
+      console.log(plotSiteUserLandDetails_res.data.data)
       if (plotSiteUserLandDetails_res?.status === 200) {
         setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
       }
@@ -644,20 +644,20 @@ const LiveHood = ({
             },
           ),
           getPlotDocAPI(dbname, lan_id, token, farmeruserID, findData.value),
-          axiosPost(
-            ROUTES.POST.NEAREST_LATLONG,
-            {
-              latitude: lat,
-              longitude: lon,
-              distance: 200,
-              data_limit: 100,
-            },
-            token,
-            false,
-            {
-              information: `${dbname},${lan_id}`,
-            },
-          ),
+          // axiosPost(
+          //   ROUTES.POST.NEAREST_LATLONG,
+          //   {
+          //     latitude: lat,
+          //     longitude: lon,
+          //     distance: 200,
+          //     data_limit: 100,
+          //   },
+          //   token,
+          //   false,
+          //   {
+          //     information: `${dbname},${lan_id}`,
+          //   },
+          // ),
           //   axiosGet(
           //     ROUTES.GET.PRODUCE_SEASON({
           //      crop_name_fid: farmerData.produceNameValue,
@@ -867,7 +867,7 @@ const LiveHood = ({
                   plot_Site_Name: findData?.label,
 
                   expectedProduction: dataProps?.plot_crops[0]?.yield_amount,
-                  cycleStartDate: dataProps?.plot_crops[0]?.sowing_date,
+                  cycleStartDate: dataProps?.plot_crops[0]?.sowing_date?.split('T')[0],
                   cycleEndDate:
                     dataProps?.plot_crops[0]?.harvesting_date.substring(-1, 10),
 
@@ -967,7 +967,7 @@ const LiveHood = ({
                   plot_Site: findData?.value,
                   plot_Site_Name: findData?.label,
                   expectedProduction: data?.yield_amount,
-                  cycleStartDate: data?.sowing_date,
+                  cycleStartDate: data?.sowing_date?.split('T')[0],
                   cycleEndDate: data?.harvesting_date.substring(-1, 10),
                   terrainType: dataLandDetails?.terrain_type?.name,
                   terrainTypeValue: dataLandDetails?.terrain_type?.fid,
@@ -1203,6 +1203,7 @@ const LiveHood = ({
           }
         }
       } catch (error) {
+        console.error(error)
         setIsLoading(false);
         Toast.show({
           text: typeof error == 'object' ? JSON.stringify(error) : error,
@@ -1838,7 +1839,7 @@ const LiveHood = ({
         }
       });
 
-      if (carbonFlag && !farmerData.daag_no) {
+      if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && !farmerData.daag_no) {
         Toast.show({
           text: 'Please enter Daag Number',
           ...AlertMesg[0],
@@ -1846,7 +1847,7 @@ const LiveHood = ({
         return;
       }
 
-      if (carbonFlag && !farmerData.jl_no) {
+      if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && !farmerData.jl_no) {
         Toast.show({
           text: 'Please enter JL Number',
           ...AlertMesg[0],
@@ -1902,9 +1903,9 @@ const LiveHood = ({
           text: `${t('please_select_production_system_first')}`,
           ...AlertMesg[0],
         });
-      } else if (farmerData.expectedProduction == '') {
+      } else if (dbLanTokUsr?.carbonType !== 'mangrove' && farmerData.expectedProduction == '') {
         Toast.show({ text: `${t('please_give_yeild_size')}`, ...AlertMesg[0] });
-      } else if (farmerData.unitProductValue == '') {
+      } else if (dbLanTokUsr?.carbonType !== 'mangrove' && farmerData.unitProductValue == '') {
         Toast.show({ text: `${t('please_select_yeild_unit')}`, ...AlertMesg[0] });
       } else if (farmerData.productionSeasonValue == '') {
         Toast.show({
@@ -1955,18 +1956,20 @@ const LiveHood = ({
         formdata.append('crop_variety_id', farmerData.produceVarietyValue);
         formdata.append('latlong_data', latlongArrString);
         formdata.append('createdBy', user_id);
-        formdata.append('daag_no', farmerData.daag_no);
-        formdata.append('khatian_no', farmerData.khatian_no);
+        if (dbLanTokUsr?.carbonType !== 'mangrove') {
+          formdata.append('daag_no', farmerData.daag_no);
+          formdata.append('khatian_no', farmerData.khatian_no);
+          formdata.append('jl_no', farmerData.jl_no);
+          formdata.append('yield_amount', farmerData.expectedProduction);
+          formdata.append('yield_unit', farmerData.unitProductValue);
+        }
         formdata.append('plant_number', farmerData.plant_number);
-        formdata.append('jl_no', farmerData.jl_no);
         formdata.append('mouja', farmerData.mouja);
         formdata.append('certified_seed', 'No');
         formdata.append('have_land_title', 'No');
         formdata.append('production_system', farmerData.productionProcessValue);
         formdata.append('have_fertilizer', 'Yes');
         formdata.append('buy_pesticide', 'Yes');
-        formdata.append('yield_amount', farmerData.expectedProduction);
-        formdata.append('yield_unit', farmerData.unitProductValue);
         formdata.append('sowing_date', farmerData.cycleStartDate);
         formdata.append('harvesting_date', farmerData.cycleEndDate);
         if (
@@ -2094,10 +2097,10 @@ const LiveHood = ({
             user_id: farmeruserID,
             plot_no: farmerData.plot_Site_Name,
             createdBy: user_id,
-            daag_no: farmerData.daag_no,
-            khatian_no: farmerData.khatian_no,
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { daag_no: farmerData.daag_no }),
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { khatian_no: farmerData.khatian_no }),
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { jl_no: farmerData.jl_no }),
             plant_number: farmerData.plant_number,
-            jl_no: farmerData.jl_no,
             mouja: farmerData.mouja,
             terrain_type_id: farmerData.terrainTypeValue,
             lan_type_id: farmerData.landTypeValue,
@@ -2121,16 +2124,16 @@ const LiveHood = ({
             production_system: farmerData.productionProcessValue,
             have_fertilizer: 'Yes',
             buy_pesticide: 'Yes',
-            yield_amount: farmerData.expectedProduction,
-            yield_unit: farmerData.unitProductValue,
             // crop_cycl_start_date: cusCropCyclStartDate,
             // crop_cycl_start_date: farmerData.cycleStartDate,
             latlong_data: latlongArrString,
             google_area: cusGooglearea,
             plot_image: filterAddressImage,
-            device_no: farmerData.IOTId,
-            device_lat: farmerData.IOTLatlat,
-            device_long: farmerData.IOTLatLong,
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { yield_amount: farmerData.expectedProduction }),
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { yield_unit: farmerData.unitProductValue }),
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { device_no: farmerData.IOTId }),
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { device_lat: farmerData.IOTLatlat }),
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { device_long: farmerData.IOTLatLong }),
           };
           if (cusCropCyclStartDate) {
             dataToSend.crop_cycl_start_date = cusCropCyclStartDate;
@@ -2352,31 +2355,28 @@ const LiveHood = ({
               label: plot_status,
               value: plot_status,
             })
-            addressProof?.map((data, index) => {
-              if (rejected_documents?.[index]) {
-                const pdf_url = rejected_documents?.[index]?.pdf_url;
-                addressVal[index] = {
-                  fileName: pdf_url.split('/').pop(),
-                  id: "",
-                  isvalid: true,
-                  name: pdf_url.split('/').pop(),
-                  type: "image/jpeg",
-                  uri: pdf_url,
-                  value: ''
-                };
-              } else {
-                addressVal[index] = {
-                  fileName: "",
-                  id: "",
-                  isvalid: false,
-                  name: "",
-                  type: "",
-                  uri: "",
-                  value: ''
-                };
-              }
-            })
-            setAddressProof(addressVal);
+            setIsLoading(false);
+            console.log("aaaaa", JSON.stringify(addressProof))
+            console.log(JSON.stringify(rejected_documents))
+            // const updatedAddressProof = [...addressProof];
+
+            const updatedAddressProof = addressProof.map((data) => {
+              const isRejected = rejected_documents?.some(
+                (doc) => doc.file_title === data.fileName
+              );
+
+              return {
+                fileName: data.fileName,
+                id: "",
+                isvalid: isRejected,
+                name: data.fileName,
+                type: data.type,
+                uri: data.uri,
+                value: "",
+              };
+            });
+
+            setAddressProof(updatedAddressProof);
             scrollToTop();
             Toast.show({ text: missing, ...AlertMesg[0] });
             setIsLoading(false);
@@ -3207,6 +3207,7 @@ const LiveHood = ({
                 landAreaUnit={landAreaUnit?.[0]?.unit_name}
                 effective_dates={effective_dates}
                 ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
+                registration={false}
               />
             </View>
           </View>
@@ -3247,6 +3248,7 @@ const LiveHood = ({
                 modalVisibleCoFarmer={modalVisibleCoFarmer}
                 setCoFarmerDetails={setCoFarmerDetails}
                 ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
+                registration={true}
               />
             </View>
           </View>
@@ -3293,7 +3295,7 @@ const LiveHood = ({
           }}
           showsVerticalScrollIndicator={false} ref={scrollViewRef}>
           <View style={{ marginBottom: 40 }}>
-            {plotStatus.label == 'REJECTED' || farmerData?.plotRejectComment !== '' ? (
+            {dbLanTokUsr?.carbonType !== 'mangrove' && plotStatus.label == 'REJECTED' ? (
               <View
                 style={{
                   paddingVertical: 10,
@@ -3341,20 +3343,20 @@ const LiveHood = ({
                     val={farmerData.plot_Site_Name}
                   />
                 )}
-                <InputTextForm
+                {dbLanTokUsr?.carbonType !== 'mangrove' ? <InputTextForm
                   label={t('daag_no')}
                   value={farmerData.daag_no}
                   required={carbonFlag === true}
                   onChangeText={handleAddUserDataDaag}
                   editable={InputTextFormEdit}
-                />
+                /> : <></>}
 
-                <InputTextForm
+                {dbLanTokUsr?.carbonType !== 'mangrove' && (<InputTextForm
                   label={t('khatian_no')}
                   value={farmerData.khatian_no}
                   onChangeText={handleAddUserDataKKhatian}
                   editable={InputTextFormEdit}
-                />
+                />)}
                 <InputTextForm
                   label={t('no_of_plants')}
                   value={farmerData.plant_number}
@@ -3362,7 +3364,7 @@ const LiveHood = ({
                   editable={InputTextFormEdit}
                 />
 
-                {carbonFlag == true ? (
+                {dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag == true ? (
                   <InputTextForm
                     label={t('JL No')}
                     required={carbonFlag === true}
@@ -3464,67 +3466,71 @@ const LiveHood = ({
                     editable={false}
                   />
                 )}
+                {dbLanTokUsr?.carbonType !== 'mangrove' && (
+                  <>
+                    <ProofAndIdentityPropfComp
+                      t={t}
+                      title={t('address_proof')}
+                      setStateValue={setAddressProof}
+                      stateValue={addressProof}
+                      // !="APPROVED"
+                      //basudev
+                      status_level={statuslevel.label}
+                      photoDeletedValue={photoDeletedValue}
+                      setPhotoDeletedValue={setPhotoDeletedValue}
+                      loginUser_data={loginUser_data}
+                      disable={
+                        statuslevel.label == 'APPROVED' ||
+                          statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                          // || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
+                          statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                          ? false
+                          : statuslevel.label == 'PENDING' ||
+                            statuslevel.label == 'REJECTED'
+                            ? false
+                            : true
+                      }
+                      InputTextFormEdit={InputTextFormEdit}
+                      marginBottom={navigationBarHeight}
+                      allowAddMore={true}
+                      ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
+                      is_id_proof={identityProofIdentityPropf}
+                    />
 
-                <ProofAndIdentityPropfComp
-                  t={t}
-                  title={t('address_proof')}
-                  setStateValue={setAddressProof}
-                  stateValue={addressProof}
-                  // !="APPROVED"
-                  //basudev
-                  status_level={statuslevel.label}
-                  photoDeletedValue={photoDeletedValue}
-                  setPhotoDeletedValue={setPhotoDeletedValue}
-                  loginUser_data={loginUser_data}
-                  disable={
-                    statuslevel.label == 'APPROVED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                      // || statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
-                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                      ? false
-                      : statuslevel.label == 'PENDING' ||
-                        statuslevel.label == 'REJECTED'
-                        ? false
-                        : true
-                  }
-                  InputTextFormEdit={InputTextFormEdit}
-                  marginBottom={navigationBarHeight}
-                  allowAddMore={true}
-                  ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
-                  is_id_proof={identityProofIdentityPropf}
-                />
+                    <View style={{ marginTop: 15 }}>
+                      <ProofAndIdentityPropfComp
+                        identityProofIdentityPropf={identityProofIdentityPropf}
+                        t={t}
+                        title={t('address_proofAndIdentityPropf')}
+                        setStateValue={setIdentityProofIdentityPropf}
+                        stateValue={identityProofIdentityPropf}
+                        photoDeletedValue={identityPhotoDeletedValue}
+                        setPhotoDeletedValue={setIdentityPhotoDeletedValue}
+                        loginUser_data={loginUser_data}
+                        status_level={plotStatus.label}
+                        InputTextFormEdit={
+                          plotStatus.label == 'PENDING' ||
+                            plotStatus.label == 'REJECTED'
+                            ? true
+                            : false
+                        }
+                        disable={
+                          plotStatus.label == 'APPROVED'
+                            ? false
+                            : plotStatus.label == 'PENDING' ||
+                              plotStatus.label == 'REJECTED'
+                              ? true
+                              : false
+                        }
+                        marginBottom={navigationBarHeight}
+                        allowAddMore={false}
+                        farmerName={userName}
+                        ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
+                      />
+                    </View>
 
-                <View style={{ marginTop: 15 }}>
-                  <ProofAndIdentityPropfComp
-                    identityProofIdentityPropf={identityProofIdentityPropf}
-                    t={t}
-                    title={t('address_proofAndIdentityPropf')}
-                    setStateValue={setIdentityProofIdentityPropf}
-                    stateValue={identityProofIdentityPropf}
-                    photoDeletedValue={identityPhotoDeletedValue}
-                    setPhotoDeletedValue={setIdentityPhotoDeletedValue}
-                    loginUser_data={loginUser_data}
-                    status_level={plotStatus.label}
-                    InputTextFormEdit={
-                      plotStatus.label == 'PENDING' ||
-                        plotStatus.label == 'REJECTED'
-                        ? true
-                        : false
-                    }
-                    disable={
-                      plotStatus.label == 'APPROVED'
-                        ? false
-                        : plotStatus.label == 'PENDING' ||
-                          plotStatus.label == 'REJECTED'
-                          ? true
-                          : false
-                    }
-                    marginBottom={navigationBarHeight}
-                    allowAddMore={false}
-                    farmerName={userName}
-                    ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
-                  />
-                </View>
+                  </>
+                )}
 
                 {area != 0 && area != null && (
                   <InputTextForm
@@ -3540,78 +3546,66 @@ const LiveHood = ({
                   />
                 )}
 
-                {/* {area != 0 && area != null && (
-              <InputTextForm
-                label={
-                  t('Calculated Map Area ') +
-                  `${
-                    landAreaUnit?.[0]?.defined_unit_value
-                      ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                      : '(Square meter)'
-                  }`
-                }
-                value={area.toString()}
-                editable={false}
-              />
-            )} */}
-                <View style={{ marginTop: 10 }}>
-                  <InputTextForm
-                    label={t('Enter IOT Id')}
-                    onChangeText={handleIOTId}
-                    value={farmerData.IOTId}
-                  // editable={(statuslevel.label != 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED') && harvested == '' || harvested == 'same produce' ? false : true}
-                  // editable={InputTextFormEdit}
-                  />
-                </View>
-                <View style={styles.locationContainer}>
-                  <View style={styles.locationHeader}>
-                    <Text style={styles.locationTitle}>
-                      {t('Geo tag IOT Device')}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => handleCurrentLatLongIOT()}
-                      style={styles.locationStatusInactive}>
-                      <MaterialIcons
-                        name="location-on"
-                        size={20}
-                        color="#F44336"
+                {dbLanTokUsr?.carbonType !== 'mangrove' && (
+                  <>
+                    <View style={{ marginTop: 10 }}>
+                      <InputTextForm
+                        label={t('Enter IOT Id')}
+                        onChangeText={handleIOTId}
+                        value={farmerData.IOTId}
+                      // editable={(statuslevel.label != 'APPROVED' || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED') && harvested == '' || harvested == 'same produce' ? false : true}
+                      // editable={InputTextFormEdit}
                       />
-                      <Text style={styles.locationStatusText}>
-                        {t('tap_to_tag')}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.coordinatesContainer}>
-                    <View style={styles.coordinateItem}>
-                      <MaterialIcons
-                        name="pin-drop"
-                        size={16}
-                        color="#2196F3"
-                      />
-                      <Text style={styles.coordinateText}>
-                        {t('lat')}: {'  '}
-                        {Number(farmerData.IOTLatLong).toFixed(6)}
-                      </Text>
                     </View>
+                    <View style={styles.locationContainer}>
+                      <View style={styles.locationHeader}>
+                        <Text style={styles.locationTitle}>
+                          {t('Geo tag IOT Device')}
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => handleCurrentLatLongIOT()}
+                          style={styles.locationStatusInactive}>
+                          <MaterialIcons
+                            name="location-on"
+                            size={20}
+                            color="#F44336"
+                          />
+                          <Text style={styles.locationStatusText}>
+                            {t('tap_to_tag')}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                      <View style={styles.coordinatesContainer}>
+                        <View style={styles.coordinateItem}>
+                          <MaterialIcons
+                            name="pin-drop"
+                            size={16}
+                            color="#2196F3"
+                          />
+                          <Text style={styles.coordinateText}>
+                            {t('lat')}: {'  '}
+                            {Number(farmerData.IOTLatLong).toFixed(6)}
+                          </Text>
+                        </View>
 
-                    <View style={styles.coordinateItem}>
-                      <MaterialIcons
-                        name="pin-drop"
-                        size={16}
-                        color="#2196F3"
-                      />
-                      <Text style={styles.coordinateText}>
-                        {t('long')}:{'  '}
-                        {Number(farmerData.IOTLatlat).toFixed(6)}
-                      </Text>
-                    </View>
-                    {/* <View style={styles.latlongContainer}>
+                        <View style={styles.coordinateItem}>
+                          <MaterialIcons
+                            name="pin-drop"
+                            size={16}
+                            color="#2196F3"
+                          />
+                          <Text style={styles.coordinateText}>
+                            {t('long')}:{'  '}
+                            {Number(farmerData.IOTLatlat).toFixed(6)}
+                          </Text>
+                        </View>
+                        {/* <View style={styles.latlongContainer}>
                   <Text style={styles.title}>{farmerData.IOTLatlat}</Text>
                   <Text style={styles.title}>{farmerData.IOTLatLong}</Text>
                 </View> */}
-                  </View>
+                      </View>
 
-                  {/* <View style={styles.latlongContainer}>
+                      {/* <View style={styles.latlongContainer}>
                 <Text style={styles.title}>
                   {t('Tap to take IOT lat long')}
                 </Text>
@@ -3621,7 +3615,9 @@ const LiveHood = ({
                   resizeMode="contain"
                 />
               </View> */}
-                </View>
+                    </View>
+                  </>
+                )}
                 <View style={styles.labelContainer}>
                   <Text style={styles.sectionTitle}>
                     {t('plot_location_points')}
@@ -3747,12 +3743,13 @@ const LiveHood = ({
                     </View>
                   </TouchableOpacity>
                 </View> */}
+
                 {(statuslevel.label == 'APPROVED' ||
                   statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
                   statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
                   statuslevel.label === 'PENDING' ||
                   statuslevel.label == 'CARBON_DOCUMENTS_REJECTED') &&
-                  carbonFlag == true ? (
+                  carbonFlag == true && dbLanTokUsr?.carbonType !== 'mangrove' ? (
                   <View style={{ marginTop: 15 }}>
                     <CarbonCertificate
                       identityProofIdentityPropf={carboncertificate}
@@ -3868,6 +3865,7 @@ const LiveHood = ({
                 handleAddUserDataFinalYield={handleAddUserDataFinalYield}
                 handleAddDataYieldUnitProduct={handleAddDataYieldUnitProduct}
                 historyData={historyData}
+                carbonType={dbLanTokUsr?.carbonType}
               />
             )}
           </View>
@@ -3898,6 +3896,7 @@ const LiveHood = ({
               plotId,
               statuslevel?.label,
               dbLanTokUsr?.co_farmer,
+              dbLanTokUsr?.carbonType,
             )}
             color={Colors.useGreen}
             onPressItem={name => {

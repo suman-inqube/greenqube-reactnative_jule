@@ -13,7 +13,7 @@ import {
   Image,
   StyleSheet,
 } from 'react-native';
-import {Colors, Fonts} from '../../utils/Constants';
+import { Colors, Fonts } from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const CropData = ({
@@ -72,10 +72,8 @@ const CropData = ({
   handleAddUserDataFinalYieldUnit,
   handleAddDataYieldUnitProduct,
   historyData,
+  carbonType
 }) => {
-  // console.log('hisdata133331--', JSON.stringify(farmerData));
-
-  // const [selectedType, setSelectedType] = useState('organic_amendment_type');
   return (
     <View style={styles.container}>
       {/* 1. Farm/Produce Type */}
@@ -131,37 +129,39 @@ const CropData = ({
         }
       />
       {/* 5. Expected Production & 6. Unit */}
-      <View style={styles.row}>
-        <View style={{width: '50%'}}>
-          <InputTextForm
-            label={t('expected_yield')}
-            keyboardType="number-pad"
-            required={true}
-            value={farmerData.expectedProduction}
-            editable={historyData ? false : true}
-            onChangeText={handleAddDataYieldUnitProduct} //{text => (farmerData.expectedProduction = text)} // Standardized with parent state
-          />
-        </View>
-        <View style={{width: '45%'}}>
-          <DropdownForm
-            label={t('select_unit_input')}
-            required={true}
-            data={productionUnit}
-            onChange={handleAddDataUnitProduct}
-            val={farmerData.unitProduct}
-            disable={
-              addPlot
-                ? false
-                : historyData ||
+      {carbonType !== 'mangrove' && (
+        <View style={styles.row}>
+          <View style={{ width: '50%' }}>
+            <InputTextForm
+              label={t('expected_yield')}
+              keyboardType="number-pad"
+              required={true}
+              value={farmerData.expectedProduction}
+              editable={historyData ? false : true}
+              onChangeText={handleAddDataYieldUnitProduct} //{text => (farmerData.expectedProduction = text)} // Standardized with parent state
+            />
+          </View>
+          <View style={{ width: '45%' }}>
+            <DropdownForm
+              label={t('select_unit_input')}
+              required={true}
+              data={productionUnit}
+              onChange={handleAddDataUnitProduct}
+              val={farmerData.unitProduct}
+              disable={
+                addPlot
+                  ? false
+                  : historyData ||
                   (edit === '' ? harvested === 'same produce' : edit)
-            }
-          />
+              }
+            />
+          </View>
         </View>
-      </View>
+      )}
       {/* {amendmentList.map((data, index) => {
         return ( */}
 
-      {harvested == '' && userData !== 'addUserData' && addPlot !== true && (
+      {carbonType !== 'mangrove' && harvested == '' && userData !== 'addUserData' && addPlot !== true && (
         <>
           <View style={styles.AddExpenseContainer}>
             <View style={styles.inputContainer}>
@@ -220,8 +220,8 @@ const CropData = ({
           </View>
 
           {allItems.length > 0 && (
-            <View style={{marginTop: 20}}>
-              <Text style={{fontSize: 18, fontWeight: 'bold'}}>
+            <View style={{ marginTop: 20 }}>
+              <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
                 {t('items')}
               </Text>
 
@@ -270,7 +270,7 @@ const CropData = ({
                         padding: 6,
                         borderRadius: 6,
                       }}>
-                      <Text style={{color: 'white'}}>{t('delete')}</Text>
+                      <Text style={{ color: 'white' }}>{t('delete')}</Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -301,7 +301,7 @@ const CropData = ({
             style={styles.datePicker}>
             <Text style={styles.label}>{t('seeding_date')}</Text>
             <View style={styles.dateDisplay}>
-              <Text style={{color: '#000'}}>
+              <Text style={{ color: '#000' }}>
                 {farmerData.seeding_date || t('select')}
               </Text>
               <Image
@@ -384,26 +384,26 @@ const CropData = ({
           historyData
             ? true
             : edit == ''
-            ? harvested == 'same produce' || harvested == 'add new Produce'
-              ? false
-              : harvested == ''
-              ? false
-              : true
-            : edit
+              ? harvested == 'same produce' || harvested == 'add new Produce'
+                ? false
+                : harvested == ''
+                  ? false
+                  : true
+              : edit
         }
       />
       {/* 8. Cycle Start */}
       <TouchableOpacity
         onPress={() =>
           !historyData &&
-          (harvested !== '' || userData === 'addUserData' || addPlot)
+            (harvested !== '' || userData === 'addUserData' || addPlot)
             ? setopenCycleStart(true)
             : null
         }
         style={styles.datePicker}>
         <Text style={styles.label}>{t('showing_date')} *</Text>
         <View style={styles.dateDisplay}>
-          <Text style={{color: '#000'}}>
+          <Text style={{ color: '#000' }}>
             {farmerData.cycleStartDate || 'Select'}
           </Text>
           <Image
@@ -416,7 +416,7 @@ const CropData = ({
       <TouchableOpacity
         onPress={() =>
           !historyData &&
-          (harvested !== '' || userData === 'addUserData' || addPlot)
+            (harvested !== '' || userData === 'addUserData' || addPlot)
             ? setopenCycleEnd(true)
             : null
         }
@@ -425,7 +425,7 @@ const CropData = ({
           {t('harvesting_date_auto_calculated')} *
         </Text>
         <View style={styles.dateDisplay}>
-          <Text style={{color: '#000'}}>
+          <Text style={{ color: '#000' }}>
             {farmerData.cycleEndDate || 'Select'}
           </Text>
           <Image
@@ -439,9 +439,9 @@ const CropData = ({
 };
 
 const styles = StyleSheet.create({
-  row: {flexDirection: 'row', justifyContent: 'space-between'},
-  datePicker: {marginVertical: 10},
-  label: {color: '#4e4e4e', fontFamily: Fonts.Regular, fontSize: 15},
+  row: { flexDirection: 'row', justifyContent: 'space-between' },
+  datePicker: { marginVertical: 10 },
+  label: { color: '#4e4e4e', fontFamily: Fonts.Regular, fontSize: 15 },
   dateDisplay: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     backgroundColor: '#fff',
   },
-  icon: {width: 20, height: 20, tintColor: Colors.useGreen},
+  icon: { width: 20, height: 20, tintColor: Colors.useGreen },
   AddExpenseContainer: {
     flex: 1,
     marginVertical: 10,

@@ -162,8 +162,8 @@ const PersonalInformation = () => {
     }
     setstateAll(dataArray);
   };
-    // 3. LOAD STATE API + CONTACT DIGIT API
-    const { dbName, languageId, country_id, languageConpany, ai_camera_id_proof, carbonType } = dbLanTokUsr;
+  // 3. LOAD STATE API + CONTACT DIGIT API
+  const { dbName, languageId, country_id, languageConpany, ai_camera_id_proof, carbonType } = dbLanTokUsr;
   const onPageLoad = async () => {
     setIsLoading(true);
     const saved = await getItem('storePersnolInfo_data');
@@ -194,7 +194,7 @@ const PersonalInformation = () => {
       block,
     });
 
-  
+
 
     const [checkPhoneNumberDigit] = await Promise.all([
       axiosGet(ROUTES.GET.CHECK_PHONE_DIGIT({ countryId: country_id }), '', {
@@ -434,9 +434,9 @@ const PersonalInformation = () => {
         text: `${t('please_enter_valid_mobile_no')}`,
         ...AlertMesg[0],
       });
-    } else if (farmerData.age == '') {
+    } else if (dbLanTokUsr?.carbonType !== 'mangrove' && farmerData.age == '') {
       Toast.show({ text: `${t('please_enter_birth_date')}`, ...AlertMesg[0] });
-    } else if (farmerData.age < 18) {
+    } else if (dbLanTokUsr?.carbonType !== 'mangrove' && farmerData.age < 18) {
       Toast.show({ text: `${t('please_eligible_birth_date')}`, ...AlertMesg[0] });
     } else if (farmerData.state == '') {
       Toast.show({ text: `${t('please_select_state_first')}`, ...AlertMesg[0] });
@@ -623,15 +623,16 @@ const PersonalInformation = () => {
                             selected={farmerData.userType === '3'}
                           />
                         </View>
-                       <InputTextForm
-                          label={t('age')}
-                          required={true}
-                          keyboardType={'number-pad'}
-                          maxLength={2}
-                          onChangeText={handleAddDataAge}
-                          value={farmerData.age}
-                        />
-
+                        {dbLanTokUsr?.carbonType !== 'mangrove' && (
+                          <InputTextForm
+                            label={t('age')}
+                            required={true}
+                            keyboardType={'number-pad'}
+                            maxLength={2}
+                            onChangeText={handleAddDataAge}
+                            value={farmerData.age}
+                          />
+                        )}
                         <DropdownForm
                           label={
                             regionaldatas.state == ''

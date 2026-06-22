@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Alert,
   Modal,
@@ -11,20 +11,22 @@ import {
   Dimensions,
   StatusBar,
 } from 'react-native';
-import {DrawerActions} from '@react-navigation/native';
-import {getItem, removeItem} from '../../config/getDataFromStorage';
+import { DrawerActions } from '@react-navigation/native';
+import { getItem, removeItem } from '../../config/getDataFromStorage';
 import i18next from '../services/i18next';
-import {useTranslation} from 'react-i18next';
-import {StackActions, useNavigation} from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import DeviceInfo from '../DeviceInfo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {Colors, Fonts} from '../utils/Constants';
+import { Colors, Fonts } from '../utils/Constants';
+import { userCreateContext } from '../Context/usersCreateContext';
 
 const FarmerDrawer = props => {
-  const {state} = props; // Access navigation state
+  const { state } = props; // Access navigation state
+   const { isOnline, dbLanTokUsr } = useContext(userCreateContext) || {};
   const activeRouteName = props?.state?.routes[props?.state?.index]?.name;
-  const {netConnection} = DeviceInfo();
-  const {t} = useTranslation();
+  const { netConnection } = DeviceInfo();
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const [side_menu_option, set_side_menu_option] = useState('');
 
@@ -130,7 +132,7 @@ const FarmerDrawer = props => {
           },
         },
       ],
-      {cancelable: false},
+      { cancelable: false },
     );
   };
   // const removeData = async () => {
@@ -186,7 +188,7 @@ const FarmerDrawer = props => {
     if (netConnection) {
       navigation.navigate('FarmerNavigation', {
         screen: 'FarmerMainStack',
-        params: {screen: pageName},
+        params: { screen: pageName },
       });
     }
   };
@@ -195,7 +197,7 @@ const FarmerDrawer = props => {
       {/* <StatusBar barStyle="light-content" backgroundColor={Colors.drawer} /> */}
       <View style={styles.mainView}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={{marginBottom: 80}}>
+          <View style={{ marginBottom: 80 }}>
             <TouchableOpacity
               style={[
                 styles.memuContainer,
@@ -232,7 +234,7 @@ const FarmerDrawer = props => {
             <TouchableOpacity
               style={styles.memuContainer}
               onPress={() => handleMenuExpand('profile')}>
-              <View style={[styles.menuItem, {marginTop: 8}]}>
+              <View style={[styles.menuItem, { marginTop: 8 }]}>
                 <View style={styles.iconView}>
                   <MaterialIcons name={'person'} size={22} color="#030730" />
                   {/* <Image
@@ -244,7 +246,7 @@ const FarmerDrawer = props => {
                   style={[
                     styles.menuText,
                     isParentActive('FarmerProfile', profileRoutes) &&
-                      styles.activeText,
+                    styles.activeText,
                     isParentActive('FarmerProfile', profileRoutes) && {
                       color: Colors.primary_light,
                     },
@@ -255,17 +257,17 @@ const FarmerDrawer = props => {
                   name={profileExpanded ? 'expand-less' : 'expand-more'}
                   size={22}
                   color="#d5dbd7"
-                  style={{marginLeft: 5}}
+                  style={{ marginLeft: 5 }}
                 />
               </View>
             </TouchableOpacity>
             {profileExpanded && (
               <>
-                <View style={{marginBottom: 30}}>
+                <View style={{ marginBottom: 30 }}>
                   <TouchableOpacity
                     style={[
                       styles.subMenu,
-                      {paddingLeft: 30},
+                      { paddingLeft: 30 },
                       isActive('FarmerProfile') && styles.activeSubMenu,
                     ]}
                     onPress={() => navigateToPages('FarmerProfile')}>
@@ -298,7 +300,7 @@ const FarmerDrawer = props => {
                   <TouchableOpacity
                     style={[
                       styles.subMenu,
-                      {paddingLeft: 30},
+                      { paddingLeft: 30 },
                       isActive('FarmerChangePassword') && styles.activeSubMenu,
                     ]}
                     onPress={() => navigateToPages('FarmerChangePassword')}>
@@ -325,7 +327,7 @@ const FarmerDrawer = props => {
                         style={[
                           styles.subText,
                           isActive('FarmerChangePassword') &&
-                            styles.activeSubText,
+                          styles.activeSubText,
                         ]}>
                         {t('change_password')}
                       </Text>
@@ -351,12 +353,12 @@ const FarmerDrawer = props => {
                   <Image
                     source={require('../Common/images/land.png')}
                     style={[
-                      {height: 20, width: 20},
+                      { height: 20, width: 20 },
                       isActive('FarmerLiveHood')
                         ? {
-                            tintColor: 'black',
-                          }
-                        : {tintColor: 'black'},
+                          tintColor: 'black',
+                        }
+                        : { tintColor: 'black' },
                     ]}
                   />
                 </View>
@@ -406,14 +408,14 @@ const FarmerDrawer = props => {
                   {/* <MaterialIcons name="science" size={22} color="#030635" /> */}
                   <Image
                     source={require('../Common/images/plant.png')}
-                    style={[{height: 22, width: 22, tintColor: '#030730'}]}
+                    style={[{ height: 22, width: 22, tintColor: '#030730' }]}
                   />
                 </View>
                 <Text
                   style={[
                     styles.menuText,
                     isParentActive('PackageOfPractices', practiceRoutes) &&
-                      styles.activeText,
+                    styles.activeText,
                     isParentActive('PackageOfPractices', practiceRoutes) && {
                       color: Colors.primary_light,
                     },
@@ -424,17 +426,17 @@ const FarmerDrawer = props => {
                   name={practiceExpanded ? 'expand-less' : 'expand-more'}
                   size={22}
                   color="#d5dbd7"
-                  style={{marginLeft: 5}}
+                  style={{ marginLeft: 5 }}
                 />
               </View>
             </TouchableOpacity>
             {practiceExpanded && (
               <>
-                <View style={{marginBottom: 30}}>
+                <View style={{ marginBottom: 30 }}>
                   <TouchableOpacity
                     style={[
                       styles.subMenu,
-                      {paddingLeft: 30},
+                      { paddingLeft: 30 },
                       isActive('PackageOfPractices') && styles.activeSubMenu,
                     ]}
                     onPress={() => navigateToPages('PackageOfPractices')}>
@@ -442,7 +444,7 @@ const FarmerDrawer = props => {
                       <Image
                         source={require('../Common/images/plant.png')}
                         style={[
-                          {height: 20, width: 20},
+                          { height: 20, width: 20 },
                           {
                             tintColor: isActive('PackageOfPractices')
                               ? '#030635'
@@ -454,7 +456,7 @@ const FarmerDrawer = props => {
                         style={[
                           styles.subText,
                           isActive('PackageOfPractices') &&
-                            styles.activeSubText,
+                          styles.activeSubText,
                         ]}>
                         {t('scientific_farming')}
                       </Text>
@@ -464,7 +466,7 @@ const FarmerDrawer = props => {
                   <TouchableOpacity
                     style={[
                       styles.subMenu,
-                      {paddingLeft: 30},
+                      { paddingLeft: 30 },
                       isActive('SoilHealthManagement') && styles.activeSubMenu,
                     ]}
                     onPress={() => navigateToPages('SoilHealthManagement')}>
@@ -472,7 +474,7 @@ const FarmerDrawer = props => {
                       <Image
                         source={require('../Common/images/soil.png')}
                         style={[
-                          {height: 22, width: 22},
+                          { height: 22, width: 22 },
                           {
                             tintColor: isActive('SoilHealthManagement')
                               ? '#030635'
@@ -484,7 +486,7 @@ const FarmerDrawer = props => {
                         style={[
                           styles.subText,
                           isActive('SoilHealthManagement') &&
-                            styles.activeSubText,
+                          styles.activeSubText,
                         ]}>
                         {t('soil_health_management')}
                       </Text>
@@ -511,7 +513,7 @@ const FarmerDrawer = props => {
             <TouchableOpacity
               style={styles.memuContainer}
               onPress={() => handleMenuExpand('calculator')}>
-              <View style={[styles.menuItem, {marginTop: 8}]}>
+              <View style={[styles.menuItem, { marginTop: 8 }]}>
                 <View style={styles.iconView}>
                   <MaterialIcons name="calculate" size={22} color="#030730" />
 
@@ -525,7 +527,7 @@ const FarmerDrawer = props => {
                   style={[
                     styles.menuText,
                     isParentActive('PestisideCalculator', profileRoutes) &&
-                      styles.activeText,
+                    styles.activeText,
                     isParentActive('PestisideCalculator', profileRoutes) && {
                       color: Colors.primary_light,
                     },
@@ -536,17 +538,17 @@ const FarmerDrawer = props => {
                   name={calculatorExpanded ? 'expand-less' : 'expand-more'}
                   size={22}
                   color="#d5dbd7"
-                  style={{marginLeft: 5}}
+                  style={{ marginLeft: 5 }}
                 />
               </View>
             </TouchableOpacity>
             {calculatorExpanded && (
               <>
-                <View style={{marginBottom: 30}}>
+                <View style={{ marginBottom: 30 }}>
                   <TouchableOpacity
                     style={[
                       styles.subMenu,
-                      {paddingLeft: 30},
+                      { paddingLeft: 30 },
                       isActive('PestisideCalculator') && styles.activeSubMenu,
                     ]}
                     onPress={() => navigateToPages('PestisideCalculator')}>
@@ -572,7 +574,7 @@ const FarmerDrawer = props => {
                         style={[
                           styles.subText,
                           isActive('PestisideCalculator') &&
-                            styles.activeSubText,
+                          styles.activeSubText,
                         ]}>
                         {t('pestiside_calculator')}
                       </Text>
@@ -582,7 +584,7 @@ const FarmerDrawer = props => {
                   <TouchableOpacity
                     style={[
                       styles.subMenu,
-                      {paddingLeft: 30},
+                      { paddingLeft: 30 },
                       isActive('FertilizerCalculator') && styles.activeSubMenu,
                     ]}
                     onPress={() => navigateToPages('FertilizerCalculator')}>
@@ -609,7 +611,7 @@ const FarmerDrawer = props => {
                         style={[
                           styles.subText,
                           isActive('FertilizerCalculator') &&
-                            styles.activeSubText,
+                          styles.activeSubText,
                         ]}>
                         {t('fertilizer_calculator')}
                       </Text>
@@ -624,7 +626,7 @@ const FarmerDrawer = props => {
               style={[
                 styles.memuContainer,
                 isActive('FarmerFarmIncomeExpenseList') &&
-                  styles.activeSingleMenu, // Apply active style
+                styles.activeSingleMenu, // Apply active style
               ]}
               onPress={() => navigateToPages('FarmerFarmIncomeExpenseList')}>
               <View style={[styles.menuItemCal]}>
@@ -632,7 +634,7 @@ const FarmerDrawer = props => {
                   style={[
                     styles.iconView,
                     isActive('FarmerFarmIncomeExpenseList') &&
-                      styles.activeIcon, // Apply active style
+                    styles.activeIcon, // Apply active style
                   ]}>
                   <MaterialIcons
                     name="account-balance"
@@ -649,7 +651,7 @@ const FarmerDrawer = props => {
                   style={[
                     styles.menuText,
                     isActive('FarmerFarmIncomeExpenseList') &&
-                      styles.activeText, // Active text color
+                    styles.activeText, // Active text color
                   ]}>
                   {t('farm_income_amp_expense')}
                 </Text>
@@ -688,17 +690,17 @@ const FarmerDrawer = props => {
                   name={farmFincExpanded ? 'expand-less' : 'expand-more'}
                   size={22}
                   color="#d5dbd7"
-                  style={{marginLeft: 5}}
+                  style={{ marginLeft: 5 }}
                 />
               </View>
             </TouchableOpacity>
             {farmFincExpanded && (
               <>
-                <View style={{marginBottom: 10}}>
+                <View style={{ marginBottom: 10 }}>
                   <TouchableOpacity
                     style={[
                       styles.subMenu,
-                      {paddingLeft: 30},
+                      { paddingLeft: 30 },
                       isActive('FarmerLoan') && styles.activeSubMenu,
                     ]}
                     onPress={() =>
@@ -730,7 +732,7 @@ const FarmerDrawer = props => {
                   <TouchableOpacity
                     style={[
                       styles.subMenu,
-                      {paddingLeft: 30},
+                      { paddingLeft: 30 },
                       isActive('FarmerLoan') && styles.activeSubMenu,
                     ]}
                     onPress={() => navigateToPages('FarmerLoanRequest')}>
@@ -760,9 +762,9 @@ const FarmerDrawer = props => {
                   <TouchableOpacity
                     style={[
                       styles.subMenu,
-                      {paddingLeft: 30},
+                      { paddingLeft: 30 },
                       isActive('FarmerInsuranceEnquiry') &&
-                        styles.activeSubMenu,
+                      styles.activeSubMenu,
                     ]}
                     onPress={() =>
                       navigateToPages('FarmerInsuViewPastRequested')
@@ -790,7 +792,7 @@ const FarmerDrawer = props => {
                         style={[
                           styles.subText,
                           isActive('FarmerInsuranceEnquiry') &&
-                            styles.activeSubText,
+                          styles.activeSubText,
                         ]}>
                         {t('Insu_enquiry_detail')}
                       </Text>
@@ -800,9 +802,9 @@ const FarmerDrawer = props => {
                   <TouchableOpacity
                     style={[
                       styles.subMenu,
-                      {paddingLeft: 30},
+                      { paddingLeft: 30 },
                       isActive('FarmerInsuranceEnquiry') &&
-                        styles.activeSubMenu,
+                      styles.activeSubMenu,
                     ]}
                     onPress={() =>
                       navigateToPages('FarmerRequestForInsurance')
@@ -830,7 +832,7 @@ const FarmerDrawer = props => {
                         style={[
                           styles.subText,
                           isActive('FarmerInsuranceEnquiry') &&
-                            styles.activeSubText,
+                          styles.activeSubText,
                         ]}>
                         {t('request_for_ninsurance')}
                       </Text>
@@ -840,40 +842,45 @@ const FarmerDrawer = props => {
               </>
             )}
             {/* FarmerInstrumentWiseActivityView */}
-            <TouchableOpacity
-              style={[
-                styles.memuContainer,
-                isActive('FarmerInstrumentWiseActivityView') &&
-                  styles.activeSingleMenu, // Apply active style
-              ]}
-              onPress={() =>
-                navigateToPages('FarmerInstrumentWiseActivityView')
-              }>
-              <View style={[styles.menuItemCal]}>
-                <View
+            {
+              dbLanTokUsr?.carbonType !== 'mangrove' && (
+                <TouchableOpacity
                   style={[
-                    // styles.iconView,
+                    styles.memuContainer,
                     isActive('FarmerInstrumentWiseActivityView') &&
-                      styles.activeIcon, // Apply active style
-                  ]}>
-                  <View style={styles.iconView}>
-                    <MaterialIcons
-                      name="local-activity"
-                      size={22}
-                      color="#030730"
-                    />
+                    styles.activeSingleMenu, // Apply active style
+                  ]}
+                  onPress={() =>
+                    navigateToPages('FarmerInstrumentWiseActivityView')
+                  }>
+                  <View style={[styles.menuItemCal]}>
+                    <View
+                      style={[
+                        // styles.iconView,
+                        isActive('FarmerInstrumentWiseActivityView') &&
+                        styles.activeIcon, // Apply active style
+                      ]}>
+                      <View style={styles.iconView}>
+                        <MaterialIcons
+                          name="local-activity"
+                          size={22}
+                          color="#030730"
+                        />
+                      </View>
+                    </View>
+                    <Text
+                      style={[
+                        styles.menuText,
+                        isActive('FarmerInstrumentWiseActivityView') &&
+                        styles.activeText, // Active text color
+                      ]}>
+                      {t('instrument_Wise_Activity_View')}
+                    </Text>
                   </View>
-                </View>
-                <Text
-                  style={[
-                    styles.menuText,
-                    isActive('FarmerInstrumentWiseActivityView') &&
-                      styles.activeText, // Active text color
-                  ]}>
-                  {t('instrument_Wise_Activity_View')}
-                </Text>
-              </View>
-            </TouchableOpacity>
+                </TouchableOpacity>
+              )
+            }
+
 
             {/* Logout Section */}
             <TouchableOpacity

@@ -100,9 +100,11 @@ const ListOfCoFarmer = ({
   onEdit,
   modalVisibleCoFarmer,
   ai_camera_id_proof = '0',
+  registration,
+  handleDeleteCoFarmer,
 }) => {
-  const { t, LoadingScreen } = useContext(userCreateContext);
-  const { minimumDate, maximumDate } = getAgeLimitDates();
+  const {t, LoadingScreen} = useContext(userCreateContext);
+  const {minimumDate, maximumDate} = getAgeLimitDates();
   const [coFarmerList, setCoFarmerList] = useState([]);
   const [newDate, setnewDate] = useState(new Date());
   const [penCycleStart, setopenCycleStart] = useState(false);
@@ -134,23 +136,29 @@ const ListOfCoFarmer = ({
     const onPageLoad = async () => {
       setIsLoading(true);
       try {
-        const response = await axiosGet(
-          ROUTES.GET.LIST_CO_FARMERS({
-            land_fid: plotId,
-            pageNo: page,
-            searchKey: searchText || '',
-          }),
-          token,
-          { information: `${dbname},${lan_id},${user_id}` },
-        );
-        if (response?.status === 200) {
-          setTotalPages(Math.ceil(response?.data?.data.count / 10));
-          const resArr = response?.data?.data?.rows?.map(item => ({
-            ...item,
-            // CoFarmer: '',
-            age: item?.coFInfo?.date_of_birth ?? '',
-          }));
-          setCoFarmerList(resArr);
+        if (registration) {
+          const response = await axiosGet(
+            ROUTES.GET.LIST_CO_FARMERS({
+              land_fid: plotId,
+              pageNo: page,
+              searchKey: searchText || '',
+            }),
+            token,
+            {information: `${dbname},${lan_id},${user_id}`},
+          );
+          if (response?.status === 200) {
+            setTotalPages(Math.ceil(response?.data?.data.count / 10));
+            const resArr = response?.data?.data?.rows?.map(item => ({
+              ...item,
+              // CoFarmer: '',
+              age: item?.coFInfo?.date_of_birth ?? '',
+            }));
+            setCoFarmerList(resArr);
+          }
+        } else {
+          console.log('coo=', JSON.stringify(setCoFarmerDetails));
+          setCoFarmerList(setCoFarmerDetails);
+          setIsLoading(false);
         }
       } catch (error) {
         console.error(error);
@@ -308,8 +316,8 @@ const ListOfCoFarmer = ({
               : item?.coFInfo?.userType == 22 &&
                 (item?.coFInfo?.alternate_contact_num == null ||
                   item?.coFInfo?.alternate_contact_num == '')
-                ? ''
-                : item?.coFInfo?.contactNumber ?? '',
+              ? ''
+              : item?.coFInfo?.contactNumber ?? '',
           addressProof: addressProof,
           idProof: idProof,
           profile: profile,
@@ -319,7 +327,7 @@ const ListOfCoFarmer = ({
         Toast.show({
           text: `This is an approved plot. Farmer shuffling is not allowed
                 `,
-          ...{ ...AlertMesg[0], position: 'top' },
+          ...{...AlertMesg[0], position: 'top'},
         });
       }
     },
@@ -328,7 +336,7 @@ const ListOfCoFarmer = ({
 
   const onCheckCoFarmerEdit = useCallback(
     (index, co_farmer_id, phoneNum, item) => {
-      const { coFInfo } = item || {};
+      const {coFInfo} = item || {};
       try {
         if (['PENDING', 'REJECTED'].includes(status)) {
           const details = {
@@ -338,8 +346,8 @@ const ListOfCoFarmer = ({
             gender: coFInfo?.gender,
             phone:
               item?.coFInfo?.userType == 22 &&
-                (item?.coFInfo?.alternate_contact_num == null ||
-                  item?.coFInfo?.alternate_contact_num == '')
+              (item?.coFInfo?.alternate_contact_num == null ||
+                item?.coFInfo?.alternate_contact_num == '')
                 ? ''
                 : item?.coFInfo?.contactNumber ?? '',
             CoFarmer: '',
@@ -377,7 +385,7 @@ const ListOfCoFarmer = ({
           Toast.show({
             text: `This is an approved plot. Farmer shuffling is not allowed
                 `,
-            ...{ ...AlertMesg[0], position: 'top' },
+            ...{...AlertMesg[0], position: 'top'},
           });
         }
       } catch (error) {
@@ -412,7 +420,10 @@ const ListOfCoFarmer = ({
               return;
             } else {
               const extractedName = getOwnerName(rawText, detectedType);
-              if (extractedName.toLowerCase().replace(/\s/g, '').trim() == coFarmerDetails?.name?.toLowerCase()?.replace(/\s/g, '')) {
+              if (
+                extractedName.toLowerCase().replace(/\s/g, '').trim() ==
+                coFarmerDetails?.name?.toLowerCase()?.replace(/\s/g, '')
+              ) {
                 setCoFarmerDetails(prev => ({
                   ...prev,
                   [fieldName]: {
@@ -423,7 +434,10 @@ const ListOfCoFarmer = ({
                   },
                 }));
               } else {
-                if (userName?.toLowerCase().trim().split(' ')[0] == extractedName.toLowerCase().trim().split(' ')[0]) {
+                if (
+                  userName?.toLowerCase().trim().split(' ')[0] ==
+                  extractedName.toLowerCase().trim().split(' ')[0]
+                ) {
                   setCoFarmerDetails(prev => ({
                     ...prev,
                     [fieldName]: {
@@ -529,20 +543,20 @@ const ListOfCoFarmer = ({
         formdata,
         token,
         false,
-        { information: `${dbname},${lan_id},${user_id}` },
+        {information: `${dbname},${lan_id},${user_id}`},
       );
 
       if (updateOwnerShipRes?.status == 200) {
         setIsSubmit(false);
         Toast.show({
           text: 'Data submitted successfully',
-          ...{ ...AlertMesg[0], position: 'top' },
+          ...{...AlertMesg[0], position: 'top'},
         });
         navigation.popToTop();
         navigation.navigate('userList');
         Toast.show({
           text: 'Data submitted successfully',
-          ...{ ...AlertMesg[0], position: 'top' },
+          ...{...AlertMesg[0], position: 'top'},
         });
         Alert.alert('Data submitted successfully');
       }
@@ -612,8 +626,8 @@ const ListOfCoFarmer = ({
       {/* Header with Gradient */}
       <LinearGradient
         colors={['#10b981', '#059669', '#047857']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        start={{x: 0, y: 0}}
+        end={{x: 1, y: 1}}
         style={styles.headerGradient}>
         <View style={styles.headerContent}>
           <View style={styles.headerIconContainer}>
@@ -626,18 +640,20 @@ const ListOfCoFarmer = ({
         </View>
       </LinearGradient>
 
-      <View style={styles.searchContainer}>
-        <Feather name="search" size={18} color="#585858" />
-        <TextInput
-          placeholder={t('search_by_name')}
-          placeholderTextColor="#585858" // optional
-          value={searchText}
-          onChangeText={onSearchChange}
-          // onChangeText={text => setSearchText(text)}
-          style={styles.searchInput}
-          keyboardType="default"
-        />
-      </View>
+      {registration === true ? (
+        <View style={styles.searchContainer}>
+          <Feather name="search" size={18} color="#585858" />
+          <TextInput
+            placeholder={t('search_by_name')}
+            placeholderTextColor="#585858" // optional
+            value={searchText}
+            onChangeText={onSearchChange}
+            // onChangeText={text => setSearchText(text)}
+            style={styles.searchInput}
+            keyboardType="default"
+          />
+        </View>
+      ) : null}
 
       <ScrollView
         keyboardShouldPersistTaps="always"
@@ -657,7 +673,7 @@ const ListOfCoFarmer = ({
             <Text style={styles.emptyTitle}>{t('no_co_farmers_yet')}</Text>
             {/* <Text style={styles.emptyText}>Add co-farmers to manage your farm collaboratively</Text> */}
           </View>
-        ) : (
+        ) : registration ? (
           coFarmerList.map((item, index) => {
             const isSelected = item.CoFarmer;
             const hasPhone =
@@ -713,6 +729,7 @@ const ListOfCoFarmer = ({
                         </View>
                       )}
                     </View>
+
                     {/* Edit Icon Button */}
                     <TouchableOpacity
                       style={styles.editButton}
@@ -893,9 +910,9 @@ const ListOfCoFarmer = ({
                           onPress={() =>
                             ai_camera_id_proof == '1'
                               ? pickFileTextRecognition(
-                                'idProof',
-                                item?.coFInfo?.userName,
-                              )
+                                  'idProof',
+                                  item?.coFInfo?.userName,
+                                )
                               : pickFile('idProof', item?.coFInfo?.userName)
                           }
                           activeOpacity={0.7}>
@@ -956,23 +973,58 @@ const ListOfCoFarmer = ({
                       // label={isFormValid ? "Submit & Switch Ownership" : "Complete All Fields"}
                       label={t('save')}
                       onPress={onSave}
-                    // disabled={!isFormValid}
+                      // disabled={!isFormValid}
                     />
                   </View>
                 )}
               </View>
             );
           })
+        ) : (
+          coFarmerList.map((item, index) => (
+            <View key={item.id || index} style={styles.itemContainer}>
+              <View style={styles.card}>
+                {/* Avatar */}
+                <LinearGradient
+                  colors={['#f3f4f6', '#e5e7eb']}
+                  style={styles.avatar}>
+                  <Text style={styles.avatarText}>
+                    {item?.name?.charAt(0)?.toUpperCase()}
+                  </Text>
+                </LinearGradient>
+
+                {/* Name & Phone */}
+                <View style={styles.infoContainer}>
+                  <Text style={styles.name}>{item?.name}</Text>
+
+                  <View style={styles.phoneRow}>
+                    <Feather name="phone" size={14} color="#6b7280" />
+                    <Text style={styles.phone}>{item?.phone}</Text>
+                  </View>
+                </View>
+
+                {/* Delete Button */}
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => handleDeleteCoFarmer(item.id)}
+                  activeOpacity={0.7}>
+                  <Feather name="trash-2" size={20} color="#ef4444" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))
         )}
       </ScrollView>
-      <PaginationNav
-        isLoading={isLoading}
-        page={page}
-        totalPages={totalPages}
-        onPrev={() => setPage(p => Math.max(1, p - 1))}
-        onNext={() => setPage(p => Math.min(totalPages, p + 1))}
-        t={t}
-      />
+      {registration && (
+        <PaginationNav
+          isLoading={isLoading}
+          page={page}
+          totalPages={totalPages}
+          onPrev={() => setPage(p => Math.max(1, p - 1))}
+          onNext={() => setPage(p => Math.min(totalPages, p + 1))}
+          t={t}
+        />
+      )}
     </View>
   );
 };
@@ -1010,7 +1062,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
     elevation: 8,
     shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
@@ -1102,7 +1154,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 4,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     borderWidth: 2,
@@ -1191,7 +1243,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.2,
     shadowRadius: 2,
     alignItems: 'center',
@@ -1216,7 +1268,7 @@ const styles = StyleSheet.create({
     padding: 20,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.05,
     shadowRadius: 4,
   },
@@ -1331,7 +1383,7 @@ const styles = StyleSheet.create({
     padding: 4,
     elevation: 4,
     shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -1362,7 +1414,7 @@ const styles = StyleSheet.create({
     gap: 8,
     elevation: 6,
     shadowColor: '#10b981',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
@@ -1433,6 +1485,12 @@ const styles = StyleSheet.create({
     top: '52%',
     left: '45%',
     zIndex: 9999,
+  },
+  deleteButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
   },
 });
 

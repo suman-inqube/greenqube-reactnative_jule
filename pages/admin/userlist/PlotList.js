@@ -19,39 +19,31 @@ import React, {
   memo,
   useMemo,
 } from 'react';
-import {useRoute, useNavigation} from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import {
   plotListApproval,
   LandUnitArea,
   LandUnitsquare_metre,
 } from '../../../config/apiHere';
 import LiveHood from './LiveHood';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {getActionsPlot} from '../../utils/options';
-import {Colors, Fonts} from '../../utils/Constants';
-const {width} = Dimensions.get('window');
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { getActionsPlot } from '../../utils/options';
+import { Colors, Fonts } from '../../utils/Constants';
+const { width } = Dimensions.get('window');
 import PlotStatusSkeletonScreen from '../../Components/Skeleton/PlotStatusSkeleton';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import TabBar from '../../Components/TabBar';
 import PlotCard from '../../Components/PlotCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {ROUTES} from '../../utils/Routes';
-import {axiosGet} from '../../utils/api';
-import CropData from './CropData';
+import { ROUTES } from '../../utils/Routes';
+import { axiosGet } from '../../utils/api';
 import LoadingScreen from '../../Common/LoadingScreen';
 
-// Import or Create a CropData component if you have one,
-// otherwise using a placeholder View below.
-const CropDataPlaceholder = () => (
-  <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-    <Text style={{fontFamily: Fonts.Medium}}>Crop Data Content Goes Here</Text>
-  </View>
-);
 
 const PlotList = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const {farmeruserID} = route.params;
+  const { farmeruserID } = route.params;
   const [activeTab, setActiveTab] = useState(0);
   const [dataProps, setDataProps] = useState({});
   const [addPlot, setAddPlot] = useState(false);
@@ -64,9 +56,9 @@ const PlotList = () => {
   const [landAreaUnit, setLandAreaUnit] = useState([]);
   const scrollRef = useRef(null);
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const {loginUser_data, t, Root, CustomHeader, AllFarmerList} =
+  const { loginUser_data, t, Root, CustomHeader, AllFarmerList, dbLanTokUsr } =
     useContext(userCreateContext);
-  const {dbname, lan_id, token} = loginUser_data;
+  const { dbname, lan_id, token } = loginUser_data;
 
   const handlePlotPress = useCallback(
     payload => {
@@ -91,14 +83,14 @@ const PlotList = () => {
     setActiveTab(index);
     setDataProps(data);
 
-    scrollRef.current?.scrollTo({x: index * width, animated: true});
+    scrollRef.current?.scrollTo({ x: index * width, animated: true });
   }, []);
 
   const onPageLoad = useCallback(async () => {
     try {
       setIsLoading(true);
       const [plotsRes, unitAreaRes, unitSqRes] = await Promise.all([
-        axiosGet(ROUTES.GET.USERLANDLIST_E({farmer_id: farmeruserID}), token, {
+        axiosGet(ROUTES.GET.USERLANDLIST_E({ farmer_id: farmeruserID }), token, {
           Information: `${dbname},${lan_id}`,
         }),
         // LandUnitArea(dbname, lan_id, token),
@@ -176,7 +168,7 @@ const PlotList = () => {
     setIsLoadinglandActiveCrop(true);
     try {
       const res = await axiosGet(
-        ROUTES.GET.LANDACTIVECROP_E({rel_id: item.rel_id}),
+        ROUTES.GET.LANDACTIVECROP_E({ rel_id: item.rel_id }),
         token,
         {
           Information: `${dbname},${lan_id}`,
@@ -187,8 +179,8 @@ const PlotList = () => {
         setIsLoadinglandActiveCrop(false);
         const {
           harvesting_date,
-          crop_name: {name: cropName} = {},
-          crop_variety: {name: varietyName} = {},
+          crop_name: { name: cropName } = {},
+          crop_variety: { name: varietyName } = {},
           sowing_date,
         } = res.data?.[0] || {};
         setPlotList(prev => {
@@ -197,8 +189,8 @@ const PlotList = () => {
             ...copy[index],
             plot_crops: [
               {
-                crop_name: {name: cropName},
-                crop_variety: {name: varietyName},
+                crop_name: { name: cropName },
+                crop_variety: { name: varietyName },
                 sowing_date: sowing_date,
                 harvesting_date: harvesting_date,
                 // season:,
@@ -268,8 +260,8 @@ const PlotList = () => {
                 showsHorizontalScrollIndicator={false}
                 scrollEnabled={false}
                 onScroll={Animated.event(
-                  [{nativeEvent: {contentOffset: {x: animatedValue}}}],
-                  {useNativeDriver: false},
+                  [{ nativeEvent: { contentOffset: { x: animatedValue } } }],
+                  { useNativeDriver: false },
                 )}
                 scrollEventThrottle={16}
                 onMomentumScrollEnd={e =>
@@ -280,13 +272,13 @@ const PlotList = () => {
                 {/* Tab 0: Plot List */}
                 <View style={styles.page}>
                   <FlatList
-                    data={isLoading ? Array.from({length: 5}) : plotList}
+                    data={isLoading ? Array.from({ length: 5 }) : plotList}
                     keyExtractor={(item, index) =>
                       item?.id?.toString() || index
                     }
                     refreshing={refreshing}
                     onRefresh={() => setRefreshing(false)}
-                    renderItem={({item, index}) =>
+                    renderItem={({ item, index }) =>
                       isLoading ? (
                         <PlotStatusSkeletonScreen />
                       ) : (
@@ -300,10 +292,11 @@ const PlotList = () => {
                           apiCall={landActiveCrop}
                           // role="supervisor"
                           activityApi={getPlotActivities}
+                          carbonType={dbLanTokUsr?.carbonType}
                         />
                       )
                     }
-                    contentContainerStyle={{padding: 15}}
+                    contentContainerStyle={{ padding: 15 }}
                     showsVerticalScrollIndicator={false}
                     initialNumToRender={5}
                     windowSize={5}
@@ -338,8 +331,8 @@ const PlotList = () => {
                 showsHorizontalScrollIndicator={false}
                 scrollEnabled={false}
                 onScroll={Animated.event(
-                  [{nativeEvent: {contentOffset: {x: animatedValue}}}],
-                  {useNativeDriver: false},
+                  [{ nativeEvent: { contentOffset: { x: animatedValue } } }],
+                  { useNativeDriver: false },
                 )}
                 scrollEventThrottle={16}
                 onMomentumScrollEnd={e =>
@@ -362,7 +355,7 @@ const PlotList = () => {
             </>
           )}
 
-          {activeTab === 0 && (
+          {activeTab === 0 && dbLanTokUsr?.carbonType !== 'mangrove' && dbLanTokUsr?.carbonFlag && (
             <FloatingActionButton
               position="right"
               actions={getActionsPlot(t, styles, Colors)}
@@ -372,7 +365,7 @@ const PlotList = () => {
                 setAddPlot(true);
               }}
               overlayColor="rgba(22, 17, 17, 0.35)"
-              distanceToEdge={{vertical: 80, horizontal: 25}}
+              distanceToEdge={{ vertical: 80, horizontal: 25 }}
             />
           )}
         </View>
@@ -383,7 +376,7 @@ const PlotList = () => {
 
 // ... keep existing styles unchanged ...
 const styles = StyleSheet.create({
-  container: {flex: 1},
+  container: { flex: 1 },
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#fff',
@@ -391,7 +384,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: 'white',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     paddingVertical: 3,
@@ -401,8 +394,8 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: 'center',
   },
-  tabText: {fontSize: 16, color: Colors.text, fontFamily: Fonts.Medium},
-  activeTabText: {fontSize: 16, color: 'green', fontFamily: Fonts.Medium},
+  tabText: { fontSize: 16, color: Colors.text, fontFamily: Fonts.Medium },
+  activeTabText: { fontSize: 16, color: 'green', fontFamily: Fonts.Medium },
   indicator: {
     position: 'absolute',
     bottom: 0,

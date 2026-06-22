@@ -28,6 +28,7 @@ const ProofAndIdentityPropfComp = ({
   ai_camera_id_proof = '0',
   is_id_proof
 }) => {
+
   const { loginUser_data, t } = useContext(userCreateContext);
   const [loading, setLoading] = useState(false);
   const resizeImage = async (
@@ -60,8 +61,11 @@ const ProofAndIdentityPropfComp = ({
   const onHandleDocumentSelection = useCallback(
     async (imageType, index) => {
       try {
-        console.log("identityProofIdentityPropf",is_id_proof?.[1]?.imageType)
         //check id proof not null and then allow to select document otherwise show alert
+        if (is_id_proof?.[1]?.uri == "") {
+          alert("id proof null")
+
+        }
         const [res] = await pick({
           type: [types.pdf, types.images],
         });
@@ -91,7 +95,7 @@ const ProofAndIdentityPropfComp = ({
         }
       }
     },
-    [stateValue, photoDeletedValue],
+    [stateValue, photoDeletedValue,is_id_proof],
   );
   const onHandleDocumentSelectionRemove = useCallback(
     (index, level) => {
@@ -151,7 +155,11 @@ const ProofAndIdentityPropfComp = ({
   const handleScanAndCreatePdf = useCallback(
     async (imageType, index) => {
       setLoading(true);
-    //  check id proof not null and then allow scan otherwise show alert
+      //  check id proof not null and then allow scan otherwise show alert
+      if (is_id_proof?.[1]?.uri == "") {
+        alert("id proof null")
+
+      }
       try {
         const { scannedImages, status } = await DocumentScanner.scanDocument({
           letUserAdjustCrop: false,
@@ -184,7 +192,7 @@ const ProofAndIdentityPropfComp = ({
         setLoading(false);
       }
     },
-    [stateValue, photoDeletedValue],
+    [stateValue, photoDeletedValue,is_id_proof],
   );
 
   const addMoreImageBox = () => {
@@ -550,7 +558,7 @@ const ProofAndIdentityPropfComp = ({
               <View
                 style={{
                   borderWidth: 1,
-                   borderColor: data?.isvalid ? '#ff0000' : '#c6c6c68b',
+                  borderColor: data?.isvalid ? '#ff0000' : '#c6c6c68b',
                   borderStyle: 'dotted',
                   justifyContent: 'center',
                   alignItems: 'center',

@@ -41,12 +41,18 @@ const Market = () => {
     AlertMesg,
     loginUser_data,
     LoadingScreen,
+    dbLanTokUsr,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data || {};
   const [plotList, setPlotList] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [rejection, setRejection] = useState('REJECTED');
-  const [nonGeofenced, setNonGeofenced] = useState('');
+  const [nonGeofenced, setNonGeofenced] = useState(
+    dbLanTokUsr?.carbonType === 'mangrove' ? 'non_geofenced' : '',
+  ); const [rejection, setRejection] = useState(
+    dbLanTokUsr?.carbonType !== 'mangrove' ? 'REJECTED' : '',
+  );
+  // const [rejection, setRejection] = useState('REJECTED');
+  // const [nonGeofenced, setNonGeofenced] = useState('');
   const [searchBy, setSearchBy] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -158,7 +164,7 @@ const Market = () => {
           borderColor="#d10000ff"
           showChevron={false}
           showItemLabel={false}
-          showRejectedStatus={true}
+          showRejectedStatus={dbLanTokUsr?.carbonType !== 'mangrove'?true:false}
           cardStyle={styles.listCard}
         />
       );
@@ -207,14 +213,18 @@ const Market = () => {
           </View>
         </View>
         <TabBar
-          tabs={[t('Rejected_Plot'), t('non_geofenced_plots')]}
+          tabs={
+            dbLanTokUsr?.carbonType !== 'mangrove'
+              ? [t('Rejected_Plot'), t('non_geofenced_plots')]
+              : [t('non_geofenced_plots')]
+          }
           activeTab={activeTab}
           onTabPress={ix => onTabPress(ix)}
           indicatorColor={Colors.useGreen}
           height={45}
           backgroundColor={Colors.background}
           colors={Colors.primary}
-          divideBy={2}
+          divideBy={dbLanTokUsr?.carbonType !== 'mangrove' ? 2 : 1}
         />
         {/* <View style={styles.tabBar}>
           <TouchableOpacity style={styles.tab} onPress={() => onTabPress(0)}>

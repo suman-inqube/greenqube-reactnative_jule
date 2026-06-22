@@ -325,13 +325,14 @@ const UserCreateContextProvider = props => {
         } = DetailsCompany_res?.data?.data?.[0] || {};
 
         const { company, country_id } = companyLanguage_data;
-        const { option_value,option_name } = resCarbonFlag?.data?.data || {};
+        const { option_value, option_name } = resCarbonFlag?.data?.data || {};
+        console.log("Carbon mangrove", resCarbonFlag?.data?.data)
         setlogoImage(logoImageData);
         settopBanner(topBannerData);
         setloginUser_data({
           ...loginUser_data,
           carbonFlag: option_value,
-          carbonType: 'mangrove',
+          carbonType: option_name == "Carbon mangrove" ? 'mangrove' : option_name,
         });
         setdbLanTokUsr({
           dbName: loginUser_data?.dbname,
@@ -345,7 +346,7 @@ const UserCreateContextProvider = props => {
           languageConpany: company,
           country_id,
           carbonFlag: option_value,
-          carbonType: 'mangrove',
+          carbonType: option_name == "Carbon mangrove" ? 'mangrove' : option_name,
           co_farmer,
           offline_mode,
           ai_camera_pipe_image,
