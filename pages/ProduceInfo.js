@@ -1183,7 +1183,7 @@ const ProduceInfo = () => {
     }
     if (storeProduceInfo.cycleStarts !== '') {
       if (validationData()) {
-        if (storeProduceInfoInArray.length < 3) {
+        if (storeProduceInfoInArray.length < 1) {
           emptyFieldsValue();
           removesetLocation();
           // setPolygons([]);
@@ -1718,7 +1718,7 @@ const ProduceInfo = () => {
                   }
 
                   {
-                    carbonOption !== 'mangrove'(
+                    carbonOption !== 'mangrove'&&(
                       <ProofAndIdentityPropfComp
                         identityProofIdentityPropf={landProof}
                         t={t}
@@ -1967,7 +1967,7 @@ const ProduceInfo = () => {
                     </View>
                   </View>
                   {
-                    carbonOption !== 'mangrove' && (
+                    !carbonFlag && (
                       <TouchableOpacity
                         onPress={saveInObject}
                         style={{ alignItems: 'center' }}

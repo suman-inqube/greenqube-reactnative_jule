@@ -846,8 +846,8 @@ const PlotStatusUpdate = () => {
             IOTLatlat: data.land_info?.device_lat,
             IOTLatLong: data.land_info?.device_long,
             crop_cycl_start_date: data?.crop_cycl_start_date
-    ? data.crop_cycl_start_date
-    : data?.sowing_date?.split('T')[0],
+              ? data.crop_cycl_start_date
+              : data?.sowing_date?.split('T')[0],
             ConvertedreportedLandsize:
               Number(dataLandDetails?.land_unit?.defined_unit_value) *
               Number(dataLandDetails?.land_size),
@@ -1829,7 +1829,7 @@ const PlotStatusUpdate = () => {
             true,
             { information: `${dbname},${lan_id},${farmer_data.user_id}` },
           );
-          if(carbonType !== 'mangrove'){
+          if (carbonType !== 'mangrove') {
             addressProof.map((data, index) => {
               if (data.name != '' && data.id == '') {
                 formDataPlotImg.append('plot_image', data);
@@ -1859,7 +1859,7 @@ const PlotStatusUpdate = () => {
               //   formDataPlotImg,
               // ),
             ]);
-            if (addPlotImageAPIRes.data?.error?.errorCode == 400) {
+            if (addPlotImageAPIRes?.data?.error?.errorCode == 400) {
               Alert.alert(
                 'File',
                 addPlotImageAPIRes.data?.error?.errorMessage,
@@ -1869,7 +1869,7 @@ const PlotStatusUpdate = () => {
               setIsLoading(false);
               return;
             }
-  
+
             if (statuslevel.label == 'REJECTED' || statuslevel.label == 'PENDING') {
               const formdatauploadFarmerIdAdd = new FormData();
               if (identityProofIdentityPropf[0]?.uri != '') {
@@ -1890,7 +1890,7 @@ const PlotStatusUpdate = () => {
               }
               formdatauploadFarmerIdAdd.append('rel_id', farmerData.land_rel_id);
               formdatauploadFarmerIdAdd.append('user_id', farmer_data.user_id);
-  
+
               // const resOocUpdate = await axiosPut(
               //   ROUTES.PUT.UPLOAD_FARMER_ID_ADD,
               //   formdatauploadFarmerIdAdd,
@@ -1951,7 +1951,7 @@ const PlotStatusUpdate = () => {
               //     information: `${dbname},${lan_id},${farmer_data.user_id}`,
               //   },
               // );
-  
+
               uploadCarbonAgrDocs(
                 dbname,
                 lan_id,
@@ -1977,7 +1977,7 @@ const PlotStatusUpdate = () => {
         }
       }
     } catch (e) {
-      console.log('Error in handleUserListUpdate', e);
+      console.error('Error in handleUserListUpdate', e);
     }
   };
   const handleUserData = async () => {
@@ -2532,26 +2532,53 @@ const PlotStatusUpdate = () => {
                     editable={false}
                   />
                 )}
-                {carbonType !== 'mangrove' &&(
+                {carbonType !== 'mangrove' && (
                   <>
-                  
-                  <View style={{ marginTop: 15 }}>
+
+                    <View style={{ marginTop: 15 }}>
+                      <ProofAndIdentityPropfComp
+                        identityProofIdentityPropf={identityProofIdentityPropf}
+                        t={t}
+                        title={t('address_proofAndIdentityPropf')}
+                        setStateValue={setIdentityProofIdentityPropf}
+                        stateValue={identityProofIdentityPropf}
+                        photoDeletedValue={identityPhotoDeletedValue}
+                        setPhotoDeletedValue={setIdentityPhotoDeletedValue}
+                        loginUser_data={loginUser_data}
+                        status_level={statuslevel.label}
+                        InputTextFormEdit={
+                          statuslevel.label == 'PENDING' ||
+                            statuslevel.label == 'REJECTED'
+                            ? true
+                            : false
+                        }
+                        disable={
+                          statuslevel.label == 'APPROVED' ||
+                            statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                            statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                            statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                            ? false
+                            : statuslevel.label == 'PENDING' ||
+                              statuslevel.label == 'REJECTED'
+                              ? false
+                              : true
+                        }
+                        farmerName={farmer_data?.userName}
+                        ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
+
+                      />
+                    </View>
                     <ProofAndIdentityPropfComp
-                      identityProofIdentityPropf={identityProofIdentityPropf}
                       t={t}
-                      title={t('address_proofAndIdentityPropf')}
-                      setStateValue={setIdentityProofIdentityPropf}
-                      stateValue={identityProofIdentityPropf}
-                      photoDeletedValue={identityPhotoDeletedValue}
-                      setPhotoDeletedValue={setIdentityPhotoDeletedValue}
-                      loginUser_data={loginUser_data}
+                      title={t('address_proof')}
+                      setStateValue={setAddressProof}
+                      stateValue={addressProof}
+                      // !="APPROVED"
+                      //basudev
                       status_level={statuslevel.label}
-                      InputTextFormEdit={
-                        statuslevel.label == 'PENDING' ||
-                          statuslevel.label == 'REJECTED'
-                          ? true
-                          : false
-                      }
+                      photoDeletedValue={photoDeletedValue}
+                      setPhotoDeletedValue={setPhotoDeletedValue}
+                      loginUser_data={loginUser_data}
                       disable={
                         statuslevel.label == 'APPROVED' ||
                           statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
@@ -2563,38 +2590,11 @@ const PlotStatusUpdate = () => {
                             ? false
                             : true
                       }
-                      farmerName={farmer_data?.userName}
-                      ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
+                      InputTextFormEdit={InputTextFormEdit}
+                      allowAddMore={true}
                       is_id_proof={identityProofIdentityPropf}
                     />
-                  </View>
-                  <ProofAndIdentityPropfComp
-                    t={t}
-                    title={t('address_proof')}
-                    setStateValue={setAddressProof}
-                    stateValue={addressProof}
-                    // !="APPROVED"
-                    //basudev
-                    status_level={statuslevel.label}
-                    photoDeletedValue={photoDeletedValue}
-                    setPhotoDeletedValue={setPhotoDeletedValue}
-                    loginUser_data={loginUser_data}
-                    disable={
-                      statuslevel.label == 'APPROVED' ||
-                        statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                        statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                        statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                        ? false
-                        : statuslevel.label == 'PENDING' ||
-                          statuslevel.label == 'REJECTED'
-                          ? false
-                          : true
-                    }
-                    InputTextFormEdit={InputTextFormEdit}
-                    allowAddMore={true}
 
-                  />
-                  
                   </>
                 )}
                 {area != 0 && area != null && (

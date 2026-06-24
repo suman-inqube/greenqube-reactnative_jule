@@ -91,8 +91,8 @@ const ProduceInfoUpdate = () => {
     IOTLatLong: '',
     IOTLatlat: '',
     ConvertedreportedLandsize: 0,
-    is_id_proof: []
   });
+  const[isIdProof,setIdProof]=useState([])
   const [carbonOption, setcarbonOption] = useState("")
   const [landProof, setLandProof] = useState([
     { uri: '', name: '', type: '', fileName: '' },
@@ -454,7 +454,6 @@ const ProduceInfoUpdate = () => {
         // produceVariety: '',
         // produceVarietyValue: '',
       }));
-      console.log('fate==');
       const seasonData = await axiosGet(
         ROUTES.GET.PRODUCE_SEASON({
           // crop_name_fid: item.value,
@@ -467,7 +466,6 @@ const ProduceInfoUpdate = () => {
           // Authorization: `${token}`,
         },
       );
-      console.log('frdate==', JSON.stringify(seasonData?.data?.data?.rows));
       if (seasonData?.data?.data?.rows?.length > 0) {
         const row = seasonData?.data?.data?.rows[0];
 
@@ -739,6 +737,10 @@ const ProduceInfoUpdate = () => {
       await removeItem('storeProduceInfo_data');
       storeProduceInfoInArray[arrayIndex].storeProduceInfo = storeProduceInfo;
       storeProduceInfoInArray[arrayIndex].location = location;
+         storeProduceInfoInArray[arrayIndex].landProof = landProof;
+
+
+      // landProof basudev
       await setItem('storeProduceInfo_data', storeProduceInfoInArray);
       navigation.navigate(pagename, { pagename: '' });
     }
@@ -769,10 +771,7 @@ const ProduceInfoUpdate = () => {
     setCarbonStatus(carbonStatus);
     const dbName = storeSignup_data.company.dbname;
     const languageID = storePersnolInfo_data.language.value;
-    setstoreProduceInfo(prev => ({
-      ...prev,
-      is_id_proof: storePersnolInfo_data?.identityProofIdentityPropf
-    }));
+    setIdProof(storePersnolInfo_data?.identityProofIdentityPropf);
     const [nearestLatLong_res, LandUnitArea_res, LandUnitsquare_metre_res] =
       await Promise.all([
         nearestLatLong(dbName, languageID, '', latitude, longitude),
@@ -835,7 +834,6 @@ const ProduceInfoUpdate = () => {
         updatedDocs.push(emptyLandDoc());
       }
     }
-
     setLandProof(updatedDocs);
     let produceVarietyArray = [];
     if (produceVariety) {
@@ -1410,7 +1408,7 @@ const ProduceInfoUpdate = () => {
                     }
 
                     {
-                      carbonOption !== 'mangrove'(
+                      carbonOption !== 'mangrove'&&(
                         <ProofAndIdentityPropfComp
                           identityProofIdentityPropf={landProof}
                           t={t}
@@ -1423,7 +1421,7 @@ const ProduceInfoUpdate = () => {
                           // photoDeletedValue={photoDeletedValue}
                           // setPhotoDeletedValue={setPhotoDeletedValue}
                           // loginUser_data={loginUser_data}
-                          is_id_proof={storeProduceInfo?.is_id_proof}
+                          is_id_proof={isIdProof}
                         />
 
                       )

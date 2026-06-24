@@ -298,7 +298,7 @@ export const ROUTES = {
       `inputOutputRoute/getUniquePipeNames?plot_fid=${plot_id}&cu_rel_fid=${cu_rel_id}&act_name_fid=${act_name_fid}`,
 
     ACTIVITY_TYPE_AWD: () =>
-      `categoryRoute/list/1/1/2?categoryType=carbon_activity_type&search_key=`,
+      `categoryRoute/list/1/0/2?categoryType=carbon_activity_type&search_key=`,
 
     DETAILS_COMPANY: (db_company_id = '') =>
       `locationRoute/detailsCompany/${db_company_id}`,

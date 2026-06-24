@@ -28,7 +28,7 @@ const ProofAndIdentityPropfComp = ({
   ai_camera_id_proof = '0',
   is_id_proof
 }) => {
-
+console.log("is_id_proof",is_id_proof)
   const { loginUser_data, t } = useContext(userCreateContext);
   const [loading, setLoading] = useState(false);
   const resizeImage = async (
@@ -63,8 +63,8 @@ const ProofAndIdentityPropfComp = ({
       try {
         //check id proof not null and then allow to select document otherwise show alert
         if (is_id_proof?.[1]?.uri == "") {
-          alert("id proof null")
-
+          Alert.alert("Please add ID proof of the farmer first")
+          return;
         }
         const [res] = await pick({
           type: [types.pdf, types.images],
@@ -95,7 +95,7 @@ const ProofAndIdentityPropfComp = ({
         }
       }
     },
-    [stateValue, photoDeletedValue,is_id_proof],
+    [stateValue, photoDeletedValue, is_id_proof],
   );
   const onHandleDocumentSelectionRemove = useCallback(
     (index, level) => {
@@ -157,8 +157,9 @@ const ProofAndIdentityPropfComp = ({
       setLoading(true);
       //  check id proof not null and then allow scan otherwise show alert
       if (is_id_proof?.[1]?.uri == "") {
-        alert("id proof null")
-
+        Alert.alert("Please add ID proof of the farmer first")
+            setLoading(false);
+        return;
       }
       try {
         const { scannedImages, status } = await DocumentScanner.scanDocument({
@@ -192,7 +193,7 @@ const ProofAndIdentityPropfComp = ({
         setLoading(false);
       }
     },
-    [stateValue, photoDeletedValue,is_id_proof],
+    [stateValue, photoDeletedValue, is_id_proof],
   );
 
   const addMoreImageBox = () => {

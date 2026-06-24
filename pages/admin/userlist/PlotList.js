@@ -355,7 +355,7 @@ const PlotList = () => {
             </>
           )}
 
-          {activeTab === 0 && dbLanTokUsr?.carbonType !== 'mangrove' && dbLanTokUsr?.carbonFlag && (
+          {activeTab === 0  && dbLanTokUsr?.carbonFlag != true && (
             <FloatingActionButton
               position="right"
               actions={getActionsPlot(t, styles, Colors)}

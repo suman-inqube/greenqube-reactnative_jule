@@ -98,7 +98,7 @@ const FarmerLiveHood = ({
     ButtonForm,
     coords,
     dbLanTokUsr,
-        isOnline,
+    isOnline,
   } = useContext(userCreateContext);
   const [maxStartDate, setMaxStartDate] = useState(new Date());
   const [minStartDate, setMinStartDate] = useState(new Date());
@@ -201,6 +201,7 @@ const FarmerLiveHood = ({
     type: '',
     fileName: '',
     id: '',
+    isvalid: false,
   });
   const [addressProof, setAddressProof] = useState([
     emptyLandDoc(),
@@ -613,11 +614,11 @@ const FarmerLiveHood = ({
       crop_cycl_start_date: '',
     });
     setAddressProof([
-      { uri: '', name: '', type: '', fileName: '' },
-      { uri: '', name: '', type: '', fileName: '' },
-      { uri: '', name: '', type: '', fileName: '' },
-      { uri: '', name: '', type: '', fileName: '' },
-      { uri: '', name: '', type: '', fileName: '' },
+      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
+      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
+      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
+      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
+      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
     ]);
   };
   const handleHarvested = async data => {
@@ -1073,6 +1074,13 @@ const FarmerLiveHood = ({
       setProductionUnit(productionUnitArr);
     }
   };
+  const scrollViewRef = useRef(null);
+  const scrollToTop = () => {
+    scrollViewRef.current?.scrollTo({
+      y: 0,
+      animated: true,
+    });
+  };
   const handleUserListUpdate = useCallback(async () => {
     try {
       Keyboard.dismiss();
@@ -1091,34 +1099,7 @@ const FarmerLiveHood = ({
           getDistance(p, { lat, lon }),
         );
       }
-      // if (area != null && area != undefined && area != '' && area != 0) {
-      //   const deviation =
-      //     (Math.abs(farmerData?.ConvertedreportedLandsize - area) /
-      //       ((farmerData?.ConvertedreportedLandsize + area) / 2)) *
-      //     100;
-      //   if (
-      //     ![
-      //       'APPROVED',
-      //       'CARBON_DOCUMENTS_SUBMITTED',
-      //       'CARBON_DOCUMENTS_APPROVED',
-      //       'CARBON_DOCUMENTS_REJECTED',
-      //     ].includes(statuslevel.label)
-      //   ) {
-      //     if (deviation >= -5 && deviation <= 5) {
-      //     } else {
-      //       Alert.alert(
-      //         'Deviation',
-      //         'The deviation between reported area and google area is not within 5%',
-      //         [{text: 'OK', onPress: () => console.log(area)}],
-      //         {cancelable: false},
-      //       );
-      //       setIsLoading(false);
-      //       return;
-      //     }
-      //   }
-      // }
 
-      // latest code 5% area----
       if (area != null && area != undefined && area != '' && area != 0) {
         const reportedArea = farmerData?.ConvertedreportedLandsize;
         const googleArea = area;
@@ -1583,6 +1564,45 @@ const FarmerLiveHood = ({
               }
             }
           }
+          // const { plot_status, missing, rejected_documents } = addPlotImageAPIRes?.data?.data?.validationResponse || {}
+          // if (missing?.length > 0) {
+          //   const addressVal = [...addressProof];
+          //   setSelectedTab('PLOT');
+          //   setFarmerData(prev => ({
+          //     ...prev,
+          //     plotRejectComment: missing,
+          //   }));
+          //   setplotStatus({
+          //     label: plot_status,
+          //     value: plot_status,
+          //   })
+          //   setIsLoading(false);
+          //   // const updatedAddressProof = [...addressProof];
+
+          //   const updatedAddressProof = addressProof.map((data) => {
+          //     const isRejected = rejected_documents?.some(
+          //       (doc) => doc.file_title === data.fileName
+          //     );
+
+          //     return {
+          //       fileName: data.fileName,
+          //       id: "",
+          //       isvalid: isRejected,
+          //       name: data.fileName,
+          //       type: data.type,
+          //       uri: data.uri,
+          //       value: "",
+          //     };
+          //   });
+
+          //   setAddressProof(updatedAddressProof);
+          //   scrollToTop();
+          //   Toast.show({ text: missing, ...AlertMesg[0] });
+          //   setIsLoading(false);
+          //   return;
+          // } else {
+          //   onTabPress(0);
+          // }
           if (!historyData) {
             if (updateLandCropdetails_res?.status === 200) {
               removesetLocation();
@@ -2725,7 +2745,7 @@ const FarmerLiveHood = ({
           padding: 16,
           backgroundColor: Colors.background,
         }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false} ref={scrollViewRef}>
         <View style={{ marginBottom: 40 }}>
           {statuslevel.label == 'REJECTED' && (
             <View
@@ -3011,7 +3031,7 @@ const FarmerLiveHood = ({
                         }
                         farmerName={loginUser_data?.userName}
                         ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
-                        is_id_proof={identityProofIdentityPropf}
+
                       />
                     </View>
                     <ProofAndIdentityPropfComp
@@ -3036,6 +3056,7 @@ const FarmerLiveHood = ({
                       }
                       InputTextFormEdit={InputTextFormEdit}
                       allowAddMore={true}
+                      is_id_proof={identityProofIdentityPropf}
                     />
                   </>
                 )

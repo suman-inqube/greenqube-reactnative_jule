@@ -966,25 +966,6 @@ const PlotSiteProduceInformation = () => {
     }
   };
   const saveInObject = async () => {
-    // if (area != null && area != undefined && area != '' && area != 0) {
-    //   const deviation =
-    //     (Math.abs(storeProduceInfo?.ConvertedreportedLandsize - area) /
-    //       ((storeProduceInfo?.ConvertedreportedLandsize + area) / 2)) *
-    //     100;
-    //   if (deviation >= -5 && deviation <= 5) {
-    //   } else {
-    //     Alert.alert(
-    //       'Deviation',
-    //       'The deviation between reported area and google area is not within 5%',
-    //       [{text: 'OK', onPress: () => console.log(area)}],
-    //       {cancelable: false},
-    //     );
-    //     setIsLoading(false);
-    //     return;
-    //   }
-    // }
-
-    // latest code 5%---
     if (area != null && area != undefined && area != '' && area != 0) {
       const reportedArea = storeProduceInfo?.ConvertedreportedLandsize;
       const googleArea = area;
@@ -1020,27 +1001,29 @@ const PlotSiteProduceInformation = () => {
     }
     if (validationData()) {
       if (route.params.arrayIndex == undefined) {
-        const newData = [
-          ...storeProduceInfoInArray,
-          { storeProduceInfo: storeProduceInfo, location: location, landProof },
-        ];
-        setstoreProduceInfoInArray(newData);
-        emptyFieldsValue();
-        removesetLocation();
-        setArea(0);
-        // setPolygons([]);
-        if (route?.params?.editItem) {
-          setPolygons([]);
-        } else {
-          setPolygons(nearPolSet);
+        if (storeProduceInfoInArray.length < 1) {
+          const newData = [
+            ...storeProduceInfoInArray,
+            { storeProduceInfo: storeProduceInfo, location: location, landProof },
+          ];
+          setstoreProduceInfoInArray(newData);
+          emptyFieldsValue();
+          removesetLocation();
+          setArea(0);
+          // setPolygons([]);
+          if (route?.params?.editItem) {
+            setPolygons([]);
+          } else {
+            setPolygons(nearPolSet);
+          }
+          setLandProof([
+            { uri: '', name: '', type: '', fileName: '' },
+            { uri: '', name: '', type: '', fileName: '' },
+            { uri: '', name: '', type: '', fileName: '' },
+            { uri: '', name: '', type: '', fileName: '' },
+            { uri: '', name: '', type: '', fileName: '' },
+          ]);
         }
-        setLandProof([
-          { uri: '', name: '', type: '', fileName: '' },
-          { uri: '', name: '', type: '', fileName: '' },
-          { uri: '', name: '', type: '', fileName: '' },
-          { uri: '', name: '', type: '', fileName: '' },
-          { uri: '', name: '', type: '', fileName: '' },
-        ]);
       }
     }
   };
@@ -2235,7 +2218,7 @@ const PlotSiteProduceInformation = () => {
                   </View>
                 </View>
 
-                {dbLanTokUsr?.carbonType !== 'mangrove' &&
+                {!carbonFlag &&
                   route.params.arrayIndex == undefined ? (
                   <TouchableOpacity
                     onPress={saveInObject}

@@ -29,6 +29,7 @@ const ActivityDetail = () => {
     Root,
     SPSheet,
     loginUser_data,
+    dbLanTokUsr,
   } = useContext(userCreateContext);
   const {dbname, lan_id, token, user_id} = loginUser_data || {};
   const route = useRoute();
@@ -88,9 +89,27 @@ const ActivityDetail = () => {
         {information: `${dbname},${lan_id},${user_id}`},
       );
 
-      activityDetails = activityDetailsRes?.data?.data;
-      console.log('activityDetails', JSON.stringify(activityDetails));
-      if (farmerFound?.type == 'user_activity') {
+      activityDetails = activityDetailsRes?.data?.data;   
+      if (
+        farmerFound?.type === 'carbon_activity' &&
+        dbLanTokUsr.carbonType !== 'mangrove'
+      ) {
+        const PipeListDetailsRes = await PipeListDetails(
+          dbname,
+          lan_id,
+          token,
+          user_id,
+          farmerFound.plot_id,
+          farmerFound?.act_master_id,
+          farmerFound?.cu_rel_fid,
+        );
+        if (PipeListDetailsRes?.status === 200) {
+          setCarbonActivity(PipeListDetailsRes?.data?.data?.rows ?? []);
+        }
+      } else {
+        setCarbonActivity([]);
+      }
+      // if (farmerFound?.type == 'user_activity') {
         const activity_files = await axiosGet(
           ROUTES.GET.USER_ACTIVITY_DETAILS({uact_id: farmerFound.uact_id}),
           token,
@@ -99,7 +118,7 @@ const ActivityDetail = () => {
 
         // Extract files from API response
         agriFiles = activity_files?.data?.rows[0]?.agri_files || [];
-      }
+      // }
 
       // Move these lines outside the if block
       setAllFiles(agriFiles);
@@ -118,23 +137,6 @@ const ActivityDetail = () => {
         secondItemRecord: audioFiles[1],
         thirdItemRecord: audioFiles[2],
       });
-
-      if (farmerFound?.type === 'carbon_activity') {
-        const PipeListDetailsRes = await PipeListDetails(
-          dbname,
-          lan_id,
-          token,
-          user_id,
-          farmerFound.plot_id,
-          farmerFound?.act_master_id,
-          farmerFound?.cu_rel_fid,
-        );
-        if (PipeListDetailsRes?.status === 200) {
-          setCarbonActivity(PipeListDetailsRes?.data?.data?.rows ?? []);
-        }
-      } else {
-        setCarbonActivity([]);
-      }
 
       setfarmerActivity(prev => ({
         ...prev,
