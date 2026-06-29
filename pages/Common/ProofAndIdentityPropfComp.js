@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, useContext } from 'react';
+import React, { memo, useCallback, useState, useContext, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, Alert } from 'react-native';
 import { SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import DocumentPicker, { types, pick } from '@react-native-documents/picker';
@@ -28,7 +28,7 @@ const ProofAndIdentityPropfComp = ({
   ai_camera_id_proof = '0',
   is_id_proof
 }) => {
-console.log("is_id_proof",is_id_proof)
+  console.log("is_id_proof", is_id_proof)
   const { loginUser_data, t } = useContext(userCreateContext);
   const [loading, setLoading] = useState(false);
   const resizeImage = async (
@@ -85,7 +85,7 @@ console.log("is_id_proof",is_id_proof)
           imageType,
           value: '1',
           id: '',
-          // isvalid: false,
+          isvalid: "change",
         };
         setStateValue(values);
       } catch (err) {
@@ -158,7 +158,7 @@ console.log("is_id_proof",is_id_proof)
       //  check id proof not null and then allow scan otherwise show alert
       if (is_id_proof?.[1]?.uri == "") {
         Alert.alert("Please add ID proof of the farmer first")
-            setLoading(false);
+        setLoading(false);
         return;
       }
       try {
@@ -427,7 +427,7 @@ console.log("is_id_proof",is_id_proof)
     return text.toLowerCase().replace(/[^a-z0-9]/g, '');
   };
 
-  const ActionSheetID = ({ data, index, spSheet }) => {
+  const ActionSheetID = React.memo(({ data, index, spSheet }) => {
     // Alert.alert('Test-1');
     const handleOpen = async () => {
       const fileUrl = data?.file_path || data?.uri;
@@ -469,8 +469,8 @@ console.log("is_id_proof",is_id_proof)
         </View>
       </>
     );
-  };
-  const ActionSheet = ({ data, index, spSheet }) => {
+  });
+  const ActionSheet = React.memo(({ data, index, spSheet }) => {
     // Alert.alert('Test-1');
     const handleOpen = async () => {
       const fileUrl = data?.file_path || data?.uri;
@@ -480,6 +480,7 @@ console.log("is_id_proof",is_id_proof)
         : await openFile(fileUrl);
       spSheet.hide();
     };
+
     return (
       <>
         <Text style={styles.sheetTitle}>Attach Document</Text>
@@ -512,8 +513,39 @@ console.log("is_id_proof",is_id_proof)
         </View>
       </>
     );
-  };
+  });
+  const isSheetOpening = useRef(false);
 
+  const handleOpenSheet = (data, index) => {
+    if (isSheetOpening.current) {
+      SPSheet.hide();
+      isSheetOpening.current = false;
+      return;
+    }
+
+    isSheetOpening.current = true;
+
+    SPSheet.show({
+      component: () =>
+        data.imageType === 'identity' && ai_camera_id_proof === '1' ? (
+          <ActionSheetID
+            data={data}
+            index={index}
+            spSheet={SPSheet}
+          />
+        ) : (
+          <ActionSheet
+            data={data}
+            index={index}
+            spSheet={SPSheet}
+          />
+        ),
+      height: 230,
+      onClose: () => {
+        isSheetOpening.current = false;
+      },
+    });
+  };
   return (
     <View style={styles.idContainer}>
       <Text style={[styles.title, { fontSize: 14, marginBottom: 10 }]}>
@@ -533,29 +565,8 @@ console.log("is_id_proof",is_id_proof)
             <TouchableOpacity
               key={index}
               style={styles.idItem}
-              onPress={() =>
-                data.imageType == 'identity' && ai_camera_id_proof == '1'
-                  ? SPSheet.show({
-                    component: () => (
-                      <ActionSheetID
-                        data={data}
-                        index={index}
-                        spSheet={SPSheet}
-                      />
-                    ),
-                    height: 230,
-                  })
-                  : SPSheet.show({
-                    component: () => (
-                      <ActionSheet
-                        data={data}
-                        index={index}
-                        spSheet={SPSheet}
-                      />
-                    ),
-                    height: 230,
-                  })
-              }>
+              onPress={() => handleOpenSheet(data, index)}
+            >
               <View
                 style={{
                   borderWidth: 1,
@@ -611,13 +622,25 @@ console.log("is_id_proof",is_id_proof)
                       style={styles.deleteIcon}>
                       <View style={{ marginTop: 15 }}>
                         {/* Replace the Image with Material Icon in red circle */}
-                        <View style={styles.deleteIconContainer}>
-                          <MaterialIcons
-                            name="close"
-                            size={15}
-                            color="#FFFFFF"
-                          />
-                        </View>
+                        {
+                          data?.isvalid == false ?
+                            <View style={[styles.deleteIconContainer, { backgroundColor: 'green' }]}>
+                              <MaterialIcons
+                                name="check"
+                                size={15}
+                                color="#FFFFFF"
+                              />
+                            </View>
+                            :
+                            <View style={styles.deleteIconContainer}>
+                              <MaterialIcons
+                                name="close"
+                                size={15}
+                                color="#FFFFFF"
+                              />
+                            </View>
+
+                        }
                       </View>
                     </TouchableOpacity>
                   )}

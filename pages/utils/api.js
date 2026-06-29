@@ -294,6 +294,7 @@ const handleError = async error => {
     resetTo('Login', {locale: getItem('loginUser_data').lan_id || 1});
     await Promise.all(STORAGE_KEYS.map(key => removeItem(key)));
   }
+  console.log("handleError",error)
   return {
     status: error?.response?.status || 500,
     data: error?.response?.data || {message: 'Connection error'},

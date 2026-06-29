@@ -284,7 +284,7 @@ const RegistationSignUpViwer = () => {
           false,
           {
             information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${dbLanTokUsr.supervisorId}`,
-            // 'Content-Type': 'multipart/form-data',
+            'Content-Type': 'multipart/form-data',
             plot_count: landProofData.length,
           },
         );
@@ -322,26 +322,26 @@ const RegistationSignUpViwer = () => {
     } catch (error) {
       setIsLoading(false);
       console.log('error==', error);
-      // Alert.alert(
-      //   'Alert',
-      //   error,
-      //   [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-      //   {cancelable: false},
-      // );
-      // Toast.show({
-      //   time: 3,
-      //   text: error,
-      //   ...AlertMesg[0],
-      // });
+      Alert.alert(
+        'Alert',
+        error,
+        [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+        {cancelable: false},
+      );
+      Toast.show({
+        time: 3,
+        text: error,
+        ...AlertMesg[0],
+      });
       // Toast.show({text: 'Something went wrong', ...AlertMesg[0]});
-      setTimeout(() => {
-        navigation.dispatch({
-          ...CommonActions.reset({
-            index: 0,
-            routes: [{ name: 'AdminNavigation' }],
-          }),
-        });
-      }, 2000);
+      // setTimeout(() => {
+      //   navigation.dispatch({
+      //     ...CommonActions.reset({
+      //       index: 0,
+      //       routes: [{ name: 'AdminNavigation' }],
+      //     }),
+      //   });
+      // }, 2000);
       console.log('EEEE-', error);
     }
     setIsLoading(false);

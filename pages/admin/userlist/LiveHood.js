@@ -724,13 +724,13 @@ const LiveHood = ({
           //     };
           //   }
           // });
-
           const plotImagesFromApi = filteredPlotImages.map(item => ({
             uri: item.file_path,
             name: item.file_name,
             type: item.file_ext,
             fileName: item.file_name,
             id: item.file_id,
+            isvalid: item.sub_type === "REJECTED" ? true : false,
           }));
 
           const MIN_BOX = 5;
@@ -2210,8 +2210,10 @@ const LiveHood = ({
           //   farmerData.land_rel_id,
           //   farmerData.cu_rel_id,
           // );
+          console.log("addressProof", addressProof)
           addressProof.map((data, index) => {
-            if (data.name != '' && data.id == '') {
+            console.log("aaaaaaaaaaaaaaa",data.isvalid)
+            if (data.name != '' && data.id == '' &&  data.isvalid === "change") {
               formDataPlotImg.append('plot_image', data);
             }
           });
@@ -2241,7 +2243,8 @@ const LiveHood = ({
               ),
             ],
           );
-
+          console.log("formDataPlotImg",JSON.stringify(formDataPlotImg))
+console.log("addPlotImageAPIRes",JSON.stringify(addPlotImageAPIRes?.data))
           if (addPlotImageAPIRes?.data?.error?.errorCode == 400) {
             Alert.alert(
               'File',
@@ -2342,50 +2345,49 @@ const LiveHood = ({
               }
             }
           }
-          // const { plot_status, missing, rejected_documents } = addPlotImageAPIRes?.data?.data?.validationResponse || {}
-          // if (missing?.length > 0) {
-          //   const addressVal = [...addressProof];
-          //   setSelectedTab('PLOT');
-          //   setFarmerData(prev => ({
-          //     ...prev,
-          //     plotRejectComment: missing,
-          //   }));
-          //   setPlotStatus({
-          //     label: plot_status,
-          //     value: plot_status,
-          //   })
-          //   setIsLoading(false);
-          //   // const updatedAddressProof = [...addressProof];
+          const { plot_status, missing, rejected_documents } = addPlotImageAPIRes?.data?.data?.validationResponse || {}
+          if (missing?.length > 0) {
+            const addressVal = [...addressProof];
+            setSelectedTab('PLOT');
+            setFarmerData(prev => ({
+              ...prev,
+              plotRejectComment: missing,
+            }));
+            setPlotStatus({
+              label: plot_status,
+              value: plot_status,
+            })
+            setIsLoading(false);
+            // const updatedAddressProof = [...addressProof];
 
-          //   const updatedAddressProof = addressProof.map((data) => {
-          //     const isRejected = rejected_documents?.some(
-          //       (doc) => doc.file_title === data.fileName
-          //     );
+            const updatedAddressProof = addressProof.map((data) => {
+              const isRejected = rejected_documents?.some(
+                (doc) => doc.file_title === data.fileName
+              );
 
-          //     return {
-          //       fileName: data.fileName,
-          //       id: "",
-          //       isvalid: isRejected,
-          //       name: data.fileName,
-          //       type: data.type,
-          //       uri: data.uri,
-          //       value: "",
-          //     };
-          //   });
-
-          //   setAddressProof(updatedAddressProof);
-          //   scrollToTop();
-          //   Toast.show({ text: missing, ...AlertMesg[0] });
-          //   setIsLoading(false);
-          //   return;
-          // } else {
-          //   onTabPress(0);
-          // }
+              return {
+                fileName: data.fileName,
+                id: "",
+                isvalid: isRejected,
+                name: data.fileName,
+                type: data.type,
+                uri: data.uri,
+                value: "",
+              };
+            });
+            setAddressProof(updatedAddressProof);
+            scrollToTop();
+            Toast.show({ text: missing, ...AlertMesg[0] });
+            setIsLoading(false);
+            return;
+          } else {
+            onTabPress(0);
+          }
           if (!historyData) {
             if (updateLandCropdetails_res?.status === 200) {
-              removesetLocation(); // stop basudev
+              // removesetLocation(); // stop basudev
               Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
-              onTabPress(0); // stop basudev
+              // onTabPress(0); // stop basudev
             } else {
               setIsLoading(false);
               Toast.show({
@@ -2395,9 +2397,9 @@ const LiveHood = ({
             }
           } else {
             if (cropInputRes?.status === 200) {
-              removesetLocation(); // stop basudev
+              // removesetLocation(); // stop basudev
               Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
-              onTabPress(0); // stop basudev
+              // onTabPress(0); // stop basudev
             } else {
               setIsLoading(false);
               Toast.show({

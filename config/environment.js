@@ -2,8 +2,8 @@
 const ENV = 'DEMO'; // 'DEMO' | 'LIVE' |'NEW'
 
 const BASE_URLS = {
-  // DEMO: 'http://134.209.155.11:4003/',
-  DEMO: 'http://192.168.0.209:4003/',
+  DEMO: 'http://134.209.155.11:4003/',
+  // DEMO: 'http://192.168.0.208:4003/',
   LIVE: 'https://mygreenqube.com:4003/',
   NEW: 'http://134.209.155.11:6006/',
 };
