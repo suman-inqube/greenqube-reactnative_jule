@@ -28,7 +28,6 @@ const ProofAndIdentityPropfComp = ({
   ai_camera_id_proof = '0',
   is_id_proof
 }) => {
-  console.log("is_id_proof", is_id_proof)
   const { loginUser_data, t } = useContext(userCreateContext);
   const [loading, setLoading] = useState(false);
   const resizeImage = async (
@@ -630,15 +629,16 @@ const ProofAndIdentityPropfComp = ({
                                 size={15}
                                 color="#FFFFFF"
                               />
-                            </View>
-                            :
+                            </View>:<></>}
+                            {
+                            data?.isvalid == true?
                             <View style={styles.deleteIconContainer}>
                               <MaterialIcons
                                 name="close"
                                 size={15}
                                 color="#FFFFFF"
                               />
-                            </View>
+                            </View>:<></>
 
                         }
                       </View>
