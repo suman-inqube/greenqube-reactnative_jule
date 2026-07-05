@@ -89,6 +89,7 @@ const isInternetAvailable = async (silent = false) => {
 };
 
 const logCurl = ({url, method, headers, body}) => {
+  if(!__DEV__) return;
   let curl = `curl -X ${method} 'http://134.209.155.11:4003/${url}'`;
 
   // 1. Format Headers

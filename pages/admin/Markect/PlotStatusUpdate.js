@@ -1837,12 +1837,11 @@ const PlotStatusUpdate = () => {
             });
             formDataPlotImg.append('rel_id', plotId);
             formDataPlotImg.append('user_id', farmer_data.user_id);
-            const plot_image_length = formDataPlotImg._parts.filter(item => item[0] === 'plot_image');
             const [deletePlotImageAPIRes, addPlotImageAPIRes] = await Promise.all([
               isOnline
                 ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
                 : Promise.resolve(null),
-              plot_image_length?.length > 0 ? axiosPost(
+             axiosPost(
                 ROUTES.POST.ADD_PLOTI_MGS,
                 formDataPlotImg,
                 token,
@@ -1850,7 +1849,7 @@ const PlotStatusUpdate = () => {
                 {
                   information: `${dbname},${lan_id},${farmer_data.user_id}`,
                 },
-              ) : Promise.resolve(null),
+              ),
               // addPlotImageAPI(
               //   dbname,
               //   lan_id,

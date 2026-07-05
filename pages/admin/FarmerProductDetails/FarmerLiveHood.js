@@ -1461,19 +1461,17 @@ const FarmerLiveHood = ({
           // );
           // if (filterAddressImage.length != 0) {
           addressProof.map((data, index) => {
-            if (data.name != '' && data.value == 1) {
+            if (data.name != '' && data.value == 1 && data.isvalid === "change") {
               formDataPlotImg.append('plot_image', data);
             }
           });
           formDataPlotImg.append('rel_id', farmerData.land_rel_id);
-          const plot_image_length = formDataPlotImg._parts.filter(item => item[0] === 'plot_image');
           const [deletePlotImageAPIRes, addPlotImageAPIRes, cropInputRes] =
             await Promise.all([
               isOnline
                 ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
                 : Promise.resolve(null),
-              plot_image_length?.length > 0 ? addPlotImageAPI(dbname, lan_id, token, user_id, formDataPlotImg)
-                : Promise.resolve(null),
+             addPlotImageAPI(dbname, lan_id, token, user_id, formDataPlotImg),
               addCropInputAPI(dbname, lan_id, token, user_id, finalPayload),
             ]);
 
@@ -1564,45 +1562,45 @@ const FarmerLiveHood = ({
               }
             }
           }
-          // const { plot_status, missing, rejected_documents } = addPlotImageAPIRes?.data?.data?.validationResponse || {}
-          // if (missing?.length > 0) {
-          //   const addressVal = [...addressProof];
-          //   setSelectedTab('PLOT');
-          //   setFarmerData(prev => ({
-          //     ...prev,
-          //     plotRejectComment: missing,
-          //   }));
-          //   setplotStatus({
-          //     label: plot_status,
-          //     value: plot_status,
-          //   })
-          //   setIsLoading(false);
-          //   // const updatedAddressProof = [...addressProof];
+          const { plot_status, missing, rejected_documents } = addPlotImageAPIRes?.data?.data?.validationResponse || {}
+          if (missing?.length > 0) {
+            const addressVal = [...addressProof];
+            setSelectedTab('PLOT');
+            setFarmerData(prev => ({
+              ...prev,
+              plotRejectComment: missing,
+            }));
+            setplotStatus({
+              label: plot_status,
+              value: plot_status,
+            })
+            setIsLoading(false);
+            // const updatedAddressProof = [...addressProof];
 
-          //   const updatedAddressProof = addressProof.map((data) => {
-          //     const isRejected = rejected_documents?.some(
-          //       (doc) => doc.file_title === data.fileName
-          //     );
+            const updatedAddressProof = addressProof.map((data) => {
+              const isRejected = rejected_documents?.some(
+                (doc) => doc.file_title === data.fileName
+              );
 
-          //     return {
-          //       fileName: data.fileName,
-          //       id: "",
-          //       isvalid: isRejected,
-          //       name: data.fileName,
-          //       type: data.type,
-          //       uri: data.uri,
-          //       value: "",
-          //     };
-          //   });
+              return {
+                fileName: data.fileName,
+                id: "",
+                isvalid: isRejected,
+                name: data.fileName,
+                type: data.type,
+                uri: data.uri,
+                value: "",
+              };
+            });
 
-          //   setAddressProof(updatedAddressProof);
-          //   scrollToTop();
-          //   Toast.show({ text: missing, ...AlertMesg[0] });
-          //   setIsLoading(false);
-          //   return;
-          // } else {
-          //   onTabPress(0);
-          // }
+            setAddressProof(updatedAddressProof);
+            scrollToTop();
+            Toast.show({ text: missing, ...AlertMesg[0] });
+            setIsLoading(false);
+            return;
+          } else {
+            onTabPress(0);
+          }
           if (!historyData) {
             if (updateLandCropdetails_res?.status === 200) {
               removesetLocation();

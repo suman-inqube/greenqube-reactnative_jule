@@ -613,37 +613,42 @@ const ProofAndIdentityPropfComp = ({
 
                 {data?.uri &&
                   !['address', 'identity'].includes(data?.imageType) &&
-                  status_level !== 'APPROVED' && (
-                    <TouchableOpacity
-                      onPress={() =>
-                        onHandleDocumentSelectionRemove(index, status_level)
-                      }
-                      style={styles.deleteIcon}>
-                      <View style={{ marginTop: 15 }}>
-                        {/* Replace the Image with Material Icon in red circle */}
-                        {
-                          data?.isvalid == false ?
-                            <View style={[styles.deleteIconContainer, { backgroundColor: 'green' }]}>
-                              <MaterialIcons
-                                name="check"
-                                size={15}
-                                color="#FFFFFF"
-                              />
-                            </View>:<></>}
-                            {
-                            data?.isvalid == true?
-                            <View style={styles.deleteIconContainer}>
-                              <MaterialIcons
-                                name="close"
-                                size={15}
-                                color="#FFFFFF"
-                              />
-                            </View>:<></>
+                  status_level !== 'APPROVED' ? (
+                  <TouchableOpacity
+                    onPress={() =>
+                      onHandleDocumentSelectionRemove(index, status_level)
+                    }
+                    style={styles.deleteIcon}>
+                    <View style={{ marginTop: 15 }}>
+                      {/* Replace the Image with Material Icon in red circle */}
+                      {
+                        data?.isvalid == false ?
+                          <View style={[styles.deleteIconContainer, { backgroundColor: 'green' }]}>
+                            <MaterialIcons
+                              name="check"
+                              size={15}
+                              color="#FFFFFF"
+                            />
+                          </View> : <View style={styles.deleteIconContainer}>
+                            <MaterialIcons
+                              name="close"
+                              size={15}
+                              color="#FFFFFF"
+                            />
+                          </View>}
 
-                        }
-                      </View>
-                    </TouchableOpacity>
-                  )}
+                    </View>
+                  </TouchableOpacity>
+                ) : (
+                  data?.isvalid == false &&
+                  <View style={[styles.deleteIconContainer, { backgroundColor: 'green' }]}>
+                    <MaterialIcons
+                      name="check"
+                      size={15}
+                      color="#FFFFFF"
+                    />
+                  </View>
+                )}
               </View>
               <View style={{ marginBottom: 10 }}>
                 <Text style={styles.fileName} numberOfLines={1}>

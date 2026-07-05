@@ -677,6 +677,7 @@ const LiveHood = ({
 
           const { plot_img, landUserImgs } =
             getPlotDoc?.data?.data?.rows[0] || {};
+          console.log("plot_img", plot_img)
           // const values = [...addressProof];
           const carbonCertificateValues = [...carboncertificate];
           const filteredPlotImages = plot_img.filter(
@@ -726,15 +727,13 @@ const LiveHood = ({
           // });
           const plotImagesFromApi = filteredPlotImages.map(item => ({
             uri: item.file_path,
-            name: item.file_name,
+            name: item.file_title,
             type: item.file_ext,
-            fileName: item.file_name,
+            fileName: item.file_title,
             id: item.file_id,
             isvalid: item.sub_type === "REJECTED" ? true : false,
           }));
-
           const MIN_BOX = 5;
-
           if (plotImagesFromApi.length < MIN_BOX) {
             const emptyCount = MIN_BOX - plotImagesFromApi.length;
             for (let i = 0; i < emptyCount; i++) {
@@ -747,7 +746,6 @@ const LiveHood = ({
               });
             }
           }
-
           carboncertificate.map((_data, _index) => {
             if (filteredCarbonAgreement[_index] !== undefined && count > 0) {
               carbonCertificateValues[_index] = {
@@ -2195,11 +2193,11 @@ const LiveHood = ({
             //   save_extradata,
             // ),
           ]);
-
           const finalPayload = formatAmendmentPayload(
             allItems,
             farmerData.cu_rel_id,
           );
+
 
           // UpdateLandCropdetailsAPI(
           //   dbname,
@@ -2210,22 +2208,19 @@ const LiveHood = ({
           //   farmerData.land_rel_id,
           //   farmerData.cu_rel_id,
           // );
-          console.log("addressProof", addressProof)
           addressProof.map((data, index) => {
-            console.log("aaaaaaaaaaaaaaa",data.isvalid)
-            if (data.name != '' && data.id == '' &&  data.isvalid === "change") {
+            if (data.name != '' && data.id == '' && data.isvalid === "change") {
               formDataPlotImg.append('plot_image', data);
             }
           });
           formDataPlotImg.append('rel_id', plotId);
           formDataPlotImg.append('user_id', farmeruserID);
-          const plot_image_length = formDataPlotImg._parts.filter(item => item[0] === 'plot_image');
           const [deletePlotImageAPIRes, addPlotImageAPIRes] = await Promise.all(
             [
               isOnline
                 ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
                 : Promise.resolve(null),
-              plot_image_length?.length > 0 ? axiosPost(
+              axiosPost(
                 ROUTES.POST.ADD_PLOTI_MGS,
                 formDataPlotImg,
                 token,
@@ -2233,18 +2228,18 @@ const LiveHood = ({
                 {
                   information: `${dbname},${lan_id},${farmeruserID}`,
                 },
-              ) : Promise.resolve(null),
-              addCropInputAPI(
-                dbname,
-                lan_id,
-                token,
-                farmeruserID,
-                finalPayload,
               ),
+              finalPayload?.fertilizers?.length > 0 || finalPayload?.organic_amendment_type?.length > 0 || finalPayload?.pesticide?.length > 0 ?
+                addCropInputAPI(
+                  dbname,
+                  lan_id,
+                  token,
+                  farmeruserID,
+                  finalPayload,
+                ) : Promise.resolve(null),
             ],
           );
-          console.log("formDataPlotImg",JSON.stringify(formDataPlotImg))
-console.log("addPlotImageAPIRes",JSON.stringify(addPlotImageAPIRes?.data))
+
           if (addPlotImageAPIRes?.data?.error?.errorCode == 400) {
             Alert.alert(
               'File',
@@ -2345,7 +2340,7 @@ console.log("addPlotImageAPIRes",JSON.stringify(addPlotImageAPIRes?.data))
               }
             }
           }
-          const { plot_status, missing, rejected_documents } = addPlotImageAPIRes?.data?.data?.validationResponse || {}
+          const { plot_status, missing, rejected_documents, main_farmer_pdf } = addPlotImageAPIRes?.data?.data?.validationResponse || {}
           if (missing?.length > 0) {
             const addressVal = [...addressProof];
             setSelectedTab('PLOT');
@@ -2375,6 +2370,20 @@ console.log("addPlotImageAPIRes",JSON.stringify(addPlotImageAPIRes?.data))
                 value: "",
               };
             });
+            setAddressProof(updatedAddressProof);
+            // const updatedAddressProof = addressProof.map((data) => {
+            //   const isRejected = rejected_documents?.some(
+            //     (doc) => doc.file_title === data.fileName
+            //   );
+
+            //   const isMainFarmerPdf = main_farmer_pdf === data.fileName;
+
+            //   return {
+            //     ...data,
+            //     isvalid: !isRejected && isMainFarmerPdf,
+            //   };
+            // });
+
             setAddressProof(updatedAddressProof);
             scrollToTop();
             Toast.show({ text: missing, ...AlertMesg[0] });
@@ -3068,6 +3077,7 @@ console.log("addPlotImageAPIRes",JSON.stringify(addPlotImageAPIRes?.data))
           text: 'Data submitted successfully',
           ...{ ...AlertMesg[0], position: 'top' },
         });
+          onTabPress(0);
       }
       setIsLoading(false);
     } catch (error) {
@@ -3904,7 +3914,7 @@ console.log("addPlotImageAPIRes",JSON.stringify(addPlotImageAPIRes?.data))
               const statusLevelValue = statuslevel?.label;
               const restrictedActions = [
                 'coFarmer',
-                'coFarmerList',
+                // 'coFarmerList',
                 'AddCoFarmerList',
               ];
               // ✅ FINAL CONDITIONS

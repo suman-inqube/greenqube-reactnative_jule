@@ -61,7 +61,13 @@ export const getPlotDocAPI = async (
       information: `${dbName},${languageId},${farmerID}`,
     },
   };
-
+console.log( `${config.BASE_URL}landRoute/getPlotImgs_e/${plotId}`)
+console.log({
+        headers: {
+          authorization: `${token}`,
+          information: `${dbName},${languageId},${farmerID}`,
+        },
+      },)
   try {
     const instance = await getAxiosInstance();
     let response = await instance.get(

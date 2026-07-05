@@ -28,7 +28,7 @@ import LoadingScreen from '../../Common/LoadingScreen';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Colors, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { axiosPost, axiosPostSelf } from '../../utils/api';
+import { axiosPost } from '../../utils/api';
 import { ROUTES } from '../../utils/Routes';
 const RegistationSignUpViwer = () => {
   //GQR-65
@@ -66,10 +66,10 @@ const RegistationSignUpViwer = () => {
   const togglestoreProduceInfo = () =>
     setisstoreProduceInfo(!isstoreProduceInfo);
   const handleSave = async () => {
+    const formData = new FormData();
+    const currentDate = new Date();
     try {
       setIsLoading(true);
-      const formData = new FormData();
-      const currentDate = new Date();
       const currentYear = currentDate.getFullYear();
       const yearsToSubtract = storePersnolInfo.age;
       const day = currentDate.getDate();
@@ -277,17 +277,18 @@ const RegistationSignUpViwer = () => {
         });
       }
       if (isOnline) {
-        const database_res = await axiosPost(
-          ROUTES.POST.FARMER_SIGNUP_BY_AGENT,
-          formData,
-          dbLanTokUsr.token,
-          false,
-          {
-            information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${dbLanTokUsr.supervisorId}`,
-            'Content-Type': 'multipart/form-data',
-            plot_count: landProofData.length,
-          },
-        );
+        // const database_res = await axiosPost(
+        //   ROUTES.POST.FARMER_SIGNUP_BY_AGENT,
+        //   formData,
+        //   dbLanTokUsr.token,
+        //   false,
+        //   {
+        //     information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${dbLanTokUsr.supervisorId}`,
+        //     'Content-Type': 'multipart/form-data',
+        //     plot_count: landProofData.length,
+        //   },
+        // );
+        const database_res = await submitFarmer(formData);
         if (database_res.status === 200) {
           Toast.show({ text: t('farmer_reg_successfully'), ...AlertMesg[0] });
           setTimeout(() => {
@@ -320,19 +321,48 @@ const RegistationSignUpViwer = () => {
       }
       setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
+      if (retryCount.current === 0) {
+        retryCount.current += 1;
+
+        console.log("Retrying API...");
+
+        try {
+          const database_res = await submitFarmer(formData);
+          setIsLoading(false);
+
+          if (database_res.status === 200) {
+            Toast.show({
+              text: t("farmer_reg_successfully"),
+              ...AlertMesg[0],
+            });
+
+            setTimeout(() => {
+              navigation.dispatch({
+                ...CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: "AdminNavigation" }],
+                }),
+              });
+            }, 2000);
+          }
+
+          return;
+        } catch (e) {
+          console.log("Retry Failed :", e);
+        }
+      }
       console.log('error==', error);
-      Alert.alert(
-        'Alert',
-        error,
-        [{text: 'OK', onPress: () => console.log('OK Pressed')}],
-        {cancelable: false},
-      );
-      Toast.show({
-        time: 3,
-        text: error,
-        ...AlertMesg[0],
-      });
+      // Alert.alert(
+      //   'Alert',
+      //   error,
+      //   [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+      //   {cancelable: false},
+      // );
+      // Toast.show({
+      //   time: 3,
+      //   text: error,
+      //   ...AlertMesg[0],
+      // });
       // Toast.show({text: 'Something went wrong', ...AlertMesg[0]});
       // setTimeout(() => {
       //   navigation.dispatch({
@@ -345,6 +375,20 @@ const RegistationSignUpViwer = () => {
       console.log('EEEE-', error);
     }
     setIsLoading(false);
+  };
+  const retryCount = React.useRef(0);
+  const submitFarmer = async formData => {
+    return await axiosPost(
+      ROUTES.POST.FARMER_SIGNUP_BY_AGENT,
+      formData,
+      dbLanTokUsr.token,
+      false,
+      {
+        information: `${dbLanTokUsr.dbName},${dbLanTokUsr.languageId},${dbLanTokUsr.supervisorId}`,
+        'Content-Type': 'multipart/form-data',
+        plot_count: storeProduceInfo.length,
+      },
+    );
   };
   const onPageLoad = useCallback(async () => {
     const [
