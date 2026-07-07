@@ -1183,7 +1183,8 @@ const ProduceInfo = () => {
     }
     if (storeProduceInfo.cycleStarts !== '') {
       if (validationData()) {
-        if (storeProduceInfoInArray.length < 1) {
+           const maxLength = carbonOption === 'mangrove' ? 3 : 1;
+        if (storeProduceInfoInArray.length < maxLength) {
           emptyFieldsValue();
           removesetLocation();
           // setPolygons([]);

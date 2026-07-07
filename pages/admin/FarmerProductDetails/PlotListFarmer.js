@@ -384,7 +384,7 @@ const PlotListFarmer = () => {
             </>
           )}
 
-          {activeTab === 0 &&  dbLanTokUsr?.carbonFlag != true && (
+          {activeTab === 0 &&  dbLanTokUsr?.carbonType == "mangrove"  && (
             <FloatingActionButton
               position="right"
               actions={getActionsPlot(t, styles, Colors)}

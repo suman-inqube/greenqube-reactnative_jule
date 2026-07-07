@@ -1001,7 +1001,8 @@ const PlotSiteProduceInformation = () => {
     }
     if (validationData()) {
       if (route.params.arrayIndex == undefined) {
-        if (storeProduceInfoInArray.length < 1) {
+        const maxLength = dbLanTokUsr?.carbonType === 'mangrove' ? 3 : 1;
+        if (storeProduceInfoInArray.length < maxLength) {
           const newData = [
             ...storeProduceInfoInArray,
             { storeProduceInfo: storeProduceInfo, location: location, landProof },
@@ -2218,7 +2219,7 @@ const PlotSiteProduceInformation = () => {
                   </View>
                 </View>
 
-                {!carbonFlag &&
+                {dbLanTokUsr?.carbonType === 'mangrove' &&
                   route.params.arrayIndex == undefined ? (
                   <TouchableOpacity
                     onPress={saveInObject}
@@ -2262,6 +2263,7 @@ const PlotSiteProduceInformation = () => {
               </View>
             </View>
           </ScrollView>
+
           <FloatingActionButton
             position="right"
             actions={getActionsMapView(t, styles, Colors)}

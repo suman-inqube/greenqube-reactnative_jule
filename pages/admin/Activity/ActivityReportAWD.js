@@ -21,12 +21,12 @@ import {
   addPrevPipeActivity,
   setCycleDateAPI,
   activityScheduleAPI,
-} from '../../../config/apiHere';
-import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
-import HarvestedModel from '../../Common/HarvestedModel';
-import SoundRecord from '../../Common/SoundRecord';
+} from '../../../config/apiHere.js';
+import { formatDateToMMDDYYYY } from '../../Common/DateChanger.js';
+import HarvestedModel from '../../Common/HarvestedModel.js';
+import SoundRecord from '../../Common/SoundRecord.js';
 import RNFS from 'react-native-fs';
-import CustomAlert from '../../Common/CustomAlert';
+import CustomAlert from '../../Common/CustomAlert.js';
 import * as AudioRecorderPlayerPkg from 'react-native-audio-recorder-player';
 const AudioRecorderPlayer =
   AudioRecorderPlayerPkg.default || AudioRecorderPlayerPkg;
@@ -35,34 +35,34 @@ const audioRecorderPlayer =
     ? new AudioRecorderPlayer()
     : AudioRecorderPlayer;
 const qs = require('qs');
-import { userCreateContext } from '../../Context/usersCreateContext';
-import { AnalyticsLogEvent } from '../../Analytics';
+import { userCreateContext } from '../../Context/usersCreateContext.js';
+import { AnalyticsLogEvent } from '../../Analytics/index.js';
 import { isPointInPolygon, getDistance } from 'geolib';
-import TakePhotoPipe from '../../Common/TakePhotoPipe';
-import ActivityMap from '../../Common/ActivityMap';
+import TakePhotoPipe from '../../Common/TakePhotoPipe.js';
+import ActivityMap from '../../Common/ActivityMap.js';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
-import MyErrorBoundary from '../../Common/MyErrorBoundary';
-import { Colors, Fronts } from '../../utils/Constants';
-import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { axiosGet, axiosPost } from '../../utils/api';
-import { ROUTES } from '../../utils/Routes';
-import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
-import { showAIValidationError } from '../../utils/showAIValidationError';
-import SecurityWrapper from '../../SecurityCheck/SecurityWrapper';
-import PipeDetailsCard from '../../../Components/PipeDetailsCard';
-import { isWithin20Meters } from '../../Common/calculateAreaFun';
-import ScannerModal from '../../Common/ScannerModal';
-import ImageAnalysisScreen from './ImageAnalysisScreen'
-import { MODELS, loadModelFromAssets, loadModel } from './ImageAnalysisScreen'
-import { CURRENT_ENV } from '../../../config/environment';
-import { FEATURES } from '../../../config/featureFlags';
+import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError.js';
+import MyErrorBoundary from '../../Common/MyErrorBoundary.js';
+import { Colors, Fronts } from '../../utils/Constants.js';
+import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1.js';
+import { axiosGet, axiosPost } from '../../utils/api.js';
+import { ROUTES } from '../../utils/Routes.js';
+import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation.js';
+import { showAIValidationError } from '../../utils/showAIValidationError.js';
+import SecurityWrapper from '../../SecurityCheck/SecurityWrapper.js';
+import PipeDetailsCard from '../../../Components/PipeDetailsCard.js';
+import { isWithin20Meters } from '../../Common/calculateAreaFun.js';
+import ScannerModal from '../../Common/ScannerModal.js';
+import ImageAnalysisScreen from './ImageAnalysisScreen.js'
+import { MODELS, loadModelFromAssets, loadModel } from './ImageAnalysisScreen.js'
+import { CURRENT_ENV } from '../../../config/environment.js';
+import { FEATURES } from '../../../config/featureFlags.js';
 import { axiosPut } from '../../utils/api.js'
-import TakePhoto from './TakePhoto';
+import TakePhoto from './TakePhoto.js';
 import { launchCamera } from 'react-native-image-picker';
-import RecordComp from './RecordComp';
+import RecordComp from './RecordComp.js';
 import { captureRef } from 'react-native-view-shot';
-import AudioPlayerView from '../../Common/AudioPlayerView';
+import AudioPlayerView from '../../Common/AudioPlayerView.js';
 // import { useDownload, formatBytes, STAGE_LABELS, STAGE_COLORS } from '../../hooks/ModelDownload';
 const ActivityReportAWD = ({ navigation, route }) => {
   const { farmer, plot } = route?.params || {};

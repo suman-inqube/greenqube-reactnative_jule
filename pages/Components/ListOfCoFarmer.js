@@ -103,8 +103,8 @@ const ListOfCoFarmer = ({
   registration,
   handleDeleteCoFarmer,
 }) => {
-  const {t, LoadingScreen} = useContext(userCreateContext);
-  const {minimumDate, maximumDate} = getAgeLimitDates();
+  const { t, LoadingScreen } = useContext(userCreateContext);
+  const { minimumDate, maximumDate } = getAgeLimitDates();
   const [coFarmerList, setCoFarmerList] = useState([]);
   const [newDate, setnewDate] = useState(new Date());
   const [penCycleStart, setopenCycleStart] = useState(false);
@@ -144,7 +144,7 @@ const ListOfCoFarmer = ({
               searchKey: searchText || '',
             }),
             token,
-            {information: `${dbname},${lan_id},${user_id}`},
+            { information: `${dbname},${lan_id},${user_id}` },
           );
           if (response?.status === 200) {
             setTotalPages(Math.ceil(response?.data?.data.count / 10));
@@ -285,7 +285,6 @@ const ListOfCoFarmer = ({
         let addressProof = null;
         let profile = null;
         for (const f of item.coFInfo?.agri_files) {
-          console.log(f);
           if (f.term_type === 'farmer_identity')
             idProof = {
               uri: f.file_path,
@@ -316,8 +315,8 @@ const ListOfCoFarmer = ({
               : item?.coFInfo?.userType == 22 &&
                 (item?.coFInfo?.alternate_contact_num == null ||
                   item?.coFInfo?.alternate_contact_num == '')
-              ? ''
-              : item?.coFInfo?.contactNumber ?? '',
+                ? ''
+                : item?.coFInfo?.contactNumber ?? '',
           addressProof: addressProof,
           idProof: idProof,
           profile: profile,
@@ -327,7 +326,7 @@ const ListOfCoFarmer = ({
         Toast.show({
           text: `This is an approved plot. Farmer shuffling is not allowed
                 `,
-          ...{...AlertMesg[0], position: 'top'},
+          ...{ ...AlertMesg[0], position: 'top' },
         });
       }
     },
@@ -336,7 +335,7 @@ const ListOfCoFarmer = ({
 
   const onCheckCoFarmerEdit = useCallback(
     (index, co_farmer_id, phoneNum, item) => {
-      const {coFInfo} = item || {};
+      const { coFInfo } = item || {};
       try {
         if (['PENDING', 'REJECTED'].includes(status)) {
           const details = {
@@ -346,8 +345,8 @@ const ListOfCoFarmer = ({
             gender: coFInfo?.gender,
             phone:
               item?.coFInfo?.userType == 22 &&
-              (item?.coFInfo?.alternate_contact_num == null ||
-                item?.coFInfo?.alternate_contact_num == '')
+                (item?.coFInfo?.alternate_contact_num == null ||
+                  item?.coFInfo?.alternate_contact_num == '')
                 ? ''
                 : item?.coFInfo?.contactNumber ?? '',
             CoFarmer: '',
@@ -385,7 +384,7 @@ const ListOfCoFarmer = ({
           Toast.show({
             text: `This is an approved plot. Farmer shuffling is not allowed
                 `,
-            ...{...AlertMesg[0], position: 'top'},
+            ...{ ...AlertMesg[0], position: 'top' },
           });
         }
       } catch (error) {
@@ -514,6 +513,15 @@ const ListOfCoFarmer = ({
   const onSave = useCallback(async () => {
     try {
       setIsSubmit(true);
+      // GRQ-1635  App_ID proof is mandatory while switching co-farmer to main farmer
+      if (!coFarmer.idProof) {
+        setIsSubmit(false);
+        Toast.show({
+          text: 'ID Proof is required.',
+          ...{ ...AlertMesg[0], position: 'top' },
+        });
+        return;
+      }
       const formdata = new FormData();
       formdata.append('rel_id', plotId);
       formdata.append('main_farmer_id', farmeruserID);
@@ -543,20 +551,20 @@ const ListOfCoFarmer = ({
         formdata,
         token,
         false,
-        {information: `${dbname},${lan_id},${user_id}`},
+        { information: `${dbname},${lan_id},${user_id}` },
       );
 
       if (updateOwnerShipRes?.status == 200) {
         setIsSubmit(false);
         Toast.show({
           text: 'Data submitted successfully',
-          ...{...AlertMesg[0], position: 'top'},
+          ...{ ...AlertMesg[0], position: 'top' },
         });
         navigation.popToTop();
         navigation.navigate('userList');
         Toast.show({
           text: 'Data submitted successfully',
-          ...{...AlertMesg[0], position: 'top'},
+          ...{ ...AlertMesg[0], position: 'top' },
         });
         Alert.alert('Data submitted successfully');
       }
@@ -626,8 +634,8 @@ const ListOfCoFarmer = ({
       {/* Header with Gradient */}
       <LinearGradient
         colors={['#10b981', '#059669', '#047857']}
-        start={{x: 0, y: 0}}
-        end={{x: 1, y: 1}}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
         style={styles.headerGradient}>
         <View style={styles.headerContent}>
           <View style={styles.headerIconContainer}>
@@ -910,9 +918,9 @@ const ListOfCoFarmer = ({
                           onPress={() =>
                             ai_camera_id_proof == '1'
                               ? pickFileTextRecognition(
-                                  'idProof',
-                                  item?.coFInfo?.userName,
-                                )
+                                'idProof',
+                                item?.coFInfo?.userName,
+                              )
                               : pickFile('idProof', item?.coFInfo?.userName)
                           }
                           activeOpacity={0.7}>
@@ -973,7 +981,7 @@ const ListOfCoFarmer = ({
                       // label={isFormValid ? "Submit & Switch Ownership" : "Complete All Fields"}
                       label={t('save')}
                       onPress={onSave}
-                      // disabled={!isFormValid}
+                    // disabled={!isFormValid}
                     />
                   </View>
                 )}
@@ -1062,7 +1070,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 24,
     elevation: 8,
     shadowColor: '#10b981',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
@@ -1154,7 +1162,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 4,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     borderWidth: 2,
@@ -1243,7 +1251,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
     alignItems: 'center',
@@ -1268,7 +1276,7 @@ const styles = StyleSheet.create({
     padding: 20,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
   },
@@ -1383,7 +1391,7 @@ const styles = StyleSheet.create({
     padding: 4,
     elevation: 4,
     shadowColor: '#10b981',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
@@ -1414,7 +1422,7 @@ const styles = StyleSheet.create({
     gap: 8,
     elevation: 6,
     shadowColor: '#10b981',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
