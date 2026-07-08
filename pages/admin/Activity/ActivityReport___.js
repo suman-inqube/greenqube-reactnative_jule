@@ -210,7 +210,6 @@ const ActivityReport = ({navigation, route}) => {
     varity: '',
     cycleStarts: '',
     cycleEnd: '',
-    productionSeasonSdId: '',
   });
   // const [myphoto, setmyPhoto] = useState(null);
   const [myphotoAll, setmyPhotoAll] = useState([]);
@@ -344,7 +343,6 @@ const ActivityReport = ({navigation, route}) => {
       varity: '',
       cycleStarts: '',
       cycleEnd: '',
-      productionSeasonSdId: '',
     });
     if (isOnline) {
       var response = await axiosGet(
@@ -370,23 +368,31 @@ const ActivityReport = ({navigation, route}) => {
         label: data.plot_no,
       }));
       setplotAll(dataArray);
-      // if (isOnline) {
-    
-      //   var activityType_res = await axiosGet(ROUTES.GET.ACTIVITY_TYPE(), '', {
-      //     information: `${dbname},${lan_id},${currentfarmerId}`,
-      //   });
-        
-      //   await setItem('activityType' + currentfarmerId, activityType_res);
-      // } else {
-      //   var activityType_res = await getItem('activityType' + currentfarmerId);
-      // }
-      // if (activityType_res) {
-      //   const dataArray = activityType_res?.data?.data?.rows.map(data => ({
-      //     value: data.fid,
-      //     label: data?.categoryName,
-      //   }));
-      //   setactivityTypeAll(dataArray);
-      // }
+      if (isOnline) {
+        // var activityType_res = await axiosGet(
+        //   ROUTES.GET.ACTIVITY_TYPE_AWD(),
+        //   '',
+        //   {information: `${dbname},${lan_id},${currentfarmerId}`},
+        // );
+        var activityType_res = await axiosGet(ROUTES.GET.ACTIVITY_TYPE(), '', {
+          information: `${dbname},${lan_id},${currentfarmerId}`,
+        });
+        // activityTypeAPI(
+        //   dbname,
+        //   lan_id,
+        //   currentfarmerId,
+        // );
+        await setItem('activityType' + currentfarmerId, activityType_res);
+      } else {
+        var activityType_res = await getItem('activityType' + currentfarmerId);
+      }
+      if (activityType_res) {
+        const dataArray = activityType_res?.data?.data?.rows.map(data => ({
+          value: data.fid,
+          label: data?.categoryName,
+        }));
+        setactivityTypeAll(dataArray);
+      }
     }
     setIsLoading(false);
   };
@@ -445,7 +451,7 @@ const ActivityReport = ({navigation, route}) => {
           console.log('User is outside the polygon.');
         }
       }
-       console.log('123', JSON.stringify(response));
+      // console.log('123', response);
       if (response) {
         const dateString = response?.data?.data?.harvesting_date;
         const harvesting_date = new Date(dateString);
@@ -470,7 +476,6 @@ const ActivityReport = ({navigation, route}) => {
             varity: data.crop_variety.name,
             cycleStarts: data.sowing_date,
             cycleEnd: data.harvesting_date,
-            productionSeasonSdId: data.season_date_fid,
           });
           setSaveData({
             ...saveData,
@@ -499,85 +504,58 @@ const ActivityReport = ({navigation, route}) => {
             // var productionStage_res = await productionStageAPI(dbname, lan_id, data.crop_type_id, data.crop_name_id)
             // await setItem('productionStageAPI' + data.crop_type_id + data.crop_type_id, productionStage_res)
 
-            var [productionStage_res, activitySchedule, activityType_res] =
-              await Promise.all([
-                axiosGet(
-                  ROUTES.GET.PRODUCTION_STAGE({
-                    languageID: lan_id,
-                    cropTypeId: data.crop_type_id,
-                    cropNameID: data.crop_name_id,
-                  }),
-                  '',
-                  {information: `${dbname},${lan_id}`},
-                ),
-                // productionStageAPI(
-                //   dbname,
-                //   lan_id,
-                //   data.crop_type_id,
-                //   data.crop_name_id,
-                // ),
-                axiosGet(
-                  ROUTES.GET.ACTIVITY_SCHEDULE_API({
-                    type: 'user_activity',
-                    plotId: relId.value,
-                    cropId: data.crop_name_id,
-                    cu_rel_id: data.cu_rel_id,
-                  }),
-                  token,
-                  {information: `${dbname},${lan_id}`},
-                ),
-                axiosGet(
-                  ROUTES.GET.ACTIVITY_TYPE_MANG({
-                    type: 'user_activity',
-                    plot_fid: relId.value,
-                    cycle_start_date: cycle_start_date,
-                    cu_rel_fid: data.cu_rel_id,
-                    season_date_fid: data.season_date_fid,
-                  }),
-                  token,
-                  {information: `${dbname},${lan_id}`},
-                ),
+            var [productionStage_res, activitySchedule] = await Promise.all([
+              axiosGet(
+                ROUTES.GET.PRODUCTION_STAGE({
+                  languageID: lan_id,
+                  cropTypeId: data.crop_type_id,
+                  cropNameID: data.crop_name_id,
+                }),
+                '',
+                {information: `${dbname},${lan_id}`},
+              ),
+              // productionStageAPI(
+              //   dbname,
+              //   lan_id,
+              //   data.crop_type_id,
+              //   data.crop_name_id,
+              // ),
+              axiosGet(
+                ROUTES.GET.ACTIVITY_SCHEDULE_API({
+                  type: 'user_activity',
+                  plotId: relId.value,
+                  cropId: data.crop_name_id,
+                  cu_rel_id: data.cu_rel_id,
+                }),
+                token,
+                {information: `${dbname},${lan_id}`},
+              ),
 
-                // activityScheduleAPI(
-                //   dbname,
-                //   lan_id,
-                //   token,
-                //   'user_activity',
-                //   relId.value,
-                //   data.crop_name_id,
-                //   data.cu_rel_id,
-                // ),
+              // activityScheduleAPI(
+              //   dbname,
+              //   lan_id,
+              //   token,
+              //   'user_activity',
+              //   relId.value,
+              //   data.crop_name_id,
+              //   data.cu_rel_id,
+              // ),
 
-                //  setItem(
-                //    'productionStageAPI' +
-                //      data.crop_type_id +
-                //      data.crop_type_id,
-                //    productionStage_res,
-                //  ),
-                setLastAct(''),
-                setOverdueAct([]),
-                setUpcomingAct(''),
-              ]);
+              //  setItem(
+              //    'productionStageAPI' +
+              //      data.crop_type_id +
+              //      data.crop_type_id,
+              //    productionStage_res,
+              //  ),
+              setLastAct(''),
+              setOverdueAct([]),
+              setUpcomingAct(''),
+            ]);
           } else {
             var productionStage_res = await getItem(
               'productionStageAPI' + data.crop_type_id + data.crop_type_id,
             );
           }
-           if (activityType_res?.status == 200) {
-             console.log(
-               'activityType_res=',
-               JSON.stringify(activityType_res?.data?.data),
-             );
-             const dataArray = activityType_res?.data?.data?.activityType.map(
-               data => ({
-                 value: data.categoryId,
-                 label: data.categoryName,
-                 //  field_type: data.field_type,
-               }),
-             );
-             setactivityTypeAll(dataArray);
-             console.log('activityType_res=', JSON.stringify(dataArray.length));
-           }
           // console.log('ccc', productionStage_res);
           if (productionStage_res) {
             const dataArray = productionStage_res?.data?.data?.growth_stage.map(
@@ -1002,10 +980,6 @@ const ActivityReport = ({navigation, route}) => {
         formData.append('act_pattern', saveData.act_pattern);
         formData.append('act_master_id', saveData.act_master_id);
         formData.append('cu_rel_fid', saveData.cu_rel_id);
-        formData.append(
-          'season_date_fid',
-          nameVarityStartEnd.productionSeasonSdId,
-        );
 
         if (saveData.act_pattern === 'schedule') {
           formData.append('act_ref_type', saveData.act_ref_type);
@@ -1129,7 +1103,6 @@ const ActivityReport = ({navigation, route}) => {
         'activityInfo' + farmerID + CropType + CropName + item.value,
       );
     }
-    console.log('activityname_res=', JSON.stringify(response?.data?.data));
     setSaveData({...saveData, act_ref_type: item.value});
     if (response.data.data.count > 0) {
       response.data.data.rows.forEach(element => {
@@ -1170,13 +1143,6 @@ const ActivityReport = ({navigation, route}) => {
             element?.activity?.categoryName + ' (' + startDateEndDate + ')',
           act_master_id: element?.act_master_id,
         });
-        // dataArray.push({
-         
-        //   value: element.act_rid,
-        //   label:
-        //     element?.activity?.categoryName,
-        //   act_master_id: element?.act_master_id,
-        // });
       });
       if (isButtonDisabled) {
         setActivityInfoAll(dataArray);
