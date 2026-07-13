@@ -77,7 +77,6 @@ import { getActionsPlot } from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 import CoFarmer from '../../Components/CoFarmer';
-import CoFarmerList from '../../../Components/CoFarmerList';
 import ListOfCoFarmer from '../../Components/ListOfCoFarmer';
 import CropData from './CropData';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -3090,60 +3089,6 @@ const LiveHood = ({
       });
     }
   };
-
-  const handleEdit = (_data, _index) => {
-    setEditIndex(_index);
-    setCoFarmerDetails(_data);
-    setModalVisibleCoFarmer(true);
-  };
-  const handleDelete = (_data, _index) => {
-    const newList = [...conFarmerList];
-    newList.splice(_index, 1);
-    setConFarmerList(newList);
-  };
-
-  // const formatISODateWithSuffix = (isoString) => {
-  //   if (!isoString) return '';
-
-  //   const date = new Date(isoString);
-
-  //   const day = date.getUTCDate(); // use UTC to avoid timezone shift
-  //   const month = date.toLocaleString('en-US', {
-  //     month: 'short',
-  //     timeZone: 'UTC',
-  //   });
-  //   const year = date.getUTCFullYear();
-
-  //   const suffix =
-  //     day > 3 && day < 21
-  //       ? 'th'
-  //       : day % 10 === 1
-  //       ? 'st'
-  //       : day % 10 === 2
-  //       ? 'nd'
-  //       : day % 10 === 3
-  //       ? 'rd'
-  //       : 'th';
-
-  //   return `${day}${suffix} ${month}, ${year}`;
-  // };
-  const handleCoFarmerCheck = (value, label, index) => {
-    setConFarmerList(prev =>
-      prev.map((item, i) => {
-        if (i === index) {
-          return {
-            ...item,
-            CoFarmer: item.CoFarmer ? '' : true,
-          };
-        }
-        return {
-          ...item,
-          CoFarmer: item.CoFarmer,
-        };
-      }),
-    );
-  };
-
   const scrollToTop = () => {
     scrollViewRef.current?.scrollTo({
       y: 0,

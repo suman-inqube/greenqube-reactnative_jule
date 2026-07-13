@@ -8,7 +8,7 @@ import {
   Keyboard,
   Modal,
   Alert,
-  Linking,
+  Linking, Dimensions
 } from 'react-native';
 import React, {
   useState,
@@ -18,25 +18,11 @@ import React, {
   useRef,
 } from 'react';
 import {
-  ProductionSeasonAndApi,
-  ProductionProcessAPI,
-  ProductionUnitAPI,
-  livelihoodCropAndPlotDetailsAPI,
-  PlotSiteUserLandDetails,
-  UpdateLandCropdetailsAPI,
-  AddLandCropDetailsAPI,
-  LandUnitArea,
-  LandUnitsquare_metre,
-  UnitConversonToDefault,
-  nearestLatLong,
   uploadCarbonAgrDocs,
-  landRouteApi,
   uploadFarmerIdAdd,
 } from '../../../config/apiHere';
 
 import {
-  addPlotImageAPI,
-  getPlotDocAPI,
   deletePlotImageAPI,
 } from '../Loan/LoanAPI';
 import config from '../../../config';
@@ -75,6 +61,9 @@ import { ROUTES } from '../../utils/Routes';
 import { axiosGet, axiosPost, axiosPut } from '../../utils/api';
 import { goBack } from '../../utils/NavigationUtils';
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
+import CoFarmer from '../../Components/CoFarmer';
+import ListOfCoFarmer from '../../Components/ListOfCoFarmer';
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const PlotStatusUpdate = () => {
   //GQR-65
   const {
@@ -103,7 +92,7 @@ const PlotStatusUpdate = () => {
   const navigation = useNavigation();
   const route = useRoute();
   var watchId = useRef(null);
-  const { farmer_data, rel_id, plot_no, comment } = route.params;
+  const { farmer_data, farmeruserID, rel_id, plot_no, comment,plot_status_comment } = route.params;
   const [plotEdit, setPlotEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [farmerData, setfarmerData] = useState({
@@ -771,10 +760,9 @@ const PlotStatusUpdate = () => {
               { cancelable: false },
             );
           }
-
           setstatuslevel({
-            label: dataLandDetails?.status_level,
-            value: dataLandDetails?.status_level,
+            label: dataLandDetails?.plot_status,
+            value: dataLandDetails?.plot_status,
           });
           if (new Date() < new Date(data.harvesting_date) != true) {
             setModalVisible(true);
@@ -1841,7 +1829,7 @@ const PlotStatusUpdate = () => {
               isOnline
                 ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
                 : Promise.resolve(null),
-             axiosPost(
+              axiosPost(
                 ROUTES.POST.ADD_PLOTI_MGS,
                 formDataPlotImg,
                 token,
@@ -2290,7 +2278,183 @@ const PlotStatusUpdate = () => {
       );
     }
   }, [statuslevel.label, harvested]);
+  const [modalVisibleCoFarmer, setModalVisibleCoFarmer] = useState(false);
+  const [ListOFmodalVisibleCoFarmer, setListOfModalVisibleCoFarmer] = useState(false);
+  const [coFarmerDetails, setCoFarmerDetails] = useState({
+    name: '',
+    phone: '',
+    CoFarmer: '',
+    addressProof: null,
+    idProof: null,
+    profile: null,
+    gender: '1',
+    aadhar_number: '',
+    age: '',
+    type: '',
+    co_farmer_id: '',
+    password: '',
+  });
+  const [conFarmerList, setConFarmerList] = useState([]);
 
+  const handleAddCoFarmer = async () => {
+    try {
+      setIsLoading(true);
+      setConFarmerList([...conFarmerList, coFarmerDetails]);
+      const formdataCofarmers = new FormData();
+      let addCoFarmerRes = '';
+      let date_of_birth_ddmmyyyy = '';
+      if (coFarmerDetails.age && coFarmerDetails.age !== '') {
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const yearsToSubtract = parseInt(coFarmerDetails.age) || 0;
+        const day = currentDate.getDate();
+        const month = currentDate.getMonth() + 1;
+        const newYear = currentYear - yearsToSubtract;
+
+        // Format as DD/MM/YYYY (pad with zeros if needed)
+        const formattedDay = day < 10 ? `0${day}` : day;
+        const formattedMonth = month < 10 ? `0${month}` : month;
+        date_of_birth_ddmmyyyy = `${formattedDay}/${formattedMonth}/${newYear}`;
+      }
+
+      if (coFarmerDetails?.type == 'edit') {
+        formdataCofarmers.append('co_farmer_id', coFarmerDetails.co_farmer_id);
+        formdataCofarmers.append('userName', coFarmerDetails.name);
+        formdataCofarmers.append(
+          'aadhar_number',
+          coFarmerDetails.aadhar_number,
+        );
+
+        // Convert age to DD/MM/YYYY format
+
+        // Then use it in formData
+        formdataCofarmers.append(
+          'date_of_birth',
+          coFarmerDetails.date_of_birth,
+        );
+        formdataCofarmers.append('gender', coFarmerDetails.gender);
+        formdataCofarmers.append('contactNumber', coFarmerDetails.phone);
+        if (
+          coFarmerDetails.addressProof != null &&
+          coFarmerDetails.addressProof != ''
+        ) {
+          formdataCofarmers.append(`farmer_address`, {
+            uri: coFarmerDetails.addressProof?.uri,
+            name: coFarmerDetails.addressProof?.name,
+            type: coFarmerDetails.addressProof?.type,
+          });
+        }
+
+        if (coFarmerDetails.idProof != null && coFarmerDetails.idProof != '') {
+          formdataCofarmers.append(`farmer_identity`, {
+            uri: coFarmerDetails.idProof?.uri,
+            name: coFarmerDetails.idProof?.name,
+            type: coFarmerDetails.idProof?.type,
+          });
+        }
+        if (coFarmerDetails.profile != null && coFarmerDetails.profile != '') {
+          formdataCofarmers.append(`farmer_profile`, {
+            uri: coFarmerDetails.profile?.uri,
+            name: coFarmerDetails.profile?.name,
+            type: coFarmerDetails.profile?.type,
+          });
+        }
+        formdataCofarmers.append('password', coFarmerDetails.password);
+        addCoFarmerRes = await axiosPut(
+          ROUTES.PUT.EDIT_CO_FARMER,
+          formdataCofarmers,
+          token,
+          false,
+          { information: `${dbname},${lan_id},${user_id}` },
+        );
+      } else {
+        formdataCofarmers.append('owner_of', farmeruserID);
+        formdataCofarmers.append('createdBy', user_id);
+        formdataCofarmers.append('land_fid', plotId);
+        formdataCofarmers.append(
+          'cof_data',
+          JSON.stringify([
+            {
+              userName: coFarmerDetails.name,
+              contactNumber: coFarmerDetails.phone,
+              land_area: coFarmerDetails.landArea,
+              land_unit: coFarmerDetails.unitValue,
+              aadhar_number: coFarmerDetails.aadhar_number,
+              date_of_birth: coFarmerDetails.date_of_birth,
+              gender: coFarmerDetails.gender,
+            },
+          ]),
+        );
+        if (
+          coFarmerDetails.addressProof != null &&
+          coFarmerDetails.addressProof != ''
+        ) {
+          formdataCofarmers.append(`farmer_address_1`, {
+            uri: coFarmerDetails.addressProof?.uri,
+            name: coFarmerDetails.addressProof?.name,
+            type: coFarmerDetails.addressProof?.type,
+          });
+        }
+        if (
+          coFarmerDetails.idProof?.uri != null &&
+          coFarmerDetails.idProof?.uri != ''
+        ) {
+          formdataCofarmers.append(`farmer_identity_1`, {
+            uri: coFarmerDetails.idProof?.uri,
+            name: coFarmerDetails.idProof?.name,
+            type: coFarmerDetails.idProof?.type,
+          });
+        }
+        if (coFarmerDetails.profile != null && coFarmerDetails.profile != '') {
+          formdataCofarmers.append(`farmer_profile_1`, {
+            uri: coFarmerDetails.profile?.uri,
+            name: coFarmerDetails.profile?.name,
+            type: coFarmerDetails.profile?.type,
+          });
+        }
+        addCoFarmerRes = await axiosPost(
+          ROUTES.POST.SAVE_CO_FARMERS,
+          formdataCofarmers,
+          token,
+          false,
+          {
+            information: `${dbname},${lan_id},${user_id}`,
+            cof_count: '1',
+          },
+        );
+      }
+      setCoFarmerDetails({
+        name: '',
+        phone: '',
+        addressProof: null,
+        idProof: null,
+        profile: null,
+        gender: '1',
+        type: '',
+        co_farmer_id: '',
+        password: '',
+      });
+      setModalVisibleCoFarmer(false);
+      setListOfModalVisibleCoFarmer(false);
+
+      if (addCoFarmerRes?.status == 200) {
+        Toast.show({
+          text: 'Data submitted successfully',
+          ...{ ...AlertMesg[0], position: 'top' },
+        });
+        onTabPress(0);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      console.log('Error in handleAddCoFarmer', error);
+      setIsLoading(false);
+
+      Toast.show({
+        text: `${error?.data?.error?.errorMessage}`,
+        ...{ ...AlertMesg[0], position: 'top' },
+      });
+    }
+  };
   return (
     <FarmerDrawerScreenWrapper1>
       <MyErrorBoundary>
@@ -2302,8 +2466,6 @@ const PlotStatusUpdate = () => {
               logoImage={logoImage}
               topBanner={topBanner}
             />
-
-            {/* <ForegroundLocationService /> */}
             <DatePickerComp
               openDate={penCycleStart}
               newDate={newDate}
@@ -2331,13 +2493,87 @@ const PlotStatusUpdate = () => {
               setOpenDate={setopenCycleEnd}
               handleDatePicker={handleDatePicker2}
             />
-            {/* <CustomHeader
-          path="userList"
-          HandlerGoBack={HandlerGoBack}
-          logoImage={logoImage}
-          topBanner={topBanner}
-        />
-        <FormsTitle title={t('plot_and_crop_details')} /> */}
+            <Modal
+              visible={modalVisibleCoFarmer}
+              transparent
+              animationType="fade"
+              onRequestClose={() => setModalVisibleCoFarmer(!modalVisibleCoFarmer)}>
+              {/* <View style={styles.overlay}> */}
+              <View style={styles.overlayLisCoFarmer}>
+                <View style={styles.modalBox}>
+                  <CoFarmer
+                    title="CO-Farmer"
+                    coFarmerDetails={coFarmerDetails}
+                    setCoFarmerDetails={setCoFarmerDetails}
+                    onCancel={() => {
+                      setCoFarmerDetails({
+                        name: '',
+                        phone: '',
+                        addressProof: null,
+                        idProof: null,
+                        profile: null,
+                        gender: '1',
+                        type: '',
+                        co_farmer_id: '',
+                        password: '',
+                      });
+                      setModalVisibleCoFarmer(!modalVisibleCoFarmer);
+                    }}
+                    onSave={() => {
+                      handleAddCoFarmer();
+                    }}
+                    unitAll={unitAll}
+                    unit_valueArr={farmerData.unit_valueArr}
+                    landAreaUnit={landAreaUnit?.[0]?.unit_name}
+                    effective_dates={effective_dates}
+                    ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
+                    registration={false}
+                  />
+                </View>
+              </View>
+              {/* </View> */}
+            </Modal>
+
+            <Modal
+              visible={ListOFmodalVisibleCoFarmer}
+              transparent
+              animationType="fade"
+              onRequestClose={() => {
+                setListOfModalVisibleCoFarmer(!ListOFmodalVisibleCoFarmer),
+                  setCoFarmerDetails({
+                    name: '',
+                    phone: '',
+                    addressProof: null,
+                    idProof: null,
+                    profile: null,
+                    gender: '1',
+                    type: '',
+                    co_farmer_id: '',
+                    password: '',
+                  });
+              }}>
+              <View style={styles.overlayLisCoFarmer}>
+                <View style={styles.modalBox}>
+                  <ListOfCoFarmer
+                    dbname={dbname}
+                    lan_id={lan_id}
+                    token={token}
+                    user_id={user_id}
+                    farmeruserID={farmeruserID}
+                    plotId={plotId}
+                    isLoading={isLoading}
+                    setIsLoading={setIsLoading}
+                    status={statuslevel.label}
+                    effective_dates={effective_dates}
+                    setModalVisibleCoFarmer={setModalVisibleCoFarmer}
+                    modalVisibleCoFarmer={modalVisibleCoFarmer}
+                    setCoFarmerDetails={setCoFarmerDetails}
+                    ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
+                    registration={true}
+                  />
+                </View>
+              </View>
+            </Modal>
             {isLoading ? (
               <View style={styles.LoadingScreen}>
                 <LoadingScreen />
@@ -2389,7 +2625,7 @@ const PlotStatusUpdate = () => {
                         flexShrink: 1,
                         flexWrap: 'wrap',
                       }}>
-                      {comment}
+                      {plot_status_comment}
                     </Text>
                   </View>
                 )}
@@ -3056,7 +3292,15 @@ const PlotStatusUpdate = () => {
             position="right"
             actions={getActionsMapView(t, styles, Colors)}
             color={Colors.useGreen}
-            onPressItem={() => setShowModal(!showModal)}
+            onPressItem={(name) => {
+              if (name === 'MapView') {
+                setShowModal(prev => !prev);
+              } else if (name === 'coFarmer') {
+                setModalVisibleCoFarmer(prev => !prev);
+              }else if (name === 'coFarmerList') {
+                setListOfModalVisibleCoFarmer(prev => !prev);
+              }
+            }}
             showBackground={true}
             overlayColor="rgba(22, 17, 17, 0.35)"
             distanceToEdge={{ vertical: 80, horizontal: 25 }}
@@ -3312,5 +3556,161 @@ const styles = StyleSheet.create({
     // marginBottom: -20,
     // marginLeft: 20,
     marginTop: 10,
+  },
+
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlayLisCoFarmer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBox: {
+    // width: '90%',
+    // // maxHeight: SCREEN_HEIGHT * 0.7,
+    // backgroundColor: '#fff',
+    // borderRadius: 12,
+    // // padding: 10,
+    // borderRadius: 16
+
+    width: SCREEN_WIDTH * 0.9,
+    height: SCREEN_HEIGHT / 1.3,
+    // backgroundColor: "#be1414ff",
+    borderRadius: 14,
+    overflow: 'hidden',
+  },
+  card: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    marginBottom: 16,
+    shadowColor: '#10b981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+    overflow: 'hidden',
+    minHeight: 95,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+
+  greenBorder: {
+    width: 5,
+    backgroundColor: '#10b981',
+  },
+
+  content: {
+    flex: 1,
+    padding: 16,
+    justifyContent: 'center',
+  },
+
+  headerRow: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+
+  name: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginRight: 8,
+  },
+
+  badge: {
+    backgroundColor: '#d1fae5',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+  },
+
+  badgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#10b981',
+  },
+
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+
+  editButton: {
+    backgroundColor: '#dbeafe',
+    padding: 8,
+    borderRadius: 10,
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#3b82f6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+
+  deleteButton: {
+    backgroundColor: '#fee2e2',
+    padding: 8,
+    borderRadius: 10,
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#ef4444',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+
+  phoneRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+
+  subText: {
+    fontSize: 15,
+    color: '#6b7280',
+    fontWeight: '500',
+  },
+
+  rightAccent: {
+    width: 3,
+    backgroundColor: '#d1fae5',
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#eee',
+  },
+  tabButton: {
+    flex: 1,
+    padding: 12,
+    alignItems: 'center',
+  },
+  activeTab: {
+    borderBottomWidth: 3,
+    borderBottomColor: 'green',
+    backgroundColor: '#fff',
+  },
+  tabText: {
+    fontWeight: '600',
   },
 });

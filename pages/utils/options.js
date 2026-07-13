@@ -85,13 +85,31 @@ const getActionsPostNew = (t, styles, Colors) => [
 const getActionsMapView = (t, styles, Colors) => [
   {
     text: t('MapView'),
-    name: 'bt_add',
+    name: 'MapView',
     position: 2,
     color: Colors.useGreen,
     textStyle: styles.actionText,
     textBackground: '#ffffffff',
     icon: <MaterialIcons name="public" size={26} color="#ffffff" />,
   },
+   {
+          text: t('add_co_farmer'),
+          name: 'coFarmer',
+          position: 2,
+          color: Colors.useGreen,
+          textStyle: styles.actionText,
+          textBackground: '#ffffffff',
+          icon: require('../Common/images/co-farmer.png'),
+        },
+        {
+          text: t('list_co_farmer'),
+          name: 'coFarmerList',
+          position: 2,
+          color: Colors.useGreen,
+          textStyle: styles.actionText,
+          textBackground: '#ffffffff',
+          icon: require('../Common/images/checklist.png'),
+        },
 ];
 // const getActionsPlot = (
 //   t,

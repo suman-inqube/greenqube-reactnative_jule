@@ -109,7 +109,7 @@ const PlotList = () => {
       // console.log('plotsRes', plotsRes);
 
       if (plotsRes?.status === 200) {
-        // console.log('sta==', JSON.stringify(plotsRes?.data));
+        console.log('sta==', JSON.stringify(plotsRes?.data));
         setPlotList(plotsRes?.data || []);
       }
       if (unitAreaRes?.status === 200)

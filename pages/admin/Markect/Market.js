@@ -144,7 +144,6 @@ const Market = () => {
       landUsrAdd,
       land_convert_size,
     } = item || {};
-
     if (activeTab === 0) {
       const cardItems = [
         {
