@@ -205,7 +205,7 @@ const Dashboard = ({ navigation }) => {
 
       if (UnitConversonToDefault_res?.status === 200) {
         const rows = UnitConversonToDefault_res.data?.data?.rows || [];
-        convertionLUState = rows.some(r => !r.defined_unit_value);
+        convertionLUState = rows?.some(r => !r.defined_unit_value);
       }
 
       // LAND UNIT
@@ -214,7 +214,7 @@ const Dashboard = ({ navigation }) => {
 
       if (LandUnitArea_res?.status === 200) {
         const rows = LandUnitArea_res.data?.data?.rows || [];
-        defaultLand = rows.some(r => r.defined_unit_value?.length > 0);
+        defaultLand = rows?.some(r => r.defined_unit_value?.length > 0);
       }
 
       // USEFUL INFO
@@ -287,10 +287,11 @@ const Dashboard = ({ navigation }) => {
 
       const carbonActivities =
         carbonRes.status === 'fulfilled'
-          ? carbonRes.value?.data?.data?.data ||
-          carbonRes.value?.data?.data ||
+          ? carbonRes.value?.data?.data?.data ??
+          carbonRes.value?.data?.data ??
           []
           : [];
+
 
       const userActivities =
         userRes.status === 'fulfilled'
@@ -298,11 +299,14 @@ const Dashboard = ({ navigation }) => {
           : [];
 
       // ✅ CHECK IF CARBON HAS DATA
-      let hasCarbonActivity = carbonActivities.some(
-        item =>
-          (item?.upcomingActivities?.length || 0) > 0 ||
-          (item?.overdueActivities?.length || 0) > 0,
-      );
+      console.log('carbonActivities', typeof carbonActivities);
+      const hasCarbonActivity =
+        carbonActivities.length > 0 &&
+        carbonActivities.some(
+          item =>
+            (item?.upcomingActivities?.length ?? 0) > 0 ||
+            (item?.overdueActivities?.length ?? 0) > 0,
+        );
 
       let finalActivity = [];
 
@@ -319,6 +323,7 @@ const Dashboard = ({ navigation }) => {
 
       setIsLoading(prev => ({ ...prev, slowData: false }));
     } catch (error) {
+      console.log('Error loading slow APIs:', error);
       setIsLoading(prev => ({ ...prev, slowData: false }));
       Toast?.show({
         text:

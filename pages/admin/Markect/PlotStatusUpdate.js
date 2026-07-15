@@ -2316,7 +2316,6 @@ const PlotStatusUpdate = () => {
         const formattedMonth = month < 10 ? `0${month}` : month;
         date_of_birth_ddmmyyyy = `${formattedDay}/${formattedMonth}/${newYear}`;
       }
-
       if (coFarmerDetails?.type == 'edit') {
         formdataCofarmers.append('co_farmer_id', coFarmerDetails.co_farmer_id);
         formdataCofarmers.append('userName', coFarmerDetails.name);
@@ -2344,8 +2343,7 @@ const PlotStatusUpdate = () => {
             type: coFarmerDetails.addressProof?.type,
           });
         }
-
-        if (coFarmerDetails.idProof != null && coFarmerDetails.idProof != '') {
+        if (coFarmerDetails.idProof != null && coFarmerDetails.idProof != '' && coFarmerDetails.idProof?.uri!="") {
           formdataCofarmers.append(`farmer_identity`, {
             uri: coFarmerDetails.idProof?.uri,
             name: coFarmerDetails.idProof?.name,
@@ -2442,7 +2440,7 @@ const PlotStatusUpdate = () => {
           text: 'Data submitted successfully',
           ...{ ...AlertMesg[0], position: 'top' },
         });
-        onTabPress(0);
+ navigation.navigate('Dashboard', { action: 'plotStatusUpdated' });
       }
       setIsLoading(false);
     } catch (error) {

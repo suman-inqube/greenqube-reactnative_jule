@@ -10,20 +10,20 @@ import {
   ImageForm,
   TextInput,
 } from 'react-native';
-import React, {useState, useEffect, useContext, useRef, useMemo} from 'react';
+import React, { useState, useEffect, useContext, useRef, useMemo } from 'react';
 import CollapsibleCard from '../../Common/CollapsibleCard';
-import {Fenced_Rejected_Plot_List} from '../../../config/apiHere';
-import {userCreateContext} from '../../Context/usersCreateContext';
-const {width} = Dimensions.get('window');
+import { Fenced_Rejected_Plot_List } from '../../../config/apiHere';
+import { userCreateContext } from '../../Context/usersCreateContext';
+const { width } = Dimensions.get('window');
 import LoadingScreen from '../../Common/LoadingScreen';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import TabBar from '../../Components/TabBar';
-import {Colors, Fonts} from '../../utils/Constants';
+import { Colors, Fonts } from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import PaginationNav from '../../Components/PaginationNav';
 import ListCard from '../../Components/ListCard';
-import {axiosGet} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
+import { axiosGet } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 const Market = () => {
@@ -43,7 +43,7 @@ const Market = () => {
     LoadingScreen,
     dbLanTokUsr,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data || {};
+  const { dbname, lan_id, token, user_id } = loginUser_data || {};
   const [plotList, setPlotList] = useState([]);
   const [loading, setLoading] = useState(false);
   const [nonGeofenced, setNonGeofenced] = useState(
@@ -106,7 +106,7 @@ const Market = () => {
       setRejection('');
     }
     setPage(1);
-    scrollRef.current?.scrollTo({x: Number(index) * width, animated: true});
+    scrollRef.current?.scrollTo({ x: Number(index) * width, animated: true });
   };
   const animatedValue = useRef(new Animated.Value(0)).current;
   const indicatorPosition = animatedValue.interpolate({
@@ -114,12 +114,15 @@ const Market = () => {
     outputRange: [0, width / 2], // Moves indicator with swipe
   });
   const onScroll = Animated.event(
-    [{nativeEvent: {contentOffset: {x: animatedValue}}}],
-    {useNativeDriver: false},
+    [{ nativeEvent: { contentOffset: { x: animatedValue } } }],
+    { useNativeDriver: false },
   );
 
   const detailItem = item => {
-    navigation.navigate('PlotStatusUpdate', item);
+    navigation.navigate('PlotStatusUpdate', {
+      ...item,
+      farmeruserID: item?.farmer_data?.user_id,
+    });
   };
 
   const HandlerGoBack = () => navigation.navigate('Dashboard');
@@ -127,13 +130,13 @@ const Market = () => {
     () => (
       <CustomHeader
         t={t}
-        // HandlerGoBack={HandlerGoBack}
+      // HandlerGoBack={HandlerGoBack}
       />
     ),
     [],
   );
 
-  const renderListItem = ({item, index}) => {
+  const renderListItem = ({ item, index }) => {
     const {
       farmer_data,
       plot_no,
@@ -163,7 +166,7 @@ const Market = () => {
           borderColor="#d10000ff"
           showChevron={false}
           showItemLabel={false}
-          showRejectedStatus={dbLanTokUsr?.carbonType !== 'mangrove'?true:false}
+          showRejectedStatus={dbLanTokUsr?.carbonType !== 'mangrove' ? true : false}
           cardStyle={styles.listCard}
         />
       );
@@ -271,7 +274,7 @@ const Market = () => {
               }
               showsVerticalScrollIndicator={false} // Hides vertical scrollbar
               showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
-              style={{padding: 10}}
+              style={{ padding: 10 }}
               renderItem={renderListItem}
               ListEmptyComponent={
                 !loading && (
@@ -315,7 +318,7 @@ const Market = () => {
               }
               showsVerticalScrollIndicator={false} // Hides vertical scrollbar
               showsHorizontalScrollIndicator={false} // Hides horizontal scrollbar
-              style={{padding: 10}}
+              style={{ padding: 10 }}
               renderItem={renderListItem}
               ListEmptyComponent={
                 !loading && (
@@ -352,7 +355,7 @@ const Market = () => {
 export default Market;
 
 const styles = StyleSheet.create({
-  container: {flex: 1, backgroundColor: 'white'},
+  container: { flex: 1, backgroundColor: 'white' },
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#fff',
@@ -360,7 +363,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     backgroundColor: 'white',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     // elevation: 3,
@@ -373,14 +376,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tabText: {fontSize: 16, color: '#666', fontFamily: 'Poppins-SemiBold'},
+  tabText: { fontSize: 16, color: '#666', fontFamily: 'Poppins-SemiBold' },
   text: {
     fontSize: 14,
     color: '#000',
     fontFamily: 'Poppins-Regular',
     marginVertical: 3,
   },
-  activeTabText: {fontSize: 16, color: 'green', fontFamily: 'Poppins-SemiBold'},
+  activeTabText: { fontSize: 16, color: 'green', fontFamily: 'Poppins-SemiBold' },
   indicator: {
     position: 'absolute',
     bottom: 0,
@@ -650,7 +653,7 @@ const styles = StyleSheet.create({
 
     marginBottom: 10,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
@@ -675,7 +678,7 @@ const styles = StyleSheet.create({
 
     marginBottom: 10,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
