@@ -2,9 +2,9 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Android (Infinix)",
+      "name": "Attach to Android (React Native CLI)",
       "type": "reactnativedirect",
-      "request": "launch",
+      "request": "attach",
       "platform": "android",
       "cwd": "${workspaceFolder}",
       "sourceMaps": true

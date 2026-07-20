@@ -670,9 +670,9 @@ const PlotStatusUpdate = () => {
       // });
       const plotImagesFromApi = filteredPlotImages.map(item => ({
         uri: item.file_path,
-        name: item.file_name,
+        name: item.file_title,
         type: item.file_ext,
-        fileName: item.file_name,
+        fileName: item.file_title,
         id: item.file_id,
       }));
 

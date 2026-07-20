@@ -260,7 +260,7 @@ const ProofAndIdentityPropfComp = ({
             } else {
               //add code here to check name match and then save document if matched
               const extractedName = getOwnerName(rawText, detectedType);
-              if (extractedName.toLowerCase().replace(/\s/g, '').trim() == farmerName?.toLowerCase()?.replace(/\s/g, '')) {
+              if (extractedName?.toLowerCase()?.replace(/\s/g, '').trim() == farmerName?.toLowerCase()?.replace(/\s/g, '')) {
                 const values = [...stateValue];
                 markPhotoDeleted(index, values);
                 values[index] = {
@@ -315,7 +315,7 @@ const ProofAndIdentityPropfComp = ({
             }
           } catch (error) {
             console.error('Text recognition error:', error);
-            Alert.alert('Error', 'Text recognition failed. Please try again.');
+            // Alert.alert('Error', 'Text recognition failed. Please try again.');
           }
         }
       } else {
@@ -569,7 +569,7 @@ const ProofAndIdentityPropfComp = ({
               <View
                 style={{
                   borderWidth: 1,
-                  borderColor: data?.isvalid ? '#ff0000' : '#c6c6c68b',
+                  borderColor: data?.isvalid && data?.name !== "" ? '#ff0000' : '#c6c6c68b',
                   borderStyle: 'dotted',
                   justifyContent: 'center',
                   alignItems: 'center',

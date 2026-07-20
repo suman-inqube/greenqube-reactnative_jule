@@ -724,6 +724,7 @@ const LiveHood = ({
           //     };
           //   }
           // });
+          console.log("filteredPlotImages", filteredPlotImages)
           const plotImagesFromApi = filteredPlotImages.map(item => ({
             uri: item.file_path,
             name: item.file_title,
@@ -2362,7 +2363,7 @@ const LiveHood = ({
               return {
                 fileName: data.fileName,
                 id: "",
-                isvalid: isRejected,
+                isvalid: data.uri === "" ? true : isRejected,
                 name: data.fileName,
                 type: data.type,
                 uri: data.uri,
@@ -2383,7 +2384,7 @@ const LiveHood = ({
             //   };
             // });
 
-            setAddressProof(updatedAddressProof);
+            // setAddressProof(updatedAddressProof);
             scrollToTop();
             Toast.show({ text: missing, ...AlertMesg[0] });
             setIsLoading(false);
@@ -3076,7 +3077,7 @@ const LiveHood = ({
           text: 'Data submitted successfully',
           ...{ ...AlertMesg[0], position: 'top' },
         });
-          onTabPress(0);
+        onTabPress(0);
       }
       setIsLoading(false);
     } catch (error) {

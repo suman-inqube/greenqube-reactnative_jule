@@ -1471,7 +1471,7 @@ const FarmerLiveHood = ({
               isOnline
                 ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
                 : Promise.resolve(null),
-             addPlotImageAPI(dbname, lan_id, token, user_id, formDataPlotImg),
+              addPlotImageAPI(dbname, lan_id, token, user_id, formDataPlotImg),
               addCropInputAPI(dbname, lan_id, token, user_id, finalPayload),
             ]);
 
@@ -1576,7 +1576,6 @@ const FarmerLiveHood = ({
             })
             setIsLoading(false);
             // const updatedAddressProof = [...addressProof];
-
             const updatedAddressProof = addressProof.map((data) => {
               const isRejected = rejected_documents?.some(
                 (doc) => doc.file_title === data.fileName
@@ -1585,14 +1584,13 @@ const FarmerLiveHood = ({
               return {
                 fileName: data.fileName,
                 id: "",
-                isvalid: isRejected,
+                isvalid: data.uri === "" ? true : isRejected,
                 name: data.fileName,
                 type: data.type,
                 uri: data.uri,
                 value: "",
               };
             });
-
             setAddressProof(updatedAddressProof);
             scrollToTop();
             Toast.show({ text: missing, ...AlertMesg[0] });
@@ -1760,9 +1758,9 @@ const FarmerLiveHood = ({
 
         const plotImagesFromApi = filteredPlotImages.map(item => ({
           uri: item.file_path,
-          name: item.file_name,
+          name: item.file_title,
           type: item.file_ext,
-          fileName: item.file_name,
+          fileName: item.file_title,
           id: item.file_id,
         }));
 

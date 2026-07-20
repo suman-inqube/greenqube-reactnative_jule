@@ -77,8 +77,8 @@ const detectDocumentType = text => {
   if (normalized.includes('uidai') || normalized.includes('governmentofindia') || /\d{4}\s?\d{4}\s?\d{4}/.test(text)) {
     return 'Aadhaar Card';
   }
-  // Voter Card
-  if (normalized.includes('electioncommissionofindia',) || normalized.includes('elector') || normalized.includes('identitycard') || normalized.includes('epic') || /[A-Z]{3}[0-9]{7}/i.test(text)) {
+  // Voter Card ELECTIỜN COMMISSION OF INDIA
+  if (normalized.includes('electioncommissionofindia',) || normalized.includes('elector') || normalized.includes('ELECTIỜN COMMISSION OF INDIA') || normalized.includes('identitycard') || normalized.includes('epic') || /[A-Z]{3}[0-9]{7}/i.test(text)) {
     return 'Voter Card';
   }
   return 'Unknown Document';
@@ -122,28 +122,29 @@ const getOwnerName = (rawText, documentType) => {
   if (documentType === 'Voter Card') {
     for (let i = 0; i < lines.length; i++) {
       const current =
-        lines[i].toLowerCase();
+        lines[i]?.toLowerCase();
       // Elector's Name
       if (current.includes("elector's name",) || current.includes('electors name',) || current.includes('name',)) {
         // Check next 5 lines
         for (let j = i + 1; j < i + 6; j++) {
-          if (!lines[j]) continue;
-          const next = lines[j].trim();
+       
+          // if (!lines[j]) continue; comment this line 19 07 2026 undefine
+          const next = lines[j]?.trim();
           if (
-            next.toLowerCase().includes('father') ||
-            next.toLowerCase().includes('mother') ||
-            next.toLowerCase().includes('husband') ||
-            next.toLowerCase().includes('sex') ||
-            next.toLowerCase().includes('male',) ||
-            next.toLowerCase().includes('female') ||
-            next.toLowerCase().includes('age',)
+            next?.toLowerCase().includes('father') ||
+            next?.toLowerCase().includes('mother') ||
+            next?.toLowerCase().includes('husband') ||
+            next?.toLowerCase().includes('sex') ||
+            next?.toLowerCase().includes('male',) ||
+            next?.toLowerCase().includes('female') ||
+            next?.toLowerCase().includes('age',)
           ) {
             continue;
           }
           if (documentType === 'Voter Card') {
-            ownerName = lines[index]?.replace(/^(elector'?s?\sname|electors\sname|name)\s*:?\s*/i, '',).trim();
+            ownerName = lines[index]?.replace(/^(elector'?s?\sname|electors\sname|name)\s*:?\s*/i, '',)?.trim();
             if (ownerName) {
-              return ownerName.trim();
+              return ownerName?.trim();
             }
           }
           // Remove :
