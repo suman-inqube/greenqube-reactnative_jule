@@ -14,28 +14,22 @@ import React, {
   useEffect,
   useContext,
   useCallback,
-  useMemo,
+  useMemo,useRef
 } from 'react';
-import {launchCamera} from 'react-native-image-picker';
-import {
-  farmerAgainstSupervisorAPI,
-  farmerByNameAPI,
-  livelihoodNameVarietyLandrelAPI,
-  outputSaveAPI,
-  problemPlotAgainstFarmerAPI,
-  unitByListAPI,
-} from '../../../config/apiHere';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { launchCamera } from 'react-native-image-picker';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {Colors, Fonts} from '../../utils/Constants';
+import { Colors, Fonts } from '../../utils/Constants';
 import AnimatedCard from '../../Components/AnimatedCard';
 import SkeletonProblemCard from '../../Components/Skeleton/SkeletonProblemCard';
-import {FloatingAction} from 'react-native-floating-action';
-import {getActionsPostNew} from '../../utils/options';
-import {axiosGet, axiosPost} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
+import { FloatingAction } from 'react-native-floating-action';
+import { getActionsPostNew } from '../../utils/options';
+import { axiosGet, axiosPost } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 import DatePickerField from '../../Common/DatePickerField';
-const PostNew = ({navigation}) => {
+import { CommonActions } from '@react-navigation/native';
+
+const PostNew = ({ navigation }) => {
   //GQR-67
   const {
     loginUser_data,
@@ -52,7 +46,7 @@ const PostNew = ({navigation}) => {
     effective_dates,
     CustomHeader,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const unitFarm = [
     {
@@ -129,7 +123,7 @@ const PostNew = ({navigation}) => {
         farmerID: currentfarmerId,
       }),
       token,
-      {information: `${dbname},${lan_id}`},
+      { information: `${dbname},${lan_id}` },
     );
     // problemPlotAgainstFarmerAPI(
     //   dbname,
@@ -283,7 +277,7 @@ const PostNew = ({navigation}) => {
         sub_type: item.sub_type,
       }),
       '',
-      {information: `${dbname},${lan_id}`},
+      { information: `${dbname},${lan_id}` },
     );
     // unitByListAPI(dbname, lan_id, 1, item.sub_type);
 
@@ -316,7 +310,7 @@ const PostNew = ({navigation}) => {
         console.log('Camera Error: ', response.error);
       } else {
         let imageUri = response.uri || response.assets?.[0]?.uri;
-        const newPhoto = {uri: imageUri, type: 'image/jpeg', name: imageUri};
+        const newPhoto = { uri: imageUri, type: 'image/jpeg', name: imageUri };
       }
     });
   };
@@ -338,7 +332,7 @@ const PostNew = ({navigation}) => {
         sub_type: '',
       }),
       '',
-      {information: `${dbname},${lan_id}`},
+      { information: `${dbname},${lan_id}` },
     );
 
     // unitByListAPI(dbname, lan_id);
@@ -358,24 +352,25 @@ const PostNew = ({navigation}) => {
   const validationData = () => {
     Keyboard.dismiss();
     if (searchFarmerName == '') {
-      Toast.show({text: `${t('please_enter_first_name')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_enter_first_name')}`, ...AlertMesg[0] });
       return false;
     } else if (saveData.plot_name == '' && saveData.plot_name != 'other') {
-      Toast.show({text: `${t('please_select_plot')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_select_plot')}`, ...AlertMesg[0] });
       return false;
     } else if (saveData.quantity == '' && saveData.plot_name != 'other') {
-      Toast.show({text: `${t('select_quantity_input')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('select_quantity_input')}`, ...AlertMesg[0] });
       return false;
     } else if (saveData.unit_id == '') {
-      Toast.show({text: `${t('select_unit_input')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('select_unit_input')}`, ...AlertMesg[0] });
       return false;
     } else if (approximateDate == '' && nextpage == 2) {
-      Toast.show({text: `${t('approximate_date')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('approximate_date')}`, ...AlertMesg[0] });
       return false;
     } else {
       return true;
     }
   };
+  const timerRef = useRef(null);
   const saveHandle = async () => {
     const res = validationData();
     if (res == true) {
@@ -441,11 +436,23 @@ const PostNew = ({navigation}) => {
         //   formDataObject,
         // );
         if (database_res?.status === 200) {
-          Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
-
-          setTimeout(() => {
-            // props.sendDataToParent(2);
-            navigation.navigate('OutPutList', {action: 'addData'});
+          Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
+          if (timerRef.current) {
+            clearTimeout(timerRef.current);
+          }
+          timerRef.current = setTimeout(() => {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 1,
+                routes: [
+                  { name: 'Dashboard' },
+                  {
+                    name: 'OutPutList',
+                    params: { action: 'addData' },
+                  },
+                ],
+              })
+            );
           }, 1500);
         }
       }
@@ -468,7 +475,7 @@ const PostNew = ({navigation}) => {
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <View style={{flex: 1, backgroundColor: Colors.background}}>
+        <View style={{ flex: 1, backgroundColor: Colors.background }}>
           {renderCustomHeader}
           <DatePickerComp
             openDate={openDatePicker}
@@ -479,16 +486,15 @@ const PostNew = ({navigation}) => {
               saveData.created_at == ''
                 ? ''
                 : new Date(
-                    `${new Date(saveData.created_at).getFullYear()}-${
-                      new Date(saveData.created_at).getMonth() + 1
-                    }-${new Date(saveData.created_at).getDate() + 1}`,
-                  )
+                  `${new Date(saveData.created_at).getFullYear()}-${new Date(saveData.created_at).getMonth() + 1
+                  }-${new Date(saveData.created_at).getDate() + 1}`,
+                )
             }
           />
 
           <ScrollView showsVerticalScrollIndicator={false}>
             <View style={styles.fromContainer}>
-              <View style={{padding: 16}}>
+              <View style={{ padding: 16 }}>
                 {nextpage == 1 ? (
                   <>
                     <DropdownForm
@@ -513,7 +519,7 @@ const PostNew = ({navigation}) => {
                       <InputTextForm
                         label={t('other')}
                         onChangeText={item =>
-                          setSaveData(prev => ({...prev, others: item}))
+                          setSaveData(prev => ({ ...prev, others: item }))
                         }
                       />
                     ) : (
@@ -549,17 +555,17 @@ const PostNew = ({navigation}) => {
                         flexDirection: 'row',
                         justifyContent: 'space-between',
                       }}>
-                      <View style={{width: '45%'}}>
+                      <View style={{ width: '45%' }}>
                         <InputTextForm
                           label={t('quantity')}
                           keyboardType="number-pad"
                           onChangeText={item =>
-                            setSaveData(prev => ({...prev, quantity: item}))
+                            setSaveData(prev => ({ ...prev, quantity: item }))
                           }
                           value={saveData.quantity}
                         />
                       </View>
-                      <View style={{width: '45%'}}>
+                      <View style={{ width: '45%' }}>
                         <DropdownForm
                           label={t('select_unit_input')}
                           data={unitData}

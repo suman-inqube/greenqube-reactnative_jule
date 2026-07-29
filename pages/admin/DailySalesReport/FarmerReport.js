@@ -10,18 +10,18 @@ import {
   Dimensions,
   BackHandler,
 } from 'react-native';
-import React, {useState, useEffect, useCallback, useContext} from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import TakePhoto from '../Activity/TakePhoto';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import {
   loanRouteFarmerListAPI,
   produceAgainstPlotAPI,
   FarmerDailysalesreportAdd,
 } from '../../../config/apiHere';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { useFocusEffect, useNavigation, CommonActions } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {Colors, Fonts} from '../../utils/Constants';
+import { Colors, Fonts } from '../../utils/Constants';
 
 const FarmerReport = () => {
   //GQR-67
@@ -42,7 +42,7 @@ const FarmerReport = () => {
     InputTextForm,
     DatePickerComp,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const navigation = useNavigation();
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
@@ -100,7 +100,7 @@ const FarmerReport = () => {
             name: response.assets[0].fileName,
           },
         ]);
-        setSelectedImage({...selectedImage, [item]: imageUri});
+        setSelectedImage({ ...selectedImage, [item]: imageUri });
       }
     });
   };
@@ -138,8 +138,8 @@ const FarmerReport = () => {
   }, []);
   const handleSearch = text => {
     setSearchFarmerName(text);
-    if (loanFarmerList.length !== 0) {
-      const result = loanFarmerList.filter(item =>
+    if (loanFarmerList?.length !== 0) {
+      const result = loanFarmerList?.filter(item =>
         item.userName.toLowerCase().includes(text.toLowerCase()),
       );
       if (result) {
@@ -182,7 +182,7 @@ const FarmerReport = () => {
     setDate('');
   };
   const handlePlot = async relId => {
-    setSaveData({...saveData, ['plot_id']: relId.value});
+    setSaveData({ ...saveData, ['plot_id']: relId.value });
     const response = await produceAgainstPlotAPI(
       dbname,
       lan_id,
@@ -201,7 +201,7 @@ const FarmerReport = () => {
   };
   const validateForm = (item, msg) => {
     if (item == '') {
-      Toast.show({text: msg, ...AlertMesg[0]});
+      Toast.show({ text: msg, ...AlertMesg[0] });
       return false;
     } else {
       return true;
@@ -243,20 +243,28 @@ const FarmerReport = () => {
       if (response?.status === 200) {
         validateForm('', `${t('your_request_submitted')}`);
         setTimeout(() => {
-          navigation.navigate('DailySalesReport', {action: 'addData'});
+          // navigation.navigate('DailySalesReport', {action: 'addData'});
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 1,
+              routes: [
+                { name: 'Dashboard' },
+                {
+                  name: 'DailySalesReport',
+                  params: {
+                    action: 'addData',
+                  },
+                },
+              ],
+            })
+          );
         }, 1000);
       }
     }
   };
-  const handleBackPress = () => {
-    navigation.navigate('DailySalesReport');
-    return true;
-  };
-
-  const HandlerGoBack = () => navigation.navigate('DailySalesReport');
   return (
     <FarmerDrawerScreenWrapper1>
-      <View style={{flex: 1, backgroundColor: 'white'}}>
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
         <Root>
           {openNewDate && (
             <DatePickerComp
@@ -285,11 +293,11 @@ const FarmerReport = () => {
                   searchResults.length > 8
                     ? styles.flatlistHeight
                     : searchResults.length > 5
-                    ? {height: Dimensions.get('window').height / 5}
-                    : ''
+                      ? { height: Dimensions.get('window').height / 5 }
+                      : ''
                 }
                 data={searchResults}
-                renderItem={({item}) => (
+                renderItem={({ item }) => (
                   <TouchableOpacity
                     onPress={() => handleResultSelect(item)}
                     style={styles.flatlistitem}>
@@ -310,7 +318,7 @@ const FarmerReport = () => {
                 onChangeText={farmerName => handleSearch(farmerName)}
               />
               <TouchableOpacity
-                style={{marginVertical: 15}}
+                style={{ marginVertical: 15 }}
                 onPress={() => setopenNewDate(true)}
                 activeOpacity={9}>
                 <Text
@@ -322,10 +330,10 @@ const FarmerReport = () => {
                   {t('date')}
                 </Text>
                 <View style={styles.calenderContainer}>
-                  <Text style={{color: '#000'}}>{date}</Text>
+                  <Text style={{ color: '#000' }}>{date}</Text>
                   <Image
                     source={require('../../Common/images/calendar.png')}
-                    style={{width: 20, height: 20}}
+                    style={{ width: 20, height: 20 }}
                   />
                 </View>
               </TouchableOpacity>
@@ -346,7 +354,7 @@ const FarmerReport = () => {
               <InputTextForm
                 label={t('comments')}
                 onChangeText={text =>
-                  setSaveData({...saveData, ['comment']: text})
+                  setSaveData({ ...saveData, ['comment']: text })
                 }
               />
               <TakePhoto

@@ -11,7 +11,7 @@ import {
   Keyboard,
   Alert,
 } from 'react-native';
-import {PermissionsAndroid} from 'react-native';
+import { PermissionsAndroid } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import React, {
   useEffect,
@@ -22,7 +22,7 @@ import React, {
 } from 'react';
 // import AudioRecorderPlayer from '@react-native-ohos/react-native-audio-recorder-player';
 import TakePhoto from './TakePhoto';
-import {launchCamera} from 'react-native-image-picker';
+import { launchCamera } from 'react-native-image-picker';
 import RecordComp from './RecordComp';
 import {
   activityScheduleAPI,
@@ -35,27 +35,27 @@ import {
   productionStageAPI,
   setCycleDateAPI,
 } from '../../../config/apiHere';
-import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
+import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
 import HarvestedModel from '../../Common/HarvestedModel';
 import SoundRecord from '../../Common/SoundRecord';
 import RNFS from 'react-native-fs';
 // const audioRecorderPlayer = new AudioRecorderPlayer();
 const qs = require('qs');
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {AnalyticsLogEvent} from '../../Analytics';
-import {isPointInPolygon} from 'geolib';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { AnalyticsLogEvent } from '../../Analytics';
+import { isPointInPolygon } from 'geolib';
 import getCurrentLocation from '../../Common/getCurrentLocation';
-import {isWithin20Meters} from '../../Common/calculateAreaFun';
-import {Colors, Fonts, Fronts} from '../../utils/Constants';
+import { isWithin20Meters } from '../../Common/calculateAreaFun';
+import { Colors, Fonts, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {axiosGet, axiosPost, axiosPut} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
-import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
+import { axiosGet, axiosPost, axiosPut } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
+import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 
 // import useRecorder from '../../utils/useRecorder';
-import {captureRef} from 'react-native-view-shot';
+import { captureRef } from 'react-native-view-shot';
 import * as AudioRecorderPlayerPkg from 'react-native-audio-recorder-player';
 const AudioRecorderPlayer =
   AudioRecorderPlayerPkg.default || AudioRecorderPlayerPkg;
@@ -63,8 +63,8 @@ const audioRecorderPlayer =
   typeof AudioRecorderPlayer === 'function'
     ? new AudioRecorderPlayer()
     : AudioRecorderPlayer;
-const ActivityReport = ({navigation, route}) => {
-  const {farmer, plot} = route?.params || {};
+const ActivityReport = ({ navigation, route }) => {
+  const { farmer, plot } = route?.params || {};
   //GQR-67
   const today = new Date();
 
@@ -139,7 +139,7 @@ const ActivityReport = ({navigation, route}) => {
     farmerData,
     coords,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   const [minimumSeletedDate, setMinimumSelectedDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
   const [showingMenu, setShowingMenu] = useState(false);
@@ -246,6 +246,9 @@ const ActivityReport = ({navigation, route}) => {
   const [tempImage, setTempImage] = useState(null);
   const [tempText, setTempText] = useState('');
   const watermarkViewRef = useRef(null);
+  const [lastActPDate, setLastActPDate] = useState();
+  const [lastPerfromedDate, setLastPerfromedDate] = useState('');
+  const [performActDate, setPerformActDate] = useState(true)
   const openImagePicker = item => {
     try {
       const options = {
@@ -266,16 +269,15 @@ const ActivityReport = ({navigation, route}) => {
           try {
             const timestamp = Date.now();
             let imageUri = response.uri || response.assets?.[0]?.uri;
-            const watermarkText = `${saveData.latitude},${
-              saveData.longitude
-            },${new Intl.DateTimeFormat('en-US', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-            }).format(timestamp)}`;
+            const watermarkText = `${saveData.latitude},${saveData.longitude
+              },${new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+              }).format(timestamp)}`;
             setTempImage(imageUri);
             setTempText(watermarkText);
             setTimeout(async () => {
@@ -327,17 +329,17 @@ const ActivityReport = ({navigation, route}) => {
   const handleDatePicker2 = item => {
     const effective_date = effective_dates(item);
     setActivityPreFormDate(effective_date);
-    setSaveData({...saveData, act_perform_date: effective_date});
+    setSaveData({ ...saveData, act_perform_date: effective_date });
   };
   const handleResultSelect = async item => {
     setIsLoading(true);
-    const {label: name, value: currentfarmerId, phone} = item || {};
+    const { label: name, value: currentfarmerId, phone } = item || {};
     setSearchFarmerPhone(phone);
     setSelectedName(name);
     setSearchFarmerName(name);
     setSearchResults([]);
     setfarmerID(currentfarmerId);
-    setSaveData({...saveData, plot_id: '', plot_Name: ''});
+    setSaveData({ ...saveData, plot_id: '', plot_Name: '' });
     setNameVarityStartEnd({
       ...nameVarityStartEnd,
       name: '',
@@ -352,7 +354,7 @@ const ActivityReport = ({navigation, route}) => {
           farmerID: currentfarmerId,
         }),
         token,
-        {information: `${dbname},${lan_id}`},
+        { information: `${dbname},${lan_id}` },
       );
       // plotAgainstFarmerAPI(
       //   dbname,
@@ -371,11 +373,11 @@ const ActivityReport = ({navigation, route}) => {
       }));
       setplotAll(dataArray);
       // if (isOnline) {
-    
+
       //   var activityType_res = await axiosGet(ROUTES.GET.ACTIVITY_TYPE(), '', {
       //     information: `${dbname},${lan_id},${currentfarmerId}`,
       //   });
-        
+
       //   await setItem('activityType' + currentfarmerId, activityType_res);
       // } else {
       //   var activityType_res = await getItem('activityType' + currentfarmerId);
@@ -392,7 +394,7 @@ const ActivityReport = ({navigation, route}) => {
   };
 
   const handlePlot = async relId => {
-    const {latitude, longitude} = coords || {};
+    const { latitude, longitude } = coords || {};
     setSaveData({
       ...saveData,
       latitude: latitude,
@@ -433,7 +435,7 @@ const ActivityReport = ({navigation, route}) => {
         );
       if (latandlongArr.length != 0) {
         const is20Meters = isWithin20Meters(
-          {latitude, longitude},
+          { latitude, longitude },
           latandlongArr,
           20,
         );
@@ -445,7 +447,7 @@ const ActivityReport = ({navigation, route}) => {
           console.log('User is outside the polygon.');
         }
       }
-       console.log('123', JSON.stringify(response));
+      console.log('123', JSON.stringify(response));
       if (response) {
         const dateString = response?.data?.data?.harvesting_date;
         const harvesting_date = new Date(dateString);
@@ -454,12 +456,12 @@ const ActivityReport = ({navigation, route}) => {
           const data = response.data.data;
           setShowingMenu(true);
           data.crop_cycl_start_date == null ||
-          data.crop_cycl_start_date == '2004-02-29'
+            data.crop_cycl_start_date == '2004-02-29'
             ? setIsButtonDisabled(false)
             : setIsButtonDisabled(true);
           let cycle_start_date =
             data.crop_cycl_start_date == null ||
-            data.crop_cycl_start_date == '2004-02-29'
+              data.crop_cycl_start_date == '2004-02-29'
               ? data.sowing_date
               : data.crop_cycl_start_date;
           setMinimumSelectedDate(new Date(cycle_start_date));
@@ -508,7 +510,7 @@ const ActivityReport = ({navigation, route}) => {
                     cropNameID: data.crop_name_id,
                   }),
                   '',
-                  {information: `${dbname},${lan_id}`},
+                  { information: `${dbname},${lan_id}` },
                 ),
                 // productionStageAPI(
                 //   dbname,
@@ -524,7 +526,7 @@ const ActivityReport = ({navigation, route}) => {
                     cu_rel_id: data.cu_rel_id,
                   }),
                   token,
-                  {information: `${dbname},${lan_id}`},
+                  { information: `${dbname},${lan_id}` },
                 ),
                 axiosGet(
                   ROUTES.GET.ACTIVITY_TYPE_MANG({
@@ -535,7 +537,7 @@ const ActivityReport = ({navigation, route}) => {
                     season_date_fid: data.season_date_fid,
                   }),
                   token,
-                  {information: `${dbname},${lan_id}`},
+                  { information: `${dbname},${lan_id}` },
                 ),
 
                 // activityScheduleAPI(
@@ -563,21 +565,21 @@ const ActivityReport = ({navigation, route}) => {
               'productionStageAPI' + data.crop_type_id + data.crop_type_id,
             );
           }
-           if (activityType_res?.status == 200) {
-             console.log(
-               'activityType_res=',
-               JSON.stringify(activityType_res?.data?.data),
-             );
-             const dataArray = activityType_res?.data?.data?.activityType.map(
-               data => ({
-                 value: data.categoryId,
-                 label: data.categoryName,
-                 //  field_type: data.field_type,
-               }),
-             );
-             setactivityTypeAll(dataArray);
-             console.log('activityType_res=', JSON.stringify(dataArray.length));
-           }
+          if (activityType_res?.status == 200) {
+            console.log(
+              'activityType_res=',
+              JSON.stringify(activityType_res?.data?.data),
+            );
+            const dataArray = activityType_res?.data?.data?.activityType.map(
+              data => ({
+                value: data.categoryId,
+                label: data.categoryName,
+                //  field_type: data.field_type,
+              }),
+            );
+            setactivityTypeAll(dataArray);
+
+          }
           // console.log('ccc', productionStage_res);
           if (productionStage_res) {
             const dataArray = productionStage_res?.data?.data?.growth_stage.map(
@@ -606,6 +608,9 @@ const ActivityReport = ({navigation, route}) => {
                 ) +
                 ')';
               setLastAct(lastData);
+              setLastActPDate(
+                activitySchedule?.data?.data?.lastActivity?.act_perform_date,
+              );
             }
             //  console.log('sch== ',activitySchedule.data.data);
             if (activitySchedule?.data?.data?.otherActivities.length > 0) {
@@ -646,7 +651,7 @@ const ActivityReport = ({navigation, route}) => {
                 ];
                 const cycleDate =
                   data.crop_cycl_start_date == null ||
-                  data.crop_cycl_start_date == '2004-02-29'
+                    data.crop_cycl_start_date == '2004-02-29'
                     ? data.sowing_date
                     : data.crop_cycl_start_date;
                 const sdate = new Date(cycleDate);
@@ -664,9 +669,9 @@ const ActivityReport = ({navigation, route}) => {
                 const startDateEndDate = `${startDate}-${endDate}`;
                 setUpcomingAct(
                   upcomingActivity?.activityName?.categoryName +
-                    ' (' +
-                    startDateEndDate +
-                    ')',
+                  ' (' +
+                  startDateEndDate +
+                  ')',
                 );
               }
             }
@@ -736,7 +741,7 @@ const ActivityReport = ({navigation, route}) => {
 
     var [setCycleDate, activitySchedule] = await Promise.all([
       axiosPut(
-        ROUTES.PUT.SET_CYCLE_DATE({cuRelID: saveData.cu_rel_id}),
+        ROUTES.PUT.SET_CYCLE_DATE({ cuRelID: saveData.cu_rel_id }),
         save_data,
         token,
         false,
@@ -761,7 +766,7 @@ const ActivityReport = ({navigation, route}) => {
           cu_rel_id: saveData.cu_rel_id,
         }),
         token,
-        {information: `${dbname},${lan_id}`},
+        { information: `${dbname},${lan_id}` },
       ),
       // activityScheduleAPI(
       //   dbname,
@@ -787,6 +792,9 @@ const ActivityReport = ({navigation, route}) => {
           formatDate(activitySchedule?.data?.data?.lastActivity?.act_to_date) +
           ')';
         setLastAct(lastData);
+        setLastActPDate(
+          activitySchedule?.data?.data?.lastActivity?.act_perform_date,
+        );
       }
 
       if (activitySchedule?.data?.data?.otherActivities.length > 0) {
@@ -851,9 +859,9 @@ const ActivityReport = ({navigation, route}) => {
 
           setUpcomingAct(
             upcomingActivity?.activityName?.categoryName +
-              ' (' +
-              startDateEndDate +
-              ')',
+            ' (' +
+            startDateEndDate +
+            ')',
           );
         }
         // console.log(
@@ -941,7 +949,7 @@ const ActivityReport = ({navigation, route}) => {
       return false;
     }
     if (!cycleDtartDate && !isButtonDisabled) {
-      Toast.show({text: t('please_select_sowing_date_first'), ...AlertMesg[0]});
+      Toast.show({ text: t('please_select_sowing_date_first'), ...AlertMesg[0] });
       return false;
     }
     return true;
@@ -1025,14 +1033,14 @@ const ActivityReport = ({navigation, route}) => {
             formData,
             token,
             false,
-            {information: `${dbname},${lan_id},${farmerID}`},
+            { information: `${dbname},${lan_id},${farmerID}` },
           );
 
           if (database_res?.status == 200) {
             AnalyticsLogEvent('activity_report', 'activity_report');
 
             navigation.popToTop();
-            navigation.navigate('activityList', {action: 'addData'});
+            navigation.navigate('activityList', { action: 'addData' });
           } else if (database_res?.status == 409) {
             Toast.show({
               text: database_res?.data?.error?.errorMessage,
@@ -1063,7 +1071,7 @@ const ActivityReport = ({navigation, route}) => {
           }
 
           navigation.popToTop();
-          navigation.navigate('activityList', {action: 'addData'});
+          navigation.navigate('activityList', { action: 'addData' });
         }
       }
     } catch (error) {
@@ -1081,7 +1089,7 @@ const ActivityReport = ({navigation, route}) => {
   const handleActivityPattern = item => {
     // console.log('item', item);
 
-    const {latitude, longitude} = coords || {};
+    const { latitude, longitude } = coords || {};
 
     setSaveData({
       ...saveData,
@@ -1091,7 +1099,7 @@ const ActivityReport = ({navigation, route}) => {
     });
 
     // setSaveData({...saveData, act_pattern: item});
-    setactivityInfoReadio({...activityInfoReadio, activityPreFormDate: item});
+    setactivityInfoReadio({ ...activityInfoReadio, activityPreFormDate: item });
 
     if (item === 'schedule') {
       setisActiveMenu(true);
@@ -1109,7 +1117,7 @@ const ActivityReport = ({navigation, route}) => {
           actTypeID: item.value,
         }),
         token,
-        {information: `${dbname},${lan_id},${farmerID}`},
+        { information: `${dbname},${lan_id},${farmerID}` },
       );
       // activityInfoAPI(
       //   dbname,
@@ -1129,8 +1137,7 @@ const ActivityReport = ({navigation, route}) => {
         'activityInfo' + farmerID + CropType + CropName + item.value,
       );
     }
-    console.log('activityname_res=', JSON.stringify(response?.data?.data));
-    setSaveData({...saveData, act_ref_type: item.value});
+    setSaveData({ ...saveData, act_ref_type: item.value });
     if (response.data.data.count > 0) {
       response.data.data.rows.forEach(element => {
         const monthNames = [
@@ -1169,9 +1176,10 @@ const ActivityReport = ({navigation, route}) => {
           label:
             element?.activity?.categoryName + ' (' + startDateEndDate + ')',
           act_master_id: element?.act_master_id,
+          min_days_gap: element?.activity?.min_gap,
         });
         // dataArray.push({
-         
+
         //   value: element.act_rid,
         //   label:
         //     element?.activity?.categoryName,
@@ -1184,6 +1192,31 @@ const ActivityReport = ({navigation, route}) => {
     }
   };
   const handleActivityInfo = async item => {
+    if (lastActPDate) {
+      const date = new Date(lastActPDate);
+      if (item?.min_days_gap > 0) {
+        date.setDate(date.getDate() + item.min_days_gap);
+      }
+      const today = new Date();
+      const tenDaysAgo = new Date(today);
+      if (date.getTime() < today.getTime()) {
+          setPerformActDate(true);
+        } else {
+          Toast.show({
+              time: 3,
+              text: `Selected activity cannot be submitted before ${date.toISOString().split('T')[0]}`,
+              ...AlertMesg[0],
+            });
+          setPerformActDate(false);
+        }
+      tenDaysAgo.setDate(today.getDate() - 10);
+      const minDate = date.getTime() < tenDaysAgo.getTime() ? tenDaysAgo : date;
+      setLastPerfromedDate(minDate);
+    } else {
+      const tenDaysAgo = new Date(today);
+      tenDaysAgo.setDate(today.getDate() - 10);
+      setLastPerfromedDate(tenDaysAgo);
+    }
     const act_to_date1 = item.end_date;
     const date1 = new Date(act_to_date1);
     const year1 = date1.getFullYear();
@@ -1441,7 +1474,7 @@ const ActivityReport = ({navigation, route}) => {
               newDate={newFromDate}
               setOpenDate={setActivityPreDate}
               handleDatePicker={handleDatePicker2}
-              minimumDate={tenDaysAgo}
+              minimumDate={lastPerfromedDate}
               maximumDate={today}
             />
 
@@ -1552,7 +1585,7 @@ const ActivityReport = ({navigation, route}) => {
                   }
                   val={saveData.growth_stage}
                 />
-                <View style={{marginBottom: 15}}>
+                <View style={{ marginBottom: 15 }}>
                   <Text style={styles.title}>
                     {t('pick_crop_cycle_start_date')}
                   </Text>
@@ -1561,7 +1594,7 @@ const ActivityReport = ({navigation, route}) => {
                       style={styles.cycleContainerDate}
                       disabled={isButtonDisabled}
                       onPress={() => srtCycleStartDate(true)}>
-                      <View style={{width: '80%'}}>
+                      <View style={{ width: '80%' }}>
                         <Text style={styles.title}>
                           {cycleDtartDate == ''
                             ? saveData.cycle_start_date
@@ -1570,7 +1603,7 @@ const ActivityReport = ({navigation, route}) => {
                       </View>
                       <Image
                         source={require('../../Common/images/calendar.png')}
-                        style={{width: 20, height: 20}}
+                        style={{ width: 20, height: 20 }}
                       />
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -1587,7 +1620,7 @@ const ActivityReport = ({navigation, route}) => {
                       <Text
                         style={[
                           styles.titleDate,
-                          {color: isButtonDisabled ? '#000' : '#FFF'},
+                          { color: isButtonDisabled ? '#000' : '#FFF' },
                         ]}>
                         {t('set_the_crop_cycle_start_date')}
                       </Text>
@@ -1682,8 +1715,8 @@ const ActivityReport = ({navigation, route}) => {
                   ''
                 )}
 
-                <View style={{marginBottom: 15, marginTop: 10}}>
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View style={{ marginBottom: 15, marginTop: 10 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Text
                       style={{
                         fontFamily: 'Poppins-Regular',
@@ -1696,11 +1729,20 @@ const ActivityReport = ({navigation, route}) => {
                   </View>
                   <TouchableOpacity
                     style={styles.activityPerFromDate}
-                    onPress={() => setActivityPreDate(true)}>
+              onPress={() => {
+                        // setActivityPreDate(true);
+                        if (performActDate) {
+                          setActivityPreDate(true);
+                        } else {
+                          console.log('performActDate is false');
+                          // Show a toast or alert if needed
+                          
+                        }
+                      }}>
                     <Text style={styles.title}>{activityPreFormDate}</Text>
                     <Image
                       source={require('../../Common/images/calendar.png')}
-                      style={{width: 20, height: 20}}
+                      style={{ width: 20, height: 20 }}
                     />
                   </TouchableOpacity>
                 </View>
@@ -1708,28 +1750,28 @@ const ActivityReport = ({navigation, route}) => {
                   label={t('your_comm_')}
                   value={saveData.act_desc}
                   onChangeText={act_desc =>
-                    setSaveData({...saveData, act_desc: act_desc})
+                    setSaveData({ ...saveData, act_desc: act_desc })
                   }
                 />
                 <InputTextForm
                   label={t('material_used')}
                   value={saveData.material_used}
                   onChangeText={material_used =>
-                    setSaveData({...saveData, material_used: material_used})
+                    setSaveData({ ...saveData, material_used: material_used })
                   }
                 />
                 <InputTextForm
                   label={t('water_used')}
                   value={saveData.water_used}
                   onChangeText={water_used =>
-                    setSaveData({...saveData, water_used: water_used})
+                    setSaveData({ ...saveData, water_used: water_used })
                   }
                 />
                 <InputTextForm
                   label={t('power_used')}
                   value={saveData.power_used}
                   onChangeText={power_used =>
-                    setSaveData({...saveData, power_used: power_used})
+                    setSaveData({ ...saveData, power_used: power_used })
                   }
                 />
                 <View style={styles.hiddenContainer}>
@@ -1739,7 +1781,7 @@ const ActivityReport = ({navigation, route}) => {
                       style={styles.watermarkView}
                       collapsable={false}>
                       <Image
-                        source={{uri: tempImage}}
+                        source={{ uri: tempImage }}
                         style={styles.watermarkImage}
                         resizeMode="cover"
                       />
@@ -1775,7 +1817,7 @@ const ActivityReport = ({navigation, route}) => {
                 />
               </View>
             </ScrollView>
-            <View style={{marginTop: 10}}>
+            <View style={{ marginTop: 10 }}>
               <ButtonForm
                 label={t('submit')}
                 onPress={() => handleSave()}
@@ -1920,7 +1962,7 @@ const styles = StyleSheet.create({
     // marginHorizontal: '1%',
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,

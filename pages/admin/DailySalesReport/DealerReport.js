@@ -10,22 +10,15 @@ import {
   Keyboard,
   BackHandler,
 } from 'react-native';
-import React, {useState, useEffect, useCallback, useContext} from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import TakePhoto from '../Activity/TakePhoto';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {
-  ChooseDealerAPI,
-  AllProductCategoryListAPI,
-  AllProductSubCategoryListAPI,
-  AllProductNameList,
-  DealerDailysalesreportAdd,
-} from '../../../config/apiHere';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { useFocusEffect, useNavigation,CommonActions } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {Colors, Fonts} from '../../utils/Constants';
-import {axiosDelete, axiosGet, axiosPost} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
+import { Colors, Fonts } from '../../utils/Constants';
+import { axiosDelete, axiosGet, axiosPost } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 const DealerReport = () => {
   //GQR-67
   const {
@@ -51,7 +44,7 @@ const DealerReport = () => {
     DatePickerComp,
     RadioForm,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const navigation = useNavigation();
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
@@ -126,13 +119,13 @@ const DealerReport = () => {
             name: response.assets[0].fileName,
           },
         ]);
-        setSelectedImage({...selectedImage, [item]: imageUri});
+        setSelectedImage({ ...selectedImage, [item]: imageUri });
       }
     });
   };
   const validateForm = (item, msg) => {
     if (item == '') {
-      Toast.show({text: msg, ...AlertMesg[0]});
+      Toast.show({ text: msg, ...AlertMesg[0] });
       return false;
     } else {
       return true;
@@ -220,9 +213,9 @@ const DealerReport = () => {
   // useEffect(() => {
   // });
   const handleSearch = text => {
-    setDealerData({...dealerData, ChooseDealer: text});
-    if (dealer.length !== 0) {
-      const result = dealer.filter(item =>
+    setDealerData({ ...dealerData, ChooseDealer: text });
+    if (dealer?.length !== 0) {
+      const result = dealer?.filter(item =>
         item.userName.toLowerCase().includes(text.toLowerCase()),
       );
       if (result) {
@@ -245,12 +238,12 @@ const DealerReport = () => {
     setSearchResultsList(false);
   };
   const handleOrderReceived = async item => {
-    setDealerData({...dealerData, orderReceived: item});
+    setDealerData({ ...dealerData, orderReceived: item });
 
     const response = await axiosGet(
       ROUTES.GET.ALL_PRODUCT_CATEGORY_LIST(),
       token,
-      {information: `${dbname},${lan_id}`},
+      { information: `${dbname},${lan_id}` },
     );
     // AllProductCategoryListAPI(
     //   dbname,
@@ -262,7 +255,7 @@ const DealerReport = () => {
     if (response?.status === 200) {
       const categoryArray = [];
       response.data.data.rows.forEach(element => {
-        categoryArray.push({value: element.fid, label: element.name});
+        categoryArray.push({ value: element.fid, label: element.name });
       });
       setProductCategory(categoryArray);
     } else {
@@ -280,7 +273,7 @@ const DealerReport = () => {
         categoryID: item.value,
       }),
       token,
-      {information: `${dbname},${lan_id},${user_id}`},
+      { information: `${dbname},${lan_id},${user_id}` },
     );
     // AllProductSubCategoryListAPI(
     //   dbname,
@@ -317,7 +310,7 @@ const DealerReport = () => {
         subCategoryID: item.value,
       }),
       token,
-      {information: `${dbname},${lan_id},${user_id}`},
+      { information: `${dbname},${lan_id},${user_id}` },
     );
 
     // AllProductNameList(
@@ -332,7 +325,7 @@ const DealerReport = () => {
       const productArray = [];
       const unitArray = [];
       AllProduct.data.data.rows.map((data, index) => {
-        productArray.push({value: data.fid, label: data.product_name});
+        productArray.push({ value: data.fid, label: data.product_name });
         console.log(
           'agri_product_prices for product:',
           data.product_name,
@@ -357,7 +350,7 @@ const DealerReport = () => {
       name === 'chequeNumber' ||
       name === 'paymentReceivedRs'
     ) {
-      setDealerData({...dealerData, [`${name}`]: item});
+      setDealerData({ ...dealerData, [`${name}`]: item });
     } else {
       setDealerData({
         ...dealerData,
@@ -434,7 +427,7 @@ const DealerReport = () => {
         formData,
         token,
         false,
-        {information: `${dbname},${lan_id},${user_id}`},
+        { information: `${dbname},${lan_id},${user_id}` },
       );
       // DealerDailysalesreportAdd(
       //   dbname,
@@ -443,14 +436,12 @@ const DealerReport = () => {
       //   user_id,
       //   formData,
       // );
-
-      console.log('SAVE', response?.status);
       if (response?.status === 200) {
         setDate('');
         setIssueDate('');
         setmyPhoto([]);
         setAddmoreOrder([]);
-        setSelectedImage({firstItem: '', secondItem: '', thirdItem: ''});
+        setSelectedImage({ firstItem: '', secondItem: '', thirdItem: '' });
         setDealerData({
           ChooseDealer: '',
           chooseDealer_fid: '',
@@ -472,7 +463,19 @@ const DealerReport = () => {
         });
         validateForm('', `${t('your_request_submitted')}`);
         setTimeout(() => {
-          navigation.navigate('DailySalesReport', {action: 'addData'});
+          // navigation.navigate('DailySalesReport', {action: 'addData'});
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 1,
+              routes: [
+                { name: 'Dashboard' },
+                {
+                  name: 'DailySalesReport',
+                  params: { action: 'addData' },
+                },
+              ],
+            })
+          );
         }, 1000);
       } else {
         validateForm('', 'something went wrong');
@@ -487,7 +490,7 @@ const DealerReport = () => {
   const HandlerGoBack = () => navigation.navigate('DailySalesReport');
   return (
     <FarmerDrawerScreenWrapper1>
-      <View style={{flex: 1, backgroundColor: 'white'}}>
+      <View style={{ flex: 1, backgroundColor: 'white' }}>
         <Root>
           <DatePickerComp
             openDate={openNewDate}
@@ -518,7 +521,7 @@ const DealerReport = () => {
               <FlatList
                 style={searchResults.length > 6 ? styles.flatlistHeight : ''}
                 data={searchResults}
-                renderItem={({item}) => (
+                renderItem={({ item }) => (
                   <TouchableOpacity
                     onPress={() => handleResultSelect(item)}
                     style={styles.flatlistitem}>
@@ -550,10 +553,10 @@ const DealerReport = () => {
                   {t('date')}
                 </Text>
                 <View style={styles.calenderContainer}>
-                  <Text style={{color: '#000'}}>{date}</Text>
+                  <Text style={{ color: '#000' }}>{date}</Text>
                   <Image
                     source={require('../../Common/images/calendar.png')}
-                    style={{width: 20, height: 20}}
+                    style={{ width: 20, height: 20 }}
                   />
                 </View>
               </TouchableOpacity>
@@ -593,7 +596,7 @@ const DealerReport = () => {
                       flexDirection: 'row',
                       justifyContent: 'space-between',
                     }}>
-                    <View style={{width: '45%'}}>
+                    <View style={{ width: '45%' }}>
                       <InputTextForm
                         label={t('qty')}
                         keyboardType="numeric"
@@ -601,7 +604,7 @@ const DealerReport = () => {
                         value={dealerData.qty}
                       />
                     </View>
-                    <View style={{width: '45%'}}>
+                    <View style={{ width: '45%' }}>
                       <DropdownForm
                         label={t('select_unit')}
                         data={unit}
@@ -615,14 +618,14 @@ const DealerReport = () => {
                     onPress={addMoreExpense}>
                     <Image
                       source={require('../../Common/images/icons8-plus.png')}
-                      style={{width: 35, height: 35}}
+                      style={{ width: 35, height: 35 }}
                     />
                   </TouchableOpacity>
                   {addMoreOrder &&
                     addMoreOrder.map((data, index) => {
                       return (
                         <View key={index} style={styles.addMoreContainer}>
-                          <View style={{marginLeft: 10}}>
+                          <View style={{ marginLeft: 10 }}>
                             <Text
                               style={{
                                 color: '#000',
@@ -644,7 +647,7 @@ const DealerReport = () => {
                             onPress={() => handleRemovedFields(index)}>
                             <Image
                               source={require('../../Common/images/cross.png')}
-                              style={{width: 20, height: 20}}
+                              style={{ width: 20, height: 20 }}
                             />
                           </TouchableOpacity>
                         </View>
@@ -652,34 +655,34 @@ const DealerReport = () => {
                     })}
                 </View>
               ) : null}
-              <View style={{marginBottom: 15}}>
+              <View style={{ marginBottom: 15 }}>
                 <Text style={styles.title}>{t('payment_received')}</Text>
                 <RadioForm
                   label={t('cash_received')}
                   selected={dealerData.paymentReceived === 'Cash'}
                   onSelect={() =>
-                    setDealerData({...dealerData, paymentReceived: 'Cash'})
+                    setDealerData({ ...dealerData, paymentReceived: 'Cash' })
                   }
                 />
                 <RadioForm
                   label={t('online_received')}
                   selected={dealerData.paymentReceived === 'Online'}
                   onSelect={() =>
-                    setDealerData({...dealerData, paymentReceived: 'Online'})
+                    setDealerData({ ...dealerData, paymentReceived: 'Online' })
                   }
                 />
                 <RadioForm
                   label={t('cheque')}
                   selected={dealerData.paymentReceived === 'Cheque'}
                   onSelect={() =>
-                    setDealerData({...dealerData, paymentReceived: 'Cheque'})
+                    setDealerData({ ...dealerData, paymentReceived: 'Cheque' })
                   }
                 />
                 <RadioForm
                   label={t('no')}
                   selected={dealerData.paymentReceived === 'No'}
                   onSelect={() =>
-                    setDealerData({...dealerData, paymentReceived: 'No'})
+                    setDealerData({ ...dealerData, paymentReceived: 'No' })
                   }
                 />
               </View>
@@ -691,7 +694,7 @@ const DealerReport = () => {
                     value={dealerData.chequeNumber}
                   />
                   <TouchableOpacity
-                    style={{marginVertical: 15}}
+                    style={{ marginVertical: 15 }}
                     activeOpacity={9}
                     onPress={() => setIssueOpenNewDate(!issueOpenNewDate)}>
                     <Text
@@ -706,7 +709,7 @@ const DealerReport = () => {
                       <Text style={styles.title}>{issueDate}</Text>
                       <Image
                         source={require('../../Common/images/calendar.png')}
-                        style={{width: 20, height: 20}}
+                        style={{ width: 20, height: 20 }}
                       />
                     </View>
                   </TouchableOpacity>
@@ -715,8 +718,8 @@ const DealerReport = () => {
                 ''
               )}
               {dealerData.paymentReceived === 'Cash' ||
-              dealerData.paymentReceived === 'Online' ||
-              dealerData.paymentReceived === 'Cheque' ? (
+                dealerData.paymentReceived === 'Online' ||
+                dealerData.paymentReceived === 'Cheque' ? (
                 <InputTextForm
                   label={t('payment_received') + '(' + currency + ')'}
                   onChangeText={text =>

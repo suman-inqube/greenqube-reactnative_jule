@@ -225,9 +225,9 @@ const RequestForInsurance = ({}) => {
       // );
       if (addInsurance.status === 200) {
         Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
-        setTimeout(() => {
-          setActiveBtn(2);
-        }, 2000);
+        // setTimeout(() => {
+        //   setActiveBtn(2);
+        // }, 2000);
 
         navigation.navigate('InsuranceViewPastRequested', {action: 'addData'});
       }

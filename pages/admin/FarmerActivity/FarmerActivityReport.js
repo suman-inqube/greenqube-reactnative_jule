@@ -179,6 +179,7 @@ const FarmerActivityReport = ({navigation, route}) => {
     varity: '',
     cycleStarts: '',
     cycleEnd: '',
+    productionSeasonSdId: '',
   });
   const [myphotoAll, setMyPhotoAll] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -195,6 +196,9 @@ const FarmerActivityReport = ({navigation, route}) => {
   const [tempImage, setTempImage] = useState(null);
   const [tempText, setTempText] = useState('');
   const watermarkViewRef = useRef(null);
+  const [lastActPDate, setLastActPDate] = useState();
+    const [lastPerfromedDate, setLastPerfromedDate] = useState('');
+    const [performActDate, setPerformActDate] = useState(true);
   const openImagePicker = item => {
     const options = {
       mediaType: 'photo',
@@ -465,6 +469,7 @@ const FarmerActivityReport = ({navigation, route}) => {
       varity: '',
       cycleStarts: '',
       cycleEnd: '',
+      productionSeasonSdId: '',
       production_process: '',
     });
     if (isOnline) {
@@ -530,6 +535,7 @@ const FarmerActivityReport = ({navigation, route}) => {
           varity: data.crop_variety.name,
           cycleStarts: data.sowing_date,
           cycleEnd: data.harvesting_date,
+          productionSeasonSdId: data.season_date_fid,
         });
         setSaveData({
           ...saveData,
@@ -856,14 +862,14 @@ const FarmerActivityReport = ({navigation, route}) => {
       });
       return false;
     }
-    if (!saveData.latitude) {
-      Toast.show({
-        time: 2,
-        text: t('gpsalertdialogmessage'),
-        ...AlertMesg[0],
-      });
-      return false;
-    }
+    // if (!saveData.latitude) {
+    //   Toast.show({
+    //     time: 2,
+    //     text: t('gpsalertdialogmessage'),
+    //     ...AlertMesg[0],
+    //   });
+    //   return false;
+    // }
     if (!cycleDtartDate && !isButtonDisabled) {
       Toast.show({text: t('please_select_sowing_date_first'), ...AlertMesg[0]});
       return false;
@@ -911,6 +917,10 @@ const FarmerActivityReport = ({navigation, route}) => {
       formData.append('act_pattern', saveData.act_pattern);
       formData.append('act_master_id', saveData.act_master_id);
       formData.append('cu_rel_fid', saveData.cu_rel_id);
+      formData.append(
+        'season_date_fid',
+        nameVarityStartEnd.productionSeasonSdId,
+      );
 
       if (saveData.act_pattern === 'schedule') {
         formData.append('act_ref_type', saveData.act_ref_type);
@@ -1043,6 +1053,7 @@ const FarmerActivityReport = ({navigation, route}) => {
           label:
             element?.activity?.categoryName + ' (' + startDateEndDate + ')',
           act_master_id: element?.act_master_id,
+          min_days_gap: element?.activity?.min_gap,
         });
       });
       // setActivityInfoAll(dataArray);
@@ -1052,6 +1063,34 @@ const FarmerActivityReport = ({navigation, route}) => {
     }
   };
   const handleActivityInfo = async item => {
+
+    if (lastActPDate) {
+      const date = new Date(lastActPDate);
+      if (item?.min_days_gap > 0) {
+        date.setDate(date.getDate() + item.min_days_gap);
+      }
+      const today = new Date();
+      const tenDaysAgo = new Date(today);
+      if (date.getTime() < today.getTime()) {
+        setPerformActDate(true);
+      } else {
+        Toast.show({
+          time: 3,
+          text: `Selected activity cannot be submitted before ${
+            date.toISOString().split('T')[0]
+          }`,
+          ...AlertMesg[0],
+        });
+        setPerformActDate(false);
+      }
+      tenDaysAgo.setDate(today.getDate() - 10);
+      const minDate = date.getTime() < tenDaysAgo.getTime() ? tenDaysAgo : date;
+      setLastPerfromedDate(minDate);
+    } else {
+      const tenDaysAgo = new Date(today);
+      tenDaysAgo.setDate(today.getDate() - 10);
+      setLastPerfromedDate(tenDaysAgo);
+    }
     // console.warn(item);
     const act_to_date1 = item.end_date;
     const date1 = new Date(act_to_date1);
@@ -1241,7 +1280,7 @@ const FarmerActivityReport = ({navigation, route}) => {
             newDate={newFromDate}
             setOpenDate={setActivityPreDate}
             handleDatePicker={handleDatePicker2}
-            minimumDate={tenDaysAgo}
+            minimumDate={lastPerfromedDate}
             maximumDate={today}
           />
           {modalVisibleRecordFirstItem ? (
@@ -1476,7 +1515,15 @@ const FarmerActivityReport = ({navigation, route}) => {
                   </View>
                   <TouchableOpacity
                     style={styles.activityPerFromDate}
-                    onPress={() => setActivityPreDate(true)}>
+                    onPress={() => {
+                      // setActivityPreDate(true);
+                      if (performActDate) {
+                        setActivityPreDate(true);
+                      } else {
+                        console.log('performActDate is false');
+                        // Show a toast or alert if needed
+                      }
+                    }}>
                     <Text style={styles.title}>{activityPreFormDate}</Text>
                     <Image
                       source={require('../../Common/images/calendar.png')}

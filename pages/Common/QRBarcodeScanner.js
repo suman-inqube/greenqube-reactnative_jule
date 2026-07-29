@@ -15,7 +15,6 @@ export default function QRBarcodeScanner({onScanned}) {
   useEffect(() => {
     (async () => {
       const status = await Camera.requestCameraPermission();
-      console.log('status==', status);
       setHasPermission(status === 'granted');
     })();
   }, []);

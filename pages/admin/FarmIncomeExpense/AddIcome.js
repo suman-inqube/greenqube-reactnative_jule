@@ -9,9 +9,9 @@ import {
   SafeAreaView,
   Dimensions,
 } from 'react-native';
-import React, {useState, useContext} from 'react';
+import React, { useState, useContext } from 'react';
 import HeadDropDown from './HeadDropDown';
-import {useFocusEffect} from '@react-navigation/native';
+import { useFocusEffect, CommonActions } from '@react-navigation/native';
 import {
   farmaccountsIncomeListAPI,
   problemPlotAgainstFarmerAPI,
@@ -19,15 +19,14 @@ import {
   farmIncomeExpenceSaveAPI,
 } from '../../../config/apiHere';
 import HarvestedModel from '../../Common/HarvestedModel';
-import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {Colors, Fonts} from '../../utils/Constants';
+import { Colors, Fonts } from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {ROUTES} from '../../utils/Routes';
-import {axiosDelete, axiosGet, axiosPut, axiosPost} from '../../utils/api';
-
-const AddIcome = ({navigation}) => {
+import { ROUTES } from '../../utils/Routes';
+import { axiosDelete, axiosGet, axiosPut, axiosPost } from '../../utils/api';
+const AddIcome = ({ navigation }) => {
   //GQR-67
   const {
     loginUser_data,
@@ -50,7 +49,7 @@ const AddIcome = ({navigation}) => {
     farmerData,
     ButtonForm,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id, owner} = loginUser_data;
+  const { dbname, lan_id, token, user_id, owner } = loginUser_data;
   //GQR-67
   const [currency, setcurrency] = useState('');
   const [searchResultsList, setSearchResultsList] = useState(false);
@@ -82,7 +81,7 @@ const AddIcome = ({navigation}) => {
   const [InComeAll, setInComeAll] = useState([]);
   const [isIndex, setIndex] = useState(0);
   const [data, setData] = useState([
-    {type: 'cost_production', cat_id: '', amount: '', date: ''},
+    { type: 'cost_production', cat_id: '', amount: '', date: '' },
   ]);
   const [newFromDate, setnewFromDate] = useState(new Date());
   const [openFromDate, setOpenFromDate] = useState(false);
@@ -92,7 +91,7 @@ const AddIcome = ({navigation}) => {
     setIndex(isIndex + 1);
     setData([
       ...data,
-      {type: 'cost_production', cat_id: '', amount: '0', date: ''},
+      { type: 'cost_production', cat_id: '', amount: '0', date: '' },
     ]);
   };
   const handleChangeAddExpense = (index, text, name) => {
@@ -118,7 +117,7 @@ const AddIcome = ({navigation}) => {
   function handleClear() {
     setSearchFarmerName('');
     setSearchFarmerPhone('');
-    setData([{type: 'cost_production', cat_id: '', amount: '', date: ''}]);
+    setData([{ type: 'cost_production', cat_id: '', amount: '', date: '' }]);
     setplotAll([]);
     setShowingMenu(false);
     setInComeAll([]);
@@ -162,13 +161,23 @@ const AddIcome = ({navigation}) => {
     React.useCallback(() => {
       onPageLoad();
       onBackPress(() => {
-        navigation.navigate('FarmIncomeExpenseList');
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [
+              { name: 'Dashboard' },
+              {
+                name: 'FarmIncomeExpenseList',
+              },
+            ],
+          })
+        );
         return true;
       });
     }, []),
   );
   const handleResultSelect = async item => {
-    const {label: name, value: currentfarmerId, phone, FcmUserToken} = item;
+    const { label: name, value: currentfarmerId, phone, FcmUserToken } = item;
     setSearchResultsList(false);
     setSearchFarmerPhone(phone);
     setSearchFarmerName(name);
@@ -178,7 +187,7 @@ const AddIcome = ({navigation}) => {
         farmerID: currentfarmerId,
       }),
       token,
-      {information: `${dbname},${lan_id}`},
+      { information: `${dbname},${lan_id}` },
     );
     // problemPlotAgainstFarmerAPI(
     //   dbname,
@@ -249,7 +258,7 @@ const AddIcome = ({navigation}) => {
         const response_farmIncome = await axiosGet(
           ROUTES.GET.FARMER_ACCOUNT_INCOME_LIST(),
           '',
-          {information: `${dbname},${lan_id},${farmerID}`},
+          { information: `${dbname},${lan_id},${farmerID}` },
         );
         // farmaccountsIncomeListAPI(
         //   dbname,
@@ -319,7 +328,7 @@ const AddIcome = ({navigation}) => {
           save_data,
           token,
           false,
-          {information: `${dbname},${lan_id},${farmerID}`},
+          { information: `${dbname},${lan_id},${farmerID}` },
         );
         // farmIncomeExpenceSaveAPI(
         //   dbname,
@@ -329,7 +338,18 @@ const AddIcome = ({navigation}) => {
         //   save_data,
         // );
         if (response?.status == 200) {
-          navigation.navigate('FarmIncomeExpenseList', {action: 'addData'});
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 1,
+              routes: [
+                { name: 'Dashboard' },
+                {
+                  name: 'FarmIncomeExpenseList',
+                  params: { action: 'addData' },
+                },
+              ],
+            })
+          );
         }
       } else {
         Toast.show({
@@ -340,7 +360,6 @@ const AddIcome = ({navigation}) => {
       }
     }
   };
-  const HandlerGoBack = () => navigation.navigate('FarmIncomeExpenseList');
   const handleHarvested = async data => {
     if (data == 'Yes') {
       navigation.navigate('FarmIncomeExpenseList');
@@ -351,7 +370,7 @@ const AddIcome = ({navigation}) => {
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <View style={{flex: 1, backgroundColor: 'white'}}>
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
           <DatePickerComp
             openDate={openFromDate}
             newDate={newFromDate}
@@ -371,7 +390,7 @@ const AddIcome = ({navigation}) => {
                 <FlatList
                   style={searchResults.length > 8 ? styles.flatlistHeight : ''}
                   data={searchResults}
-                  renderItem={({item}) => (
+                  renderItem={({ item }) => (
                     <TouchableOpacity
                       onPress={() =>
                         handleResultSelect(item.label, item.value, item.phone)
@@ -573,7 +592,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 10,
     top: '42%',
-    transform: [{translateY: -10}], // Vertically center the icon
+    transform: [{ translateY: -10 }], // Vertically center the icon
   },
   AddExpenseInput: {
     paddingLeft: 40,

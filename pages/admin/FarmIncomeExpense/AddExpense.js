@@ -9,7 +9,7 @@ import {
   SafeAreaView,
   Dimensions,
 } from 'react-native';
-import React, {useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import HeadDropDown from './HeadDropDown';
 import {
   farmIncomeExpenceSaveAPI,
@@ -18,13 +18,14 @@ import {
   problemProduceAgainstPlotAPI,
 } from '../../../config/apiHere';
 import HarvestedModel from '../../Common/HarvestedModel';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import {Colors, Fonts} from '../../utils/Constants';
+import { Colors, Fonts } from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {ROUTES} from '../../utils/Routes';
-import {axiosDelete, axiosGet, axiosPut, axiosPost} from '../../utils/api';
-const AddExpense = ({navigation}) => {
+import { ROUTES } from '../../utils/Routes';
+import { axiosDelete, axiosGet, axiosPut, axiosPost } from '../../utils/api';
+import { useFocusEffect, CommonActions } from '@react-navigation/native';
+const AddExpense = ({ navigation }) => {
   //GQR-67
   const {
     loginUser_data,
@@ -46,7 +47,7 @@ const AddExpense = ({navigation}) => {
     ButtonForm,
     farmerData,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const [currency, setcurrency] = useState('');
   const [searchResultsList, setSearchResultsList] = useState(false);
@@ -77,7 +78,7 @@ const AddExpense = ({navigation}) => {
   const [InComeAll, setInComeAll] = useState([]);
   const [isIndex, setIndex] = useState(0);
   const [data, setData] = useState([
-    {type: 'cost_production', cat_id: '', amount: '', date: ''},
+    { type: 'cost_production', cat_id: '', amount: '', date: '' },
   ]);
   const [newFromDate, setnewFromDate] = useState(new Date());
   const [openFromDate, setOpenFromDate] = useState(false);
@@ -87,7 +88,7 @@ const AddExpense = ({navigation}) => {
     setIndex(isIndex + 1);
     setData([
       ...data,
-      {type: 'cost_production', cat_id: '', amount: '', date: ''},
+      { type: 'cost_production', cat_id: '', amount: '', date: '' },
     ]);
   };
   const handleChangeAddExpense = (index, text, name) => {
@@ -165,7 +166,7 @@ const AddExpense = ({navigation}) => {
   }, []);
 
   const handleResultSelect = async item => {
-    const {label: name, value: currentfarmerId, phone, FcmUserToken} = item;
+    const { label: name, value: currentfarmerId, phone, FcmUserToken } = item;
     setSearchResultsList(false);
     setSearchFarmerPhone(phone);
     setSearchFarmerName(name);
@@ -175,7 +176,7 @@ const AddExpense = ({navigation}) => {
         farmerID: currentfarmerId,
       }),
       token,
-      {information: `${dbname},${lan_id}`},
+      { information: `${dbname},${lan_id}` },
     );
     // problemPlotAgainstFarmerAPI(
     //   dbname,
@@ -250,7 +251,7 @@ const AddExpense = ({navigation}) => {
         const response_farmIncome = await axiosGet(
           ROUTES.GET.FARMER_ACCOUNT_EXPENSE_LIST(),
           '',
-          {information: `${dbname},${lan_id},${farmerID}`},
+          { information: `${dbname},${lan_id},${farmerID}` },
         );
         // farmaccountsExpenseListAPI(
         //   dbname,
@@ -317,13 +318,23 @@ const AddExpense = ({navigation}) => {
           save_data,
           token,
           false,
-          {information: `${dbname},${lan_id},${farmerID}`},
+          { information: `${dbname},${lan_id},${farmerID}` },
         );
         // farmIncomeExpenceSaveAPI(dbname, lan_id, token, farmerID, save_data);
 
-        console.log('SAVE', response?.status);
         if (response?.status == 200) {
-          navigation.navigate('FarmIncomeExpenseList', {action: 'addData'});
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 1,
+              routes: [
+                { name: 'Dashboard' },
+                {
+                  name: 'FarmIncomeExpenseList',
+                  params: { action: 'addData' },
+                },
+              ],
+            })
+          );
         }
       } else {
         Toast.show({
@@ -334,7 +345,6 @@ const AddExpense = ({navigation}) => {
       }
     }
   };
-  const HandlerGoBack = () => navigation.navigate('FarmIncomeExpenseList');
   const handleHarvested = async data => {
     if (data == 'Yes') {
       navigation.navigate('FarmIncomeExpenseList');
@@ -345,7 +355,7 @@ const AddExpense = ({navigation}) => {
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <View style={{flex: 1, backgroundColor: 'white'}}>
+        <View style={{ flex: 1, backgroundColor: 'white' }}>
           <DatePickerComp
             openDate={openFromDate}
             newDate={newFromDate}
@@ -365,7 +375,7 @@ const AddExpense = ({navigation}) => {
                 <FlatList
                   style={searchResults.length > 8 ? styles.flatlistHeight : ''}
                   data={searchResults}
-                  renderItem={({item}) => (
+                  renderItem={({ item }) => (
                     <TouchableOpacity
                       onPress={() =>
                         handleResultSelect(item.label, item.value, item.phone)
@@ -570,7 +580,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 10,
     top: '42%',
-    transform: [{translateY: -10}], // Vertically center the icon
+    transform: [{ translateY: -10 }], // Vertically center the icon
   },
   AddExpenseInput: {
     paddingLeft: 40,
