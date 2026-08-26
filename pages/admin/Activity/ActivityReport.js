@@ -595,8 +595,9 @@ const ActivityReport = ({ navigation, route }) => {
             if (
               activitySchedule?.data?.data?.lastActivity !== 'No Last Activity'
             ) {
+              // add ?.activityName
               var lastData =
-                activitySchedule.data.data.lastActivity.activityName
+                activitySchedule.data.data.lastActivity?.activityName
                   ?.categoryName +
                 ' (' +
                 formatDate(
@@ -613,7 +614,8 @@ const ActivityReport = ({ navigation, route }) => {
               );
             }
             //  console.log('sch== ',activitySchedule.data.data);
-            if (activitySchedule?.data?.data?.otherActivities.length > 0) {
+            // add ?.length
+            if (activitySchedule?.data?.data?.otherActivities?.length > 0) {
               activitySchedule?.data?.data?.otherActivities.forEach(function (
                 element,
               ) {

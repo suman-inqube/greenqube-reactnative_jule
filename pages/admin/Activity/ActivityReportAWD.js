@@ -1069,269 +1069,274 @@ const ActivityReportAWD = ({ navigation, route }) => {
   };
   const handleSave = async () => {
     Keyboard.dismiss();
-    if (validateForm()) {
-      setIsLoading(true);
+    try {
+      if (validateForm()) {
+        setIsLoading(true);
 
-      const hasFailed = pipeDetails.some(pipeGroup =>
-        pipeGroup[1].some(img => img.status === 'failed'),
-      );
+        const hasFailed = pipeDetails.some(pipeGroup =>
+          pipeGroup[1].some(img => img.status === 'failed'),
+        );
 
-      if (hasFailed) {
-        Toast.show({
-          text: '❌ Some images failed!',
-          ...AlertMesg[0],
-        });
-        console.log('❌ Some images failed!');
-        return;
-      }
+        if (hasFailed) {
+          Toast.show({
+            text: '❌ Some images failed!',
+            ...AlertMesg[0],
+          });
+          console.log('❌ Some images failed!');
+          return;
+        }
 
-      const formData = new FormData();
-      formData.append('act_title', '');
-      if (carbonType !== 'mangrove') {
-        formData.append('type', 'carbon_activity');
-      } else {
-        myphotoAll.forEach(photo => {
-          formData.append('photo', photo);
-        });
-        formData.append('latitude', saveData.latitude);
-        formData.append('longitude', saveData.longitude);
-
-        formData.append('type', 'carbon_activity');
-      }
-      if (soundRecordFirstItem.result != '') {
-        formData.append('audio', {
-          name: 'firstItem.mp3',
-          type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`,
-        });
-      }
-      if (soundRecordSecoundItem.result != '') {
-        formData.append('audio', {
-          name: 'secoundItem.mp3',
-          type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`,
-        });
-      }
-      if (soundRecordThirdItem.result != '') {
-        formData.append('audio', {
-          name: 'thirdItem.mp3',
-          type: 'audio/mp3',
-          uri: `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`,
-        });
-      }
-      formData.append('user_id', farmerID);
-      formData.append('plot_id', saveData.plot_id);
-      formData.append('crop_name', saveData.crop_name);
-      formData.append('crop_season', saveData.crop_season);
-      formData.append('act_master_id', saveData.act_master_id);
-      formData.append('cu_rel_fid', saveData.cu_rel_id);
-      formData.append('crop_variety', saveData.crop_variety);
-      formData.append('cycle_start_date', saveData.cycle_start_date);
-      formData.append('growth_stage', saveData.growth_stage);
-      formData.append('act_perform_date', saveData.act_perform_date);
-      formData.append('act_pattern', 'schedule');
-      formData.append(
-        'season_date_fid',
-        nameVarityStartEnd.productionSeasonSdId,
-      );
-      if (saveData.act_pattern === 'schedule') {
-        formData.append('act_ref_type', saveData.act_ref_type);
-        formData.append('act_to_date', saveData.act_to_date);
-        formData.append('act_start_date', saveData.act_start_date);
-        formData.append('act_ref', saveData.act_ref);
-
+        const formData = new FormData();
+        formData.append('act_title', '');
         if (carbonType !== 'mangrove') {
-          if (saveData.field_type == 'add') {
-            let pipe_data = [];
-            pipeDetails.map((__data, _index) => {
+          formData.append('type', 'carbon_activity');
+        } else {
+          myphotoAll.forEach(photo => {
+            formData.append('photo', photo);
+          });
+          formData.append('latitude', saveData.latitude);
+          formData.append('longitude', saveData.longitude);
+
+          formData.append('type', 'carbon_activity');
+        }
+        if (soundRecordFirstItem.result != '') {
+          formData.append('audio', {
+            name: 'firstItem.mp3',
+            type: 'audio/mp3',
+            uri: `file://${RNFS.DocumentDirectoryPath}/firstItem.mp3`,
+          });
+        }
+        if (soundRecordSecoundItem.result != '') {
+          formData.append('audio', {
+            name: 'secoundItem.mp3',
+            type: 'audio/mp3',
+            uri: `file://${RNFS.DocumentDirectoryPath}/secoundItem.mp3`,
+          });
+        }
+        if (soundRecordThirdItem.result != '') {
+          formData.append('audio', {
+            name: 'thirdItem.mp3',
+            type: 'audio/mp3',
+            uri: `file://${RNFS.DocumentDirectoryPath}/thirdItem.mp3`,
+          });
+        }
+        formData.append('user_id', farmerID);
+        formData.append('plot_id', saveData.plot_id);
+        formData.append('crop_name', saveData.crop_name);
+        formData.append('crop_season', saveData.crop_season);
+        formData.append('act_master_id', saveData.act_master_id);
+        formData.append('cu_rel_fid', saveData.cu_rel_id);
+        formData.append('crop_variety', saveData.crop_variety);
+        formData.append('cycle_start_date', saveData.cycle_start_date);
+        formData.append('growth_stage', saveData.growth_stage);
+        formData.append('act_perform_date', saveData.act_perform_date);
+        formData.append('act_pattern', 'schedule');
+        formData.append(
+          'season_date_fid',
+          nameVarityStartEnd.productionSeasonSdId,
+        );
+        if (saveData.act_pattern === 'schedule') {
+          formData.append('act_ref_type', saveData.act_ref_type);
+          formData.append('act_to_date', saveData.act_to_date);
+          formData.append('act_start_date', saveData.act_start_date);
+          formData.append('act_ref', saveData.act_ref);
+
+          if (carbonType !== 'mangrove') {
+            if (saveData.field_type == 'add') {
+              let pipe_data = [];
+              pipeDetails.map((__data, _index) => {
+                let pipe_lattlong = [];
+                __data[1].map((__dataItem, _e) => {
+                  if (__dataItem.imageURL != '' && __dataItem?.status == '') {
+                    formData.append(`pipe_image_${_index + 1}`, {
+                      uri: __dataItem.imageURL,
+                      type: 'image/jpeg',
+                      name: __dataItem.imageName,
+                    });
+                  }
+                  pipe_lattlong.push({
+                    latitude: __dataItem.lat?.toString(),
+                    longitude: __dataItem.lon?.toString(),
+                  });
+                });
+                pipe_data.push({
+                  pipe_name: __data[0]?.pipe_name,
+                  pipe_lattlong: pipe_lattlong,
+                });
+              });
+              formData.append('pipe_data', JSON.stringify(pipe_data));
+            } else {
+              const pipe_image = [];
               let pipe_lattlong = [];
-              __data[1].map((__dataItem, _e) => {
-                if (__dataItem.imageURL != '' && __dataItem?.status == '') {
-                  formData.append(`pipe_image_${_index + 1}`, {
-                    uri: __dataItem.imageURL,
-                    type: 'image/jpeg',
-                    name: __dataItem.imageName,
+              pipeDetails.map((__data, _index) => {
+                __data[1].map((__dataItem, _e) => {
+                  if (__dataItem.imageURL != '' && __dataItem?.status == '') {
+                    pipe_image.push({
+                      uri: __dataItem.imageURL,
+                      type: 'image/jpeg',
+                      name: __dataItem.imageName,
+                    });
+                  }
+                  pipe_lattlong.push({
+                    latitude: __dataItem.lat?.toString(),
+                    longitude: __dataItem.lon?.toString(),
                   });
-                }
-                pipe_lattlong.push({
-                  latitude: __dataItem.lat?.toString(),
-                  longitude: __dataItem.lon?.toString(),
                 });
               });
-              pipe_data.push({
-                pipe_name: __data[0]?.pipe_name,
-                pipe_lattlong: pipe_lattlong,
+              const pipe_data = [
+                { pipe_id: selectPipeList.value, latlong: pipe_lattlong },
+              ];
+              if (pipe_lattlong.length != 0) {
+                formData.append('existing_pipe_ids', JSON.stringify(pipe_data));
+              }
+              pipe_image.map((_data, _index) => {
+                formData.append(`pipe_files[0]`, _data);
               });
-            });
-            formData.append('pipe_data', JSON.stringify(pipe_data));
-          } else {
-            const pipe_image = [];
-            let pipe_lattlong = [];
-            pipeDetails.map((__data, _index) => {
-              __data[1].map((__dataItem, _e) => {
-                if (__dataItem.imageURL != '' && __dataItem?.status == '') {
-                  pipe_image.push({
-                    uri: __dataItem.imageURL,
-                    type: 'image/jpeg',
-                    name: __dataItem.imageName,
-                  });
-                }
-                pipe_lattlong.push({
-                  latitude: __dataItem.lat?.toString(),
-                  longitude: __dataItem.lon?.toString(),
-                });
-              });
-            });
-            const pipe_data = [
-              { pipe_id: selectPipeList.value, latlong: pipe_lattlong },
-            ];
-            if (pipe_lattlong.length != 0) {
-              formData.append('existing_pipe_ids', JSON.stringify(pipe_data));
             }
-            pipe_image.map((_data, _index) => {
-              formData.append(`pipe_files[0]`, _data);
-            });
           }
         }
-      }
-      formData.append('act_desc', saveData.act_desc);
-      formData.append('material_used', saveData.material_used);
-      formData.append('water_used', saveData.water_used);
-      formData.append('power_used', saveData.power_used);
-      formData.append('app_version', '104');
-      var database_res;
-      if (isOnline) {
-        if (carbonType !== 'mangrove') {
-          if (saveData.field_type == 'add') {
-            // database_res = await addUserPipeActivity(
-            //   dbname,
-            //   lan_id,
-            //   token,
-            //   farmerID,
-            //   formData,
-            //   pipeDetails.length,
-            // );
-            database_res = await axiosPost(ROUTES.POST.ADD_USER_PIPE_ACTIVITY, formData, token, '', {
-              information: `${dbname},${lan_id},${farmerID}`,
-              pipe_count: pipeDetails.length,
-            })
-          } else {
-            if (coords != null) {
-              const { latitude, longitude } = coords || {};
-              const distances = getDistance(selectPipeList.latlongs, {
-                latitude,
-                longitude,
-              });
-              if (distances < 10 || CURRENT_ENV == 'DEMO') {
-                database_res = await axiosPost(ROUTES.POST.UPDATE_PIPE_ACTIVITY, formData, token, '', {
-                  information: `${dbname},${lan_id},${farmerID}`,
-                  pipe_count: 1,
-                })
-                // database_res = await addPrevPipeActivity(
-                //   dbname,
-                //   lan_id,
-                //   token,
-                //   farmerID,
-                //   formData,
-                //   1,
-                // );
-              } else {
-                Toast.show({
-                  text: t('You are not in your exact pipe location'),
-                  ...AlertMesg[0],
-                });
-              }
+        formData.append('act_desc', saveData.act_desc);
+        formData.append('material_used', saveData.material_used);
+        formData.append('water_used', saveData.water_used);
+        formData.append('power_used', saveData.power_used);
+        formData.append('app_version', '104');
+        let database_res;
+        if (isOnline) {
+          if (carbonType !== 'mangrove') {
+            if (saveData.field_type == 'add') {
+              database_res = await addUserPipeActivity(
+                dbname,
+                lan_id,
+                token,
+                farmerID,
+                formData,
+                pipeDetails.length,
+              );
+              // database_res = await axiosPost(ROUTES.POST.ADD_USER_PIPE_ACTIVITY, formData, token, '', {
+              //   information: `${dbname},${lan_id},${farmerID}`,
+              //   pipe_count: pipeDetails.length,
+              // })
             } else {
-              Toast.show({ text: t('Location not found'), ...AlertMesg[0] });
+              if (coords != null) {
+                const { latitude, longitude } = coords || {};
+                const distances = getDistance(selectPipeList.latlongs, {
+                  latitude,
+                  longitude,
+                });
+                if (distances < 10 || CURRENT_ENV == 'DEMO') {
+                  // database_res = await axiosPost(ROUTES.POST.UPDATE_PIPE_ACTIVITY, formData, token, '', {
+                  //   information: `${dbname},${lan_id},${farmerID}`,
+                  //   pipe_count: 1,
+                  // })
+                  database_res = await addPrevPipeActivity(
+                    dbname,
+                    lan_id,
+                    token,
+                    farmerID,
+                    formData,
+                    1,
+                  );
+                } else {
+                  Toast.show({
+                    text: t('You are not in your exact pipe location'),
+                    ...AlertMesg[0],
+                  });
+                }
+              } else {
+                Toast.show({ text: t('Location not found'), ...AlertMesg[0] });
+              }
             }
-          }
-        } else {
-          if (outofRange) {
-            database_res = await axiosPost(
-              ROUTES.POST.ACTIVITY_SAVE,
-              formData,
-              token,
-              false,
-              { information: `${dbname},${lan_id},${farmerID}` },
-            );
           } else {
+            if (outofRange) {
+              database_res = await axiosPost(
+                ROUTES.POST.ACTIVITY_SAVE,
+                formData,
+                token,
+                false,
+                { information: `${dbname},${lan_id},${farmerID}` },
+              );
+            } else {
+              Toast.show({
+                text: t('You are not in your exact location'),
+                ...AlertMesg[0],
+              });
+            }
+
+          }
+
+
+          if (database_res?.status === 400) {
+            setPipeDetails([]);
+
+            // showAIValidationError(database_res);
+            const cleanFileName = name => name.replace(/^\d+-/, '');
+            const failedNamesSet =
+              database_res?.data?.error?.errorMessage?.failed.map(i =>
+                cleanFileName(i.image_name),
+              );
+            const failedSet = new Set(failedNamesSet);
+            const updatedPipeDetails = pipeDetails.map(pipeGroup => {
+              return pipeGroup.map(item => {
+                // Check if this item is an array of images
+                if (Array.isArray(item)) {
+                  return item.map(img => {
+                    const isFailed = [...failedSet].some(failedName =>
+                      img.imageName.includes(failedName),
+                    );
+                    return {
+                      ...img,
+                      status: isFailed ? 'failed' : 'accepted',
+                    };
+                  });
+                }
+                return item; // pipe_name object untouched
+              });
+            });
+            setPipeDetails(updatedPipeDetails);
+            const msg = showAIValidationError(database_res);
             Toast.show({
-              text: t('You are not in your exact location'),
+              time: 10,
+              text: msg,
+              ...AlertMesg[0],
+            });
+
+            setIsLoading(false);
+          }
+          if (database_res?.status == 200) {
+            setIsLoading(false);
+            setPipeDetails([]);
+
+            AnalyticsLogEvent('activity_report', 'activity_report');
+            navigation.popToTop();
+            navigation.navigate('activityList', { action: 'addData' });
+          } else if (database_res?.status == 409) {
+            setIsLoading(false);
+            setPipeDetails([]);
+
+            Toast.show({
+              text: database_res?.data?.error?.errorMessage,
               ...AlertMesg[0],
             });
           }
-
-        }
-
-
-        if (database_res?.status === 400) {
-          setPipeDetails([]);
-
-          // showAIValidationError(database_res);
-          const cleanFileName = name => name.replace(/^\d+-/, '');
-          const failedNamesSet =
-            database_res?.data?.error?.errorMessage?.failed.map(i =>
-              cleanFileName(i.image_name),
+        } else {
+          let timeStamp = Date.now();
+          await setItem('off' + timeStamp, formData);
+          let offlineDataArr = await getItem('offlineSupervisorActivityData');
+          if (offlineDataArr) {
+            await setItem(
+              'offlineSupervisorActivityData',
+              offlineDataArr + ',' + 'off' + timeStamp,
             );
-          const failedSet = new Set(failedNamesSet);
-          const updatedPipeDetails = pipeDetails.map(pipeGroup => {
-            return pipeGroup.map(item => {
-              // Check if this item is an array of images
-              if (Array.isArray(item)) {
-                return item.map(img => {
-                  const isFailed = [...failedSet].some(failedName =>
-                    img.imageName.includes(failedName),
-                  );
-                  return {
-                    ...img,
-                    status: isFailed ? 'failed' : 'accepted',
-                  };
-                });
-              }
-              return item; // pipe_name object untouched
-            });
-          });
-          setPipeDetails(updatedPipeDetails);
-          const msg = showAIValidationError(database_res);
-          Toast.show({
-            time: 10,
-            text: msg,
-            ...AlertMesg[0],
-          });
-
-          setIsLoading(false);
-        }
-        if (database_res?.status == 200) {
-          setIsLoading(false);
-          setPipeDetails([]);
-
-          AnalyticsLogEvent('activity_report', 'activity_report');
+          } else {
+            await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
+          }
           navigation.popToTop();
           navigation.navigate('activityList', { action: 'addData' });
-        } else if (database_res?.status == 409) {
-          setIsLoading(false);
-          setPipeDetails([]);
-
-          Toast.show({
-            text: database_res?.data?.error?.errorMessage,
-            ...AlertMesg[0],
-          });
         }
-      } else {
-        let timeStamp = Date.now();
-        await setItem('off' + timeStamp, formData);
-        let offlineDataArr = await getItem('offlineSupervisorActivityData');
-        if (offlineDataArr) {
-          await setItem(
-            'offlineSupervisorActivityData',
-            offlineDataArr + ',' + 'off' + timeStamp,
-          );
-        } else {
-          await setItem('offlineSupervisorActivityData', 'off' + timeStamp);
-        }
-        navigation.popToTop();
-        navigation.navigate('activityList', { action: 'addData' });
       }
+
+    } catch (error) {
+      Alert.alert(error)
     }
     setIsLoading(false);
   };

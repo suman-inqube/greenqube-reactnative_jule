@@ -35,7 +35,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { Colors } from '../utils/Constants';
 import DatePickerComp from '../Common/DatePickerComp';
-import { detectDocumentType, formatToDDMMYYYY, getAgeLimitDates, getOwnerName } from '../utils/helpers';
+import { detectDocumentType, formatToDDMMYYYY, getAgeLimitDates, getOwnerName, isNameMatch } from '../utils/helpers';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 import PaginationNav from '../../pages/Components/PaginationNav';
 import { userCreateContext } from '../../pages/Context/usersCreateContext';
@@ -97,6 +97,7 @@ const ListOfCoFarmer = ({
   effective_dates,
   setModalVisibleCoFarmer,
   setCoFarmerDetails,
+  coFarmerDetails,
   onEdit,
   modalVisibleCoFarmer,
   ai_camera_id_proof = '0',
@@ -156,7 +157,6 @@ const ListOfCoFarmer = ({
             setCoFarmerList(resArr);
           }
         } else {
-          console.log('coo=', JSON.stringify(setCoFarmerDetails));
           setCoFarmerList(setCoFarmerDetails);
           setIsLoading(false);
         }
@@ -423,7 +423,7 @@ const ListOfCoFarmer = ({
                 extractedName.toLowerCase().replace(/\s/g, '').trim() ==
                 coFarmerDetails?.name?.toLowerCase()?.replace(/\s/g, '')
               ) {
-                setCoFarmerDetails(prev => ({
+                setCoFarmer(prev => ({
                   ...prev,
                   [fieldName]: {
                     uri: uri,
@@ -437,7 +437,7 @@ const ListOfCoFarmer = ({
                   userName?.toLowerCase().trim().split(' ')[0] ==
                   extractedName.toLowerCase().trim().split(' ')[0]
                 ) {
-                  setCoFarmerDetails(prev => ({
+                  setCoFarmer(prev => ({
                     ...prev,
                     [fieldName]: {
                       uri: uri,
@@ -448,7 +448,7 @@ const ListOfCoFarmer = ({
                   }));
                 } else {
                   if (isNameMatch(userName, extractedName)) {
-                    setCoFarmerDetails(prev => ({
+                    setCoFarmer(prev => ({
                       ...prev,
                       [fieldName]: {
                         uri: uri,
