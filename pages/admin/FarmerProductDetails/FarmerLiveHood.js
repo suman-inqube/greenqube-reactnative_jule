@@ -1460,9 +1460,13 @@ const FarmerLiveHood = ({
           //   farmerData.cu_rel_id,
           // );
           // if (filterAddressImage.length != 0) {
+          let ADD_PLOTI_MGS_API_CALL = false;
           addressProof.map((data, index) => {
             if (data.name != '' && data.value == 1 && data.isvalid === "change") {
               formDataPlotImg.append('plot_image', data);
+            }
+            if (data.uri != "") {
+              ADD_PLOTI_MGS_API_CALL = true;
             }
           });
           formDataPlotImg.append('rel_id', farmerData.land_rel_id);
@@ -1471,7 +1475,7 @@ const FarmerLiveHood = ({
               isOnline
                 ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
                 : Promise.resolve(null),
-              addPlotImageAPI(dbname, lan_id, token, user_id, formDataPlotImg),
+              ADD_PLOTI_MGS_API_CALL ? addPlotImageAPI(dbname, lan_id, token, user_id, formDataPlotImg) : Promise.resolve(null),
               addCropInputAPI(dbname, lan_id, token, user_id, finalPayload),
             ]);
 
@@ -1841,14 +1845,14 @@ const FarmerLiveHood = ({
         plotSiteUserLandDetails.map(async (dataLandDetails, index) => {
           if (dataLandDetails?.rel_id == findData.value) {
             if (
-              dataLandDetails?.status_level == 'APPROVED' ||
+                ! dataLandDetails?.plot_status == 'APPROVED'
               // dataLandDetails?.status_level == 'CARBON_DOCUMENTS_SUBMITTED' ||
-              dataLandDetails?.status_level == 'CARBON_DOCUMENTS_APPROVED' ||
-              dataLandDetails?.status_level == 'CARBON_DOCUMENTS_REJECTED'
+              // dataLandDetails?.status_level == 'CARBON_DOCUMENTS_APPROVED' ||
+              // dataLandDetails?.status_level == 'CARBON_DOCUMENTS_REJECTED'
             ) {
               Alert.alert(
                 'Note',
-                'You will not be able to edit Geo Locations, Plot/Site Size and Land Record Documents.',
+                'You will not be able to edit Daag Number,JL Number, Geo Locations, Plot/Site Size and Land Record Documents.',
                 [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
                 { cancelable: false },
               );
@@ -2798,27 +2802,13 @@ const FarmerLiveHood = ({
                       value={farmerData.daag_no}
                       required={carbonFlag === true}
                       onChangeText={handleAddUserDataDaag}
-                      editable={
-                        statuslevel.label == 'APPROVED' ||
-                          statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                          statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                          statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                          ? false
-                          : true
-                      }
+                       editable={InputTextFormEdit}
                     />
                     <InputTextForm
                       label={t('khatian_no')}
                       value={farmerData.khatian_no}
                       onChangeText={handleAddUserDataKKhatian}
-                      editable={
-                        statuslevel.label == 'APPROVED' ||
-                          statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                          statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                          statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                          ? false
-                          : true
-                      }
+                      editable={InputTextFormEdit}
                     />
                   </>
                 )
@@ -2828,14 +2818,7 @@ const FarmerLiveHood = ({
                 label={t('no_of_plants')}
                 value={farmerData.plant_number}
                 onChangeText={handleAddUserDataPlanNumber}
-                editable={
-                  statuslevel.label == 'APPROVED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                    ? false
-                    : true
-                }
+               editable={InputTextFormEdit}
               />
               {dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag == true ? (
                 <InputTextForm
@@ -2843,14 +2826,7 @@ const FarmerLiveHood = ({
                   value={farmerData.jl_no}
                   required={carbonFlag === true}
                   onChangeText={handleAddUserDataJLNo}
-                  editable={
-                    statuslevel.label == 'APPROVED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                      ? false
-                      : true
-                  }
+                  editable={InputTextFormEdit}
                 />
               ) : (
                 <></>
@@ -2860,14 +2836,7 @@ const FarmerLiveHood = ({
                   label={t('Mouja_Name')}
                   value={farmerData.mouja}
                   onChangeText={handleAddUserDataMouja}
-                  editable={
-                    statuslevel.label == 'APPROVED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                      ? false
-                      : true
-                  }
+                  editable={InputTextFormEdit}
                 />
               ) : (
                 <></>
@@ -2901,14 +2870,7 @@ const FarmerLiveHood = ({
                     required={true}
                     value={farmerData.land_size}
                     onChangeText={handleAddUserDataland_size}
-                    editable={
-                      statuslevel.label == 'APPROVED' ||
-                        //  ||statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED'
-                        statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                        statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                        ? false
-                        : true
-                    }
+                   editable={InputTextFormEdit}
                     keyboardType="number-pad"
                   />
                 </View>
@@ -2919,13 +2881,7 @@ const FarmerLiveHood = ({
                     data={unitAll}
                     onChange={handleAddDataUnit}
                     val={farmerData.unit}
-                    disable={
-                      plotStatus.label == 'APPROVED' ||
-                        statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                        statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
-                        ? true
-                        : false
-                    }
+                    disable={InputTextFormEdit}
                   />
                 </View>
               </View>
@@ -3025,6 +2981,7 @@ const FarmerLiveHood = ({
                               ? false
                               : true
                         }
+                        
                         farmerName={loginUser_data?.userName}
                         ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
 

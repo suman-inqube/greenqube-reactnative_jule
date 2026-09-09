@@ -241,7 +241,7 @@ const PlotWiseMap = () => {
         createdBy: user_id,
         latitude: '',
         longitude: '',
-        distance: '',
+        distance: '5000',
       }),
       token,
       { information: `${dbname}` },
@@ -318,9 +318,10 @@ const PlotWiseMap = () => {
     try {
       const response = await axiosGet(
         ROUTES.GET.PLOT_VIEW_MAP({
-          lat: baseLatLong.latitude,
-          lng: baseLatLong.longitude,
+          latitude: baseLatLong.latitude,
+          longitude: baseLatLong.longitude,
           createdBy: user_id,
+          distance:"1000"
         }),
         token,
         { information: `${dbname}` },

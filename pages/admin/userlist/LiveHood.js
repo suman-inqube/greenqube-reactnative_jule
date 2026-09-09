@@ -676,7 +676,6 @@ const LiveHood = ({
 
           const { plot_img, landUserImgs } =
             getPlotDoc?.data?.data?.rows[0] || {};
-          console.log("plot_img", plot_img)
           // const values = [...addressProof];
           const carbonCertificateValues = [...carboncertificate];
           const filteredPlotImages = plot_img.filter(
@@ -705,26 +704,6 @@ const LiveHood = ({
               id: filteredSignature[filteredSignature.length - 1]?.file_id,
             }));
           }
-          // addressProof.map((_data, _index) => {
-          //   if (filteredPlotImages[_index] !== undefined && count > 0) {
-          //     values[_index] = {
-          //       uri: filteredPlotImages[_index]?.file_path,
-          //       name: filteredPlotImages[_index]?.file_name,
-          //       type: filteredPlotImages[_index]?.file_ext,
-          //       fileName: filteredPlotImages[_index]?.file_name,
-          //       id: filteredPlotImages[_index]?.file_id,
-          //     };
-          //   } else {
-          //     values[_index] = {
-          //       uri: '',
-          //       name: '',
-          //       type: '',
-          //       fileName: '',
-          //       id: '',
-          //     };
-          //   }
-          // });
-          console.log("filteredPlotImages", filteredPlotImages)
           const plotImagesFromApi = filteredPlotImages.map(item => ({
             uri: item.file_path,
             name: item.file_title,
@@ -804,20 +783,18 @@ const LiveHood = ({
           plotSiteUserLandDetails.map(async (dataLandDetails, index) => {
             if (dataLandDetails?.rel_id == findData.value) {
               if (
-                dataLandDetails?.status_level == 'APPROVED' ||
+               ! dataLandDetails?.plot_status == 'APPROVED'
                 // dataLandDetails?.status_level == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                dataLandDetails?.status_level == 'CARBON_DOCUMENTS_APPROVED' ||
-                dataLandDetails?.status_level == 'CARBON_DOCUMENTS_REJECTED'
+                // dataLandDetails?.status_level == 'CARBON_DOCUMENTS_APPROVED' ||
+                // dataLandDetails?.status_level == 'CARBON_DOCUMENTS_REJECTED'
               ) {
                 Alert.alert(
                   'Note',
-                  'You will not be able to edit Geo Locations, Plot/Site Size and Land Record Documents.',
+                  'You will not be able to edit Daag Number,JL Number, Geo Locations, Plot/Site Size and Land Record Documents.',
                   [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
                   { cancelable: false },
                 );
               }
-              console.log('cropAndPlotDetailsstatus==', dataLandDetails);
-
               setPlotStatus(prev => ({
                 ...prev,
                 label: dataLandDetails?.plot_status,
@@ -1240,7 +1217,6 @@ const LiveHood = ({
   }, []);
   useEffect(() => {
     if (plotSiteUserLandDetails.length != 0) {
-      console.log('dataProps', dataProps);
       if (dataProps?.plot_no != undefined) {
         handlePlot({
           label: dataProps?.plot_no,
@@ -2011,7 +1987,6 @@ const LiveHood = ({
           //   '',
           //   '',
           // );
-          console.log('AddLandCropDetails_res==', JSON.stringify(AddLandCropDetails_res?.data?.data?.validationResponse?.rejected_documents));
           if (
             AddLandCropDetails_res?.status === 200 ||
             AddLandCropDetails_res?.status === 202
@@ -2208,9 +2183,13 @@ const LiveHood = ({
           //   farmerData.land_rel_id,
           //   farmerData.cu_rel_id,
           // );
+          let ADD_PLOTI_MGS_API_CALL = false;
           addressProof.map((data, index) => {
             if (data.name != '' && data.id == '' && data.isvalid === "change") {
               formDataPlotImg.append('plot_image', data);
+            }
+            if (data.uri != "") {
+              ADD_PLOTI_MGS_API_CALL = true;
             }
           });
           formDataPlotImg.append('rel_id', plotId);
@@ -2220,7 +2199,7 @@ const LiveHood = ({
               isOnline
                 ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
                 : Promise.resolve(null),
-              axiosPost(
+              ADD_PLOTI_MGS_API_CALL ? axiosPost(
                 ROUTES.POST.ADD_PLOTI_MGS,
                 formDataPlotImg,
                 token,
@@ -2228,7 +2207,7 @@ const LiveHood = ({
                 {
                   information: `${dbname},${lan_id},${farmeruserID}`,
                 },
-              ),
+              ) : Promise.resolve(null),
               finalPayload?.fertilizers?.length > 0 || finalPayload?.organic_amendment_type?.length > 0 || finalPayload?.pesticide?.length > 0 ?
                 addCropInputAPI(
                   dbname,
