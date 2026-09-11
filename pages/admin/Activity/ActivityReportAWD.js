@@ -228,50 +228,59 @@ const ActivityReportAWD = ({ navigation, route }) => {
   const [performActDate, setPerformActDate] = useState(true);
   const [PipeListDetailsArr, setPipeListDetailsResArr] = useState([]);
   const [lastActPDate, setLastActPDate] = useState();
+  const isMountedRef = useRef(true);
+  const timeoutsRef = useRef([]);
+  const loadedSessionsRef = useRef({});
+
   // ==================== OUTSIDE useEffect ====================
-  const loadAllModels = async (
-    isMountedRef,
-    timeoutsRef,
-    loadedSessionsRef,
-  ) => {
+  const loadAllModels = async () => {
     try {
       for (const model of MODELS) {
+        if (!isMountedRef.current) break;
+        // Don't reload if already loaded
+        if (loadedSessionsRef.current[model.key]) continue;
+
         const session = await loadModelFromAssets(model.file);
+        if (!isMountedRef.current) {
+          session?.release?.();
+          break;
+        }
         loadedSessionsRef.current[model.key] = session;
         setSessions(prev => ({
           ...prev,
-          [model.key]: session, // clarity / pipe / etc
+          [model.key]: session,
         }));
         setModelStatus(prev => ({
           ...prev,
           [model.key]: true,
         }));
       }
-      setLoadingModels(false);
+      if (isMountedRef.current) {
+        setLoadingModels(false);
+      }
     } catch (e) {
       console.log('modelerror', e);
+      if (isMountedRef.current) {
+        setLoadingModels(false);
+      }
     }
   };
 
   // ==================== useEffect ====================
   useEffect(() => {
     if (ai_camera_pipe_image != 1) return;
-    const isMountedRef = { current: true };
-    const timeoutsRef = { current: [] };
-    const loadedSessionsRef = { current: {} };
-    // Start loading models
-    loadAllModels(isMountedRef, timeoutsRef, loadedSessionsRef);
+    isMountedRef.current = true;
 
-    // Cleanup when component unmounts or dependencies change
+    // Load AI models smoothly after screen animations settle
+    const task = InteractionManager.runAfterInteractions(() => {
+      loadAllModels();
+    });
+
     return () => {
-      console.log('🗑 Cleaning up models on unmount');
-
+      task.cancel();
       isMountedRef.current = false;
-
-      // Clear all timeouts
       timeoutsRef.current.forEach(clearTimeout);
 
-      // Release all sessions
       Object.values(loadedSessionsRef.current).forEach(session => {
         try {
           session?.release?.();
@@ -282,7 +291,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
 
       loadedSessionsRef.current = {};
     };
-  }, [loadingModels, ai_camera_pipe_image]);
+  }, [ai_camera_pipe_image]);
 
   // NEW useEffect - Pre-fill when coming from PlotWiseMap
   useEffect(() => {
@@ -1203,19 +1212,22 @@ const ActivityReportAWD = ({ navigation, route }) => {
         let database_res;
         if (isOnline) {
           if (carbonType !== 'mangrove') {
-            if (saveData.field_type == 'add') {
-              database_res = await addUserPipeActivity(
-                dbname,
-                lan_id,
-                token,
-                farmerID,
-                formData,
-                pipeDetails.length,
-              );
-              // database_res = await axiosPost(ROUTES.POST.ADD_USER_PIPE_ACTIVITY, formData, token, '', {
-              //   information: `${dbname},${lan_id},${farmerID}`,
-              //   pipe_count: pipeDetails.length,
-              // })
+            if (saveData.field_type == 'add' || CURRENT_ENV == 'DEMO') {
+              if (outofRange) {
+                database_res = await addUserPipeActivity(
+                  dbname,
+                  lan_id,
+                  token,
+                  farmerID,
+                  formData,
+                  pipeDetails.length,
+                );
+              } else {
+                Toast.show({
+                  text: t('You are not in your exact location'),
+                  ...AlertMesg[0],
+                });
+              }
             } else {
               if (coords != null) {
                 const { latitude, longitude } = coords || {};

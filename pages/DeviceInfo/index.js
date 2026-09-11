@@ -10,12 +10,15 @@ const index = () => {
         });
     }
     const MobileNetWork = () => {
-        NetInfo.addEventListener(state => {
+        return NetInfo.addEventListener(state => {
             setNetConnection(state.isConnected);
         });
     }
     useEffect(() => {
-        Promise.all([MobileNetWork()])
+        const unsubscribe = MobileNetWork();
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
     }, [])
     return {
         GPS,

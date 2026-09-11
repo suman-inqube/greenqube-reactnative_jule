@@ -69,6 +69,7 @@ const FarmerMainStack = () => (
   <Stack.Navigator
     screenOptions={{
       headerShown: false,
+      freezeOnBlur: true,
       contentStyle: {backgroundColor: 'transparent'},
     }}>
     <Stack.Screen name="FarmerDashboard" component={FarmerDashboard} />

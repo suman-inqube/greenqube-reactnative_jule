@@ -52,9 +52,11 @@ const UsefulInformation = () => {
   };
 
   // ✅ CLOUD TTS (🔥 MAIN FUNCTION)
-  const speakContent = async () => {
+  const soundRef = useRef(null);
+
+  const startAudio = () => {
     if (!noticeDetails?.post_desc) {
-      Alert.alert('No content');
+      Alert.alert('No text to read');
       return;
     }
 
@@ -62,6 +64,12 @@ const UsefulInformation = () => {
     const lang = detectLanguage(text);
 
     try {
+      if (soundRef.current) {
+        soundRef.current.stop();
+        soundRef.current.release();
+        soundRef.current = null;
+      }
+
       // 🔥 FREE GOOGLE TTS (NO INSTALL NEEDED)
       const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(
         text,
@@ -78,8 +86,11 @@ const UsefulInformation = () => {
           if (!success) {
             console.log('Playback failed');
           }
+          sound.release();
+          soundRef.current = null;
         });
       });
+      soundRef.current = sound;
     } catch (err) {
       console.log(err);
       Alert.alert('Error playing audio');
@@ -87,7 +98,11 @@ const UsefulInformation = () => {
   };
 
   const stopAudio = () => {
-    Sound.stop();
+    if (soundRef.current) {
+      soundRef.current.stop();
+      soundRef.current.release();
+      soundRef.current = null;
+    }
   };
 
   // API CALL
@@ -109,6 +124,13 @@ const UsefulInformation = () => {
 
   useEffect(() => {
     onPageLoad();
+    return () => {
+      if (soundRef.current) {
+        soundRef.current.stop();
+        soundRef.current.release();
+        soundRef.current = null;
+      }
+    };
   }, []);
 
   const detailItem = path => {

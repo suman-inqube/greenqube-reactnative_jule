@@ -72,6 +72,7 @@ const UserCreateContextProvider = props => {
   });
 
   const watchIdRef = useRef(null);
+  const locationIntervalRef = useRef(null);
   const mockAlertShown = useRef(false);
 
   // -------- Permissions ----------
@@ -158,6 +159,11 @@ const UserCreateContextProvider = props => {
 
     if (watchIdRef.current) {
       Geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+    if (locationIntervalRef.current) {
+      clearInterval(locationIntervalRef.current);
+      locationIntervalRef.current = null;
     }
 
     // Main watcher
@@ -217,7 +223,7 @@ const UserCreateContextProvider = props => {
         showLocationDialog: true,
       },
     );
-    const interval = setInterval(() => {
+    locationIntervalRef.current = setInterval(() => {
       Geolocation.getCurrentPosition(
         p => {
           if (p?.mocked === true) handleMockDetected();
@@ -226,8 +232,6 @@ const UserCreateContextProvider = props => {
         { enableHighAccuracy: true, timeout: 10000 },
       );
     }, 10000);
-
-    return () => clearInterval(interval);
   };
 
   const stopWatchingLocation = () => {
@@ -235,12 +239,15 @@ const UserCreateContextProvider = props => {
       Geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;
     }
+    if (locationIntervalRef.current) {
+      clearInterval(locationIntervalRef.current);
+      locationIntervalRef.current = null;
+    }
   };
 
   useEffect(() => {
-    const cleanup = startWatchingLocation();
+    startWatchingLocation();
     return () => {
-      if (typeof cleanup === 'function') cleanup();
       stopWatchingLocation();
     };
   }, []);

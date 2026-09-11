@@ -97,6 +97,7 @@ function AdminStack() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
+        freezeOnBlur: true,
         contentStyle: {backgroundColor: 'transparent'},
 
         // 🔄 Screen transition

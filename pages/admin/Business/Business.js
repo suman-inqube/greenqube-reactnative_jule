@@ -9,10 +9,8 @@ const Business = () => {
             navigation.navigate('Dashboard');
             return true // disable normal behaviour
         };
-        BackHandler.addEventListener('hardwareBackPress', onBackPress); // detect back button press
-        return () =>
-            BackHandler.removeEventListener('hardwareBackPress');
-
+        const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress); // detect back button press
+        return () => subscription.remove();
     }, []);
     return (
         <>

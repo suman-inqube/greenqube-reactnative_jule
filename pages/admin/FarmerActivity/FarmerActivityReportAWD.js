@@ -1846,49 +1846,58 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
   useEffect(() => {
     onPageLoad();
   }, [isOnline]);
-  const loadAllModels = async (isMountedRef, timeoutsRef, loadedSessionsRef) => {
-    try {
+  const isMountedRef = useRef(true);
+  const timeoutsRef = useRef([]);
+  const loadedSessionsRef = useRef({});
 
+  const loadAllModels = async () => {
+    try {
       for (const model of MODELS) {
+        if (!isMountedRef.current) break;
+        if (loadedSessionsRef.current[model.key]) continue;
+
         const session = await loadModelFromAssets(model.file);
+        if (!isMountedRef.current) {
+          session?.release?.();
+          break;
+        }
 
         loadedSessionsRef.current[model.key] = session;
 
         setSessions(prev => ({
           ...prev,
-          [model.key]: session, // clarity / pipe / etc
+          [model.key]: session,
         }));
 
         setModelStatus(prev => ({
           ...prev,
           [model.key]: true,
         }));
-
       }
-      setLoadingModels(false);
+      if (isMountedRef.current) {
+        setLoadingModels(false);
+      }
     } catch (e) {
-      console.log("modelerror", e)
+      console.log("modelerror", e);
+      if (isMountedRef.current) {
+        setLoadingModels(false);
+      }
     }
-
   };
+
   useEffect(() => {
     if (ai_camera_pipe_image != 1) return;
-    const isMountedRef = { current: true };
-    const timeoutsRef = { current: [] };
-    const loadedSessionsRef = { current: {} };
-    // Start loading models
-    loadAllModels(isMountedRef, timeoutsRef, loadedSessionsRef);
+    isMountedRef.current = true;
 
-    // Cleanup when component unmounts or dependencies change
+    const task = InteractionManager.runAfterInteractions(() => {
+      loadAllModels();
+    });
+
     return () => {
-      console.log('🗑 Cleaning up models on unmount');
-
+      task.cancel();
       isMountedRef.current = false;
-
-      // Clear all timeouts
       timeoutsRef.current.forEach(clearTimeout);
 
-      // Release all sessions
       Object.values(loadedSessionsRef.current).forEach(session => {
         try {
           session?.release?.();
@@ -1899,7 +1908,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
 
       loadedSessionsRef.current = {};
     };
-  }, [loadingModels, ai_camera_pipe_image]);
+  }, [ai_camera_pipe_image]);
   // IMPROVED useEffect - Pre-fill when navigating from PlotWiseMap
   useEffect(() => {
     if (farmer && plot) {

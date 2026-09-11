@@ -119,7 +119,7 @@ function AppContent() {
             }}>
             <Stack.Navigator
               initialRouteName="SplashScreen"
-              screenOptions={{headerShown: false}}
+              screenOptions={{headerShown: false, freezeOnBlur: true}}
               >
               <Stack.Screen name="SplashScreen" component={SplashScreen} />
               <Stack.Screen name="Login" component={Login} />

@@ -727,6 +727,14 @@ const CrateProblemUser = ({navigation}) => {
     setSearchFarmerName(userName);
     setSearchFarmerPhone(contactNumber);
     onPageLoad();
+    return () => {
+      try {
+        audioRecorderPlayer.stopRecorder().catch(() => {});
+        audioRecorderPlayer.removeRecordBackListener();
+        audioRecorderPlayer.stopPlayer().catch(() => {});
+        audioRecorderPlayer.removePlayBackListener();
+      } catch (e) {}
+    };
   }, []);
   const cancelRecord = async item => {
     await audioRecorderPlayer.stopPlayer();
