@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, Alert } from 'react-native';
+import { StyleSheet, Text, View, Image, Alert, InteractionManager } from 'react-native';
 import React, {
   useContext,
   useEffect,
@@ -27,10 +27,10 @@ import { showAIValidationError } from '../../utils/showAIValidationError';
 import ActivityMap from '../../Common/ActivityMap';
 import ImageAnalysisScreen from './ImageAnalysisScreen';
 import { MODELS, loadModelFromAssets, loadModel } from './ImageAnalysisScreen'
-import {isPointInPolygon} from 'geolib';
-import {axiosGet, axiosPost, axiosPut} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
-const InstrumentWiseActivityDetails = ({navigation}) => {
+import { isPointInPolygon } from 'geolib';
+import { axiosGet, axiosPost, axiosPut } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
+const InstrumentWiseActivityDetails = ({ navigation }) => {
   const location = useLocationTracking();
   const {
     loginUser_data,
@@ -54,7 +54,7 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
     dbLanTokUsr
   } = useContext(userCreateContext);
   const { dbname, lan_id, token, user_id } = loginUser_data;
-    const { ai_camera_pipe_image, ai_camera_id_proof } = dbLanTokUsr;
+  const { ai_camera_pipe_image, ai_camera_id_proof } = dbLanTokUsr;
   const route = useRoute();
   const isFocused = useIsFocused();
   const [pipeimage, setPipeimage] = useState([
@@ -124,7 +124,7 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
           pipe_id: params?.pipe_id,
         }),
         token,
-        {information: `${dbname},${lan_id},${user_id}`},
+        { information: `${dbname},${lan_id},${user_id}` },
       );
       // ActivityPipeImages(
       //   token,
@@ -162,7 +162,7 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
           }));
         setPipeLatLong(pipeLocations || []);
 
-        const {rows, count} = pipeRes?.data?.pipeData;
+        const { rows, count } = pipeRes?.data?.pipeData;
         if (count > 0) {
           rows.map(item => {
             if (item?.pipe_id === params?.pipe_id) {
@@ -296,7 +296,7 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
         formData,
         token,
         false,
-        {information: `${dbname},${lan_id},${user_id}`},
+        { information: `${dbname},${lan_id},${user_id}` },
       );
       // addActivityPipeImages(
       //   dbname,
@@ -383,7 +383,7 @@ const InstrumentWiseActivityDetails = ({navigation}) => {
       longitude: lon
     })
   }, [location, cameraItem, pipeLatLong, coords]);
-    const [pipeDetails, setPipeDetails] = useState([]);
+  const [pipeDetails, setPipeDetails] = useState([]);
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
