@@ -42,7 +42,7 @@ const ForegroundLocationService = () => {
                 //     ],
                 //     { cancelable: false }
                 // );
-                console.error('[ForegroundLocationService] Location start error:', error);
+                console.error('[ForsegroundLocationService] Location start error:', error);
             }
         };
         const timeout = setTimeout(startLocationUpdates, 1000); // Delay start by 1 second

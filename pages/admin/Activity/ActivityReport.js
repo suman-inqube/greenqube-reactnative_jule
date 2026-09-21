@@ -1202,15 +1202,15 @@ const ActivityReport = ({ navigation, route }) => {
       const today = new Date();
       const tenDaysAgo = new Date(today);
       if (date.getTime() < today.getTime()) {
-          setPerformActDate(true);
-        } else {
-          Toast.show({
-              time: 3,
-              text: `Selected activity cannot be submitted before ${date.toISOString().split('T')[0]}`,
-              ...AlertMesg[0],
-            });
-          setPerformActDate(false);
-        }
+        setPerformActDate(true);
+      } else {
+        Toast.show({
+          time: 3,
+          text: `Selected activity cannot be submitted before ${date.toISOString().split('T')[0]}`,
+          ...AlertMesg[0],
+        });
+        setPerformActDate(false);
+      }
       tenDaysAgo.setDate(today.getDate() - 10);
       const minDate = date.getTime() < tenDaysAgo.getTime() ? tenDaysAgo : date;
       setLastPerfromedDate(minDate);
@@ -1476,7 +1476,7 @@ const ActivityReport = ({ navigation, route }) => {
               newDate={newFromDate}
               setOpenDate={setActivityPreDate}
               handleDatePicker={handleDatePicker2}
-              minimumDate={lastPerfromedDate}
+              minimumDate={today}
               maximumDate={today}
             />
 
@@ -1731,16 +1731,16 @@ const ActivityReport = ({ navigation, route }) => {
                   </View>
                   <TouchableOpacity
                     style={styles.activityPerFromDate}
-              onPress={() => {
-                        // setActivityPreDate(true);
-                        if (performActDate) {
-                          setActivityPreDate(true);
-                        } else {
-                          console.log('performActDate is false');
-                          // Show a toast or alert if needed
-                          
-                        }
-                      }}>
+                    onPress={() => {
+                      // setActivityPreDate(true);
+                      if (performActDate) {
+                        setActivityPreDate(true);
+                      } else {
+                        console.log('performActDate is false');
+                        // Show a toast or alert if needed
+
+                      }
+                    }}>
                     <Text style={styles.title}>{activityPreFormDate}</Text>
                     <Image
                       source={require('../../Common/images/calendar.png')}

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, memo, useMemo } from 'react';
+import React, { useState, useRef, useCallback, memo, useMemo, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -8,7 +8,7 @@ import {
   Text,
   Platform,
 } from 'react-native';
-import MapView, { Polygon, Marker, Callout, Circle } from 'react-native-maps';
+import MapView, { Polygon, Marker, Callout, Circle, PROVIDER_GOOGLE } from 'react-native-maps';
 import { isPointInPolygon, getDistance } from 'geolib';
 import { Fonts } from '../utils/Constants';
 
@@ -21,6 +21,73 @@ const DISTANCE_RINGS = [
     color: 'rgba(0,255,127,0.7)',
   },
 ];
+
+// Clean map style: shows only roads and land, hiding POIs, transit, and administrative clutter
+const ROAD_AND_LAND_MAP_STYLE = [
+  {
+    featureType: 'administrative',
+    elementType: 'labels',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'administrative.country',
+    elementType: 'geometry.stroke',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'administrative.province',
+    elementType: 'geometry.stroke',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'administrative.locality',
+    elementType: 'labels',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'administrative.neighborhood',
+    elementType: 'labels',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'administrative.land_parcel',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'poi',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'transit',
+    stylers: [{ visibility: 'off' }],
+  },
+  {
+    featureType: 'landscape',
+    elementType: 'geometry',
+    stylers: [{ visibility: 'on' }],
+  },
+  {
+    featureType: 'road',
+    elementType: 'geometry',
+    stylers: [{ visibility: 'on' }],
+  },
+  {
+    featureType: 'road',
+    elementType: 'labels',
+    stylers: [{ visibility: 'on' }],
+  },
+  {
+    featureType: 'road',
+    elementType: 'labels.icon',
+    stylers: [{ visibility: 'off' }],
+  },
+];
+
+// Static map styling constants to prevent native bridge re-allocation
+const POLYGON_FILL_COLOR = 'rgba(139, 236, 11, 0.55)';
+const POLYGON_STROKE_COLOR = 'rgb(1, 255, 1)';
+const CIRCLE_FILL_COLOR = 'transparent';
+const DEFAULT_MAP_CENTER = { latitude: 20.5937, longitude: 78.9629 };
 
 const LOCATION_UPDATE_INTERVAL = 1500; // Throttle to 1.5 seconds
 const MIN_DISTANCE_THRESHOLD = 1; // Re-render only if moved >= 1 meter
@@ -59,6 +126,7 @@ const calculatePointAtDistance = (lat, lng, distanceMeters, bearingDegrees = 0) 
  * Groups pipe coordinates and slightly offsets duplicates to prevent stacking.
  */
 const groupPointsByCoordinates = (points = []) => {
+  if (!Array.isArray(points) || points.length === 0) return [];
   const groups = {};
   for (let i = 0; i < points.length; i++) {
     const p = points[i];
@@ -71,6 +139,36 @@ const groupPointsByCoordinates = (points = []) => {
   }
   return Object.values(groups);
 };
+
+// Memoized Single Pipe Marker Item for minimal re-renders & GC relief
+const PipeMarkerItem = memo(({ polygon, lat, lng, onSelectMarker }) => {
+  const handlePress = useCallback(() => {
+    onSelectMarker(polygon);
+  }, [onSelectMarker, polygon]);
+
+  return (
+    <Marker
+      tracksViewChanges={false}
+      coordinate={{
+        latitude: lat,
+        longitude: lng,
+      }}
+      pinColor={
+        polygon?.color && typeof polygon.color === 'string' && polygon.color.trim() !== ''
+          ? polygon.color
+          : 'red'
+      }
+      onPress={handlePress}>
+      <Callout>
+        <View style={styles.callout}>
+          <Text style={styles.calloutText}>
+            {polygon?.name || 'Marker'}
+          </Text>
+        </View>
+      </Callout>
+    </Marker>
+  );
+});
 
 // Memoized Distance Rings & North Label
 const DistanceRings = memo(({ userLocation }) => {
@@ -93,10 +191,9 @@ const DistanceRings = memo(({ userLocation }) => {
               radius={ring.distance}
               strokeWidth={1.5}
               strokeColor={ring.color}
-              fillColor="transparent"
+              fillColor={CIRCLE_FILL_COLOR}
               zIndex={1}
             />
-            {/* North Label Marker with tracksViewChanges false for smooth 60fps performance */}
             <Marker
               coordinate={northPoint}
               anchor={{ x: 0.5, y: 0.5 }}
@@ -119,9 +216,11 @@ const DistanceRings = memo(({ userLocation }) => {
 
 // Memoized Pipe Markers List
 const PipeMarkersList = memo(({ groupedMarkers, onSelectMarker }) => {
+  if (!groupedMarkers || groupedMarkers.length === 0) return null;
+
   return (
     <>
-      {groupedMarkers.map((group, index) =>
+      {groupedMarkers.map((group, groupIdx) =>
         group.map((polygon, i) => {
           const total = group.length;
           const angle = total > 1 ? (2 * Math.PI * i) / total : 0;
@@ -133,27 +232,13 @@ const PipeMarkersList = memo(({ groupedMarkers, onSelectMarker }) => {
           const lng = Number(polygon.longitude) + lngOffset;
 
           return (
-            <Marker
-              key={`pipe-${index}-${i}-${lat}-${lng}`}
-              tracksViewChanges={false}
-              coordinate={{
-                latitude: lat,
-                longitude: lng,
-              }}
-              pinColor={
-                polygon?.color && polygon.color.trim() !== ''
-                  ? polygon.color
-                  : 'red'
-              }
-              onPress={() => onSelectMarker(polygon)}>
-              <Callout>
-                <View style={styles.callout}>
-                  <Text style={styles.calloutText}>
-                    {polygon?.name || 'Marker'}
-                  </Text>
-                </View>
-              </Callout>
-            </Marker>
+            <PipeMarkerItem
+              key={`pipe-${groupIdx}-${i}-${polygon?.id || `${lat}_${lng}`}`}
+              polygon={polygon}
+              lat={lat}
+              lng={lng}
+              onSelectMarker={onSelectMarker}
+            />
           );
         }),
       )}
@@ -177,26 +262,113 @@ const ActivityMap = ({
   const mapRef = useRef(null);
   const lastLocationUpdate = useRef(0);
   const lastCoord = useRef(null);
+  const isMountedRef = useRef(true);
+  const hasCenteredRef = useRef(false);
 
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
 
-  // Memoize grouped pipe coordinates
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  // Safe camera centering utility
+  const centerOnLocation = useCallback((coord, animated = true) => {
+    if (!coord || !mapRef.current) return;
+    const lat = Number(coord.latitude);
+    const lng = Number(coord.longitude);
+    if (isNaN(lat) || isNaN(lng) || (lat === 0 && lng === 0)) return;
+
+    try {
+      mapRef.current.animateCamera(
+        {
+          center: { latitude: lat, longitude: lng },
+          zoom: 18,
+          pitch: 0,
+          heading: 0,
+        },
+        { duration: animated ? 600 : 0 },
+      );
+    } catch (_) {
+      try {
+        mapRef.current.animateToRegion({
+          latitude: lat,
+          longitude: lng,
+          latitudeDelta: 0.003,
+          longitudeDelta: 0.003,
+        });
+      } catch (__) { }
+    }
+  }, []);
+
+  // Center on current location whenever the modal becomes visible
+  useEffect(() => {
+    if (modalVisibleMap) {
+      hasCenteredRef.current = false;
+      const targetLoc = userLocation || location;
+      if (targetLoc && targetLoc.latitude && targetLoc.longitude) {
+        const timer = setTimeout(() => {
+          centerOnLocation(targetLoc, false);
+          hasCenteredRef.current = true;
+        }, 150);
+        return () => clearTimeout(timer);
+      }
+    } else {
+      setSelectedMarker(null);
+      setUserLocation(null);
+      lastCoord.current = null;
+      lastLocationUpdate.current = 0;
+      hasCenteredRef.current = false;
+    }
+  }, [modalVisibleMap, location, userLocation, centerOnLocation]);
+
+  // Triggered when map finishes native initialization
+  const handleMapReady = useCallback(() => {
+    const targetLoc = userLocation || location;
+    if (targetLoc && targetLoc.latitude && targetLoc.longitude) {
+      centerOnLocation(targetLoc, false);
+      hasCenteredRef.current = true;
+    }
+  }, [userLocation, location, centerOnLocation]);
+
+  // Memoize grouped pipe coordinates efficiently
   const groupedMarkers = useMemo(() => {
-    return groupPointsByCoordinates(pipeLatLong?.flat() || []);
+    if (!pipeLatLong) return [];
+    const flattened = Array.isArray(pipeLatLong)
+      ? pipeLatLong.reduce((acc, item) => {
+        if (Array.isArray(item)) {
+          acc.push(...item);
+        } else if (item) {
+          acc.push(item);
+        }
+        return acc;
+      }, [])
+      : [];
+    return groupPointsByCoordinates(flattened);
   }, [pipeLatLong]);
 
   // Safe initial camera center coordinates
   const initialCenter = useMemo(() => {
-    const lat = Number(location?.latitude);
-    const lng = Number(location?.longitude);
+    const lat = Number(location?.latitude || userLocation?.latitude);
+    const lng = Number(location?.longitude || userLocation?.longitude);
     if (!isNaN(lat) && !isNaN(lng) && (lat !== 0 || lng !== 0)) {
       return { latitude: lat, longitude: lng };
     }
-    return { latitude: 20.5937, longitude: 78.9629 };
-  }, [location]);
+    return DEFAULT_MAP_CENTER;
+  }, [location, userLocation]);
 
-  // Smooth throttled location handler
+  // Validated polygon coordinates for MapView Polygon
+  const validPolygonCoords = useMemo(() => {
+    if (!Array.isArray(plotPolygon) || plotPolygon.length < 3) return null;
+    return plotPolygon.filter(
+      p => p && typeof p.latitude === 'number' && typeof p.longitude === 'number',
+    );
+  }, [plotPolygon]);
+
+  // Smooth throttled location handler with auto-centering on first fix
   const handleUserLocationChange = useCallback(
     event => {
       const coordinate = event?.nativeEvent?.coordinate;
@@ -226,7 +398,14 @@ const ActivityMap = ({
       lastLocationUpdate.current = now;
       lastCoord.current = newLocation;
 
+      if (!isMountedRef.current) return;
       setUserLocation(newLocation);
+
+      // Auto center on user's current location on first GPS fix when map opened
+      if (!hasCenteredRef.current) {
+        hasCenteredRef.current = true;
+        centerOnLocation(newLocation, true);
+      }
 
       // Check boundary polygon
       if (Array.isArray(plotPolygon) && plotPolygon.length > 2) {
@@ -238,11 +417,19 @@ const ActivityMap = ({
 
       setMapLatLon?.(newLocation);
     },
-    [plotPolygon, setOutOfRange, setMapLatLon],
+    [plotPolygon, setOutOfRange, setMapLatLon, centerOnLocation, outofRange],
   );
 
   const handleSelectMarker = useCallback(polygon => {
-    setSelectedMarker(polygon);
+    if (isMountedRef.current) {
+      setSelectedMarker(polygon);
+    }
+  }, []);
+
+  const handleCloseMarkerCard = useCallback(() => {
+    if (isMountedRef.current) {
+      setSelectedMarker(null);
+    }
   }, []);
 
   const handleCapturePress = useCallback(() => {
@@ -250,8 +437,16 @@ const ActivityMap = ({
   }, [TakePhoto, replaceImgKey, userLocation, location]);
 
   const handleCloseModal = useCallback(() => {
+    setSelectedMarker(null);
+    setUserLocation(null);
+    lastCoord.current = null;
+    hasCenteredRef.current = false;
     setModalVisibleMap?.(false);
   }, [setModalVisibleMap]);
+
+  if (!modalVisibleMap) {
+    return null;
+  }
 
   return (
     <Modal
@@ -265,6 +460,8 @@ const ActivityMap = ({
             ref={mapRef}
             style={styles.map}
             mapType="hybrid"
+            provider={PROVIDER_GOOGLE}
+            customMapStyle={ROAD_AND_LAND_MAP_STYLE}
             showsUserLocation={true}
             followsUserLocation={true}
             showsMyLocationButton={true}
@@ -272,28 +469,42 @@ const ActivityMap = ({
             showsCompass={false}
             rotateEnabled={false}
             pitchEnabled={false}
+            showsBuildings={false}
+            showsIndoors={false}
+            showsTraffic={false}
+            showsPointsOfInterest={false}
+            loadingEnabled={true}
+            loadingIndicatorColor="#2E7D32"
+            loadingBackgroundColor="#0A0A0A"
             moveOnMarkerPress={false}
             userLocationPriority="high"
             minZoomLevel={14}
             maxZoomLevel={20}
-            userLocationUpdateInterval={3000}
-            userLocationFastestInterval={2000}
+            userLocationUpdateInterval={2000}
+            userLocationFastestInterval={1500}
             initialCamera={{
               center: initialCenter,
               zoom: 18,
               heading: 0,
               pitch: 0,
             }}
+            initialRegion={{
+              latitude: initialCenter.latitude,
+              longitude: initialCenter.longitude,
+              latitudeDelta: 0.003,
+              longitudeDelta: 0.003,
+            }}
+            onMapReady={handleMapReady}
             onUserLocationChange={handleUserLocationChange}>
             {/* User distance rings */}
             <DistanceRings userLocation={userLocation} />
 
             {/* Farm plot polygon */}
-            {Array.isArray(plotPolygon) && plotPolygon.length > 0 && (
+            {validPolygonCoords && validPolygonCoords.length >= 3 && (
               <Polygon
-                coordinates={plotPolygon}
-                fillColor="rgba(139, 236, 11, 0.55)"
-                strokeColor="rgb(1, 255, 1)"
+                coordinates={validPolygonCoords}
+                fillColor={POLYGON_FILL_COLOR}
+                strokeColor={POLYGON_STROKE_COLOR}
                 strokeWidth={2}
               />
             )}
@@ -329,7 +540,7 @@ const ActivityMap = ({
           <View style={styles.markerInfo}>
             <TouchableOpacity
               style={styles.closeMarkerCard}
-              onPress={() => setSelectedMarker(null)}>
+              onPress={handleCloseMarkerCard}>
               <Text style={styles.closeMarkerCardText}>✕</Text>
             </TouchableOpacity>
             <Text style={styles.markerName}>
@@ -343,7 +554,7 @@ const ActivityMap = ({
           </View>
         )}
       </View>
-    </Modal >
+    </Modal>
   );
 };
 
@@ -469,4 +680,3 @@ const styles = StyleSheet.create({
 });
 
 export default memo(ActivityMap);
-

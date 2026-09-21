@@ -58,6 +58,7 @@ const UserCreateContextProvider = props => {
 
   const [dbLanTokUsr, setdbLanTokUsr] = useState({});
   const [farmerData, setFarmerData] = useState([]);
+  const [productionSeason, setProductionSeason] = useState([]); // Inactive
   const [loginUser_data, setloginUser_data] = useState({});
   const [logoImage, setlogoImage] = useState('');
   const [topBanner, settopBanner] = useState('');
@@ -151,11 +152,11 @@ const UserCreateContextProvider = props => {
     }
 
     // Warm up GPS (get first fix quickly)
-    Geolocation.getCurrentPosition(
-      pos => console.log('Initial fix:', pos.coords),
-      err => console.log('Warm-up error:', err),
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
-    );
+    // Geolocation.getCurrentPosition(
+    //   pos => console.log('Initial fix:', pos.coords),
+    //   err => console.log('Warm-up error:', err),
+    //   { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+    // );
 
     if (watchIdRef.current) {
       Geolocation.clearWatch(watchIdRef.current);
@@ -257,6 +258,7 @@ const UserCreateContextProvider = props => {
       let responsePlot = [];
       let resCarbonFlag = [];
       let DetailsCompany_res = [];
+      let allSeasonList = []; // Inactive
       let co_farmer = 0;
       let offline_mode = 0;
       const [
@@ -277,7 +279,7 @@ const UserCreateContextProvider = props => {
       if (netConnection && loginUser_data?.token) {
         const { dbname, lan_id, token, user_id, db_company_id } =
           loginUser_data || {};
-        [farmer_response, responsePlot, resCarbonFlag, DetailsCompany_res] =
+        [farmer_response, responsePlot, resCarbonFlag, DetailsCompany_res, allSeasonList] =
           await Promise.all([
             axiosGet(ROUTES.GET.LIST_USER({ user_id: user_id }), token, {
               information: `${dbname},${lan_id}`,
@@ -293,6 +295,11 @@ const UserCreateContextProvider = props => {
             axiosGet(ROUTES.GET.DETAILS_COMPANY(db_company_id), token, {
               information: `${dbname},1`,
             }),
+            axiosGet(
+              ROUTES.GET.PRODUCE_SEASON({ crop_name_fid: '', sd_id: '' }),
+              '',
+              { information: `${dbname},${lan_id},${user_id}`, Authorization: `${token}` },
+            ), // Inactive
           ]);
         if (DetailsCompany_res?.status == 200) {
           co_farmer = DetailsCompany_res.data.data?.[0]?.co_farmer;
@@ -307,6 +314,7 @@ const UserCreateContextProvider = props => {
             ),
             setItem('carbonFlag', resCarbonFlag),
             setItem('detailsCompany', DetailsCompany_res),
+            setItem('allSeasonList', allSeasonList), // Inactive
           ]);
         }
       } else {
@@ -315,6 +323,7 @@ const UserCreateContextProvider = props => {
           getItem('problemPlotAgainstFarmer' + loginUser_data?.user_id),
           getItem('carbonFlag'),
           getItem('detailsCompany'),
+          getItem('allSeasonList'), // Inactive
         ]);
       }
       if (farmer_response?.status == 200) {
@@ -386,6 +395,18 @@ const UserCreateContextProvider = props => {
         }));
         setPlotAll(PlotArray);
       }
+      if (allSeasonList?.status == 200) {
+        const prodctionSeasionArray = allSeasonList?.data?.data?.rows?.map(
+          data => ({
+            value: data.sd_id,
+            label: `${data.season_info.name} (${data.year})`,
+            sd_id: data.sd_id, // NEW FIELD - stores season detail ID
+            year: data.year,
+            originalName: data.season_info.name,
+          }),
+        );
+        setProductionSeason(prodctionSeasionArray);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -446,6 +467,7 @@ const UserCreateContextProvider = props => {
       plotAll,
       setPlotAll,
       navigationBarHeight,
+      productionSeason, // Inactive
     }),
     [
       dbLanTokUsr,
@@ -457,6 +479,7 @@ const UserCreateContextProvider = props => {
       topBanner,
       plotAll,
       navigationBarHeight,
+      productionSeason, // Inactive
     ],
   );
 

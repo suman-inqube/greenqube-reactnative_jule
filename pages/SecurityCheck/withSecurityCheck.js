@@ -1,5 +1,5 @@
-import React, {useEffect, useState, useRef} from 'react';
-import {Alert, BackHandler, AppState, View, Text, Linking} from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { Alert, BackHandler, AppState, View, Text, Linking } from 'react-native';
 import JailMonkey from 'jail-monkey';
 import NetInfo from '@react-native-community/netinfo';
 import VersionCheck from 'react-native-version-check';
@@ -40,8 +40,8 @@ const withSecurityCheck = WrappedComponent => {
               isRooted
                 ? 'This device is rooted. The app will now exit.'
                 : 'Developer Options detected. Please disable it to continue.',
-              [{text: 'OK', onPress: exitApp}],
-              {cancelable: false},
+              [{ text: 'OK', onPress: exitApp }],
+              { cancelable: false },
             );
           }
         } else {
@@ -59,7 +59,7 @@ const withSecurityCheck = WrappedComponent => {
     const runVersionCheck = async () => {
       try {
         const net = await NetInfo.fetch();
-        // if (!net.isConnected || __DEV__) return;
+        if (!net.isConnected || __DEV__) return;
 
         const latestVersion = await VersionCheck.getLatestVersion({
           provider: 'playStore',
@@ -69,19 +69,19 @@ const withSecurityCheck = WrappedComponent => {
 
         const currentVersion = VersionCheck.getCurrentVersion();
 
-        // if (latestVersion && latestVersion !== currentVersion) {
-        //   Alert.alert(
-        //     'Update Available',
-        //     'A new version is available. Please update to continue.',
-        //     [
-        //       {
-        //         text: 'Update Now',
-        //         onPress: () => Linking.openURL(PLAY_STORE_URL),
-        //       },
-        //       // {text: 'Later', style: 'cancel'},
-        //     ],
-        //   );
-        // }
+        if (latestVersion && latestVersion !== currentVersion) {
+          Alert.alert(
+            'Update Available',
+            'A new version is available. Please update to continue.',
+            [
+              {
+                text: 'Update Now',
+                onPress: () => Linking.openURL(PLAY_STORE_URL),
+              },
+              // {text: 'Later', style: 'cancel'},
+            ],
+          );
+        }
       } catch (err) {
         console.warn('Version check skipped:', err);
       }

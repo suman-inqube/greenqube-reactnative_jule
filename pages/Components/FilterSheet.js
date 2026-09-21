@@ -5,11 +5,15 @@ import React, {
   useMemo,
   useRef,
   useEffect,
+  useContext,
 } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import FilterDropdown from '../Common/FilterDropdown';
 import { Colors, Fonts } from '../utils/Constants';
+import { axiosGet } from '../utils/api'; // adjust path
+import { ROUTES } from '../utils/Routes'; // adjust path
+import { userCreateContext } from '../Context/usersCreateContext';
 const RadioForm = lazy(() => import('../Common/RadioForm'));
 const DatePickerComp = lazy(() => import('../Common/DatePickerComp'));
 
@@ -18,11 +22,13 @@ const FILTER_TYPES = {
   PHONE: 'PhoneNumber',
   DATE: 'Date',
   CARBON: 'Carbon',
+  SEASON: 'Season', // Inactive
 };
 const DROPDOWN_NAMES = {
   FARMER: 'enter_farmer_s_name',
   PHONE: 'new_reg_phone_number',
   CARBON: 'Carbon/NonCarbon',
+  SEASON: 'Season', // Inactive
 };
 const FilterSheetContent = React.memo(
   ({
@@ -43,6 +49,10 @@ const FilterSheetContent = React.memo(
     height,
     navigationBarHeight = 0,
     setFilterItem,
+    searchFarmerSeason, // Inactive
+    setSearchFarmerSeason, // Inactive
+    dropdownSeason, // Inactive
+    seasonFilter, // Inactive
   }) => {
     const [selectedValue, setSelectedValue] = useState(filterItem);
     const [openFromDate, setOpenFromDate] = useState(false);
@@ -52,8 +62,16 @@ const FilterSheetContent = React.memo(
     const [sheetFarmerName, setSheetFarmerName] = useState(searchFarmerName);
     const [sheetFarmerPhone, setSheetFarmerPhone] = useState(searchFarmerPhone);
     const [sheetCarbonType, setSheetCarbonType] = useState(carbonType);
+    const [sheetSeason, setSheetSeason] = useState(searchFarmerSeason); // Inactive
     const isMountedRef = useRef(true);
     const timeoutRef = useRef(null);
+    const [dropdownList, setDropdownList] = useState(dropdownData);
+    const { loginUser_data } = useContext(userCreateContext);
+    const { dbname, lan_id, token, user_id } = loginUser_data;
+
+    useEffect(() => {
+      setDropdownList(dropdownData);
+    }, [dropdownData]);
     useEffect(() => {
       return () => {
         isMountedRef.current = false;
@@ -74,6 +92,11 @@ const FilterSheetContent = React.memo(
           label: 'Carbon/NonCarbon',
           condition: carbonFlag,
         },
+        {
+          key: 'season',
+          type: FILTER_TYPES.SEASON,
+          label: 'Season',
+        }, // Inactive
       ],
       [carbonFlag],
     );
@@ -89,6 +112,7 @@ const FilterSheetContent = React.memo(
         setSheetCarbonType(emptyObject);
         setSheetFromDate('');
         setSheetToDate('');
+        setSheetSeason(emptyObject); // Inactive
 
         if (value === '') {
           handleFilterRemove?.();
@@ -118,6 +142,8 @@ const FilterSheetContent = React.memo(
             height,
             navigationBarHeight,
             setFilterItem,
+            seasonFilter,
+            dropdownSeason,
           });
         }, 300);
       },
@@ -142,6 +168,35 @@ const FilterSheetContent = React.memo(
       ],
     );
 
+    const getPhoneListBySeason = useCallback(async seasonId => {
+      try {
+        const response = await axiosGet(
+          ROUTES.GET.GET_PHONE_BY_SEASON({
+            seasonSid: seasonId,
+          }),
+          token,
+          { information: `${dbname},${lan_id},${user_id}` },
+        );
+
+        if (response.status === 200) {
+          const phoneList = response.data.data.rows.map(item => ({
+            label: item.contactNumber,
+            value: item.contactNumber,
+          }));
+
+          setDropdownList(prev => {
+            const temp = [...prev];
+            temp[1] = phoneList; // Replace phone dropdown only
+            return temp;
+          });
+
+          setSheetFarmerPhone({ label: '', value: '' });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }, []);
+
     const onDateChange = useCallback(
       (date, isFromDate) => {
         if (!isMountedRef.current) return;
@@ -162,26 +217,35 @@ const FilterSheetContent = React.memo(
       [effective_dates],
     );
 
-    const handleDropdownChange = useCallback((item, fieldType) => {
-      if (!isMountedRef.current) return;
+    const handleDropdownChange = useCallback(
+      (item, fieldType) => {
+        if (!isMountedRef.current) return;
 
-      const { label = '', value = '' } = item || {};
-      const newItem = { label, value };
+        const { label = '', value = '' } = item || {};
+        const newItem = { label, value };
 
-      switch (fieldType) {
-        case DROPDOWN_NAMES.FARMER:
-          setSheetFarmerName(newItem);
-          break;
-        case DROPDOWN_NAMES.PHONE:
-          setSheetFarmerPhone(newItem);
-          break;
-        case DROPDOWN_NAMES.CARBON:
-          setSheetCarbonType(newItem);
-          break;
-        default:
-          break;
-      }
-    }, []);
+        switch (fieldType) {
+          case DROPDOWN_NAMES.FARMER:
+            setSheetFarmerName(newItem);
+            break;
+          case DROPDOWN_NAMES.PHONE:
+            setSheetFarmerPhone(newItem);
+            break;
+          case DROPDOWN_NAMES.SEASON:
+            setSheetFarmerPhone(emptyObject);
+            setSheetSeason(newItem);
+            getPhoneListBySeason(newItem.value);
+
+            break;
+          case DROPDOWN_NAMES.CARBON:
+            setSheetCarbonType(newItem);
+            break;
+          default:
+            break;
+        }
+      },
+      [emptyObject, handleApplyFilter],
+    );
 
     const handleApplyFilter = useCallback(() => {
       if (!isMountedRef.current) return;
@@ -190,9 +254,22 @@ const FilterSheetContent = React.memo(
           filter: selectedValue,
           fromDate: sheetFromDate,
           toDate: sheetToDate,
-          farmerName: selectedValue == "Farmer/Product Name" ? sheetFarmerName : { label: "", value: "" },
-          farmerPhone:selectedValue == "PhoneNumber" ? sheetFarmerPhone: { label: "", value: "" },
-          sheetCarbonType: selectedValue == "Carbon" ?sheetCarbonType:{ label: "", value: "" },
+          farmerName:
+            selectedValue == 'Farmer/Product Name'
+              ? sheetFarmerName
+              : { label: '', value: '' },
+          farmerPhone:
+            selectedValue == 'PhoneNumber'
+              ? sheetFarmerPhone
+              : { label: '', value: '' },
+          season:
+            selectedValue === FILTER_TYPES.PHONE
+              ? sheetSeason
+              : { label: '', value: '' },
+          sheetCarbonType:
+            selectedValue == 'Carbon'
+              ? sheetCarbonType
+              : { label: '', value: '' },
         });
         SPSheet.hide();
       } catch (error) {
@@ -206,6 +283,7 @@ const FilterSheetContent = React.memo(
       sheetFarmerPhone,
       sheetCarbonType,
       handleFilterResult,
+      sheetSeason,
     ]);
     const calendarIcon = useMemo(
       () => (
@@ -217,7 +295,7 @@ const FilterSheetContent = React.memo(
       [],
     );
     const renderDropdown = useCallback(
-      (data, fieldType, labelKey) => {
+      (data, fieldType, labelKey, seasonFilter) => {
         if (!data || !Array.isArray(data)) return null;
 
         let selectedValue;
@@ -231,25 +309,49 @@ const FilterSheetContent = React.memo(
           case DROPDOWN_NAMES.CARBON:
             selectedValue = sheetCarbonType?.value;
             break;
+          case DROPDOWN_NAMES.SEASON:
+            selectedValue = sheetSeason?.value;
+            break;
+
           default:
             selectedValue = '';
         }
 
         return (
-          <FilterDropdown
-            data={data}
-            label={t?.(labelKey) || labelKey}
-            labelField="label"
-            valueField="value"
-            placeholder={t?.(labelKey) || labelKey}
-            onChange={item => handleDropdownChange(item, fieldType)}
-            style={styles.dropdown}
-            placeholderStyle={styles.dropdownText}
-            selectedTextStyle={styles.dropdownText}
-            inputSearchStyle={styles.dropdownText}
-            itemTextStyle={styles.dropdownText}
-            val={selectedValue}
-          />
+          <>
+            {fieldType === DROPDOWN_NAMES.PHONE && seasonFilter && (
+              <FilterDropdown
+                data={dropdownSeason}
+                label="Season"
+                labelField="label"
+                valueField="value"
+                placeholder="Season"
+                onChange={item =>
+                  handleDropdownChange(item, DROPDOWN_NAMES.SEASON)
+                }
+                style={[styles.dropdown, { marginTop: 10 }]}
+                placeholderStyle={styles.dropdownText}
+                selectedTextStyle={styles.dropdownText}
+                inputSearchStyle={styles.dropdownText}
+                itemTextStyle={styles.dropdownText}
+                val={sheetSeason?.value}
+              />
+            )}
+            <FilterDropdown
+              data={data}
+              label={t?.(labelKey) || labelKey}
+              labelField="label"
+              valueField="value"
+              placeholder={t?.(labelKey) || labelKey}
+              onChange={item => handleDropdownChange(item, fieldType)}
+              style={styles.dropdown}
+              placeholderStyle={styles.dropdownText}
+              selectedTextStyle={styles.dropdownText}
+              inputSearchStyle={styles.dropdownText}
+              itemTextStyle={styles.dropdownText}
+              val={selectedValue}
+            />
+          </>
         );
       },
       [
@@ -258,6 +360,9 @@ const FilterSheetContent = React.memo(
         sheetFarmerName,
         sheetFarmerPhone,
         sheetCarbonType,
+        dropdownSeason,
+        sheetSeason,
+        seasonFilter,
       ],
     );
     const DateButton = React.memo(({ onPress, text, placeholder }) => (
@@ -310,9 +415,10 @@ const FilterSheetContent = React.memo(
           {selectedValue === FILTER_TYPES.PHONE &&
             dropdownData?.[1] &&
             renderDropdown(
-              dropdownData[1],
+              dropdownList[1],
               DROPDOWN_NAMES.PHONE,
               DROPDOWN_NAMES.PHONE,
+              seasonFilter,
             )}
 
           {selectedValue === FILTER_TYPES.CARBON &&
@@ -366,6 +472,7 @@ const FilterSheetContent = React.memo(
       t,
       handleSelect,
       handleApplyFilter,
+      seasonFilter,
     ]);
 
     return (
@@ -411,7 +518,7 @@ export const openFilterSheet = props => {
       console.warn('openFilterSheet: No props provided');
       return;
     }
-    const sheetHeight = filterItem === '' ? height : 220;
+    const sheetHeight = filterItem === '' ? height : 300;
     const finalHeight = Math.max(sheetHeight, height);
     SPSheet.show({
       component: () => <FilterSheetContent {...props} />,

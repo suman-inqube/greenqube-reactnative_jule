@@ -295,6 +295,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
 
   // NEW useEffect - Pre-fill when coming from PlotWiseMap
   useEffect(() => {
+    let timer = null;
     if (farmer && plot) {
       setIsDisabled(true);
       const farmerObj = {
@@ -322,22 +323,33 @@ const ActivityReportAWD = ({ navigation, route }) => {
           await handleResultSelect(farmerObj);
 
           // Small delay to let states like plotAll settle
-          setTimeout(() => {
-            handlePlot({
-              label: plot?.plot_no,
-              value: plot?.rel_id,
-            });
+          timer = setTimeout(() => {
+            if (isMountedRef.current) {
+              handlePlot({
+                label: plot?.plot_no,
+                value: plot?.rel_id,
+              });
+            }
           }, 400);
+          timeoutsRef.current.push(timer);
         } catch (error) {
           console.error('Prefill error:', error);
           CrashlyticsRecordError(error, 'ActivityReportAWD', 'prefillData');
         } finally {
-          setIsPrefilling(false);
+          if (isMountedRef.current) {
+            setIsPrefilling(false);
+          }
         }
       };
 
       prefillData();
     }
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
   }, [farmer, plot]);
   const checkPipeDistance = async (currentLat, currentLon) => {
     try {
@@ -1213,7 +1225,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
         if (isOnline) {
           if (carbonType !== 'mangrove') {
             if (saveData.field_type == 'add' || CURRENT_ENV == 'DEMO') {
-              if (outofRange) {
+              if (outofRange || CURRENT_ENV == 'DEMO') {
                 database_res = await addUserPipeActivity(
                   dbname,
                   lan_id,
@@ -1235,7 +1247,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
                   latitude,
                   longitude,
                 });
-                if (distances < 10 || CURRENT_ENV == 'DEMO') {
+                if (distances < 20 || CURRENT_ENV == 'DEMO') {
                   // database_res = await axiosPost(ROUTES.POST.UPDATE_PIPE_ACTIVITY, formData, token, '', {
                   //   information: `${dbname},${lan_id},${farmerID}`,
                   //   pipe_count: 1,
@@ -1259,7 +1271,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
               }
             }
           } else {
-            if (outofRange) {
+            if (outofRange || CURRENT_ENV == 'DEMO') {
               database_res = await axiosPost(
                 ROUTES.POST.ACTIVITY_SAVE,
                 formData,
@@ -2135,9 +2147,10 @@ const ActivityReportAWD = ({ navigation, route }) => {
               try {
                 const uri = await captureRef(watermarkViewRef, {
                   format: 'jpg',
-                  quality: 2,
+                  quality: 0.1,
                   width: 800,
                   height: 800,
+                  result: 'tmpfile',
                 });
                 const fileName =
                   response.assets[0].fileName || `photo_${timestamp}.jpg`;
@@ -2161,7 +2174,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
                 setTempImage(null);
                 setTempText('');
               }
-            }, 500);
+            }, 5000);
           } catch (error) {
             console.log('Watermark Error:', error);
           }
@@ -2282,6 +2295,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
                   replaceImgKey={replaceImgKey}
                   userLocationPriority="high"
                   setMapLatLon={setMapLatLon}
+                  CURRENT_ENV={CURRENT_ENV}
                 />
               )}
 
@@ -2303,7 +2317,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
                 newDate={newFromDate}
                 setOpenDate={setActivityPreDate}
                 handleDatePicker={handleDatePicker2}
-                minimumDate={lastPerfromedDate}
+                minimumDate={today}
                 maximumDate={today}
               />
               {modalVisibleRecordFirstItem ? (

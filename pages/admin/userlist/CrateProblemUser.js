@@ -9,7 +9,7 @@ import {
   SafeAreaView,
   Dimensions,
 } from 'react-native';
-import {PermissionsAndroid} from 'react-native';
+import { PermissionsAndroid } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 import React, {
   useState,
@@ -20,10 +20,10 @@ import React, {
 } from 'react';
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
-import {launchCamera} from 'react-native-image-picker';
-import Marker, {Position} from 'react-native-image-marker';
+import { launchCamera } from 'react-native-image-picker';
+import Marker, { Position } from 'react-native-image-marker';
 import ButtonForm from '../../Common/ButtonForm';
-import {captureRef} from 'react-native-view-shot';
+import { captureRef } from 'react-native-view-shot';
 
 import {
   farmerByNameAPI,
@@ -36,12 +36,12 @@ import {
 } from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
 import RNFS from 'react-native-fs';
-import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
-import {useRoute, useIsFocused} from '@react-navigation/native';
+import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
+import { useRoute, useIsFocused } from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {Colors, Fonts} from '../../utils/Constants';
-import {SPSheet} from '@sekizlipenguen/react-native-popup-confirm-toast';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { Colors, Fonts } from '../../utils/Constants';
+import { SPSheet } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import AudioPlayerView from '../../Common/AudioPlayerView';
 import * as AudioRecorderPlayerPkg from 'react-native-audio-recorder-player';
 const AudioRecorderPlayer =
@@ -51,10 +51,10 @@ const audioRecorderPlayer =
     ? new AudioRecorderPlayer()
     : AudioRecorderPlayer;
 import DatePickerField from '../../Common/DatePickerField';
-import {axiosGet, axiosPost} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
+import { axiosGet, axiosPost } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-const CrateProblemUser = ({navigation}) => {
+const CrateProblemUser = ({ navigation }) => {
   //GQR-66
   const {
     DropdownForm,
@@ -74,7 +74,7 @@ const CrateProblemUser = ({navigation}) => {
     Root,
     Toast,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-66
   const isFocused = useIsFocused();
   const route = useRoute();
@@ -226,7 +226,7 @@ const CrateProblemUser = ({navigation}) => {
             cropNameID: response?.data?.data?.crop_name_id,
           }),
           '',
-          {information: `${dbname},${lan_id}`},
+          { information: `${dbname},${lan_id}` },
         );
         // problemProductionStageAPI(
         //   dbname,
@@ -301,7 +301,7 @@ const CrateProblemUser = ({navigation}) => {
               // Capture the watermarked view
               const uri = await captureRef(watermarkViewRef, {
                 format: 'jpg',
-                quality: 0.8,
+                quality: 0.2,
                 width: 800,
                 height: 800,
               });
@@ -361,7 +361,7 @@ const CrateProblemUser = ({navigation}) => {
     const x1 = x[0].split('-');
     const effective_date = x1[0] + '-' + x1[1] + '-' + x1[2];
     setaffectedDate(effective_date);
-    setSaveData({...saveData, affected_date: effective_date});
+    setSaveData({ ...saveData, affected_date: effective_date });
   };
   const handleProblemType = problem_type => {
     setIsLoading(true);
@@ -449,7 +449,7 @@ const CrateProblemUser = ({navigation}) => {
             userID: user_id,
           }),
           token,
-          {information: `${dbname},${lan_id}`},
+          { information: `${dbname},${lan_id}` },
         ),
         // farmerByNameAPI(dbname, lan_id, token, user_id),
 
@@ -467,7 +467,7 @@ const CrateProblemUser = ({navigation}) => {
         }));
         setProblemTypeAll(dataArray);
       }
-  
+
       if (severity_res?.status == 200) {
         const dataArray = severity_res?.data?.data?.rows.map(element => ({
           value: element.fid,
@@ -616,7 +616,7 @@ const CrateProblemUser = ({navigation}) => {
         formData,
         token,
         false,
-        {information: `${dbname},${lan_id},${farmerID}`},
+        { information: `${dbname},${lan_id},${farmerID}` },
       );
       // problemSaveAPI(
       //   dbname,
@@ -628,7 +628,7 @@ const CrateProblemUser = ({navigation}) => {
       console.log('SAVE-PROBLEM', database_res.status);
       if (database_res.status === 200) {
         // MessageDialog({ title: 'Successful', message: "Successfull Add Data" })
-        Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+        Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
         setTimeout(() => {
           navigation.navigate('userList');
         }, 1500);
@@ -700,7 +700,7 @@ const CrateProblemUser = ({navigation}) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
+      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
@@ -713,7 +713,7 @@ const CrateProblemUser = ({navigation}) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({isLoggingIn: false, result: result});
+      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
       // console.log("Stopped recording:", result);
       // navigation.navigate(navPath, { result: result,name:name });
     } catch (error) {
@@ -729,11 +729,11 @@ const CrateProblemUser = ({navigation}) => {
     onPageLoad();
     return () => {
       try {
-        audioRecorderPlayer.stopRecorder().catch(() => {});
+        audioRecorderPlayer.stopRecorder().catch(() => { });
         audioRecorderPlayer.removeRecordBackListener();
-        audioRecorderPlayer.stopPlayer().catch(() => {});
+        audioRecorderPlayer.stopPlayer().catch(() => { });
         audioRecorderPlayer.removePlayBackListener();
-      } catch (e) {}
+      } catch (e) { }
     };
   }, []);
   const cancelRecord = async item => {
@@ -917,7 +917,7 @@ const CrateProblemUser = ({navigation}) => {
               required={true}
               data={severityAll}
               onChange={item =>
-                setSaveData({...saveData, severity_id: item.value})
+                setSaveData({ ...saveData, severity_id: item.value })
               }
             />
             <InputTextForm
@@ -934,14 +934,14 @@ const CrateProblemUser = ({navigation}) => {
             <InputTextForm
               label={t('enter_problem_title')}
               onChangeText={item =>
-                setSaveData({...saveData, question_title: item})
+                setSaveData({ ...saveData, question_title: item })
               }
               value={saveData.question_title}
             />
             <InputTextForm
               label={t('enter_problem_description')}
               onChangeText={item =>
-                setSaveData({...saveData, question_desc: item})
+                setSaveData({ ...saveData, question_desc: item })
               }
               value={saveData.question_desc}
             />
@@ -952,7 +952,7 @@ const CrateProblemUser = ({navigation}) => {
                   style={styles.watermarkView}
                   collapsable={false}>
                   <Image
-                    source={{uri: tempImage}}
+                    source={{ uri: tempImage }}
                     style={styles.watermarkImage}
                     resizeMode="cover"
                   />
@@ -1045,7 +1045,7 @@ const styles = StyleSheet.create({
     marginHorizontal: '2%',
     marginBottom: 10,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     borderRightWidth: 1,

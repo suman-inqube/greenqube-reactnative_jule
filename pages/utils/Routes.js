@@ -120,8 +120,8 @@ export const ROUTES = {
       farmer_mobile = '',
     }) =>
       `inputOutputRoute/list/1/0/2?&farmer_id=${farmer_id}&transaction_type=2&from_date=${from_date}&to_date=${to_date}&agent_id=${agent_id}&farmer_mobile=${farmer_mobile}`,
-    AGENT_ROUTE: ({ page = 1, search_key = '' }) =>
-      `agentRoute/onlyFarmerList_e/1/${page}/2?search_key=${search_key}`,
+    AGENT_ROUTE: ({ page = 1, search_key = '', seasonId = '' }) =>
+      `agentRoute/onlyFarmerList_e/1/${page}/2?search_key=${search_key}&season_fid=${seasonId}`,
     Fenced_Rejected_Plot_List: ({
       page,
       status_level,
@@ -399,7 +399,9 @@ export const ROUTES = {
 
     PROBLEM_COMMENTS_LIST: ({ questionId = '' }) =>
       `questionRoute/listComment/1/0/2?search_key=&comment_type=2&comment_qid=${questionId}&farming_type=crop`,
-    CHECK_PIPE_COUNT: ({ plot_fid = "", activity_id = "", season_date_fid = "" }) => `loanEntityRoute/checkPipeCount?plot_fid=${plot_fid}&activity_id=${activity_id}&season_date_fid=${season_date_fid}`
+    CHECK_PIPE_COUNT: ({ plot_fid = "", activity_id = "", season_date_fid = "" }) => `loanEntityRoute/checkPipeCount?plot_fid=${plot_fid}&activity_id=${activity_id}&season_date_fid=${season_date_fid}`,
+    GET_PHONE_BY_SEASON: ({ seasonSid = '' }) =>
+      `loginSignupRoute/newlistuser/1/0/2?search_key=&season_fid=${seasonSid}&userType=2`,
   },
 
   PUT: {
