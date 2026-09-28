@@ -714,14 +714,15 @@ const ProduceInfo = () => {
     setstoreProduceInfo({ ...storeProduceInfo, cycleEnds: cycleEnds });
   };
   const validationData = () => {
-    if (carbonFlag && carbonOption !== 'mangrove' && !storeProduceInfo.daagNo) {
+    const hasLandProof = landProof?.some(file => file?.uri && file.uri.trim() !== '');
+    if (carbonFlag && carbonOption !== 'mangrove' && hasLandProof && !storeProduceInfo.daagNo) {
       Toast.show({
         text: 'Please enter Dag Number',
         ...AlertMesg[0],
       });
       return;
     }
-    if (carbonFlag && carbonOption !== 'mangrove' && !storeProduceInfo.jl_no) {
+    if (carbonFlag && carbonOption !== 'mangrove' && hasLandProof && !storeProduceInfo.jl_no) {
       Toast.show({
         text: 'Please enter JL Number',
         ...AlertMesg[0],
@@ -1183,7 +1184,7 @@ const ProduceInfo = () => {
     }
     if (storeProduceInfo.cycleStarts !== '') {
       if (validationData()) {
-           const maxLength = carbonOption === 'mangrove' ? 3 : 1;
+        const maxLength = carbonOption === 'mangrove' ? 3 : 1;
         if (storeProduceInfoInArray.length < maxLength) {
           emptyFieldsValue();
           removesetLocation();
@@ -1719,7 +1720,7 @@ const ProduceInfo = () => {
                   }
 
                   {
-                    carbonOption !== 'mangrove'&&(
+                    carbonOption !== 'mangrove' && (
                       <ProofAndIdentityPropfComp
                         identityProofIdentityPropf={landProof}
                         t={t}

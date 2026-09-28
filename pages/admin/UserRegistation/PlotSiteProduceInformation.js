@@ -382,8 +382,11 @@ const PlotSiteProduceInformation = () => {
   var prodctionSeasionArray = [];
   const onPageLoad = async () => {
     // const { latitude, longitude } = coords;
-    const { latitude, longitude } = await getHighAccuracyLocation();
-
+    const { latitude, longitude } = (await getHighAccuracyLocation()) || {};
+    if (!latitude || !longitude || latitude === 0 || longitude === 0) {
+      Alert.alert('Location Error', 'Unable to get valid GPS location.');
+      return;
+    }
     let groupedData;
     var terraintypeArray = [];
     var landTypeArray = [];
@@ -1039,7 +1042,8 @@ const PlotSiteProduceInformation = () => {
     setstoreProduceInfoInArray(values);
   };
   const validationData = () => {
-    if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && !storeProduceInfo.jlNo) {
+    const hasLandProof = landProof?.some(file => file?.uri && file.uri.trim() !== '');
+    if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && hasLandProof && !storeProduceInfo.jlNo) {
       Toast.show({
         time: 3,
         text: 'Please enter JL Number',
@@ -1049,7 +1053,7 @@ const PlotSiteProduceInformation = () => {
       return false;
     }
 
-    if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && !storeProduceInfo.daagNo) {
+    if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && hasLandProof && !storeProduceInfo.daagNo) {
       Toast.show({
         time: 3,
         text: 'Please enter Daag No',
@@ -1350,7 +1354,11 @@ const PlotSiteProduceInformation = () => {
   const handleCurrentLatLong = async index => {
     const values = [...location];
     // const { latitude, longitude } = coords;
-    const { latitude, longitude } = await getHighAccuracyLocation();
+    const { latitude, longitude } = (await getHighAccuracyLocation()) || {};
+    if (!latitude || !longitude || latitude === 0 || longitude === 0) {
+      Alert.alert('Location Error', 'Unable to get valid GPS location.');
+      return;
+    }
     if (longitude != '' && latitude != '') {
       values[index] = { latitude: latitude, longitude: longitude };
       setLocation(values);
@@ -1389,7 +1397,11 @@ const PlotSiteProduceInformation = () => {
   };
   const handleCurrentLatLongIOT = async () => {
     // const { latitude, longitude } = coords || {};
-    const { latitude, longitude } = await getHighAccuracyLocation();
+    const { latitude, longitude } = (await getHighAccuracyLocation()) || {};
+    if (!latitude || !longitude || latitude === 0 || longitude === 0) {
+      Alert.alert('Location Error', 'Unable to get valid GPS location.');
+      return;
+    }
     setstoreProduceInfo(prev => ({
       ...prev,
       IOTLatlat: latitude,
@@ -2026,48 +2038,7 @@ const PlotSiteProduceInformation = () => {
                 </View>
                 {renderLocationTags()}
 
-                {/* {location &&
-                  location.map((data, index) => {
-                    return (
-                      // GRQ-1134
-                      <TouchableOpacity
-                        key={index}
-                        onPress={() =>
-                          data.latitude != 10 && data.latitude.length != ''
-                            ? ''
-                            : handleCurrentLatLong(index)
-                        }>
-                        <View style={styles.latlongContainer}>
-                          <Text style={styles.title}>
-                            {data && data.latitude && data.latitude == ''
-                              ? '0.0'
-                              : data.latitude}
-                          </Text>
-                          <Text style={styles.title}>
-                            {data && data.longitude && data.longitude == ''
-                              ? '0.0'
-                              : data.longitude}
-                          </Text>
-                        </View>
-                        <View style={styles.latlongContainer}>
-                          <Text style={styles.title}>
-                            {t('tap_to_get_latitude_and_longitude')}
-                          </Text>
-                          <Image
-                            source={require('../../Common/images/map.png')}
-                            style={{width: 50, height: 50}}
-                          />
-                        </View>
-                      </TouchableOpacity>
-                    );
-                  })} */}
-                {/* <DropdownForm
-                  label={t('addcrop_select_cultivating_season')}
-                  required={true}
-                  data={prodctionSeasionData}
-                  onChange={handelChangeAddCrop}
-                  val={storeProduceInfo.prodctionSeasion}
-                /> */}
+
                 <DropdownForm
                   label={t('select_crop_type')}
                   required={true}

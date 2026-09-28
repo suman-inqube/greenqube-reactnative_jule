@@ -91,6 +91,10 @@ const DEFAULT_MAP_CENTER = { latitude: 20.5937, longitude: 78.9629 };
 
 const LOCATION_UPDATE_INTERVAL = 1500; // Throttle to 1.5 seconds
 const MIN_DISTANCE_THRESHOLD = 1; // Re-render only if moved >= 1 meter
+const HIGH_ACCURACY_THRESHOLD = 20; // GPS Accuracy threshold in meters (<= 20m is High Accuracy)
+const STABLE_DISTANCE_DELTA_THRESHOLD = 2.5; // Max movement in meters between updates to be considered stationary
+const REQUIRED_STABLE_TICKS = 2; // Consecutive stationary updates required
+const MAX_STATIONARY_SPEED = 0.8; // m/s speed threshold (walking is ~1.4 m/s)
 
 /**
  * Calculates a point at a given distance and bearing from the source point.
@@ -267,6 +271,10 @@ const ActivityMap = ({
 
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const [gpsAccuracy, setGpsAccuracy] = useState(null);
+  const [isLocationStable, setIsLocationStable] = useState(false);
+
+  const stableCountRef = useRef(0);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -308,7 +316,13 @@ const ActivityMap = ({
   useEffect(() => {
     if (modalVisibleMap) {
       hasCenteredRef.current = false;
-      const targetLoc = userLocation || location;
+      stableCountRef.current = 0;
+      setIsLocationStable(false);
+      setGpsAccuracy(null);
+      setUserLocation(null);
+      setOutOfRange?.(false); // Reset boundary status until live GPS fixes
+
+      const targetLoc = location;
       if (targetLoc && targetLoc.latitude && targetLoc.longitude) {
         const timer = setTimeout(() => {
           centerOnLocation(targetLoc, false);
@@ -319,11 +333,14 @@ const ActivityMap = ({
     } else {
       setSelectedMarker(null);
       setUserLocation(null);
+      setGpsAccuracy(null);
+      setIsLocationStable(false);
+      stableCountRef.current = 0;
       lastCoord.current = null;
       lastLocationUpdate.current = 0;
       hasCenteredRef.current = false;
     }
-  }, [modalVisibleMap, location, userLocation, centerOnLocation]);
+  }, [modalVisibleMap, location, centerOnLocation, setOutOfRange]);
 
   // Triggered when map finishes native initialization
   const handleMapReady = useCallback(() => {
@@ -374,6 +391,41 @@ const ActivityMap = ({
       const coordinate = event?.nativeEvent?.coordinate;
       if (!coordinate || coordinate.latitude == null || coordinate.longitude == null) return;
 
+      const accuracy = coordinate.accuracy || 0;
+      const speed = coordinate.speed != null && coordinate.speed >= 0 ? coordinate.speed : null;
+      const isHighAccuracy = accuracy > 0 && accuracy <= HIGH_ACCURACY_THRESHOLD;
+
+      if (isMountedRef.current) {
+        setGpsAccuracy(accuracy);
+      }
+
+      // Calculate distance moved from last point
+      let movedDist = 0;
+      if (lastCoord.current) {
+        try {
+          movedDist = getDistance(lastCoord.current, coordinate);
+        } catch (_) { }
+      }
+
+      // Check if user is currently moving or GPS location is fluctuating/jittering
+      const isMovingOrJumping =
+        (speed !== null && speed > MAX_STATIONARY_SPEED) ||
+        (lastCoord.current && movedDist > STABLE_DISTANCE_DELTA_THRESHOLD);
+
+      if (isHighAccuracy && !isMovingOrJumping) {
+        stableCountRef.current += 1;
+        if (stableCountRef.current >= REQUIRED_STABLE_TICKS) {
+          if (isMountedRef.current) {
+            setIsLocationStable(true);
+          }
+        }
+      } else {
+        stableCountRef.current = 0;
+        if (isMountedRef.current) {
+          setIsLocationStable(false);
+        }
+      }
+
       const now = Date.now();
       if (now - lastLocationUpdate.current < LOCATION_UPDATE_INTERVAL) {
         return;
@@ -382,17 +434,12 @@ const ActivityMap = ({
       const newLocation = {
         latitude: coordinate.latitude,
         longitude: coordinate.longitude,
-        accuracy: coordinate.accuracy || 0,
+        accuracy: accuracy,
       };
 
       // Filter micro GPS jitter (< 1 meter)
-      if (lastCoord.current) {
-        try {
-          const dist = getDistance(lastCoord.current, newLocation);
-          if (dist < MIN_DISTANCE_THRESHOLD) {
-            return;
-          }
-        } catch (_) { }
+      if (lastCoord.current && movedDist < MIN_DISTANCE_THRESHOLD) {
+        return;
       }
 
       lastLocationUpdate.current = now;
@@ -407,17 +454,19 @@ const ActivityMap = ({
         centerOnLocation(newLocation, true);
       }
 
-      // Check boundary polygon
-      if (Array.isArray(plotPolygon) && plotPolygon.length > 2) {
-        try {
-          const inside = isPointInPolygon(newLocation, plotPolygon);
-          setOutOfRange?.(inside);
-        } catch (_) { }
-      }
+      // Check boundary polygon and set coordinates ONLY IF High Accuracy is achieved
+      if (isHighAccuracy) {
+        if (Array.isArray(plotPolygon) && plotPolygon.length > 2) {
+          try {
+            const inside = isPointInPolygon(newLocation, plotPolygon);
+            setOutOfRange?.(inside);
+          } catch (_) { }
+        }
 
-      setMapLatLon?.(newLocation);
+        setMapLatLon?.(newLocation);
+      }
     },
-    [plotPolygon, setOutOfRange, setMapLatLon, centerOnLocation, outofRange],
+    [plotPolygon, setOutOfRange, setMapLatLon, centerOnLocation],
   );
 
   const handleSelectMarker = useCallback(polygon => {
@@ -433,12 +482,36 @@ const ActivityMap = ({
   }, []);
 
   const handleCapturePress = useCallback(() => {
-    TakePhoto?.(replaceImgKey, userLocation || location);
-  }, [TakePhoto, replaceImgKey, userLocation, location]);
+    const accuracy = userLocation?.accuracy || gpsAccuracy || 0;
+    if (accuracy <= 0 || accuracy > HIGH_ACCURACY_THRESHOLD || !isLocationStable) {
+      return;
+    }
+    const currentLoc = userLocation || location;
+    if (
+      TakePhotoReplaceImage &&
+      replaceImgKey?.arrayPosition != null &&
+      replaceImgKey.arrayPosition !== ''
+    ) {
+      TakePhotoReplaceImage(replaceImgKey, currentLoc);
+    } else {
+      TakePhoto?.(replaceImgKey, currentLoc);
+    }
+  }, [
+    TakePhoto,
+    TakePhotoReplaceImage,
+    replaceImgKey,
+    userLocation,
+    location,
+    gpsAccuracy,
+    isLocationStable,
+  ]);
 
   const handleCloseModal = useCallback(() => {
     setSelectedMarker(null);
     setUserLocation(null);
+    setGpsAccuracy(null);
+    setIsLocationStable(false);
+    stableCountRef.current = 0;
     lastCoord.current = null;
     hasCenteredRef.current = false;
     setModalVisibleMap?.(false);
@@ -517,7 +590,7 @@ const ActivityMap = ({
           </MapView>
         </View>
 
-        {/* Close Button Top Right */}
+        {/* Close Button Top Left */}
         <TouchableOpacity
           style={styles.closeButton}
           onPress={handleCloseModal}
@@ -525,10 +598,32 @@ const ActivityMap = ({
           <Text style={styles.closeIcon}>✕</Text>
         </TouchableOpacity>
 
-        {/* Capture Button (Conditional based on outofRange) */}
-        {outofRange ? (
+        {/* Top GPS Accuracy / Stability Pill */}
+        {!gpsAccuracy || gpsAccuracy > HIGH_ACCURACY_THRESHOLD ? (
+          <View style={[styles.accuracyBadge, styles.accuracyLow]}>
+            <View style={[styles.accuracyDot, styles.dotLow]} />
+            <Text style={[styles.accuracyText, styles.accuracyTextLow]}>
+              {gpsAccuracy == null
+                ? '📡 Searching GPS...'
+                : `Low Accuracy (±${Math.round(gpsAccuracy)}m) - Calibrating...`}
+            </Text>
+          </View>
+        ) : !isLocationStable ? (
+          <View style={[styles.accuracyBadge, styles.accuracyCalibrating]}>
+            <View style={[styles.accuracyDot, styles.dotCalibrating]} />
+            <Text style={[styles.accuracyText, styles.accuracyTextCalibrating]}>
+              ⏳ Stabilizing Position - Please Stand Still...
+            </Text>
+          </View>
+        ) : null}
+
+        {/* Capture Button (Shown ONLY when inside plot AND GPS is High Accuracy & Stable) */}
+        {outofRange &&
+          gpsAccuracy &&
+          gpsAccuracy <= HIGH_ACCURACY_THRESHOLD &&
+          isLocationStable ? (
           <TouchableOpacity
-            style={styles.captureButton}
+            style={[styles.captureButton, styles.captureButtonReady]}
             activeOpacity={0.75}
             onPress={handleCapturePress}>
             <Text style={styles.captureIcon}>📷</Text>
@@ -602,12 +697,81 @@ const styles = StyleSheet.create({
     bottom: 25,
     alignSelf: 'center',
     borderWidth: 3.5,
-    borderColor: '#2E7D32',
     elevation: 8,
     shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 3 },
     shadowRadius: 5,
+  },
+  captureButtonReady: {
+    borderColor: '#2E7D32',
+    opacity: 1,
+  },
+  captureButtonDisabled: {
+    borderColor: '#757575',
+    opacity: 0.45,
+  },
+  accuracyBadge: {
+    position: 'absolute',
+    top: Platform.OS === 'android' ? 25 : 45,
+    left: 60,
+    right: 20,
+    height: 38,
+    borderRadius: 19,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    borderWidth: 0,
+    zIndex: 10,
+    // shadowColor: '#000',
+    // shadowOpacity: 0.25,
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowRadius: 4,
+    // elevation: 5,
+  },
+  accuracyLow: {
+    // backgroundColor: 'rgba(20, 20, 20, 0.9)',
+    borderColor: '#FF9800',
+  },
+  accuracyCalibrating: {
+    // backgroundColor: 'rgba(20, 20, 20, 0.9)',
+    borderColor: '#29B6F6',
+  },
+  accuracyHigh: {
+    // backgroundColor: 'rgba(20, 20, 20, 0.9)',
+    borderColor: '#00E676',
+  },
+  accuracyDot: {
+    width: 9,
+    height: 9,
+    borderRadius: 4.5,
+    marginRight: 8,
+  },
+  dotLow: {
+    backgroundColor: '#FF9800',
+  },
+  dotCalibrating: {
+    backgroundColor: '#29B6F6',
+  },
+  dotHigh: {
+    backgroundColor: '#00E676',
+  },
+  accuracyText: {
+    fontSize: 10,
+    fontWeight: '600',
+    flexShrink: 1,
+  },
+  accuracyTextLow: {
+    color: '#FFB74D',
+    backgroundColor: 'red'
+  },
+  accuracyTextCalibrating: {
+    color: '#81D4FA',
+    backgroundColor: 'red'
+  },
+  accuracyTextHigh: {
+    color: '#B9F6CA',
+    backgroundColor: 'red'
   },
   captureIcon: {
     color: '#000',

@@ -379,13 +379,12 @@ export const ROUTES = {
       createdBy = '',
       latitude = '',
       longitude = '',
-      distance = '10000',
+      distance = '',
       state = '',
       district = '',
       subdivision = '',
     }) =>
-      `loanEntityRoute/polygonList_v2?pageNo=1&pageLimit=500&createdBy=${createdBy}&latitude=${latitude}&longitude=${longitude}&distance=${distance}&state=${state}&district=${district}&subdivision=${subdivision}`,
-
+      `loanEntityRoute/polygonList_v2?pageNo=1&pageLimit=200&createdBy=${createdBy}&latitude=${latitude}&longitude=${longitude}&distance=${distance}&state=${state}&district=${district}&subdivision=${subdivision}`,
     PLOT_MAP_DETAILS: ({ user_id = '', land_unit_id = '' }) =>
       `loanEntityRoute/polygonDetails_v2?user_id=${user_id}&land_unit_id=${land_unit_id}`,
 

@@ -108,14 +108,18 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
   const { params } = route;
   const onPageLoad = async () => {
     try {
-      const { latitude, longitude } = coords || {};
-      var latlong;
-      if (latitude == '' && longitude == '') {
-        latlong = await getHighAccuracyLocation();
+      // const { latitude, longitude } = coords || {};
+      // var latlong;
+      // if (latitude == '' && longitude == '') {
+      //   latlong = await getHighAccuracyLocation();
+      // }
+      // const lat = latitude === '' ? latlong.latitude : latitude;
+      // const lon = longitude === '' ? latlong.longitude : longitude;
+      const { latitude: lat, longitude: lon } = (await getHighAccuracyLocation()) || {};
+      if (!lat || !lon || lat === 0 || lon === 0) {
+        Alert.alert('Location Error', 'Unable to get valid GPS location.');
+        return;
       }
-      const lat = latitude === '' ? latlong.latitude : latitude;
-      const lon = longitude === '' ? latlong.longitude : longitude;
-
       setIsLoading(true);
       const pipeRes = await axiosGet(
         ROUTES.GET.ACTIVITY_PIPE_IMG({
@@ -368,21 +372,30 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
   const [loadProgress, setLoadProgress] = useState(''); //
   const [loadingModels, setLoadingModels] = useState(true);
   const TakePhoto = useCallback(async () => {
-    const { latitude, longitude } = coords || {};
-    let latlong;
-    if (!latitude || !longitude) {
-      latlong = await getHighAccuracyLocation();
-    }
+    // const { latitude, longitude } = coords || {};
+    // let latlong;
+    // if (!latitude || !longitude) {
+    //   latlong = await getHighAccuracyLocation();
+    // }
 
-    const lat = latitude || latlong?.latitude || 0;
-    const lon = longitude || latlong?.longitude || 0;
+    // const lat = latitude || latlong?.latitude || 0;
+    // const lon = longitude || latlong?.longitude || 0;
+
+    const { latitude: lat, longitude: lon } = (await getHighAccuracyLocation()) || {};
+
+    if (!lat || !lon || lat === 0 || lon === 0) {
+      Alert.alert('Location Error', 'Unable to get valid GPS location.');
+      return;
+    }
     setModalVisibleMap(false);
     setAIModalVisible(true);
     setMapLatLon({
       latitude: lat,
       longitude: lon
     })
-  }, [location, cameraItem, pipeLatLong, coords]);
+  }, [location, cameraItem, pipeLatLong,
+    // coords
+  ]);
   const [pipeDetails, setPipeDetails] = useState([]);
   return (
     <FarmerDrawerScreenWrapper1>

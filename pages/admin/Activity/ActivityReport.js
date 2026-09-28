@@ -284,7 +284,7 @@ const ActivityReport = ({ navigation, route }) => {
               try {
                 const uri = await captureRef(watermarkViewRef, {
                   format: 'jpg',
-                  quality: 2,
+                  quality: 1,
                   width: 800,
                   height: 800,
                 });
@@ -394,7 +394,14 @@ const ActivityReport = ({ navigation, route }) => {
   };
 
   const handlePlot = async relId => {
-    const { latitude, longitude } = coords || {};
+    // const { latitude, longitude } = coords || {};
+
+    const { latitude, longitude } = (await getHighAccuracyLocation()) || {};
+
+    if (!latitude || !longitude || latitude === 0 || longitude === 0) {
+      Alert.alert('Location Error', 'Unable to get valid GPS location.');
+      return;
+    }
     setSaveData({
       ...saveData,
       latitude: latitude,
@@ -1088,11 +1095,13 @@ const ActivityReport = ({ navigation, route }) => {
       });
     }
   };
-  const handleActivityPattern = item => {
+  const handleActivityPattern = async (item) => {
     // console.log('item', item);
-
-    const { latitude, longitude } = coords || {};
-
+    const { latitude, longitude } = (await getHighAccuracyLocation()) || {};
+    if (!latitude || !longitude || latitude === 0 || longitude === 0) {
+      Alert.alert('Location Error', 'Unable to get valid GPS location.');
+      return;
+    }
     setSaveData({
       ...saveData,
       act_pattern: item,

@@ -139,119 +139,119 @@ const UserCreateContextProvider = props => {
 
   // -------- Start Watching Location ----------
   const startWatchingLocation = async () => {
-    const hasPermission = await requestPermission();
-    if (!hasPermission) {
-      Alert.alert('Permission Required', 'Location permission not granted.');
-      return;
-    }
+    // const hasPermission = await requestPermission();
+    // if (!hasPermission) {
+    //   Alert.alert('Permission Required', 'Location permission not granted.');
+    //   return;
+    // }
 
-    const gpsEnabled = await ensureGpsEnabled();
-    if (!gpsEnabled) {
-      Alert.alert('Enable GPS', 'Please enable GPS to use location services.');
-      return;
-    }
+    // const gpsEnabled = await ensureGpsEnabled();
+    // if (!gpsEnabled) {
+    //   Alert.alert('Enable GPS', 'Please enable GPS to use location services.');
+    //   return;
+    // }
 
-    // Warm up GPS (get first fix quickly)
-    // Geolocation.getCurrentPosition(
-    //   pos => console.log('Initial fix:', pos.coords),
-    //   err => console.log('Warm-up error:', err),
-    //   { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+    // // Warm up GPS (get first fix quickly)
+    // // Geolocation.getCurrentPosition(
+    // //   pos => console.log('Initial fix:', pos.coords),
+    // //   err => console.log('Warm-up error:', err),
+    // //   { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+    // // );
+
+    // if (watchIdRef.current) {
+    //   Geolocation.clearWatch(watchIdRef.current);
+    //   watchIdRef.current = null;
+    // }
+    // if (locationIntervalRef.current) {
+    //   clearInterval(locationIntervalRef.current);
+    //   locationIntervalRef.current = null;
+    // }
+
+    // // Main watcher
+    // watchIdRef.current = Geolocation.watchPosition(
+    //   pos => {
+    //     if (!pos || !pos.coords) return;
+    //     if (__DEV__) {
+    //       console.log(
+    //         `📍 lat:${pos.coords.latitude}, lon:${pos.coords.longitude}, acc:${pos.coords.accuracy}m, mocked:${pos.mocked}`,
+    //       );
+    //     }
+    //     if (pos.mocked === true) {
+    //       handleMockDetected();
+    //       return;
+    //     }
+    //     if (pos.coords.accuracy > 50) {
+    //       console.log('Skipping inaccurate reading (>50m)');
+    //       return;
+    //     }
+
+    //     setCoords(prev => {
+    //       if (
+    //         prev.latitude === pos.coords.latitude &&
+    //         prev.longitude === pos.coords.longitude &&
+    //         prev.accuracy === pos.coords.accuracy
+    //       ) {
+    //         return prev;
+    //       }
+    //       return {
+    //         latitude: pos.coords.latitude,
+    //         longitude: pos.coords.longitude,
+    //         accuracy: pos.coords.accuracy,
+    //         timestamp: pos.timestamp,
+    //         mocked: pos.mocked,
+    //       };
+    //     });
+    //   },
+    //   err => {
+    //     console.error('Location error:', err);
+    //     if (err.code === 1)
+    //       Alert.alert('Permission Denied', 'Location permission denied.');
+    //     else if (err.code === 2)
+    //       Alert.alert('GPS Off', 'GPS is turned off. Please enable it.');
+    //     else if (err.code === 3)
+    //       Alert.alert('Timeout', 'Location request timed out.');
+    //     else Alert.alert('Unable to get location.');
+    //   },
+    //   {
+    //     enableHighAccuracy: true, // Use GPS hardware
+    //     accuracy: { android: 'high', ios: 'bestForNavigation' },
+    //     distanceFilter: 3, // every small move
+    //     interval: 3000,
+    //     fastestInterval: 1000,
+    //     timeout: 20000,
+    //     maximumAge: 0,
+    //     forceRequestLocation: true,
+    //     showLocationDialog: true,
+    //   },
     // );
-
-    if (watchIdRef.current) {
-      Geolocation.clearWatch(watchIdRef.current);
-      watchIdRef.current = null;
-    }
-    if (locationIntervalRef.current) {
-      clearInterval(locationIntervalRef.current);
-      locationIntervalRef.current = null;
-    }
-
-    // Main watcher
-    watchIdRef.current = Geolocation.watchPosition(
-      pos => {
-        if (!pos || !pos.coords) return;
-        if (__DEV__) {
-          console.log(
-            `📍 lat:${pos.coords.latitude}, lon:${pos.coords.longitude}, acc:${pos.coords.accuracy}m, mocked:${pos.mocked}`,
-          );
-        }
-        if (pos.mocked === true) {
-          handleMockDetected();
-          return;
-        }
-        if (pos.coords.accuracy > 50) {
-          console.log('Skipping inaccurate reading (>50m)');
-          return;
-        }
-
-        setCoords(prev => {
-          if (
-            prev.latitude === pos.coords.latitude &&
-            prev.longitude === pos.coords.longitude &&
-            prev.accuracy === pos.coords.accuracy
-          ) {
-            return prev;
-          }
-          return {
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            accuracy: pos.coords.accuracy,
-            timestamp: pos.timestamp,
-            mocked: pos.mocked,
-          };
-        });
-      },
-      err => {
-        console.error('Location error:', err);
-        if (err.code === 1)
-          Alert.alert('Permission Denied', 'Location permission denied.');
-        else if (err.code === 2)
-          Alert.alert('GPS Off', 'GPS is turned off. Please enable it.');
-        else if (err.code === 3)
-          Alert.alert('Timeout', 'Location request timed out.');
-        else Alert.alert('Unable to get location.');
-      },
-      {
-        enableHighAccuracy: true, // Use GPS hardware
-        accuracy: { android: 'high', ios: 'bestForNavigation' },
-        distanceFilter: 3, // every small move
-        interval: 3000,
-        fastestInterval: 1000,
-        timeout: 20000,
-        maximumAge: 0,
-        forceRequestLocation: true,
-        showLocationDialog: true,
-      },
-    );
-    locationIntervalRef.current = setInterval(() => {
-      Geolocation.getCurrentPosition(
-        p => {
-          if (p?.mocked === true) handleMockDetected();
-        },
-        () => { },
-        { enableHighAccuracy: true, timeout: 10000 },
-      );
-    }, 10000);
+    // locationIntervalRef.current = setInterval(() => {
+    //   Geolocation.getCurrentPosition(
+    //     p => {
+    //       if (p?.mocked === true) handleMockDetected();
+    //     },
+    //     () => { },
+    //     { enableHighAccuracy: true, timeout: 10000 },
+    //   );
+    // }, 10000);
   };
 
-  const stopWatchingLocation = () => {
-    if (watchIdRef.current) {
-      Geolocation.clearWatch(watchIdRef.current);
-      watchIdRef.current = null;
-    }
-    if (locationIntervalRef.current) {
-      clearInterval(locationIntervalRef.current);
-      locationIntervalRef.current = null;
-    }
-  };
+  // const stopWatchingLocation = () => {
+  //   if (watchIdRef.current) {
+  //     Geolocation.clearWatch(watchIdRef.current);
+  //     watchIdRef.current = null;
+  //   }
+  //   if (locationIntervalRef.current) {
+  //     clearInterval(locationIntervalRef.current);
+  //     locationIntervalRef.current = null;
+  //   }
+  // };
 
-  useEffect(() => {
-    startWatchingLocation();
-    return () => {
-      stopWatchingLocation();
-    };
-  }, []);
+  // useEffect(() => {
+  //   startWatchingLocation();
+  //   return () => {
+  //     stopWatchingLocation();
+  //   };
+  // }, []);
   const AllFarmerList = async () => {
     try {
       let farmer_response = [];
@@ -433,7 +433,7 @@ const UserCreateContextProvider = props => {
       coords,
       setCoords,
       startWatchingLocation,
-      stopWatchingLocation,
+      // stopWatchingLocation,
       t,
       AlertMesg,
       onBackPress,

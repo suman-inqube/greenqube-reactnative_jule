@@ -92,7 +92,7 @@ const ProduceInfoUpdate = () => {
     IOTLatlat: '',
     ConvertedreportedLandsize: 0,
   });
-  const[isIdProof,setIdProof]=useState([])
+  const [isIdProof, setIdProof] = useState([])
   const [carbonOption, setcarbonOption] = useState("")
   const [landProof, setLandProof] = useState([
     { uri: '', name: '', type: '', fileName: '' },
@@ -686,15 +686,16 @@ const ProduceInfoUpdate = () => {
         }
       }
     }
+    const hasLandProof = landProof?.some(file => file?.uri && file.uri.trim() !== '');
     const locationEmpty = location.filter(item => item.latitude !== '');
-    if (carbonFlag && carbonOption !== 'mangrove' && !storeProduceInfo.daagNo) {
+    if (carbonFlag && carbonOption !== 'mangrove' && hasLandProof && !storeProduceInfo.daagNo) {
       Toast.show({
         text: 'Please enter Daag Number',
         ...AlertMesg[0],
       });
       return;
     }
-    if (carbonFlag && carbonOption !== 'mangrove' && !storeProduceInfo.jl_no) {
+    if (carbonFlag && carbonOption !== 'mangrove' && hasLandProof && !storeProduceInfo.jl_no) {
       Toast.show({
         text: 'Please enter JL Number',
         ...AlertMesg[0],
@@ -737,7 +738,7 @@ const ProduceInfoUpdate = () => {
       await removeItem('storeProduceInfo_data');
       storeProduceInfoInArray[arrayIndex].storeProduceInfo = storeProduceInfo;
       storeProduceInfoInArray[arrayIndex].location = location;
-         storeProduceInfoInArray[arrayIndex].landProof = landProof;
+      storeProduceInfoInArray[arrayIndex].landProof = landProof;
 
 
       // landProof basudev
@@ -1408,7 +1409,7 @@ const ProduceInfoUpdate = () => {
                     }
 
                     {
-                      carbonOption !== 'mangrove'&&(
+                      carbonOption !== 'mangrove' && (
                         <ProofAndIdentityPropfComp
                           identityProofIdentityPropf={landProof}
                           t={t}

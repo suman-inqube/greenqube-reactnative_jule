@@ -1,37 +1,66 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useMemo, useCallback, useRef } from 'react';
 import {
   Text,
   TouchableOpacity,
   View,
-  Clipboard,
   Linking,
   Image,
   ScrollView,
+  LayoutAnimation,
+  Alert,
 } from 'react-native';
 import PlotMap from './PlotMap';
 import FilterModal from './FilterModal';
 import { userCreateContext } from '../../Context/usersCreateContext';
-
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
-import { getDistance } from 'geolib';
-import {
-  useFocusEffect,
-  useNavigation,
-  useIsFocused,
-} from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { axiosGet } from '../../utils/api';
 import { ROUTES } from '../../utils/Routes';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
+
+// Static date formatter to avoid allocations inside render
+const formatDate = dateStr => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+};
+
+// Static response transformer
+const transformData = apiResponse => {
+  const rows = apiResponse?.data?.data?.rows;
+  if (!Array.isArray(rows)) return [];
+
+  return rows.map(item => {
+    const coordinates =
+      item.landLatLong
+        ?.filter(c => c && c.latitude && c.longitude)
+        .map(c => ({
+          lat: Number(c.latitude),
+          lng: Number(c.longitude),
+        })) || [];
+
+    return {
+      id: item.rel_id,
+      farmer_id: item.user_id,
+      plotName: item.plot_no ? `${item.plot_no}` : 'unknown',
+      landSize: item.land_convert_size || '0',
+      land_unit_id: item.land_unit_id,
+      center_lat: coordinates[0]?.lat || null,
+      center_lng: coordinates[0]?.lng || null,
+      coordinates: coordinates,
+    };
+  });
+};
+
 const PlotWiseMap = () => {
   const navigation = useNavigation();
+  const isFocused = useIsFocused();
+  const isMountedRef = useRef(true);
 
   const {
-    coords,
-    startWatchingLocation,
-    stopWatchingLocation,
     CustomHeader,
     logoImage,
     topBanner,
@@ -40,17 +69,15 @@ const PlotWiseMap = () => {
     getItem,
     Root,
   } = useContext(userCreateContext);
-  const { carbonFlag } = loginUser_data;
-  const { dbname, lan_id, token, user_id, FcmUserToken, owner } = loginUser_data;
-  const [polygons, setPolygons] = useState([]);
-  const [baseLatLong, setBaseLatLong] = useState({
-    latitude: 0,
-    longitude: 0,
-  });
+
+  const { carbonFlag, dbname, lan_id, token, user_id } = loginUser_data || {};
+
+  const [plotData, setPlotData] = useState([]);
+  const [baseLatLong, setBaseLatLong] = useState({ latitude: 0, longitude: 0 });
   const [isFilterApplied, setIsFilterApplied] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [selectedPlot, setSelectedPlot] = useState(null);
-  const [plotData, setPlotData] = useState([]);
+
   const [states, setStates] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [panchayats, setPanchayats] = useState([]);
@@ -63,28 +90,34 @@ const PlotWiseMap = () => {
   const [expandedSections, setExpandedSections] = useState({});
   const [activityData, setActivityData] = useState(null);
 
-  // useEffect(() => {
-  //   if (
-  //     Platform.OS === 'android' &&
-  //     UIManager.setLayoutAnimationEnabledExperimental
-  //   ) {
-  //     UIManager.setLayoutAnimationEnabledExperimental(true);
-  //   }
-  // }, []);
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
-  const formatDate = dateStr => {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
-  };
+  // 🔹 Memoize polygons directly from plotData and selectedPlot (Zero duplicated state in RAM)
+  const polygons = useMemo(() => {
+    if (!plotData || plotData.length === 0) return [];
+    const selectedId = selectedPlot?.id;
 
-  // 🔹 GROUP DATA
+    return plotData.map(p => ({
+      id: p.id,
+      isSelected: selectedId === p.id,
+      coordinates: p.coordinates.map(c => ({
+        latitude: c.lat,
+        longitude: c.lng,
+      })),
+    }));
+  }, [plotData, selectedPlot?.id]);
+
+  // 🔹 Group activity data
   const groupedData = useMemo(() => {
     if (!activityData?.rows) return {};
 
     return activityData.rows.reduce((acc, item) => {
       const category = item?.typeActivity?.categoryName || 'Unknown Activity';
-
       if (!acc[category]) acc[category] = [];
 
       acc[category].push({
@@ -104,296 +137,248 @@ const PlotWiseMap = () => {
     }
   }, [groupedData]);
 
-  // Toggle
-  const toggleSection = category => {
+  const toggleSection = useCallback(category => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-
     setExpandedSections(prev => ({
       ...prev,
       [category]: !prev[category],
     }));
-  };
+  }, []);
 
-  const loadStates = async () => {
-    const response = await axiosGet(ROUTES.GET.STATE_API(), '', {
-      information: `${dbname},${lan_id}`,
-    });
-    if (response?.status === 200) {
-      const data = response.data.data.rows.map(item => ({
-        label: item.state_name,
-        value: item.fid,
-      }));
-      setStates(data);
+  const loadStates = useCallback(async () => {
+    try {
+      const response = await axiosGet(ROUTES.GET.STATE_API(), '', {
+        information: `${dbname},${lan_id}`,
+      });
+      if (response?.status === 200 && isMountedRef.current) {
+        const data = response.data.data.rows.map(item => ({
+          label: item.state_name,
+          value: item.fid,
+        }));
+        setStates(data);
+      }
+    } catch (_) { }
+  }, [dbname, lan_id]);
+
+  const loadDistricts = useCallback(async state => {
+    try {
+      const response = await axiosGet(
+        ROUTES.GET.DISTRICT_API({ stateID: state.value }),
+        '',
+        { information: `${dbname},${lan_id}` },
+      );
+      if (response?.status === 200 && isMountedRef.current) {
+        const data = response.data.data.rows.map(item => ({
+          label: item.district_name,
+          value: item.fid,
+        }));
+        setDistricts(data);
+      }
+    } catch (_) { }
+  }, [dbname, lan_id]);
+
+  const loadPanchayats = useCallback(async district => {
+    try {
+      const response = await axiosGet(
+        ROUTES.GET.BLOCK_API({ districtID: district.value }),
+        '',
+        { information: `${dbname},${lan_id}` },
+      );
+      if (response?.status === 200 && isMountedRef.current) {
+        const data = response.data.data.rows.map(item => ({
+          label: item.subdiv_name,
+          value: item.fid,
+        }));
+        setPanchayats(data);
+      }
+    } catch (_) { }
+  }, [dbname, lan_id]);
+
+  const loadNearbyPlots = useCallback(async (lat, lng) => {
+    const targetLat = lat != null ? lat : baseLatLong.latitude;
+    const targetLng = lng != null ? lng : baseLatLong.longitude;
+
+    if (!targetLat || !targetLng) return;
+
+    try {
+      const response = await axiosGet(
+        ROUTES.GET.PLOT_VIEW_MAP({
+          lat: targetLat,
+          lng: targetLng,
+          createdBy: user_id,
+          distance: "1000"
+        }),
+        token,
+        { information: `${dbname}` },
+      );
+      if (response?.status === 200 && isMountedRef.current) {
+        const formattedData = transformData(response);
+        setPlotData(formattedData);
+      }
+    } catch (err) {
+      console.log('Nearby error:', err);
     }
-  };
+  }, [baseLatLong.latitude, baseLatLong.longitude, user_id, token, dbname]);
 
-  const loadDistricts = async state => {
-    const response = await axiosGet(
-      ROUTES.GET.DISTRICT_API({ stateID: state.value }),
-      '',
-      { information: `${dbname},${lan_id}` },
-    );
-
-    if (response?.status === 200) {
-      const data = response.data.data.rows.map(item => ({
-        label: item.district_name,
-        value: item.fid,
-      }));
-      setDistricts(data);
-    }
-  };
-
-  const loadPanchayats = async district => {
-    const response = await axiosGet(
-      ROUTES.GET.BLOCK_API({ districtID: district.value }),
-      '',
-      { information: `${dbname},${lan_id}` },
-    );
-
-    if (response?.status === 200) {
-      const data = response.data.data.rows.map(item => ({
-        label: item.subdiv_name,
-        value: item.fid,
-      }));
-      setPanchayats(data);
-    }
-  };
-
-  useFocusEffect(
-    React.useCallback(() => {
-      console.log('✅ PlotWiseMap Focused - Start Location');
-
-      startWatchingLocation();
-
-      return () => {
-        console.log('❌ PlotWiseMap Unfocused - Stop Location');
-
-        stopWatchingLocation();
-      };
-    }, []),
-  );
+  // Initial load on mount
   useEffect(() => {
-    const loadLocation = async () => {
+    const initLocation = async () => {
       try {
-        const state = await getItem('state');
-        const district = await getItem('district');
-        const block = await getItem('block');
+        const [state, district, block] = await Promise.all([
+          getItem('state'),
+          getItem('district'),
+          getItem('block'),
+        ]);
 
-        setregionaldatas({
-          state,
-          district,
-          block,
-        });
-        let lat = coords?.latitude;
-        let lon = coords?.longitude;
-
-        if (!lat || !lon || lat === '' || lon === '') {
-          const highAcc = await getHighAccuracyLocation();
-          lat = highAcc.latitude;
-          lon = highAcc.longitude;
+        if (isMountedRef.current) {
+          setregionaldatas({
+            state: state || '',
+            district: district || '',
+            block: block || '',
+          });
         }
 
-        setBaseLatLong({
-          latitude: lat,
-          longitude: lon,
-        });
+        const highAcc = await getHighAccuracyLocation();
+        const lat = highAcc?.latitude;
+        const lon = highAcc?.longitude;
+
+        if (!lat || !lon) {
+          if (isMountedRef.current) {
+            Alert.alert('Location Error', 'Unable to get valid GPS location.');
+          }
+          return;
+        }
+
+        if (isMountedRef.current) {
+          setBaseLatLong({ latitude: lat, longitude: lon });
+          loadNearbyPlots(lat, lon);
+        }
       } catch (err) {
         console.log('Location error:', err);
       }
     };
 
-    loadLocation();
-  }, []);
+    initLocation();
+  }, [getItem, loadNearbyPlots]);
 
-  const getCenter = plots => {
-    if (plots.length === 0) return baseLatLong;
-
-    const lat = plots.reduce((sum, p) => sum + p.center_lat, 0) / plots.length;
-
-    const lng = plots.reduce((sum, p) => sum + p.center_lng, 0) / plots.length;
-
-    return {
-      latitude: lat,
-      longitude: lng,
-    };
-  };
-  const applyFilter = async filters => {
+  const applyFilter = useCallback(async filters => {
     if (filters.isClear) {
       setIsFilterApplied(false);
+      const highAcc = await getHighAccuracyLocation();
+      const lat = highAcc?.latitude;
+      const lon = highAcc?.longitude;
 
-      setBaseLatLong({
-        latitude: coords?.latitude,
-        longitude: coords?.longitude,
-      });
+      if (!lat || !lon) {
+        if (isMountedRef.current) {
+          Alert.alert('Location Error', 'Unable to get valid GPS location.');
+        }
+        return;
+      }
 
-      // nearby plots reload
-      loadNearbyPlots();
-
+      if (isMountedRef.current) {
+        setBaseLatLong({ latitude: lat, longitude: lon });
+        loadNearbyPlots(lat, lon);
+      }
       return;
     }
+
     setIsFilterApplied(true);
-
-    const res = await axiosGet(
-      ROUTES.GET.PLOT_VIEW_MAP({
-        state: filters.state?.value,
-        district: filters.district?.value,
-        subdivision: filters.panchayats.map(p => p.value),
-        createdBy: user_id,
-        latitude: '',
-        longitude: '',
-        distance: '',
-      }),
-      token,
-      { information: `${dbname}` },
-    );
-
-    if (res?.status == 200) {
-      if (res?.data?.data?.rows?.length > 0) {
-        setBaseLatLong({
-          latitude: res?.data?.data?.rows[0]?.landLatLong[0]?.latitude,
-          longitude: res?.data?.data?.rows[0]?.landLatLong[0]?.longitude,
-        });
-      }
-      const formattedData = transformData(res);
-      setPlotData(formattedData);
-      setPolygons(formatPolygonsForMap(formattedData, null));
-    }
-  };
-
-  const formatPolygonsForMap = (plots, selected) => {
-    return plots.map(p => ({
-      id: p.id,
-      // farmerName: p.farmerName,
-      // panchayat: p.panchayat,
-      // district: p.district,
-      isSelected: selected?.id === p.id,
-      coordinates: p.coordinates.map(c => ({
-        latitude: c.lat,
-        longitude: c.lng,
-      })),
-    }));
-  };
-
-  const transformData = apiResponse => {
-    return apiResponse?.data?.data?.rows?.map((item, index) => {
-      const coordinates =
-        item.landLatLong
-          ?.filter(c => c.latitude && c.longitude)
-          .map(c => ({
-            lat: c.latitude,
-            lng: c.longitude,
-          })) || [];
-
-      return {
-        id: item.rel_id,
-        farmer_id: item.user_id,
-
-        plotName: item.plot_no ? `${item.plot_no}` : `unknown`,
-        landSize: item.land_convert_size || '0',
-        land_unit_id: item.land_unit_id,
-        center_lat: coordinates[0]?.lat || null,
-        center_lng: coordinates[0]?.lng || null,
-        // district: item.landUsrAdd?.district || 'N/A',
-        // panchayat: item.landUsrAdd?.subdivision || 'N/A',
-        coordinates: coordinates,
-      };
-    });
-  };
-  useEffect(() => {
-    if (!baseLatLong?.latitude) return;
-
-    if (!isFilterApplied) {
-      loadNearbyPlots();
-    }
-  }, [baseLatLong]);
-  useEffect(() => {
-    if (coords?.latitude && coords?.longitude && !isFilterApplied) {
-      setBaseLatLong({
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-      });
-    }
-  }, [coords]);
-  const loadNearbyPlots = async () => {
     try {
-      const response = await axiosGet(
+      const res = await axiosGet(
         ROUTES.GET.PLOT_VIEW_MAP({
-          lat: baseLatLong.latitude,
-          lng: baseLatLong.longitude,
+          state: filters.state?.value,
+          district: filters.district?.value,
+          subdivision: filters.panchayats?.map(p => p.value),
           createdBy: user_id,
+          latitude: '',
+          longitude: '',
+          distance: '5000',
         }),
         token,
         { information: `${dbname}` },
       );
-      if (response?.status === 200) {
-        const formattedData = transformData(response);
+
+      if (res?.status === 200 && isMountedRef.current) {
+        const rows = res?.data?.data?.rows;
+        if (rows && rows.length > 0) {
+          const firstLat = rows[0]?.landLatLong?.[0]?.latitude;
+          const firstLng = rows[0]?.landLatLong?.[0]?.longitude;
+          if (firstLat && firstLng) {
+            setBaseLatLong({
+              latitude: Number(firstLat),
+              longitude: Number(firstLng),
+            });
+          }
+        }
+        const formattedData = transformData(res);
         setPlotData(formattedData);
-        setPolygons(formatPolygonsForMap(formattedData, null));
       }
-    } catch (err) {
-      console.log('Nearby error:', err);
-    }
-  };
-  const handlePolygonPress = async polygon => {
+    } catch (_) { }
+  }, [user_id, token, dbname, loadNearbyPlots]);
+
+  const handlePolygonPress = useCallback(async polygon => {
     try {
-      setActivityData(null);
+      if (isMountedRef.current) setActivityData(null);
       const found = plotData.find(p => p.id === polygon.id);
-      if (found) {
-        const [farmerDetails, actRes] = await Promise.all([
-          axiosGet(
-            ROUTES.GET.PLOT_MAP_DETAILS({
-              user_id: found.farmer_id,
-              land_unit_id: found.land_unit_id,
-            }),
-            token,
-            { information: `${dbname}` },
-          ),
-          axiosGet(
-            ROUTES.GET.PLOTWISE_ACTIVITY({
-              plot_id: found.id,
-              cropStatus: 'ACTIVE',
-            }),
-            token,
-            {
-              Information: `${dbname},${lan_id},${found.farmer_id}`,
-            },
-          ),
-        ]);
-        if (actRes?.status === 200) {
-          setActivityData(actRes?.data?.data);
-        }
-        if (farmerDetails?.status == 200) {
-          const userData = farmerDetails?.data?.data?.userData;
-          const unitData = farmerDetails?.data?.data?.unitData;
-          const district = farmerDetails?.data?.data?.userData?.userAdd?.districtDetails?.district_name;
-          const subDivision = farmerDetails?.data?.data?.userData?.userAdd?.subDivDetails?.subdiv_name;
-          const updatedFound = {
-            ...found,
-            userName: userData?.userName,
-            contactNumber: userData?.contactNumber,
-            unit_sname: unitData?.unit_sname,
-            district: district,
-            subDivision: subDivision,
-          };
-          setSelectedPlot(updatedFound);
-          setPolygons(formatPolygonsForMap(plotData, updatedFound));
-        }
+      if (!found) return;
+
+      const [farmerDetails, actRes] = await Promise.all([
+        axiosGet(
+          ROUTES.GET.PLOT_MAP_DETAILS({
+            user_id: found.farmer_id,
+            land_unit_id: found.land_unit_id,
+          }),
+          token,
+          { information: `${dbname}` },
+        ),
+        axiosGet(
+          ROUTES.GET.PLOTWISE_ACTIVITY({
+            plot_id: found.id,
+            cropStatus: 'ACTIVE',
+          }),
+          token,
+          {
+            Information: `${dbname},${lan_id},${found.farmer_id}`,
+          },
+        ),
+      ]);
+
+      if (!isMountedRef.current) return;
+
+      if (actRes?.status === 200) {
+        setActivityData(actRes?.data?.data);
+      }
+      if (farmerDetails?.status === 200) {
+        const userData = farmerDetails?.data?.data?.userData;
+        const unitData = farmerDetails?.data?.data?.unitData;
+        const district = userData?.userAdd?.districtDetails?.district_name;
+        const subDivision = userData?.userAdd?.subDivDetails?.subdiv_name;
+        const updatedFound = {
+          ...found,
+          userName: userData?.userName,
+          contactNumber: userData?.contactNumber,
+          unit_sname: unitData?.unit_sname,
+          district: district,
+          subDivision: subDivision,
+        };
+        setSelectedPlot(updatedFound);
       }
     } catch (error) {
-      console.log('errorrrrr', error);
+      console.log('Polygon detail error:', error);
     }
-  };
-  const HandlerGoBack = () => {
-    navigation.navigate('Dashboard');
-  };
-  const openFilter = () => {
-    setShowFilterModal(true); // 🚀 instant open
+  }, [plotData, token, dbname, lan_id]);
 
-    // 🔥 background API call
+  const HandlerGoBack = useCallback(() => {
+    navigation.navigate('Dashboard');
+  }, [navigation]);
+
+  const openFilter = useCallback(() => {
+    setShowFilterModal(true);
     if (states.length === 0) {
       loadStates();
     }
-  };
+  }, [states.length, loadStates]);
+
   return (
     <FarmerDrawerScreenWrapper1>
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
@@ -412,222 +397,108 @@ const PlotWiseMap = () => {
                 onPolygonPress={handlePolygonPress}
                 onOpenFilter={openFilter}
                 showRadius={!isFilterApplied}
+                isFocused={isFocused}
               />
+
+              {/* Selected Plot Popup Card */}
               {selectedPlot && (
-                <View
-                  style={{
-                    position: 'absolute',
-                    bottom: 20,
-                    left: 15,
-                    right: 15,
-                    backgroundColor: '#FFFFFF',
-                    padding: 18,
-                    borderRadius: 12,
-                    elevation: 10,
-                    shadowColor: '#000',
-                    shadowOpacity: 0.15,
-                    shadowRadius: 8,
-                    // marginTop: 10,
-                  }}>
-                  {/* ❌ CLOSE */}
+                <View style={styles.selectedPlotCard}>
+                  {/* Close */}
                   <TouchableOpacity
                     onPress={() => setSelectedPlot(null)}
-                    style={{
-                      position: 'absolute',
-                      top: 3,
-                      right: 2,
-                      marginBottom: 10,
-                    }}>
-                    <MaterialIcons name="close" size={25} color="#EF4444" />
+                    style={styles.closeCardBtn}>
+                    <MaterialIcons name="close" size={24} color="#EF4444" />
                   </TouchableOpacity>
 
-                  {/* 👨 FARMER + PHONE */}
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      marginBottom: 14,
-                      marginTop: 15,
-                    }}>
-                    {/* LEFT SIDE */}
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        flex: 1,
-                      }}>
+                  {/* Farmer + Phone */}
+                  <View style={styles.farmerRow}>
+                    <View style={styles.farmerInfo}>
                       <MaterialIcons name="person" size={22} color="#16A34A" />
                       <View style={{ marginLeft: 10 }}>
-                        <Text style={{ fontSize: 12, color: '#6B7280' }}>
-                          {t('User')}
-                        </Text>
-                        <Text
-                          style={{
-                            fontSize: 14,
-                            fontWeight: '600',
-                            color: '#111827',
-                          }}>
-                          {selectedPlot.userName}
-                        </Text>
+                        <Text style={styles.labelMuted}>{t?.('User') || 'User'}</Text>
+                        <Text style={styles.valBold}>{selectedPlot.userName}</Text>
                       </View>
                     </View>
 
-                    {/* RIGHT SIDE PHONE */}
-                    <TouchableOpacity
-                      onPress={() => {
-                        Linking.openURL(`tel:${selectedPlot.contactNumber}`);
-                      }}
-                      style={{ alignItems: 'flex-end' }}>
-                      <MaterialIcons name="phone" size={20} color="#2563EB" />
-
-                      <Text style={{ fontSize: 14, color: '#2563EB' }}>
-                        {' '}
-                        {selectedPlot.contactNumber}
-                      </Text>
-                    </TouchableOpacity>
+                    {selectedPlot.contactNumber && (
+                      <TouchableOpacity
+                        onPress={() => Linking.openURL(`tel:${selectedPlot.contactNumber}`)}
+                        style={{ alignItems: 'flex-end' }}>
+                        <MaterialIcons name="phone" size={20} color="#2563EB" />
+                        <Text style={styles.phoneText}>{selectedPlot.contactNumber}</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
 
-                  {/* 🌱 PLOT + SIZE */}
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      marginBottom: 12,
-                    }}>
+                  {/* Plot + Area */}
+                  <View style={styles.detailRow}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      {/* <MaterialIcons name="landscape" size={20} color="#16A34A" /> */}
                       <Image
                         source={require('../../Common/images/management.png')}
                         style={{ width: 20, height: 20 }}
                         resizeMode="contain"
                       />
-
                       <View style={{ marginLeft: 10 }}>
-                        <Text style={{ fontSize: 12, color: '#6B7280' }}>
-                          {t('plot_name')}
-                        </Text>
-                        <Text style={{ fontSize: 14, fontWeight: '500' }}>
-                          {selectedPlot.plotName}
-                        </Text>
+                        <Text style={styles.labelMuted}>{t?.('plot_name') || 'Plot Name'}</Text>
+                        <Text style={styles.valMedium}>{selectedPlot.plotName}</Text>
                       </View>
                     </View>
 
                     <View style={{ alignItems: 'flex-end' }}>
-                      <Text style={{ fontSize: 12, color: '#6B7280' }}>Area</Text>
-                      <Text
-                        style={{
-                          fontSize: 14,
-                          fontWeight: '600',
-                          color: '#16A34A',
-                        }}>
+                      <Text style={styles.labelMuted}>Area</Text>
+                      <Text style={styles.areaText}>
                         {selectedPlot.landSize} {selectedPlot.unit_sname}
                       </Text>
                     </View>
                   </View>
 
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      marginBottom: 12,
-                    }}>
-                    {/* DISTRICT */}
+                  {/* District & Panchayat */}
+                  <View style={styles.detailRow}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <MaterialIcons
-                        name="location-city"
-                        size={20}
-                        color="#F59E0B"
-                      />
+                      <MaterialIcons name="location-city" size={20} color="#F59E0B" />
                       <View style={{ marginLeft: 10 }}>
-                        <Text style={{ fontSize: 12, color: '#6B7280' }}>
-                          {regionaldatas.district == ''
-                            ? t('pre_district_county')
-                            : t(`${regionaldatas.district}`)}
+                        <Text style={styles.labelMuted}>
+                          {regionaldatas.district === ''
+                            ? t?.('pre_district_county')
+                            : t?.(`${regionaldatas.district}`)}
                         </Text>
-                        <Text style={{ fontSize: 14, fontWeight: '500' }}>
-                          {selectedPlot.district}
-                        </Text>
+                        <Text style={styles.valMedium}>{selectedPlot.district}</Text>
                       </View>
                     </View>
 
-                    {/* PANCHAYAT */}
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                       <MaterialIcons name="place" size={20} color="#DC2626" />
                       <View style={{ marginLeft: 10, alignItems: 'flex-end' }}>
-                        <Text style={{ fontSize: 12, color: '#6B7280' }}>
-                          {regionaldatas.block == ''
-                            ? t('select_block_sub_county_upzila')
-                            : t(`${regionaldatas.block}`)}
+                        <Text style={styles.labelMuted}>
+                          {regionaldatas.block === ''
+                            ? t?.('select_block_sub_county_upzila')
+                            : t?.(`${regionaldatas.block}`)}
                         </Text>
-                        <Text style={{ fontSize: 14, fontWeight: '500' }}>
-                          {selectedPlot.subDivision}
-                        </Text>
+                        <Text style={styles.valMedium}>{selectedPlot.subDivision}</Text>
                       </View>
                     </View>
                   </View>
 
+                  {/* Activities */}
                   {activityData && (
-                    <View
-                      style={{
-                        marginTop: 15,
-                        backgroundColor: '#F9FAFB',
-                        borderRadius: 12,
-                        padding: 12,
-                        borderWidth: 1,
-                        borderColor: '#E5E7EB',
-                      }}>
-                      {/* 🔹 HEADER */}
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          alignSelf: 'center',
-                        }}>
-                        <MaterialIcons
-                          name="insights"
-                          size={18}
-                          color="#4F46E5"
-                        />
-                        <Text
-                          style={{
-                            fontSize: 14,
-                            fontWeight: '700',
-                            marginLeft: 6,
-                            color: '#111827',
-                          }}>
-                          {t('my_activities')}
+                    <View style={styles.activityBox}>
+                      <View style={styles.activityHeader}>
+                        <MaterialIcons name="insights" size={18} color="#4F46E5" />
+                        <Text style={styles.activityTitle}>
+                          {t?.('my_activities') || 'My Activities'}
                         </Text>
                       </View>
 
-                      {/* 🔹 CONTENT */}
-                      <ScrollView
-                        style={{ maxHeight: 220 }}
-                        showsVerticalScrollIndicator={true}>
+                      <ScrollView style={{ maxHeight: 200 }} showsVerticalScrollIndicator={true}>
                         {Object.keys(groupedData).length === 0 && (
                           <Text style={{ textAlign: 'center', color: '#6B7280' }}>
-                            {t('no_activity_found')}
+                            {t?.('no_activity_found') || 'No Activity Found'}
                           </Text>
                         )}
 
                         {Object.keys(groupedData).map((category, index) => (
-                          <View
-                            key={index}
-                            style={{
-                              marginBottom: 12,
-                              backgroundColor: '#FFFFFF',
-                              borderRadius: 10,
-                              padding: 10,
-                              borderWidth: 1,
-                              borderColor: '#F3F4F6',
-                            }}>
-                            {/* 🔹 CATEGORY TITLE */}
-                            <View
-                              style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                marginBottom: 6,
-                              }}>
+                          <View key={`cat-${index}`} style={styles.catCard}>
+                            <View style={styles.catHeader}>
                               {category === 'Pipe Installation' && (
                                 <Image
                                   source={require('../../Common/images/pipes.png')}
@@ -635,99 +506,27 @@ const PlotWiseMap = () => {
                                   resizeMode="contain"
                                 />
                               )}
-                              {category.toLowerCase().includes('dry') && (
-                                <Image
-                                  source={require('../../Common/images/pipes.png')}
-                                  style={{ width: 15, height: 15 }}
-                                  resizeMode="contain"
-                                // tintColor={'red'}
-                                />
-                              )}
-
-                              <Text
-                                style={{
-                                  fontWeight: '600',
-                                  marginLeft: 6,
-                                  color: '#374151',
-                                }}>
-                                {category}
-                              </Text>
+                              <Text style={styles.catTitle}>{category}</Text>
                             </View>
 
-                            {/* 🔹 LIST */}
                             {groupedData[category].map((item, i) => (
                               <View
-                                key={i}
-                                style={{
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center',
-                                  paddingVertical: 6,
-                                  borderBottomWidth:
-                                    i !== groupedData[category].length - 1
-                                      ? 0.5
-                                      : 0,
-                                  borderColor: '#E5E7EB',
-                                }}>
-                                {/* LEFT */}
-                                <View
-                                  style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                  }}>
-                                  {(category === 'Pipe Installation' ||
-                                    category.toLowerCase().includes('dry')) && (
-                                      <View
-                                        style={{
-                                          backgroundColor:
-                                            category === 'Pipe Installation'
-                                              ? '#157037'
-                                              : '#3B82F6',
-                                          width: 20,
-                                          height: 20,
-                                          borderRadius: 10,
-                                          justifyContent: 'center',
-                                          alignItems: 'center',
-                                        }}>
-                                        <Text
-                                          style={{ color: '#fff', fontSize: 11 }}>
-                                          {i + 1}
-                                        </Text>
-                                      </View>
-                                    )}
-
-                                  <Text
-                                    style={{
-                                      marginLeft:
-                                        category === 'Pipe Installation' ||
-                                          category.toLowerCase().includes('dry')
-                                          ? 8
-                                          : 0,
-                                      color: '#111827',
-                                    }}>
-                                    {item.pipeId}
-                                  </Text>
+                                key={`item-${i}`}
+                                style={[
+                                  styles.activityItemRow,
+                                  i === groupedData[category].length - 1 && { borderBottomWidth: 0 },
+                                ]}>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                  {category === 'Pipe Installation' && (
+                                    <View style={styles.badgeIndex}>
+                                      <Text style={styles.badgeIndexText}>{i + 1}</Text>
+                                    </View>
+                                  )}
+                                  <Text style={styles.pipeIdText}>{item.pipeId}</Text>
                                 </View>
-
-                                {/* RIGHT */}
-                                <View
-                                  style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                  }}>
-                                  <MaterialIcons
-                                    name="event"
-                                    size={16}
-                                    color="#6B7280"
-                                  />
-                                  <Text
-                                    style={{
-                                      marginLeft: 4,
-                                      fontSize: 13,
-                                      color: '#6B7280',
-                                    }}>
-                                    {item.date}
-                                  </Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                  <MaterialIcons name="event" size={15} color="#6B7280" />
+                                  <Text style={styles.dateText}>{item.date}</Text>
                                 </View>
                               </View>
                             ))}
@@ -736,10 +535,10 @@ const PlotWiseMap = () => {
                       </ScrollView>
                     </View>
                   )}
+
                   {carbonFlag && (
                     <TouchableOpacity
                       onPress={() => {
-                        stopWatchingLocation();
                         navigation.navigate('ActivityReportAWD', {
                           farmer: {
                             user_id: selectedPlot.farmer_id,
@@ -752,20 +551,15 @@ const PlotWiseMap = () => {
                           },
                         });
                       }}
-                      style={{
-                        marginTop: 15,
-                        backgroundColor: 'green',
-                        padding: 12,
-                        borderRadius: 8,
-                        alignItems: 'center',
-                      }}>
-                      <Text style={{ color: '#fff', fontWeight: 'bold' }}>
-                        {t('activity_nreporting')}
+                      style={styles.actionBtn}>
+                      <Text style={styles.actionBtnText}>
+                        {t?.('activity_nreporting') || 'Activity Reporting'}
                       </Text>
                     </TouchableOpacity>
                   )}
                 </View>
               )}
+
               <FilterModal
                 visible={showFilterModal}
                 onClose={() => setShowFilterModal(false)}
@@ -776,19 +570,19 @@ const PlotWiseMap = () => {
                 onStateChange={loadDistricts}
                 onDistrictChange={loadPanchayats}
                 statesLabel={
-                  regionaldatas.state == ''
-                    ? t('pre_state_division_zone')
-                    : t(`${regionaldatas.state}`)
+                  regionaldatas.state === ''
+                    ? t?.('pre_state_division_zone')
+                    : t?.(`${regionaldatas.state}`)
                 }
                 districtsLabel={
-                  regionaldatas.district == ''
-                    ? t('pre_district_county')
-                    : t(`${regionaldatas.district}`)
+                  regionaldatas.district === ''
+                    ? t?.('pre_district_county')
+                    : t?.(`${regionaldatas.district}`)
                 }
                 panchayatsLabel={
-                  regionaldatas.block == ''
-                    ? t('select_block_sub_county_upzila')
-                    : t(`${regionaldatas.block}`)
+                  regionaldatas.block === ''
+                    ? t?.('select_block_sub_county_upzila')
+                    : t?.(`${regionaldatas.block}`)
                 }
               />
             </View>
@@ -799,4 +593,150 @@ const PlotWiseMap = () => {
   );
 };
 
-export default PlotWiseMap;
+const styles = {
+  selectedPlotCard: {
+    position: 'absolute',
+    bottom: 20,
+    left: 15,
+    right: 15,
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 12,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+  },
+  closeCardBtn: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    padding: 4,
+    zIndex: 5,
+  },
+  farmerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+    marginTop: 8,
+  },
+  farmerInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  labelMuted: {
+    fontSize: 11,
+    color: '#6B7280',
+  },
+  valBold: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  valMedium: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#111827',
+  },
+  phoneText: {
+    fontSize: 13,
+    color: '#2563EB',
+    fontWeight: '500',
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  areaText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#16A34A',
+  },
+  activityBox: {
+    marginTop: 10,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  activityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  activityTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    marginLeft: 6,
+    color: '#111827',
+  },
+  catCard: {
+    marginBottom: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+  },
+  catHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  catTitle: {
+    fontWeight: '600',
+    marginLeft: 6,
+    fontSize: 13,
+    color: '#374151',
+  },
+  activityItemRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 5,
+    borderBottomWidth: 0.5,
+    borderColor: '#E5E7EB',
+  },
+  badgeIndex: {
+    backgroundColor: '#157037',
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 6,
+  },
+  badgeIndexText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  pipeIdText: {
+    fontSize: 12,
+    color: '#111827',
+  },
+  dateText: {
+    marginLeft: 4,
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  actionBtn: {
+    marginTop: 12,
+    backgroundColor: '#16A34A',
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  actionBtnText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+};
+
+export default React.memo(PlotWiseMap);

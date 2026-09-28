@@ -219,7 +219,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
     act_perform_date: '',
     field_type: '',
     checkPipeCount: {},
-    act_type:''
+    act_type: ''
   });
 
   const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
@@ -274,8 +274,8 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
   const [loadProgress, setLoadProgress] = useState(''); //
   const [loadingModels, setLoadingModels] = useState(true);
 
-   const [lastActPDate, setLastActPDate] = useState();
-     const [performActDate, setPerformActDate] = useState(false);
+  const [lastActPDate, setLastActPDate] = useState();
+  const [performActDate, setPerformActDate] = useState(false);
   // const checkPipeDistance = (currentLat, currentLon) => {
   //   try {
   //     console.error('pipeLatLong', pipeLatLong);
@@ -431,80 +431,80 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
   //     }
   //   });
   // };
-  
-  const openImagePicker = item => {
-      try {
-        const options = {
-          mediaType: 'photo',
-          includeBase64: true,
-          maxHeight: 800,
-          maxWidth: 800,
-        };
-        const addPhoto = newPhoto => {
-          setmyPhotoAll([...myphotoAll, newPhoto]);
-        };
-        launchCamera(options, async response => {
-          if (response.didCancel) {
-            console.log('User cancelled camera');
-          } else if (response.error) {
-            console.log('Camera Error: ', response.error);
-          } else {
-            try {
-              const timestamp = Date.now();
-              let imageUri = response.uri || response.assets?.[0]?.uri;
-              const watermarkText = `${saveData.latitude},${saveData.longitude
-                },${new Intl.DateTimeFormat('en-US', {
-                  year: 'numeric',
-                  month: '2-digit',
-                  day: '2-digit',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  second: '2-digit',
-                }).format(timestamp)}`;
-              setTempImage(imageUri);
-              setTempText(watermarkText);
-              setTimeout(async () => {
-                try {
-                  const uri = await captureRef(watermarkViewRef, {
-                    format: 'jpg',
-                    quality: 2,
-                    width: 800,
-                    height: 800,
-                  });
-                  const fileName =
-                    response.assets[0].fileName || `photo_${timestamp}.jpg`;
-                  const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-                  await RNFS.copyFile(uri, destPath);
-                  const path = destPath;
-                  setTempImage(null);
-                  setTempText('');
-                  setSelectedImage({
-                    ...selectedImage,
-                    [item]: `file://${path}`,
-                  });
-                  const newPhoto = {
-                    uri: `file://${path}`,
-                    type: 'image/jpeg',
-                    name: `${fileName}`,
-                  };
-                  addPhoto(newPhoto);
-                } catch (error) {
-                  console.log('Capture Error:', error);
-                  setTempImage(null);
-                  setTempText('');
-                }
-              }, 500);
-            } catch (error) {
-              console.log('Watermark Error:', error);
-            }
-          }
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    };
 
-    const handleRecord = item => {
+  const openImagePicker = item => {
+    try {
+      const options = {
+        mediaType: 'photo',
+        includeBase64: true,
+        maxHeight: 800,
+        maxWidth: 800,
+      };
+      const addPhoto = newPhoto => {
+        setmyPhotoAll([...myphotoAll, newPhoto]);
+      };
+      launchCamera(options, async response => {
+        if (response.didCancel) {
+          console.log('User cancelled camera');
+        } else if (response.error) {
+          console.log('Camera Error: ', response.error);
+        } else {
+          try {
+            const timestamp = Date.now();
+            let imageUri = response.uri || response.assets?.[0]?.uri;
+            const watermarkText = `${saveData.latitude},${saveData.longitude
+              },${new Intl.DateTimeFormat('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+              }).format(timestamp)}`;
+            setTempImage(imageUri);
+            setTempText(watermarkText);
+            setTimeout(async () => {
+              try {
+                const uri = await captureRef(watermarkViewRef, {
+                  format: 'jpg',
+                  quality: 1,
+                  width: 800,
+                  height: 800,
+                });
+                const fileName =
+                  response.assets[0].fileName || `photo_${timestamp}.jpg`;
+                const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+                await RNFS.copyFile(uri, destPath);
+                const path = destPath;
+                setTempImage(null);
+                setTempText('');
+                setSelectedImage({
+                  ...selectedImage,
+                  [item]: `file://${path}`,
+                });
+                const newPhoto = {
+                  uri: `file://${path}`,
+                  type: 'image/jpeg',
+                  name: `${fileName}`,
+                };
+                addPhoto(newPhoto);
+              } catch (error) {
+                console.log('Capture Error:', error);
+                setTempImage(null);
+                setTempText('');
+              }
+            }, 500);
+          } catch (error) {
+            console.log('Watermark Error:', error);
+          }
+        }
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleRecord = item => {
     // setModalVisibleRecord(true);
   };
 
@@ -560,7 +560,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
       height: 260,
     });
   };
-  
+
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
     setCycleStartDate(effective_date);
@@ -674,8 +674,8 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
 
         setLastAct(lastData);
         setLastActPDate(
-                  activitySchedule?.data?.data?.lastActivity?.act_perform_date ? activitySchedule?.data?.data?.lastActivity?.act_perform_date : "",
-                );
+          activitySchedule?.data?.data?.lastActivity?.act_perform_date ? activitySchedule?.data?.data?.lastActivity?.act_perform_date : "",
+        );
       }
     }
   };
@@ -790,34 +790,34 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
         setCropName(response?.data?.data?.crop_name.fid);
 
         if (carbonType === 'mangrove') {
-                      if (isOnline) {
-                        var activityType_res = await axiosGet(
-                          ROUTES.GET.ACTIVITY_TYPE_MANG({
-                            type: 'carbon_activity',
-                            plot_fid: relId.value,
-                            cycle_start_date: cycle_start_date,
-                            cu_rel_fid: data.cu_rel_id,
-                            season_date_fid: data.season_date_fid,
-                          }),
-                          token,
-                          { information: `${dbname},${lan_id}` },
-                        );
-                        await setItem('activityType' + farmerID, activityType_res);
-                      } else {
-                        var activityType_res = await getItem(
-                          'activityType' + farmerID,
-                        );
-                      }
-                      if (activityType_res?.status == 200) {
-                        const dataArray = activityType_res?.data?.data?.activityType.map(data => ({
-                          value: data.categoryId,
-                          label: data.categoryName,
-                          field_type: "",
-                        }));
-                        setactivityTypeAll(dataArray);
-                        setActivityInfoAll([]);
-                      }
-                    }
+          if (isOnline) {
+            var activityType_res = await axiosGet(
+              ROUTES.GET.ACTIVITY_TYPE_MANG({
+                type: 'carbon_activity',
+                plot_fid: relId.value,
+                cycle_start_date: cycle_start_date,
+                cu_rel_fid: data.cu_rel_id,
+                season_date_fid: data.season_date_fid,
+              }),
+              token,
+              { information: `${dbname},${lan_id}` },
+            );
+            await setItem('activityType' + farmerID, activityType_res);
+          } else {
+            var activityType_res = await getItem(
+              'activityType' + farmerID,
+            );
+          }
+          if (activityType_res?.status == 200) {
+            const dataArray = activityType_res?.data?.data?.activityType.map(data => ({
+              value: data.categoryId,
+              label: data.categoryName,
+              field_type: "",
+            }));
+            setactivityTypeAll(dataArray);
+            setActivityInfoAll([]);
+          }
+        }
         if (isOnline) {
           var [productionStage_res, activitySchedule, pipeLatLongRes] =
             await Promise.all([
@@ -892,8 +892,8 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
 
             setLastAct(lastData);
             setLastActPDate(
-                  activitySchedule?.data?.data?.lastActivity?.act_perform_date ? activitySchedule?.data?.data?.lastActivity?.act_perform_date : "",
-                );
+              activitySchedule?.data?.data?.lastActivity?.act_perform_date ? activitySchedule?.data?.data?.lastActivity?.act_perform_date : "",
+            );
           }
 
           // ======================
@@ -1125,39 +1125,39 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
         return false;
       }
     }
- if (carbonType !== 'mangrove') {
-    if (saveData.field_type == 'add') {
-      if (pipeDetails.length == 0) {
-        Toast.show({
-          time: 2,
-          text: t('Please add pipe properly'),
-          ...AlertMesg[0],
-        });
-        return false;
+    if (carbonType !== 'mangrove') {
+      if (saveData.field_type == 'add') {
+        if (pipeDetails.length == 0) {
+          Toast.show({
+            time: 2,
+            text: t('Please add pipe properly'),
+            ...AlertMesg[0],
+          });
+          return false;
+        }
+      }
+      if (saveData.field_type == 'select') {
+        if (selectPipeList.value == '') {
+          Toast.show({
+            time: 2,
+            text: t('Please select pipe'),
+            ...AlertMesg[0],
+          });
+          return false;
+        }
+        // if (
+        //   selectedImagePipe?.firstItem == '' ||
+        //   selectedImagePipe?.secondItem == ''
+        // ) {
+        //   Toast.show({
+        //     time: 2,
+        //     text: t('Please enter pipe image'),
+        //     ...AlertMesg[0],
+        //   });
+        //   return false;
+        // }
       }
     }
-    if (saveData.field_type == 'select') {
-      if (selectPipeList.value == '') {
-        Toast.show({
-          time: 2,
-          text: t('Please select pipe'),
-          ...AlertMesg[0],
-        });
-        return false;
-      }
-      // if (
-      //   selectedImagePipe?.firstItem == '' ||
-      //   selectedImagePipe?.secondItem == ''
-      // ) {
-      //   Toast.show({
-      //     time: 2,
-      //     text: t('Please enter pipe image'),
-      //     ...AlertMesg[0],
-      //   });
-      //   return false;
-      // }
-    }
-  }
     if (!saveData.act_perform_date) {
       Toast.show({
         time: 2,
@@ -1220,7 +1220,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
         formData.append('type', 'carbon_activity');
       }
       formData.append('act_title', '');
-     
+
       if (soundRecordFirstItem.result != '') {
         formData.append('audio', {
           name: 'firstItem.mp3',
@@ -1263,58 +1263,58 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
         formData.append('act_start_date', saveData.act_start_date);
         formData.append('act_ref', saveData.act_ref);
         if (carbonType !== 'mangrove') {
-        if (saveData.field_type == 'add') {
-          let pipe_data = [];
-          pipeDetails.map((__data, _index) => {
+          if (saveData.field_type == 'add') {
+            let pipe_data = [];
+            pipeDetails.map((__data, _index) => {
+              let pipe_lattlong = [];
+              __data[1].map((__dataItem, _e) => {
+                if (__dataItem.imageURL != '' && __dataItem?.status == '') {
+                  formData.append(`pipe_image_${_index + 1}`, {
+                    uri: __dataItem.imageURL,
+                    type: 'image/jpeg',
+                    name: __dataItem.imageName,
+                  });
+                }
+                pipe_lattlong.push({
+                  latitude: __dataItem.lat?.toString(),
+                  longitude: __dataItem.lon?.toString(),
+                });
+              });
+              pipe_data.push({
+                pipe_name: __data[0]?.pipe_name,
+                pipe_lattlong: pipe_lattlong,
+              });
+            });
+            formData.append('pipe_data', JSON.stringify(pipe_data));
+          } else {
+            const pipe_image = [];
             let pipe_lattlong = [];
-            __data[1].map((__dataItem, _e) => {
-              if (__dataItem.imageURL != '' && __dataItem?.status == '') {
-                formData.append(`pipe_image_${_index + 1}`, {
-                  uri: __dataItem.imageURL,
-                  type: 'image/jpeg',
-                  name: __dataItem.imageName,
+            pipeDetails.map((__data, _index) => {
+              __data[1].map((__dataItem, _e) => {
+                if (__dataItem.imageURL != '' && __dataItem?.status == '') {
+                  pipe_image.push({
+                    uri: __dataItem.imageURL,
+                    type: 'image/jpeg',
+                    name: __dataItem.imageName,
+                  });
+                }
+                pipe_lattlong.push({
+                  latitude: __dataItem.lat?.toString(),
+                  longitude: __dataItem.lon?.toString(),
                 });
-              }
-              pipe_lattlong.push({
-                latitude: __dataItem.lat?.toString(),
-                longitude: __dataItem.lon?.toString(),
               });
             });
-            pipe_data.push({
-              pipe_name: __data[0]?.pipe_name,
-              pipe_lattlong: pipe_lattlong,
+            const pipe_data = [
+              { pipe_id: selectPipeList.value, latlong: pipe_lattlong },
+            ];
+            if (pipe_lattlong.length != 0) {
+              formData.append('existing_pipe_ids', JSON.stringify(pipe_data));
+            }
+            pipe_image.map((_data, _index) => {
+              formData.append(`pipe_files[0]`, _data);
             });
-          });
-          formData.append('pipe_data', JSON.stringify(pipe_data));
-        } else {
-          const pipe_image = [];
-          let pipe_lattlong = [];
-          pipeDetails.map((__data, _index) => {
-            __data[1].map((__dataItem, _e) => {
-              if (__dataItem.imageURL != '' && __dataItem?.status == '') {
-                pipe_image.push({
-                  uri: __dataItem.imageURL,
-                  type: 'image/jpeg',
-                  name: __dataItem.imageName,
-                });
-              }
-              pipe_lattlong.push({
-                latitude: __dataItem.lat?.toString(),
-                longitude: __dataItem.lon?.toString(),
-              });
-            });
-          });
-          const pipe_data = [
-            { pipe_id: selectPipeList.value, latlong: pipe_lattlong },
-          ];
-          if (pipe_lattlong.length != 0) {
-            formData.append('existing_pipe_ids', JSON.stringify(pipe_data));
           }
-          pipe_image.map((_data, _index) => {
-            formData.append(`pipe_files[0]`, _data);
-          });
         }
-      }
         // if (saveData.field_type == 'add') {
         //   pipeDetails.map((_data, _index) => {
         //     const { selectedImagePipe } = _data;
@@ -1364,59 +1364,59 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
       formData.append('app_version', '104');
       var database_res;
       if (isOnline) {
-         if (carbonType !== 'mangrove') {
-        if (saveData.field_type == 'add') {
-          database_res = await addUserPipeActivity(
-            dbname,
-            lan_id,
-            token,
-            farmerID,
-            formData,
-            pipeDetails.length,
-          );
-        } else {
-          if (coords != null) {
-            const { latitude, longitude } = coords || {};
-            const distances = getDistance(selectPipeList.latlongs, {
-              latitude,
-              longitude,
-            });
-            if (distances < 10) {
-              database_res = await addPrevPipeActivity(
-                dbname,
-                lan_id,
-                token,
-                farmerID,
-                formData,
-                1,
-              );
-            } else {
-              Toast.show({
-                text: t('You are not in your exact pipe location'),
-                ...AlertMesg[0],
-              });
-            }
+        if (carbonType !== 'mangrove') {
+          if (saveData.field_type == 'add') {
+            database_res = await addUserPipeActivity(
+              dbname,
+              lan_id,
+              token,
+              farmerID,
+              formData,
+              pipeDetails.length,
+            );
           } else {
-            Toast.show({ text: t('Location not found'), ...AlertMesg[0] });
+            if (coords != null) {
+              const { latitude, longitude } = coords || {};
+              const distances = getDistance(selectPipeList.latlongs, {
+                latitude,
+                longitude,
+              });
+              if (distances < 10) {
+                database_res = await addPrevPipeActivity(
+                  dbname,
+                  lan_id,
+                  token,
+                  farmerID,
+                  formData,
+                  1,
+                );
+              } else {
+                Toast.show({
+                  text: t('You are not in your exact pipe location'),
+                  ...AlertMesg[0],
+                });
+              }
+            } else {
+              Toast.show({ text: t('Location not found'), ...AlertMesg[0] });
+            }
           }
+        } else {
+          // if (outofRange) {
+          database_res = await axiosPost(
+            ROUTES.POST.ACTIVITY_SAVE,
+            formData,
+            token,
+            false,
+            { information: `${dbname},${lan_id},${farmerID}` },
+          );
+          // } else {
+          //   Toast.show({
+          //     text: t('You are not in your exact location'),
+          //     ...AlertMesg[0],
+          //   });
+          // }
+
         }
-         } else {
-                  // if (outofRange) {
-                    database_res = await axiosPost(
-                      ROUTES.POST.ACTIVITY_SAVE,
-                      formData,
-                      token,
-                      false,
-                      { information: `${dbname},${lan_id},${farmerID}` },
-                    );
-                  // } else {
-                  //   Toast.show({
-                  //     text: t('You are not in your exact location'),
-                  //     ...AlertMesg[0],
-                  //   });
-                  // }
-        
-                }
         if (database_res?.status === 400) {
           setPipeDetails([]);
           // showAIValidationError(database_res);
@@ -1514,7 +1514,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
           act_ref: '',
           act_master_id: '',
           act_ref_type: item.value,
-           act_type: item.label,
+          act_type: item.label,
           field_type: '',
           checkPipeCount: {},
         }));
@@ -1597,7 +1597,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
     async item => {
 
       setIsAfterToday(true);
-     
+
       setPerformActDate(true);
       if (carbonType === 'mangrove') {
         if (lastActPDate) {
@@ -1628,36 +1628,36 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
       }
 
       try {
-      const act_to_date1 = item.end_date;
-      const date1 = new Date(act_to_date1);
-      const year1 = date1.getFullYear();
-      const month1 = (date1.getMonth() + 1).toString().padStart(2, '0');
-      const day1 = date1.getDate().toString().padStart(2, '0');
-      const act_to_date = `${year1}-${month1}-${day1}`;
+        const act_to_date1 = item.end_date;
+        const date1 = new Date(act_to_date1);
+        const year1 = date1.getFullYear();
+        const month1 = (date1.getMonth() + 1).toString().padStart(2, '0');
+        const day1 = date1.getDate().toString().padStart(2, '0');
+        const act_to_date = `${year1}-${month1}-${day1}`;
 
-      const act_start_date1 = item.start_date;
-      const date2 = new Date(act_start_date1);
-      const year2 = date2.getFullYear();
-      const month2 = (date2.getMonth() + 1).toString().padStart(2, '0');
-      const day2 = date2.getDate().toString().padStart(2, '0');
-      const act_start_date = `${year2}-${month2}-${day2}`;
-      setSaveData(prev => ({
-        ...prev,
-        // act_to_date: item.end_date,
-        act_to_date: act_to_date,
-        // act_start_date: item.start_date,
-         act_to_date_label: item.label,
-        act_start_date: act_start_date,
-        act_ref: item.value,
-        act_master_id: item?.act_master_id,
-        field_type: item?.field_type || '',
-      }));
-      if (item?.field_type == 'add') {
-        pipe_fieldType.current = 1;
-      } else {
-        pipe_fieldType.current = 0;
-      }
-      setSelectedImagePipe(prev => ({
+        const act_start_date1 = item.start_date;
+        const date2 = new Date(act_start_date1);
+        const year2 = date2.getFullYear();
+        const month2 = (date2.getMonth() + 1).toString().padStart(2, '0');
+        const day2 = date2.getDate().toString().padStart(2, '0');
+        const act_start_date = `${year2}-${month2}-${day2}`;
+        setSaveData(prev => ({
+          ...prev,
+          // act_to_date: item.end_date,
+          act_to_date: act_to_date,
+          // act_start_date: item.start_date,
+          act_to_date_label: item.label,
+          act_start_date: act_start_date,
+          act_ref: item.value,
+          act_master_id: item?.act_master_id,
+          field_type: item?.field_type || '',
+        }));
+        if (item?.field_type == 'add') {
+          pipe_fieldType.current = 1;
+        } else {
+          pipe_fieldType.current = 0;
+        }
+        setSelectedImagePipe(prev => ({
           ...prev,
           firstItem: '',
           firstItemLat: '',
@@ -1666,94 +1666,94 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
           secondItemLat: '',
           secondItemLong: '',
         }));
-      setselectPipeList({
-        ...selectPipeList,
-        label: '',
-        value: '',
-        latlongs: {},
-      });
-      // setIsAfterToday(true);
-      // const tenDaysAgo = new Date();
-      // tenDaysAgo.setDate(today.getDate() - 10);
-      // setLastPerfromedDate(tenDaysAgo);
-      if (carbonType !== 'mangrove') {
-      const [PipeListDetailsRes, pipecount] = await Promise.all([
-        // getUniquePipeNames(
-        //   dbname,
-        //   lan_id,
-        //   token,
-        //   farmerID,
-        //   saveData.plot_id,
-        //   item?.act_master_id,
-        //   saveData?.cu_rel_id,
-        // ),
-        axiosGet(
-                      ROUTES.GET.UNIQUE_PIPE_NAME({
-                        plot_id: saveData.plot_id,
-                        cu_rel_id: saveData.cu_rel_id,
-                        act_name_fid: item?.act_master_id,
-                      }),
-                      token,
-                      { information: `${dbname},${lan_id},${farmerID}` },
-                    ),
-        axiosGet(ROUTES.GET.CHECK_PIPE_COUNT({ plot_fid: saveData.plot_id, activity_id: item?.act_master_id, season_date_fid: sDId }),
-          token,
-          { information: `${dbname}` },
-        )
-      ])
-      if (pipecount?.status == 200) {
-        const { pipe_summary } = pipecount?.data?.data || {}
-        setSaveData((prev) => ({
-          ...prev,
-          checkPipeCount: pipe_summary,
-        }));
-      }
-      if (PipeListDetailsRes?.status == 200) {
-        const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
-          (_data, _index) => ({
-            value: _data.pipe_pid,
-            label: _data.pipe_name,
-            lastActivityPerfromDate: _data?.lastActivityInfo?.act_perform_date,
-            latlongs: _data?.latlongs?.[0] || {},
-          }),
-        );
-        setPipeListDetailsResArr(pipeDetailsArr);
-        if (PipeListDetailsRes?.data?.data?.length == 0) {
-          Keyboard.dismiss();
-          Toast.show({
-            time: 2,
-            text: `${t('No pipe found in ' + item.label)}`,
-            ...AlertMesg[0],
-          });
+        setselectPipeList({
+          ...selectPipeList,
+          label: '',
+          value: '',
+          latlongs: {},
+        });
+        // setIsAfterToday(true);
+        // const tenDaysAgo = new Date();
+        // tenDaysAgo.setDate(today.getDate() - 10);
+        // setLastPerfromedDate(tenDaysAgo);
+        if (carbonType !== 'mangrove') {
+          const [PipeListDetailsRes, pipecount] = await Promise.all([
+            // getUniquePipeNames(
+            //   dbname,
+            //   lan_id,
+            //   token,
+            //   farmerID,
+            //   saveData.plot_id,
+            //   item?.act_master_id,
+            //   saveData?.cu_rel_id,
+            // ),
+            axiosGet(
+              ROUTES.GET.UNIQUE_PIPE_NAME({
+                plot_id: saveData.plot_id,
+                cu_rel_id: saveData.cu_rel_id,
+                act_name_fid: item?.act_master_id,
+              }),
+              token,
+              { information: `${dbname},${lan_id},${farmerID}` },
+            ),
+            axiosGet(ROUTES.GET.CHECK_PIPE_COUNT({ plot_fid: saveData.plot_id, activity_id: item?.act_master_id, season_date_fid: sDId }),
+              token,
+              { information: `${dbname}` },
+            )
+          ])
+          if (pipecount?.status == 200) {
+            const { pipe_summary } = pipecount?.data?.data || {}
+            setSaveData((prev) => ({
+              ...prev,
+              checkPipeCount: pipe_summary,
+            }));
+          }
+          if (PipeListDetailsRes?.status == 200) {
+            const pipeDetailsArr = PipeListDetailsRes?.data?.data?.map(
+              (_data, _index) => ({
+                value: _data.pipe_pid,
+                label: _data.pipe_name,
+                lastActivityPerfromDate: _data?.lastActivityInfo?.act_perform_date,
+                latlongs: _data?.latlongs?.[0] || {},
+              }),
+            );
+            setPipeListDetailsResArr(pipeDetailsArr);
+            if (PipeListDetailsRes?.data?.data?.length == 0) {
+              Keyboard.dismiss();
+              Toast.show({
+                time: 2,
+                text: `${t('No pipe found in ' + item.label)}`,
+                ...AlertMesg[0],
+              });
+            }
+          } else {
+            setPipeListDetailsResArr([]);
+          }
         }
-      } else {
-        setPipeListDetailsResArr([]);
-      }
-    }
       } catch (error) {
         console.log('catch111')
-              if (carbonType !== 'mangrove') {
-                const [pipecount] = await Promise.all([
-                  axiosGet(ROUTES.GET.CHECK_PIPE_COUNT({ plot_fid: saveData.plot_id, activity_id: item?.act_master_id, season_date_fid: sDId }),
-                    token,
-                    { information: `${dbname}` },
-                  )
-                ])
-                if (pipecount?.status == 200) {
-                  const { pipe_summary } = pipecount?.data?.data || {}
-                  setSaveData((prev) => ({
-                    ...prev,
-                    checkPipeCount: pipe_summary,
-                  }));
-                }
-                console.error(error)
-                CrashlyticsRecordError(
-                  error,
-                  'ActivityReportAWD',
-                  'handleActivityInfo',
-                );
-              }
-            }
+        if (carbonType !== 'mangrove') {
+          const [pipecount] = await Promise.all([
+            axiosGet(ROUTES.GET.CHECK_PIPE_COUNT({ plot_fid: saveData.plot_id, activity_id: item?.act_master_id, season_date_fid: sDId }),
+              token,
+              { information: `${dbname}` },
+            )
+          ])
+          if (pipecount?.status == 200) {
+            const { pipe_summary } = pipecount?.data?.data || {}
+            setSaveData((prev) => ({
+              ...prev,
+              checkPipeCount: pipe_summary,
+            }));
+          }
+          console.error(error)
+          CrashlyticsRecordError(
+            error,
+            'ActivityReportAWD',
+            'handleActivityInfo',
+          );
+        }
+      }
     },
     [saveData.plot_id, saveData.cu_rel_id, lastActPDate],
   );
@@ -1782,7 +1782,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
     const QRFlag = await getItem('pipeQR');
     setPipeQR(QRFlag);
 
-    console.log('carbonType==',carbonType);
+    console.log('carbonType==', carbonType);
     const { latitude, longitude } = coords || {};
     var latlong;
     if (latitude == '' && longitude == '') {
@@ -1819,28 +1819,28 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
     //   setactivityTypeAll(dataArray);
     // }
 
-     if (carbonType !== 'mangrove') {
-              if (isOnline) {
-                var activityType_res = await axiosGet(
-                  ROUTES.GET.ACTIVITY_TYPE_AWD(),
-                  '',
-                  {information: `${dbname},${lan_id},${farmerID}`},
-                );
-                await setItem('activityType' + user_id, activityType_res);
-              } else {
-                var activityType_res = await getItem(
-                  'activityType' + user_id,
-                );
-              }
-              if (activityType_res?.status == 200) {
-                const dataArray = activityType_res?.data?.data?.rows.map(data => ({
-                  value: data.fid,
-                  label: data.categoryName,
-                  field_type: data.field_type,
-                }));
-                setactivityTypeAll(dataArray);
-              }
-            }
+    if (carbonType !== 'mangrove') {
+      if (isOnline) {
+        var activityType_res = await axiosGet(
+          ROUTES.GET.ACTIVITY_TYPE_AWD(),
+          '',
+          { information: `${dbname},${lan_id},${farmerID}` },
+        );
+        await setItem('activityType' + user_id, activityType_res);
+      } else {
+        var activityType_res = await getItem(
+          'activityType' + user_id,
+        );
+      }
+      if (activityType_res?.status == 200) {
+        const dataArray = activityType_res?.data?.data?.rows.map(data => ({
+          value: data.fid,
+          label: data.categoryName,
+          field_type: data.field_type,
+        }));
+        setactivityTypeAll(dataArray);
+      }
+    }
     setLocation({ lat, lon });
   };
   useEffect(() => {
@@ -1930,7 +1930,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
         user_id: farmer?.user_id || '',
         plot_id: '',
         plot_Name: '',
-        act_type:"",
+        act_type: "",
         checkPipeCount: {}
       }));
 
@@ -2258,7 +2258,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
         );
         if (scanedData?.status == 200) {
           setPipeNumber(scannedValue);
-         
+
           const tenDaysAgo = new Date();
           tenDaysAgo.setDate(today.getDate() - 10);
 
@@ -2322,10 +2322,10 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
             });
 
             setIsAfterToday(false);
-             setPerformActDate(false);
+            setPerformActDate(false);
           } else {
             setIsAfterToday(true);
-             setPerformActDate(true);
+            setPerformActDate(true);
             console.log('2026-02-04 is TODAY', compareDate);
           }
         } else {
@@ -2373,7 +2373,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
   const [stageMessage, setStageMessage] = useState('');
 
   // Then use this improved runDownload:
-    useEffect(() => {
+  useEffect(() => {
     if (ai_camera_pipe_image != 1) return;
     const isMountedRef = { current: true };
     const timeoutsRef = { current: [] };
@@ -2720,8 +2720,8 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
                           </View>
                         ) : null}
 
-                        
-                        {carbonType !== 'mangrove' && 
+
+                        {carbonType !== 'mangrove' &&
                           saveData.field_type != '' &&
                           saveData.field_type != null && (
                             <>
@@ -2933,15 +2933,15 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
                       <TouchableOpacity
                         disabled={!isAfterToday}
                         style={styles.activityPerFromDate}
-                       onPress={() => {
-                        // setActivityPreDate(true);
-                        if (performActDate) {
-                          setActivityPreDate(true);
-                        } else {
-                          console.log('performActDate is false');
-                          // Show a toast or alert if needed
-                        }
-                      }}>
+                        onPress={() => {
+                          // setActivityPreDate(true);
+                          if (performActDate) {
+                            setActivityPreDate(true);
+                          } else {
+                            console.log('performActDate is false');
+                            // Show a toast or alert if needed
+                          }
+                        }}>
                         <Text style={styles.title}>{activityPreFormDate}</Text>
                         <Image
                           source={require('../../Common/images/calendar.png')}
@@ -2974,51 +2974,51 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
                       onChangeText={handlepower_used}
                     />
 
-                     {carbonType == 'mangrove' && (
-                    <>
-                      <View style={styles.hiddenContainer}>
-                        {tempImage && (
-                          <View
-                            ref={watermarkViewRef}
-                            style={styles.watermarkView}
-                            collapsable={false}>
-                            <Image
-                              source={{ uri: tempImage }}
-                              style={styles.watermarkImage}
-                              resizeMode="cover"
-                            />
-                            <View style={styles.watermarkTextContainer}>
-                              <Text style={styles.watermarkText}>{tempText}</Text>
+                    {carbonType == 'mangrove' && (
+                      <>
+                        <View style={styles.hiddenContainer}>
+                          {tempImage && (
+                            <View
+                              ref={watermarkViewRef}
+                              style={styles.watermarkView}
+                              collapsable={false}>
+                              <Image
+                                source={{ uri: tempImage }}
+                                style={styles.watermarkImage}
+                                resizeMode="cover"
+                              />
+                              <View style={styles.watermarkTextContainer}>
+                                <Text style={styles.watermarkText}>{tempText}</Text>
+                              </View>
                             </View>
-                          </View>
-                        )}
-                      </View>
-                      <TakePhoto
-                        openImagePicker={openImagePicker}
-                        selectedImage={selectedImage}
-                        title={t('take_a_photo_optional')}
-                      />
-                      <RecordComp
-                        selectedRecord={selectedRecord}
-                        onPress={handleRecord}
-                        setModalVisibleRecordFirstItem={
-                          setModalVisibleRecordFirstItem
-                        }
-                        setModalVisibleRecordSecoundItem={
-                          setModalVisibleRecordSecoundItem
-                        }
-                        setModalVisibleRecordThirdItem={
-                          setModalVisibleRecordThirdItem
-                        }
-                        soundRecordFirstItem={soundRecordFirstItem}
-                        soundRecordSecoundItem={soundRecordSecoundItem}
-                        soundRecordThirdItem={soundRecordThirdItem}
-                        title={t('record_your_comment_optional')}
-                        cancelRecord={cancelRecord}
-                        soundPlay={soundPlay}
-                      />
-                    </>
-                  )}
+                          )}
+                        </View>
+                        <TakePhoto
+                          openImagePicker={openImagePicker}
+                          selectedImage={selectedImage}
+                          title={t('take_a_photo_optional')}
+                        />
+                        <RecordComp
+                          selectedRecord={selectedRecord}
+                          onPress={handleRecord}
+                          setModalVisibleRecordFirstItem={
+                            setModalVisibleRecordFirstItem
+                          }
+                          setModalVisibleRecordSecoundItem={
+                            setModalVisibleRecordSecoundItem
+                          }
+                          setModalVisibleRecordThirdItem={
+                            setModalVisibleRecordThirdItem
+                          }
+                          soundRecordFirstItem={soundRecordFirstItem}
+                          soundRecordSecoundItem={soundRecordSecoundItem}
+                          soundRecordThirdItem={soundRecordThirdItem}
+                          title={t('record_your_comment_optional')}
+                          cancelRecord={cancelRecord}
+                          soundPlay={soundPlay}
+                        />
+                      </>
+                    )}
                   </View>
                 </View>
               </ScrollView>

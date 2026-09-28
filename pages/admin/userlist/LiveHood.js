@@ -105,7 +105,7 @@ const LiveHood = ({
     effective_dates,
     navigationBarHeight,
     coords,
-    startWatchingLocation,
+    // startWatchingLocation,
     stopWatchingLocation,
     dbLanTokUsr,
     isOnline,
@@ -460,16 +460,21 @@ const LiveHood = ({
   const onPageLoad = useCallback(async () => {
     try {
       setIsLoading(true);
-
-      const { latitude, longitude } = coords || {};
-      var latlong;
-      if (latitude == '' && longitude == '') {
-        latlong = await getHighAccuracyLocation();
+      // const { latitude, longitude } = coords || {};
+      // var latlong;
+      // if (latitude == '' && longitude == '') {
+      //   latlong = await getHighAccuracyLocation();
+      // }
+      // // const fusedLocation = await getItem('fusedLocation');
+      // // const { latitude, longitude } = fusedLocation;
+      // const lat = latitude === '' ? latlong.latitude : latitude;
+      // const lon = longitude === '' ? latlong.longitude : longitude;
+      const { latitude: lat, longitude: lon } = (await getHighAccuracyLocation()) || {};
+      if (!lat || !lon || lat === 0 || lon === 0) {
+        setIsLoading(false);
+        Alert.alert('Location Error', 'Unable to get valid GPS location.');
+        return;
       }
-      // const fusedLocation = await getItem('fusedLocation');
-      // const { latitude, longitude } = fusedLocation;
-      const lat = latitude === '' ? latlong.latitude : latitude;
-      const lon = longitude === '' ? latlong.longitude : longitude;
       // const lat = latitude;
       // const lon = longitude;
       setreferencelatLong({ latitude: lat, longitude: lon });
@@ -603,13 +608,18 @@ const LiveHood = ({
   const handlePlot = useCallback(
     async findData => {
       try {
-        const { latitude, longitude } = coords;
-        var latlong;
-        if (latitude == '' && longitude == '') {
-          latlong = await getHighAccuracyLocation();
+        // const { latitude, longitude } = coords;
+        // var latlong;
+        // if (latitude == '' && longitude == '') {
+        //   latlong = await getHighAccuracyLocation();
+        // }
+        // const lat = latitude === '' ? latlong.latitude : latitude;
+        // const lon = longitude === '' ? latlong.longitude : longitude;
+        const { latitude: lat, longitude: lon } = (await getHighAccuracyLocation()) || {};
+        if (!lat || !lon || lat === 0 || lon === 0) {
+          Alert.alert('Location Error', 'Unable to get valid GPS location.');
+          return;
         }
-        const lat = latitude === '' ? latlong.latitude : latitude;
-        const lon = longitude === '' ? latlong.longitude : longitude;
         setIsLoading(true);
         setPhotoDeletedValue([]);
         setHarvested('');
@@ -1141,7 +1151,13 @@ const LiveHood = ({
           }
           //basudev out of range
           if (agri_land_user_latlongs.length > 1) {
-            const { latitude, longitude } = coords;
+            // const { latitude, longitude } = coords;
+            const { latitude, longitude } = (await getHighAccuracyLocation()) || {};
+            if (!latitude || !longitude || latitude === 0 || longitude === 0) {
+              setIsLoading(false);
+              Alert.alert('Location Error', 'Unable to get valid GPS location.');
+              return;
+            }
             const is20Meters = isWithin20Meters(
               { latitude, longitude },
               agri_land_user_latlongs,
@@ -1215,7 +1231,7 @@ const LiveHood = ({
       landUnitsquareMetre,
       plotSiteUserLandDetails,
       statuslevel,
-      coords,
+      // coords,
     ],
   );
 
@@ -1231,11 +1247,11 @@ const LiveHood = ({
     // onPageLoad();
     const task = InteractionManager.runAfterInteractions(() => {
       onPageLoad();
-      startWatchingLocation();
+      // startWatchingLocation();
     });
     return () => {
       task.cancel();
-      stopWatchingLocation();
+      // stopWatchingLocation();
     }; // cleanup
   }, []);
   useEffect(() => {
@@ -1406,17 +1422,21 @@ const LiveHood = ({
 
   const handleCurrentLatLong = useCallback(async index => {
     const values = [...location];
-    const { latitude, longitude } = (await getItem('fusedLocation')) || {};
+    // const { latitude, longitude } = (await getItem('fusedLocation')) || {};
 
-    var latlong;
-    if (latitude == '' && longitude == '') {
-      latlong = await getHighAccuracyLocation();
+    // var latlong;
+    // if (latitude == '' && longitude == '') {
+    //   latlong = await getHighAccuracyLocation();
+    // }
+    // const lat = latitude === '' ? latlong.latitude : latitude;
+    // const lon = longitude === '' ? latlong.longitude : longitude;
+    const { latitude: lat, longitude: lon } = (await getHighAccuracyLocation()) || {};
+    if (!lat || !lon || lat === 0 || lon === 0) {
+      Alert.alert('Location Error', 'Unable to get valid GPS location.');
+      return;
     }
-    const lat = latitude === '' ? latlong.latitude : latitude;
-    const lon = longitude === '' ? latlong.longitude : longitude;
-
     if (
-      coords != null &&
+      longitude != null &&
       // longitude.toString().length == 10 &&
       // latitude.toString().length == 10 &&
       lat > 0 &&
@@ -1770,13 +1790,11 @@ const LiveHood = ({
     const latlongArr = [];
     try {
       if (location?.[0]?.editing == true && statuslevel.label != '') {
-        const { latitude, longitude } = (await getItem('fusedLocation')) || {};
-        var latlong;
-        if (latitude == '' && longitude == '') {
-          latlong = await getHighAccuracyLocation();
+        const { latitude: lat, longitude: lon } = (await getHighAccuracyLocation()) || {};
+        if (!lat || !lon || lat === 0 || lon === 0) {
+          Alert.alert('Location Error', 'Unable to get valid GPS location.');
+          return;
         }
-        const lat = latitude === '' ? latlong.latitude : latitude;
-        const lon = longitude === '' ? latlong.longitude : longitude;
         const distances = previousPlotLatlong.map(p =>
           getDistance(p, { lat, lon }),
         );
@@ -1836,8 +1854,8 @@ const LiveHood = ({
           });
         }
       });
-
-      if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && !farmerData.daag_no) {
+      const hasLandProof = addressProof?.some(file => file?.uri && file.uri.trim() !== '');
+      if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && hasLandProof && !farmerData.daag_no) {
         Toast.show({
           text: 'Please enter Daag Number',
           ...AlertMesg[0],
@@ -1845,7 +1863,7 @@ const LiveHood = ({
         return;
       }
 
-      if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && !farmerData.jl_no) {
+      if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && hasLandProof && !farmerData.jl_no) {
         Toast.show({
           text: 'Please enter JL Number',
           ...AlertMesg[0],
@@ -2208,9 +2226,13 @@ const LiveHood = ({
           //   farmerData.land_rel_id,
           //   farmerData.cu_rel_id,
           // );
+          let ADD_PLOTI_MGS_API_CALL = false;
           addressProof.map((data, index) => {
             if (data.name != '' && data.id == '' && data.isvalid === "change") {
               formDataPlotImg.append('plot_image', data);
+            }
+            if (data.uri != "") {
+              ADD_PLOTI_MGS_API_CALL = true;
             }
           });
           formDataPlotImg.append('rel_id', plotId);
@@ -2220,7 +2242,7 @@ const LiveHood = ({
               isOnline
                 ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
                 : Promise.resolve(null),
-              axiosPost(
+              ADD_PLOTI_MGS_API_CALL ? axiosPost(
                 ROUTES.POST.ADD_PLOTI_MGS,
                 formDataPlotImg,
                 token,
@@ -2228,7 +2250,7 @@ const LiveHood = ({
                 {
                   information: `${dbname},${lan_id},${farmeruserID}`,
                 },
-              ),
+              ) : Promise.resolve(null),
               finalPayload?.fertilizers?.length > 0 || finalPayload?.organic_amendment_type?.length > 0 || finalPayload?.pesticide?.length > 0 ?
                 addCropInputAPI(
                   dbname,

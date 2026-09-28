@@ -18,8 +18,12 @@ import {
   Alert,
   BackHandler,
   Linking,
-  InteractionManager, NativeModules
+  InteractionManager,
+  NativeModules,
+  Platform,
+  PermissionsAndroid,
 } from 'react-native';
+import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 import ImageForm from '../Common/ImageForm';
 import { userCreateContext } from '../Context/usersCreateContext';
 import CarouselSlider from '../Components/CarouselSlider';
@@ -34,9 +38,6 @@ import FarmerDrawerScreenWrapper1 from './FarmerDrawerScreenWrapper1';
 import useCollapsibleHeader from '../utils/useCollapsibleHeader';
 import { getDashboardItems } from '../utils/dashboardItems';
 import { useIsFocused, useRoute } from '@react-navigation/native';
-import ForegroundLocationService from '../BackgroundService/ForegroundLocationService';
-import { MODELS } from './Activity/ImageAnalysisScreen';
-const { AssetPackModule } = NativeModules;
 // const HEADER_HEIGHT = 60;
 const Dashboard = ({ navigation }) => {
   const isFocused = useIsFocused();
@@ -51,9 +52,10 @@ const Dashboard = ({ navigation }) => {
     Toast,
     AlertMesg,
     loginUser_data,
-    startWatchingLocation,
-    stopWatchingLocation,
-    dbLanTokUsr
+    // startWatchingLocation,
+    // stopWatchingLocation,
+    dbLanTokUsr,
+    AllFarmerList
   } = useContext(userCreateContext);
   const { carbonType } = dbLanTokUsr || {}
   const [refreshing, setRefreshing] = useState(false);
@@ -113,20 +115,6 @@ const Dashboard = ({ navigation }) => {
     },
     [isOnline, navigation, uiState.convertionLUState, Toast, AlertMesg],
   );
-  // useEffect(() => {
-  //   if (isFocused) {
-  //     MODELS.forEach(model => {
-  //       AssetPackModule.isModelLoaded(model.file)
-  //         .then(loaded => {
-  //           if (loaded) {
-  //             AssetPackModule.unloadModel(model.file)
-  //               .catch(() => { });
-  //           }
-  //         })
-  //         .catch(() => { });
-  //     });
-  //   }
-  // }, [isFocused]);
   const onPageLoad = useCallback(async () => {
     if (!loginUser_data) return;
 
@@ -176,7 +164,8 @@ const Dashboard = ({ navigation }) => {
           }),
           token,
           { information: `${dbname},${lan_id},${user_id}` },
-        )
+        ),
+        AllFarmerList()
       ]);
 
       // ---------- PROCESS FAST RESULTS ----------
@@ -339,14 +328,38 @@ const Dashboard = ({ navigation }) => {
     }
   }, [route?.params]);
   useEffect(() => {
-    onPageLoad();
-    const task = InteractionManager.runAfterInteractions(() => {
-      startWatchingLocation();
-    });
-    return () => {
-      task.cancel();
-      stopWatchingLocation();
+    const ensureGpsOnDashboard = async () => {
+      if (Platform.OS === 'android') {
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          );
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            await promptForEnableLocationIfNeeded({
+              interval: 10000,
+              fastInterval: 5000,
+            });
+          }
+        } catch (gpsError) {
+          console.warn('GPS enable was rejected or failed:', gpsError);
+        }
+      }
     };
+
+    if (isFocused) {
+      ensureGpsOnDashboard();
+    }
+  }, [isFocused]);
+
+  useEffect(() => {
+    onPageLoad();
+    // const task = InteractionManager.runAfterInteractions(() => {
+    //   startWatchingLocation();
+    // });
+    // return () => {
+    //   task.cancel();
+    //   // stopWatchingLocation();
+    // };
   }, []);
   const exit = useCallback(() => {
     Alert.alert(
@@ -379,7 +392,6 @@ const Dashboard = ({ navigation }) => {
   const headerContent = useMemo(
     () => (
       <>
-        <ForegroundLocationService />
         <UpcomingActivities
           t={t}
           isLoading={isLoading.slowData}

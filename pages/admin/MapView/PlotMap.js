@@ -42,6 +42,7 @@ const PlotMap = ({
   onPolygonPress,
   onOpenFilter,
   showRadius,
+  isFocused = true,
 }) => {
   const { t } = useContext(userCreateContext);
   const mapRef = useRef(null);
@@ -97,8 +98,8 @@ const PlotMap = ({
         style={styles.map}
         provider={PROVIDER_GOOGLE}
         mapType="hybrid"
-        showsUserLocation={true}
-        showsMyLocationButton={true}
+        showsUserLocation={isFocused}
+        showsMyLocationButton={isFocused}
         followsUserLocation={false}
         showsPointsOfInterest={false}
         showsBuildings={false}

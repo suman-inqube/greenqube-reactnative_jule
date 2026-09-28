@@ -1153,15 +1153,15 @@ const FarmerLiveHood = ({
           });
         }
       });
-
-      if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && !farmerData.daag_no) {
+      const hasLandProof = addressProof?.some(file => file?.uri && file.uri.trim() !== '');
+      if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && hasLandProof && !farmerData.daag_no) {
         Toast.show({
           text: 'Please enter Daag Number',
           ...AlertMesg[0],
         });
         return;
       }
-      if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && !farmerData.jl_no) {
+      if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && hasLandProof && !farmerData.jl_no) {
         Toast.show({
           text: 'Please enter JL Number',
           ...AlertMesg[0],
@@ -1460,9 +1460,13 @@ const FarmerLiveHood = ({
           //   farmerData.cu_rel_id,
           // );
           // if (filterAddressImage.length != 0) {
+          let ADD_PLOTI_MGS_API_CALL = false;
           addressProof.map((data, index) => {
-            if (data.name != '' && data.value == 1 && data.isvalid === "change") {
+            if (data.name != '' && data.id == '' && data.isvalid === "change") {
               formDataPlotImg.append('plot_image', data);
+            }
+            if (data.uri != "") {
+              ADD_PLOTI_MGS_API_CALL = true;
             }
           });
           formDataPlotImg.append('rel_id', farmerData.land_rel_id);
@@ -1471,7 +1475,7 @@ const FarmerLiveHood = ({
               isOnline
                 ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
                 : Promise.resolve(null),
-              addPlotImageAPI(dbname, lan_id, token, user_id, formDataPlotImg),
+              ADD_PLOTI_MGS_API_CALL ? addPlotImageAPI(dbname, lan_id, token, user_id, formDataPlotImg) : Promise.resolve(null),
               addCropInputAPI(dbname, lan_id, token, user_id, finalPayload),
             ]);
 

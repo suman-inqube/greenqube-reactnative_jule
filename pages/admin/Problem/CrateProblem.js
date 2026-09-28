@@ -17,8 +17,8 @@ import React, {
 } from 'react';
 import TakePhoto from '../Activity/TakePhoto';
 import RecordComp from '../Activity/RecordComp';
-import {launchCamera} from 'react-native-image-picker';
-import Marker, {Position} from 'react-native-image-marker';
+import { launchCamera } from 'react-native-image-picker';
+import Marker, { Position } from 'react-native-image-marker';
 import {
   farmerByNameAPI,
   problemPlotAgainstFarmerAPI,
@@ -29,8 +29,8 @@ import {
   problemTypeNameAPI,
 } from '../../../config/apiHere';
 import RNFS from 'react-native-fs';
-import {formatDateToMMDDYYYY} from '../../Common/DateChanger';
-import {useIsFocused} from '@react-navigation/native';
+import { formatDateToMMDDYYYY } from '../../Common/DateChanger';
+import { useIsFocused } from '@react-navigation/native';
 import SoundRecord from '../../Common/SoundRecord';
 import HarvestedModel from '../../Common/HarvestedModel';
 import * as AudioRecorderPlayerPkg from 'react-native-audio-recorder-player';
@@ -42,16 +42,16 @@ const audioRecorderPlayer =
     : AudioRecorderPlayer;
 // audioRecorderPlayer.setSubscriptionDuration(0.09);
 import AudioPlayerView from '../../Common/AudioPlayerView';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import axios from 'axios';
-import {Colors, Fronts} from '../../utils/Constants';
+import { Colors, Fronts } from '../../utils/Constants';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import DatePickerField from '../../Common/DatePickerField';
-import {axiosGet, axiosPost} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
-import {captureRef} from 'react-native-view-shot';
-const CreateProblem = ({navigation}) => {
+import { axiosGet, axiosPost } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
+import { captureRef } from 'react-native-view-shot';
+const CreateProblem = ({ navigation }) => {
   //GQR-65
   const {
     dbLanTokUsr,
@@ -80,9 +80,9 @@ const CreateProblem = ({navigation}) => {
     farmerData,
     coords,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id, FcmUserToken, owner} = loginUser_data;
+  const { dbname, lan_id, token, user_id, FcmUserToken, owner } = loginUser_data;
   //GQR-65
-  const {netConnection} = DeviceInfo();
+  const { netConnection } = DeviceInfo();
   const isFocused = useIsFocused();
   const [modalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -168,7 +168,7 @@ const CreateProblem = ({navigation}) => {
   const watermarkViewRef = useRef(null);
   const handleResultSelect = useCallback(async item => {
     // console.log('Full farmer item data:', JSON.stringify(item, null, 2));
-    const {label: name, value: currentfarmerId, phone, FcmUserToken} = item;
+    const { label: name, value: currentfarmerId, phone, FcmUserToken } = item;
 
     // console.log('Selected farmer FCM token:', FcmUserToken);
     setSearchResultsList(false);
@@ -178,14 +178,14 @@ const CreateProblem = ({navigation}) => {
     setShowingMenu(false);
     setSearchResults([]);
     setFarmerID(currentfarmerId);
-    setSaveData(prev => ({...prev, farmer_fcm: FcmUserToken}));
+    setSaveData(prev => ({ ...prev, farmer_fcm: FcmUserToken }));
     if (isOnline) {
       var response = await axiosGet(
         ROUTES.GET.PROBLEM_PLOT_AGAINST_FARMER({
           farmerID: currentfarmerId,
         }),
         token,
-        {information: `${dbname},${lan_id}`},
+        { information: `${dbname},${lan_id}` },
       );
       // problemPlotAgainstFarmerAPI(
       //   dbname,
@@ -270,7 +270,7 @@ const CreateProblem = ({navigation}) => {
               cropNameID: response?.data?.data?.crop_name_id,
             }),
             '',
-            {information: `${dbname},${lan_id}`},
+            { information: `${dbname},${lan_id}` },
           );
 
           // problemProductionStageAPI(
@@ -281,15 +281,15 @@ const CreateProblem = ({navigation}) => {
           // );
           await setItem(
             'problemProductionStage' +
-              response?.data?.data?.crop_type_id +
-              response?.data?.data?.crop_name_id,
+            response?.data?.data?.crop_type_id +
+            response?.data?.data?.crop_name_id,
             productionStage_res,
           );
         } else {
           var productionStage_res = await getItem(
             'problemProductionStage' +
-              response?.data?.data?.crop_type_id +
-              response?.data?.data?.crop_name_id,
+            response?.data?.data?.crop_type_id +
+            response?.data?.data?.crop_name_id,
           );
         }
         if (productionStage_res) {
@@ -340,7 +340,7 @@ const CreateProblem = ({navigation}) => {
             try {
               const uri = await captureRef(watermarkViewRef, {
                 format: 'jpg',
-                quality: 2,
+                quality: 1,
                 width: 800,
                 height: 800,
               });
@@ -351,7 +351,7 @@ const CreateProblem = ({navigation}) => {
               const path = destPath;
               setTempImage(null);
               setTempText('');
-              setSelectedImage({...selectedImage, [item]: `file://${path}`});
+              setSelectedImage({ ...selectedImage, [item]: `file://${path}` });
               const newPhoto = {
                 uri: `file://${path}`,
                 type: 'image/jpeg',
@@ -380,7 +380,7 @@ const CreateProblem = ({navigation}) => {
   const handleDatePicker = item => {
     const effective_date = effective_dates(item);
     setaffectedDate(effective_date);
-    setSaveData({...saveData, affected_date: effective_date});
+    setSaveData({ ...saveData, affected_date: effective_date });
   };
   const handleProblemType = useCallback(
     problem_type => {
@@ -425,8 +425,8 @@ const CreateProblem = ({navigation}) => {
     [nameVarityStartEnd],
   );
   const onPageLoad = async () => {
-    const {latitude, longitude} = coords || {};
-    setSaveData({...saveData, latitude: latitude, longitude: longitude});
+    const { latitude, longitude } = coords || {};
+    setSaveData({ ...saveData, latitude: latitude, longitude: longitude });
     setdbLanTokUsr({
       ...dbLanTokUsr,
       FcmUserToken: FcmUserToken,
@@ -609,7 +609,7 @@ const CreateProblem = ({navigation}) => {
           formData,
           token,
           false,
-          {information: `${dbname},${lan_id},${farmerID}`},
+          { information: `${dbname},${lan_id},${farmerID}` },
         );
         // problemSaveAPI(
         //   dbname,
@@ -620,9 +620,9 @@ const CreateProblem = ({navigation}) => {
         // );
 
         if (database_res.status === 200) {
-           setIsLoading(false);
-          navigation.navigate('ProblemList', {action: 'addData'});
-        }else{
+          setIsLoading(false);
+          navigation.navigate('ProblemList', { action: 'addData' });
+        } else {
           setIsLoading(false)
         }
       } else {
@@ -638,7 +638,7 @@ const CreateProblem = ({navigation}) => {
         } else {
           await setItem('offlineSupervisorProblemData', 'off' + timeStamp);
         }
-        navigation.navigate('ProblemList', {action: 'addData'});
+        navigation.navigate('ProblemList', { action: 'addData' });
       }
     }
   }, [
@@ -724,7 +724,7 @@ const CreateProblem = ({navigation}) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordSecoundItem({isLoggingIn: false, result: result});
+      setSoundRecordSecoundItem({ isLoggingIn: false, result: result });
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -733,7 +733,7 @@ const CreateProblem = ({navigation}) => {
     try {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
-      setSoundRecordThirdItem({isLoggingIn: false, result: result});
+      setSoundRecordThirdItem({ isLoggingIn: false, result: result });
     } catch (error) {
       console.error('Error stopping the recording:', error);
     }
@@ -798,19 +798,19 @@ const CreateProblem = ({navigation}) => {
     });
   }, []);
   const handleGrowthStage = useCallback(
-    item => setSaveData(saveData => ({...saveData, growth_stage: item.value})),
+    item => setSaveData(saveData => ({ ...saveData, growth_stage: item.value })),
     [],
   );
   const handleChangeQuestionTitle = useCallback(
-    item => setSaveData(saveData => ({...saveData, question_title: item})),
+    item => setSaveData(saveData => ({ ...saveData, question_title: item })),
     [],
   );
   const handleChangeQuestionDescription = useCallback(
-    item => setSaveData(saveData => ({...saveData, question_desc: item})),
+    item => setSaveData(saveData => ({ ...saveData, question_desc: item })),
     [],
   );
   const handleSeverityChange = useCallback(
-    item => setSaveData(saveData => ({...saveData, severity_id: item.value})),
+    item => setSaveData(saveData => ({ ...saveData, severity_id: item.value })),
     [],
   );
   const handleActivityPerFromDate = useCallback(() => {
@@ -993,7 +993,7 @@ const CreateProblem = ({navigation}) => {
                     style={styles.watermarkView}
                     collapsable={false}>
                     <Image
-                      source={{uri: tempImage}}
+                      source={{ uri: tempImage }}
                       style={styles.watermarkImage}
                       resizeMode="cover"
                     />
@@ -1086,7 +1086,7 @@ const styles = StyleSheet.create({
     // marginHorizontal: '1%',
     marginBottom: 15,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,

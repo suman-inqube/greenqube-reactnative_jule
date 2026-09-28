@@ -301,7 +301,7 @@ const CrateProblemUser = ({ navigation }) => {
               // Capture the watermarked view
               const uri = await captureRef(watermarkViewRef, {
                 format: 'jpg',
-                quality: 0.2,
+                quality: 1,
                 width: 800,
                 height: 800,
               });

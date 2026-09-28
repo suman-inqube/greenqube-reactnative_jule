@@ -10,6 +10,6 @@ const BASE_URLS = {
 
 export const BASE_URL = BASE_URLS[ENV];
 export const ENCRYPTION_KEY = 'greenQube_96740_64428';
-export const CURRENT_ENV = ENV;
+export const CURRENT_ENV = "DEMO";
 // console.log('🌍 APP RUNNING IN:', ENV);
 // console.log('🔗 BASE_URL:', BASE_URL);

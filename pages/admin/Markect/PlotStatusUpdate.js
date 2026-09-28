@@ -92,7 +92,7 @@ const PlotStatusUpdate = () => {
   const navigation = useNavigation();
   const route = useRoute();
   var watchId = useRef(null);
-  const { farmer_data, farmeruserID, rel_id, plot_no, comment,plot_status_comment } = route.params;
+  const { farmer_data, farmeruserID, rel_id, plot_no, comment, plot_status_comment } = route.params;
   const [plotEdit, setPlotEdit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [farmerData, setfarmerData] = useState({
@@ -1572,8 +1572,8 @@ const PlotStatusUpdate = () => {
           latlongArr.push({ latitude: data?.latitude, longitude: data?.longitude });
         }
       });
-
-      if (carbonType !== 'mangrove' && carbonFlag && !farmerData.jl_no) {
+      const hasLandProof = addressProof?.some(file => file?.uri && file.uri.trim() !== '');
+      if (carbonType !== 'mangrove' && carbonFlag && hasLandProof && !farmerData.jl_no) {
         Toast.show({
           text: 'Please enter JL-Number',
           ...AlertMesg[0],
@@ -1581,7 +1581,7 @@ const PlotStatusUpdate = () => {
         return;
       }
 
-      if (carbonType !== 'mangrove' && carbonFlag && !farmerData.daag_no) {
+      if (carbonType !== 'mangrove' && carbonFlag && hasLandProof && !farmerData.daag_no) {
         Toast.show({
           text: 'Please enter Daag Number',
           ...AlertMesg[0],
@@ -1818,9 +1818,13 @@ const PlotStatusUpdate = () => {
             { information: `${dbname},${lan_id},${farmer_data.user_id}` },
           );
           if (carbonType !== 'mangrove') {
+            let ADD_PLOTI_MGS_API_CALL = false;
             addressProof.map((data, index) => {
               if (data.name != '' && data.id == '') {
                 formDataPlotImg.append('plot_image', data);
+              }
+              if (data.uri != "") {
+                ADD_PLOTI_MGS_API_CALL = true;
               }
             });
             formDataPlotImg.append('rel_id', plotId);
@@ -1829,7 +1833,7 @@ const PlotStatusUpdate = () => {
               isOnline
                 ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
                 : Promise.resolve(null),
-              axiosPost(
+              ADD_PLOTI_MGS_API_CALL ? axiosPost(
                 ROUTES.POST.ADD_PLOTI_MGS,
                 formDataPlotImg,
                 token,
@@ -1837,7 +1841,7 @@ const PlotStatusUpdate = () => {
                 {
                   information: `${dbname},${lan_id},${farmer_data.user_id}`,
                 },
-              ),
+              ) : Promise.resolve(null),
               // addPlotImageAPI(
               //   dbname,
               //   lan_id,
@@ -2343,7 +2347,7 @@ const PlotStatusUpdate = () => {
             type: coFarmerDetails.addressProof?.type,
           });
         }
-        if (coFarmerDetails.idProof != null && coFarmerDetails.idProof != '' && coFarmerDetails.idProof?.uri!="") {
+        if (coFarmerDetails.idProof != null && coFarmerDetails.idProof != '' && coFarmerDetails.idProof?.uri != "") {
           formdataCofarmers.append(`farmer_identity`, {
             uri: coFarmerDetails.idProof?.uri,
             name: coFarmerDetails.idProof?.name,
@@ -2440,7 +2444,7 @@ const PlotStatusUpdate = () => {
           text: 'Data submitted successfully',
           ...{ ...AlertMesg[0], position: 'top' },
         });
- navigation.navigate('Dashboard', { action: 'plotStatusUpdated' });
+        navigation.navigate('Dashboard', { action: 'plotStatusUpdated' });
       }
       setIsLoading(false);
     } catch (error) {
@@ -3295,7 +3299,7 @@ const PlotStatusUpdate = () => {
                 setShowModal(prev => !prev);
               } else if (name === 'coFarmer') {
                 setModalVisibleCoFarmer(prev => !prev);
-              }else if (name === 'coFarmerList') {
+              } else if (name === 'coFarmerList') {
                 setListOfModalVisibleCoFarmer(prev => !prev);
               }
             }}

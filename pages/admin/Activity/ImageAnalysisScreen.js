@@ -385,7 +385,7 @@ const ImageAnalysisScreen = ({
               if (!watermarkViewRef?.current) return;
               const uri = await captureRef(watermarkViewRef, {
                 format: 'jpg',
-                quality: 0.1,
+                quality: 1,
                 width: 800,
                 height: 800,
               });
@@ -458,7 +458,7 @@ const ImageAnalysisScreen = ({
     try {
       const uri = await captureRef(watermarkViewRef, {
         format: 'jpg',
-        quality: 0.1,
+        quality: 1,
         width: 800,
         height: 800,
       });

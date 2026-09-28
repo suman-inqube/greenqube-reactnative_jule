@@ -3,7 +3,6 @@ import React, {
   useRef,
   useEffect,
   memo,
-  useState,
   useCallback,
   useMemo,
 } from 'react';
@@ -12,19 +11,17 @@ import {
   Pressable,
   View,
   Text,
-  Dimensions,
-  Image,
   StyleSheet,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
-import {Colors, Fonts} from '../utils/Constants';
+import { Colors, Fonts } from '../utils/Constants';
 import ImageForm from '../Common/ImageForm';
-const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 
-// Responsive breakpoints
-const getResponsiveConfig = () => {
-  const isTablet = SCREEN_WIDTH >= 768;
-  const isLargePhone = SCREEN_WIDTH >= 414;
+// Responsive configuration helper
+const getResponsiveConfig = screenWidth => {
+  const isTablet = screenWidth >= 768;
+  const isLargePhone = screenWidth >= 414;
 
   return {
     itemWidth: isTablet ? 80 : isLargePhone ? 55 : 50,
@@ -37,6 +34,106 @@ const getResponsiveConfig = () => {
     textContainerHeight: isTablet ? 32 : 27,
   };
 };
+
+// Isolated, memoized item component to prevent unnecessary re-renders & allocations
+const CarouselItem = memo(
+  ({
+    item,
+    index,
+    config,
+    imageStyle,
+    textStyle,
+    showText,
+    onPress,
+  }) => {
+    const handlePress = useCallback(() => {
+      onPress?.(item, index);
+    }, [item, index, onPress]);
+
+    const itemContainerStyle = useMemo(
+      () => [
+        styles.carouselItem,
+        {
+          marginRight: config.spacing,
+          width: config.itemWidth,
+          height: config.containerHeight,
+        },
+      ],
+      [config.spacing, config.itemWidth, config.containerHeight],
+    );
+
+    const imageWrapperStyle = useMemo(
+      () => [
+        styles.carouselItemImg,
+        {
+          height: config.itemHeight,
+          width: config.itemHeight,
+        },
+        imageStyle,
+      ],
+      [config.itemHeight, imageStyle],
+    );
+
+    const imageInnerStyle = useMemo(
+      () => ({
+        height: config.imageSize,
+        width: config.imageSize,
+        tintColor: 'red',
+      }),
+      [config.imageSize],
+    );
+
+    const textContainerStyle = useMemo(
+      () => [
+        styles.carouselTextContainer,
+        {
+          width: config.itemWidth,
+          height: config.textContainerHeight,
+        },
+      ],
+      [config.itemWidth, config.textContainerHeight],
+    );
+
+    const textMergedStyle = useMemo(
+      () => [
+        styles.carouselText,
+        { fontSize: config.fontSize },
+        textStyle,
+      ],
+      [config.fontSize, textStyle],
+    );
+
+    return (
+      <Pressable
+        style={itemContainerStyle}
+        onPress={handlePress}
+        android_ripple={{ color: Colors.lightGreen, borderless: true }}>
+        <View style={imageWrapperStyle}>
+          {item.imageurl ? (
+            <ImageForm
+              source={item.imageurl}
+              resizeMode="cover"
+              style={imageInnerStyle}
+            />
+          ) : null}
+        </View>
+
+        {showText && item.text ? (
+          <View style={textContainerStyle}>
+            <Text
+              style={textMergedStyle}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              {item.text}
+            </Text>
+          </View>
+        ) : null}
+      </Pressable>
+    );
+  },
+);
+
+CarouselItem.displayName = 'CarouselItem';
 
 const CarouselSlider = ({
   items = [],
@@ -52,15 +149,17 @@ const CarouselSlider = ({
   imageStyle,
   textStyle,
 }) => {
+  const { width: screenWidth } = useWindowDimensions();
   const flatListRef = useRef(null);
   const autoScrollInterval = useRef(null);
+  const restartTimeout = useRef(null);
+  const pressTimeout = useRef(null);
   const scrollOffset = useRef(0);
   const isManualScrolling = useRef(false);
-  const [dimensions, setDimensions] = useState(() => Dimensions.get('window'));
 
-  // Get responsive configuration
+  // Responsive layout configuration
   const config = useMemo(() => {
-    const responsive = getResponsiveConfig();
+    const responsive = getResponsiveConfig(screenWidth);
     return {
       itemWidth: itemWidth || responsive.itemWidth,
       itemHeight: itemHeight || responsive.itemHeight,
@@ -71,54 +170,62 @@ const CarouselSlider = ({
       containerHeight: responsive.containerHeight,
       textContainerHeight: responsive.textContainerHeight,
     };
-  }, [itemWidth, itemHeight, spacing, visibleItems, dimensions]);
-
-  // Memoized loop items to prevent recreation
-  const loopItems = useMemo(() => {
-    if (items.length === 0) return [];
-    // Triple the items for seamless infinite scroll
-    return [...items, ...items, ...items];
-  }, [items]);
+  }, [itemWidth, itemHeight, spacing, visibleItems, screenWidth]);
 
   const itemFullWidth = config.itemWidth + config.spacing;
 
-  // Handle dimension changes (rotation, etc.)
-  useEffect(() => {
-    const subscription = Dimensions.addEventListener('change', ({window}) => {
-      setDimensions(window);
-    });
+  // Tripled items for infinite scrolling loop
+  const loopItems = useMemo(() => {
+    if (!Array.isArray(items) || items.length === 0) return [];
+    if (items.length === 1) return items;
+    return [...items, ...items, ...items];
+  }, [items]);
 
-    return () => subscription?.remove();
+  // Clean all pending timers
+  const clearTimers = useCallback(() => {
+    if (autoScrollInterval.current) {
+      clearInterval(autoScrollInterval.current);
+      autoScrollInterval.current = null;
+    }
+    if (restartTimeout.current) {
+      clearTimeout(restartTimeout.current);
+      restartTimeout.current = null;
+    }
+    if (pressTimeout.current) {
+      clearTimeout(pressTimeout.current);
+      pressTimeout.current = null;
+    }
   }, []);
 
-  // Optimized scroll functions
+  // Optimized scroll action
   const scrollToOffset = useCallback(offset => {
     if (!flatListRef.current) return;
-
     try {
       flatListRef.current.scrollToOffset({
         offset,
         animated: true,
       });
       scrollOffset.current = offset;
-    } catch (error) {
-      console.warn('Scroll error:', error);
-    }
+    } catch (_) { }
   }, []);
 
+  // Auto-scroll cycle
   const startAutoScroll = useCallback(() => {
-    if (!autoScroll || loopItems.length === 0) return;
+    if (!autoScroll || loopItems.length <= 1) return;
 
-    stopAutoScroll();
+    if (autoScrollInterval.current) {
+      clearInterval(autoScrollInterval.current);
+    }
+
     autoScrollInterval.current = setInterval(() => {
       if (isManualScrolling.current) return;
 
       const maxOffset = itemFullWidth * loopItems.length;
       let nextOffset = scrollOffset.current + itemFullWidth;
 
-      // Reset to beginning when reaching end
+      // Wrap around when reaching the last partition
       if (nextOffset >= maxOffset - itemFullWidth * config.visibleItems) {
-        nextOffset = itemFullWidth * items.length; // Reset to middle section
+        nextOffset = itemFullWidth * items.length;
       }
 
       scrollToOffset(nextOffset);
@@ -140,18 +247,13 @@ const CarouselSlider = ({
     }
   }, []);
 
-  // Auto scroll management
+  // Manage auto-scroll lifecycle
   useEffect(() => {
     startAutoScroll();
-    return stopAutoScroll;
-  }, [startAutoScroll, stopAutoScroll]);
-
-  // Cleanup on unmount
-  useEffect(() => {
     return () => {
-      stopAutoScroll();
+      clearTimers();
     };
-  }, [stopAutoScroll]);
+  }, [startAutoScroll, clearTimers]);
 
   const handleScroll = useCallback(event => {
     scrollOffset.current = event.nativeEvent.contentOffset.x;
@@ -164,8 +266,8 @@ const CarouselSlider = ({
 
   const handleScrollEndDrag = useCallback(() => {
     isManualScrolling.current = false;
-    // Delay restart to allow momentum scroll to complete
-    setTimeout(() => {
+    if (restartTimeout.current) clearTimeout(restartTimeout.current);
+    restartTimeout.current = setTimeout(() => {
       startAutoScroll();
     }, 500);
   }, [startAutoScroll]);
@@ -174,15 +276,14 @@ const CarouselSlider = ({
     (item, index) => {
       stopAutoScroll();
 
-      // Call item's onpress or global onItemPress
       if (item?.onpress) {
         item.onpress(item, index);
       } else if (onItemPress) {
         onItemPress(item, index);
       }
 
-      // Resume auto scroll after a delay
-      setTimeout(() => {
+      if (pressTimeout.current) clearTimeout(pressTimeout.current);
+      pressTimeout.current = setTimeout(() => {
         startAutoScroll();
       }, 1000);
     },
@@ -190,70 +291,22 @@ const CarouselSlider = ({
   );
 
   const renderItem = useCallback(
-    ({item, index}) => (
-      <Pressable
-        style={[
-          styles.carouselItem,
-          {
-            marginRight: config.spacing,
-            width: config.itemWidth,
-            height: config.containerHeight,
-          },
-        ]}
-        onPress={() => handleItemPress(item, index)}
-        android_ripple={{color: Colors.lightGreen, borderless: true}}>
-        <View
-          style={[
-            styles.carouselItemImg,
-            {
-              height: config.itemHeight,
-              width: config.itemHeight,
-            },
-            imageStyle,
-          ]}>
-          {item.imageurl && (
-            <ImageForm
-              source={item.imageurl}
-              resizeMode="cover"
-              style={{
-                height: config.imageSize,
-                width: config.imageSize,
-                tintColor: 'red',
-                // borderRadius: config.imageSize / 2
-                // borderRadius: 10,
-              }}
-            />
-          )}
-        </View>
-
-        {showText && item.text && (
-          <View
-            style={[
-              styles.carouselTextContainer,
-              {
-                width: config.itemWidth,
-                height: config.textContainerHeight,
-              },
-            ]}>
-            <Text
-              style={[
-                styles.carouselText,
-                {fontSize: config.fontSize},
-                textStyle,
-              ]}
-              numberOfLines={1}
-              ellipsizeMode="tail">
-              {item.text}
-            </Text>
-          </View>
-        )}
-      </Pressable>
+    ({ item, index }) => (
+      <CarouselItem
+        item={item}
+        index={index}
+        config={config}
+        imageStyle={imageStyle}
+        textStyle={textStyle}
+        showText={showText}
+        onPress={handleItemPress}
+      />
     ),
-    [config, handleItemPress, showText, imageStyle, textStyle],
+    [config, imageStyle, textStyle, showText, handleItemPress],
   );
 
   const getItemLayout = useCallback(
-    (data, index) => ({
+    (_, index) => ({
       length: itemFullWidth,
       offset: itemFullWidth * index,
       index,
@@ -266,7 +319,22 @@ const CarouselSlider = ({
     [],
   );
 
-  if (items.length === 0) {
+  const contentContainerStyle = useMemo(
+    () => ({
+      paddingHorizontal: Math.max(
+        0,
+        (screenWidth - itemFullWidth * config.visibleItems) / 2,
+      ),
+    }),
+    [screenWidth, itemFullWidth, config.visibleItems],
+  );
+
+  const listStyle = useMemo(
+    () => [{ marginHorizontal: '2%' }, style],
+    [style],
+  );
+
+  if (!Array.isArray(items) || items.length === 0) {
     return null;
   }
 
@@ -277,7 +345,7 @@ const CarouselSlider = ({
       data={loopItems}
       keyExtractor={keyExtractor}
       renderItem={renderItem}
-      style={[{marginHorizontal: '2%'}, style]}
+      style={listStyle}
       showsHorizontalScrollIndicator={false}
       snapToInterval={itemFullWidth}
       snapToAlignment="start"
@@ -287,22 +355,16 @@ const CarouselSlider = ({
       onScrollBeginDrag={handleScrollBeginDrag}
       onScrollEndDrag={handleScrollEndDrag}
       onMomentumScrollEnd={handleScroll}
-      scrollEventThrottle={16}
-      contentContainerStyle={{
-        paddingHorizontal: Math.max(
-          0,
-          (dimensions.width - itemFullWidth * config.visibleItems) / 2,
-        ),
-      }}
-      initialScrollIndex={items.length} // Start in middle section
+      scrollEventThrottle={32}
+      contentContainerStyle={contentContainerStyle}
+      initialScrollIndex={items.length > 1 ? items.length : 0}
       getItemLayout={getItemLayout}
-      // Performance optimizations
-      windowSize={Platform.OS === 'ios' ? 10 : 21}
-      initialNumToRender={config.visibleItems + 2}
-      maxToRenderPerBatch={5}
-      updateCellsBatchingPeriod={50}
-      removeClippedSubviews={true}
-      // Additional performance props
+      // High RAM & CPU Optimizations
+      windowSize={3}
+      initialNumToRender={config.visibleItems + 1}
+      maxToRenderPerBatch={3}
+      updateCellsBatchingPeriod={80}
+      removeClippedSubviews={Platform.OS === 'android'}
       disableIntervalMomentum={true}
       disableScrollViewPanResponder={false}
       scrollEnabled={true}
@@ -324,7 +386,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: Colors.shadow || '#000',
-        shadowOffset: {width: 0, height: 2},
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
       },
@@ -345,7 +407,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: Colors.shadow || '#000',
-        shadowOffset: {width: 0, height: 1},
+        shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.1,
         shadowRadius: 2,
       },
@@ -361,12 +423,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
 });
-
-// Default props
-CarouselSlider.defaultProps = {
-  scrollSpeed: 3000,
-  autoScroll: true,
-  showText: true,
-};
 
 export default memo(CarouselSlider);

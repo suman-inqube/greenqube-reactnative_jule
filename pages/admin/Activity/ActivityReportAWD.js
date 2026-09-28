@@ -353,22 +353,26 @@ const ActivityReportAWD = ({ navigation, route }) => {
   }, [farmer, plot]);
   const checkPipeDistance = async (currentLat, currentLon) => {
     try {
-      if (!FEATURES.ENABLE_DISTANCE_CHECK) {
-        console.log('🚫 Distance check OFF (ENV:', CURRENT_ENV, ')');
-        return true;
-      }
+      // if (!FEATURES.ENABLE_DISTANCE_CHECK) {
+      //   console.log('🚫 Distance check OFF (ENV:', CURRENT_ENV, ')');
+      //   return true;
+      // }
       // Get fresh coordinates each time this function is called
-      const { latitude, longitude } = coords || {};
-      let freshLatLong;
+      // const { latitude, longitude } = coords || {};
+      // let freshLatLong;
 
-      if (!latitude || !longitude) {
-        freshLatLong = await getHighAccuracyLocation();
+      // if (!latitude || !longitude) {
+      //   freshLatLong = await getHighAccuracyLocation();
+      // }
+
+      // const lat = currentLat || latitude || freshLatLong?.latitude || 0;
+      // const lon = currentLon || longitude || freshLatLong?.longitude || 0;
+      const { latitude: lat, longitude: lon } = (await getHighAccuracyLocation()) || {};
+      if (!lat || !lon || lat === 0 || lon === 0) {
+        Alert.alert('Location Error', 'Unable to get valid GPS location.');
+        return;
       }
-
-      const lat = currentLat || latitude || freshLatLong?.latitude || 0;
-      const lon = currentLon || longitude || freshLatLong?.longitude || 0;
       const allPipes = [...pipeLatLong];
-
       pipeDetails.forEach(pipeGroup => {
         const pipeName = pipeGroup[0]?.pipe_name;
         const firstImage = pipeGroup[1]?.[0];
@@ -385,13 +389,11 @@ const ActivityReportAWD = ({ navigation, route }) => {
         console.log('No existing pipe');
         return true;
       }
-
       for (const existingPipe of allPipes) {
         const distance = getDistance(
           { latitude: lat, longitude: lon },
           { latitude: existingPipe.latitude, longitude: existingPipe.longitude },
         );
-
         if (distance < 20) {
           Alert.alert(
             'Too Close!',
@@ -490,13 +492,18 @@ const ActivityReportAWD = ({ navigation, route }) => {
   const handlePlot = useCallback(
     async relId => {
       try {
-        const { latitude, longitude } = coords || {};
-        var latlong;
-        if (latitude == '' && longitude == '') {
-          latlong = await getHighAccuracyLocation();
+        // const { latitude, longitude } = coords || {};
+        // var latlong;
+        // if (latitude == '' && longitude == '') {
+        //   latlong = await getHighAccuracyLocation();
+        // }
+        // const lat = latitude === '' ? latlong.latitude : latitude;
+        // const lon = longitude === '' ? latlong.longitude : longitude;
+        const { latitude: lat, longitude: lon } = (await getHighAccuracyLocation()) || {};
+        if (!lat || !lon || lat === 0 || lon === 0) {
+          Alert.alert('Location Error', 'Unable to get valid GPS location.');
+          return;
         }
-        const lat = latitude === '' ? latlong.latitude : latitude;
-        const lon = longitude === '' ? latlong.longitude : longitude;
         setIsLoading(true);
         if (isOnline) {
           var [response] = await Promise.all([
@@ -1241,8 +1248,8 @@ const ActivityReportAWD = ({ navigation, route }) => {
                 });
               }
             } else {
-              if (coords != null) {
-                const { latitude, longitude } = coords || {};
+              if (mapLatLon != null) {
+                const { latitude, longitude } = mapLatLon || {};
                 const distances = getDistance(selectPipeList.latlongs, {
                   latitude,
                   longitude,
@@ -1688,9 +1695,9 @@ const ActivityReportAWD = ({ navigation, route }) => {
   );
 
   const handleActivityPipe = async scannedValue => {
+
     if (!scannedValue) return;
     setPipeNumber('');
-
     if (saveData.field_type == 'add') {
       if (isScanningRef.current) return;
       if (lastScannedRef.current === scannedValue) return;
@@ -1794,13 +1801,19 @@ const ActivityReportAWD = ({ navigation, route }) => {
     try {
       const [QRFlag] = await Promise.all([getItem('pipeQR')]);
       setPipeQR(QRFlag);
-      const { latitude, longitude } = coords || {};
-      var latlong;
-      if (latitude == '' && longitude == '') {
-        latlong = await getHighAccuracyLocation();
+      // const { latitude, longitude } = coords || {};
+      // var latlong;
+      // if (latitude == '' && longitude == '') {
+      //   latlong = await getHighAccuracyLocation();
+      // }
+      // const lat = latitude === '' ? latlong.latitude : latitude;
+      // const lon = longitude === '' ? latlong.longitude : longitude;
+
+      const { latitude: lat, longitude: lon } = (await getHighAccuracyLocation()) || {};
+      if (!lat || !lon || lat === 0 || lon === 0) {
+        Alert.alert('Location Error', 'Unable to get valid GPS location.');
+        return;
       }
-      const lat = latitude === '' ? latlong.latitude : latitude;
-      const lon = longitude === '' ? latlong.longitude : longitude;
       setDefaultLatLon({ latitude: lat, longitude: lon, accuracy: 10 });
       setSaveData(prev => ({
         ...prev,
@@ -2029,12 +2042,17 @@ const ActivityReportAWD = ({ navigation, route }) => {
     async (replaceImgKey, coords) => {
       // console.log("aaa",saveData.act_type)
       const { latitude, longitude } = coords || {};
-      let latlong;
-      if (!latitude || !longitude) {
-        latlong = await getHighAccuracyLocation();
-      }
+      // let latlong;
+      // if (!latitude || !longitude) {
+      //   latlong = await getHighAccuracyLocation();
+      // }
       const lat = latitude || latlong?.latitude || 0;
       const lon = longitude || latlong?.longitude || 0;
+      // const { latitude: lat, longitude: lon } = (await getHighAccuracyLocation()) || {};
+      if (!lat || !lon || lat === 0 || lon === 0) {
+        Alert.alert('Location Error', 'Unable to get valid GPS location.');
+        return;
+      }
       if (pipe_fieldType.current === 1) {
         const isPipeInstall = await checkPipeDistance(lat, lon);
         if (!isPipeInstall) {
@@ -2055,7 +2073,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
       pipeLatLong,
       replaceImgKey,
       TakePhotoFailed,
-      coords,
+      // coords,
     ],
   );
   const TakePhotoFailed = (_index, imgIndex) => {
@@ -2147,7 +2165,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
               try {
                 const uri = await captureRef(watermarkViewRef, {
                   format: 'jpg',
-                  quality: 0.1,
+                  quality: 1,
                   width: 800,
                   height: 800,
                   result: 'tmpfile',
@@ -2281,14 +2299,14 @@ const ActivityReportAWD = ({ navigation, route }) => {
                   ai_camera_pipe_image={ai_camera_pipe_image}
                 />
               )}
-              {/* <TouchableOpacity onPress={()=>downloadModels()}><Text>AAAAAAAAAAAA</Text></TouchableOpacity> */}
               {modalVisibleMap && (
                 <ActivityMap
                   modalVisibleMap={modalVisibleMap}
                   setModalVisibleMap={setModalVisibleMap}
                   plotPolygon={plotPolygon}
                   TakePhoto={TakePhoto_Model}
-                  location={coords.latitude == '' ? dafaultLatLon : coords}
+                  // location={mapLatLon?.latitude == '' ? dafaultLatLon : mapLatLon}
+                  location={dafaultLatLon}
                   setOutOfRange={setOutofRange}
                   outofRange={outofRange}
                   pipeLatLong={pipeLatLong}
