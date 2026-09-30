@@ -589,7 +589,6 @@ const LiveHood = ({
         const { count, rows = [] } = landUnitSquare_res.data?.data || {};
         setLandUnitsquareMetre(count > 0 ? rows : []);
       }
-      console.log(plotSiteUserLandDetails_res.data.data)
       if (plotSiteUserLandDetails_res?.status === 200) {
         setplotSiteUserLandDetails(plotSiteUserLandDetails_res.data.data);
       }
@@ -686,7 +685,6 @@ const LiveHood = ({
 
           const { plot_img, landUserImgs } =
             getPlotDoc?.data?.data?.rows[0] || {};
-          console.log("plot_img", plot_img)
           // const values = [...addressProof];
           const carbonCertificateValues = [...carboncertificate];
           const filteredPlotImages = plot_img.filter(
@@ -715,26 +713,6 @@ const LiveHood = ({
               id: filteredSignature[filteredSignature.length - 1]?.file_id,
             }));
           }
-          // addressProof.map((_data, _index) => {
-          //   if (filteredPlotImages[_index] !== undefined && count > 0) {
-          //     values[_index] = {
-          //       uri: filteredPlotImages[_index]?.file_path,
-          //       name: filteredPlotImages[_index]?.file_name,
-          //       type: filteredPlotImages[_index]?.file_ext,
-          //       fileName: filteredPlotImages[_index]?.file_name,
-          //       id: filteredPlotImages[_index]?.file_id,
-          //     };
-          //   } else {
-          //     values[_index] = {
-          //       uri: '',
-          //       name: '',
-          //       type: '',
-          //       fileName: '',
-          //       id: '',
-          //     };
-          //   }
-          // });
-          console.log("filteredPlotImages", filteredPlotImages)
           const plotImagesFromApi = filteredPlotImages.map(item => ({
             uri: item.file_path,
             name: item.file_title,
@@ -826,7 +804,6 @@ const LiveHood = ({
                   { cancelable: false },
                 );
               }
-              console.log('cropAndPlotDetailsstatus==', dataLandDetails);
 
               setPlotStatus(prev => ({
                 ...prev,
@@ -1256,7 +1233,6 @@ const LiveHood = ({
   }, []);
   useEffect(() => {
     if (plotSiteUserLandDetails.length != 0) {
-      console.log('dataProps', dataProps);
       if (dataProps?.plot_no != undefined) {
         handlePlot({
           label: dataProps?.plot_no,
@@ -2029,7 +2005,7 @@ const LiveHood = ({
           //   '',
           //   '',
           // );
-          console.log('AddLandCropDetails_res==', JSON.stringify(AddLandCropDetails_res?.data?.data?.validationResponse?.rejected_documents));
+
           if (
             AddLandCropDetails_res?.status === 200 ||
             AddLandCropDetails_res?.status === 202

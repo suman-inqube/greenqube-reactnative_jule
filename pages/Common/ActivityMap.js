@@ -91,7 +91,7 @@ const DEFAULT_MAP_CENTER = { latitude: 20.5937, longitude: 78.9629 };
 
 const LOCATION_UPDATE_INTERVAL = 1500; // Throttle to 1.5 seconds
 const MIN_DISTANCE_THRESHOLD = 1; // Re-render only if moved >= 1 meter
-const HIGH_ACCURACY_THRESHOLD = 20; // GPS Accuracy threshold in meters (<= 20m is High Accuracy)
+const HIGH_ACCURACY_THRESHOLD = 15; // GPS Accuracy threshold in meters (<= 20m is High Accuracy)
 const STABLE_DISTANCE_DELTA_THRESHOLD = 2.5; // Max movement in meters between updates to be considered stationary
 const REQUIRED_STABLE_TICKS = 2; // Consecutive stationary updates required
 const MAX_STATIONARY_SPEED = 0.8; // m/s speed threshold (walking is ~1.4 m/s)

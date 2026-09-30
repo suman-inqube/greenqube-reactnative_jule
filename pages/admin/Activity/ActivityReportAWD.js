@@ -1231,7 +1231,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
         let database_res;
         if (isOnline) {
           if (carbonType !== 'mangrove') {
-            if (saveData.field_type == 'add' || CURRENT_ENV == 'DEMO') {
+            if (saveData.field_type == 'add') {
               if (outofRange || CURRENT_ENV == 'DEMO') {
                 database_res = await addUserPipeActivity(
                   dbname,

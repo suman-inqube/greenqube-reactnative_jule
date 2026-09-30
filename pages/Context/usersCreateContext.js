@@ -342,7 +342,6 @@ const UserCreateContextProvider = props => {
 
         const { company, country_id } = companyLanguage_data;
         const { option_value, option_name } = resCarbonFlag?.data?.data || {};
-        console.log("Carbon mangrove", resCarbonFlag?.data?.data)
         setlogoImage(logoImageData);
         settopBanner(topBannerData);
         setloginUser_data({

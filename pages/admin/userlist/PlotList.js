@@ -109,7 +109,6 @@ const PlotList = () => {
       // console.log('plotsRes', plotsRes);
 
       if (plotsRes?.status === 200) {
-        console.log('sta==', JSON.stringify(plotsRes?.data));
         setPlotList(plotsRes?.data || []);
       }
       if (unitAreaRes?.status === 200)
@@ -355,7 +354,7 @@ const PlotList = () => {
             </>
           )}
 
-          {activeTab === 0  && dbLanTokUsr?.carbonType =="mangrove" && (
+          {activeTab === 0 && dbLanTokUsr?.carbonType == "mangrove" && (
             <FloatingActionButton
               position="right"
               actions={getActionsPlot(t, styles, Colors)}

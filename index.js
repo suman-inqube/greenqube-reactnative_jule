@@ -70,11 +70,11 @@ export default function Main() {
         <UserCreateContextProvider>
           <PopupRootProvider>
             <Root>
-            <App />
+              <App />
             </Root>
           </PopupRootProvider>
         </UserCreateContextProvider>
-       </MyErrorBoundary>
+      </MyErrorBoundary>
     );
   } catch (error) {
     console.log('[Render Catch Fallback]', error);
