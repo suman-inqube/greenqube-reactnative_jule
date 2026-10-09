@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown'
 
-const DropdownForm = ({ color, label, data, onChange, val }) => {
+const DropdownForm = ({ color, label, data, onChange, val, testID }) => {
     const labelString = label.charAt(0).toUpperCase() + label.slice(1);
     const [isFocus, setIsFocus] = useState(false);
     return (
@@ -11,6 +11,8 @@ const DropdownForm = ({ color, label, data, onChange, val }) => {
                 <Text style={{ marginHorizontal: 5, marginBottom: 5, color: color ?? 'black' }}>{labelString}</Text>
                 <View style={styles.container}>
                     <Dropdown
+                        testID={testID}
+                        accessibilityLabel={testID}
                         mode='modal'
                         style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
                         placeholderStyle={styles.placeholderStyle}
