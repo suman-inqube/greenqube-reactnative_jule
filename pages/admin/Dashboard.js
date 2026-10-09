@@ -52,13 +52,13 @@ const Dashboard = ({ navigation }) => {
       </View>
 
       <View style={styles.container}>
-        <BoxDisplay text="User" text1="Registration" imageurl={require('../Common/images/logo.png')} onpress={() => navigateToPages('Signup')}/>
-        <BoxDisplay text="User" text1="List" imageurl={require('../Common/images/logo.png')} onpress={() => navigateToPages('userList')}/>
+        <BoxDisplay testID="dashboard_box_user_registration" text="User" text1="Registration" imageurl={require('../Common/images/logo.png')} onpress={() => navigateToPages('Signup')}/>
+        <BoxDisplay testID="dashboard_box_user_list" text="User" text1="List" imageurl={require('../Common/images/logo.png')} onpress={() => navigateToPages('userList')}/>
 
       </View>
       <View style={styles.container}>
-        <BoxDisplay text="" text1="Problem" imageurl={require('../Common/images/logo.png')} onpress={() => navigateToPages('Signup')}/>
-        <BoxDisplay text="" text1="Activity" imageurl={require('../Common/images/logo.png')} onpress={() => navigateToPages('activityList')}/>
+        <BoxDisplay testID="dashboard_box_problem" text="" text1="Problem" imageurl={require('../Common/images/logo.png')} onpress={() => navigateToPages('Signup')}/>
+        <BoxDisplay testID="dashboard_box_activity" text="" text1="Activity" imageurl={require('../Common/images/logo.png')} onpress={() => navigateToPages('activityList')}/>
       </View>
 
 

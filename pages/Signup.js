@@ -195,18 +195,18 @@ const Signup = () => {
                     <View style={{ paddingHorizontal: 20 }}>
                         <Logo iheight={100} iwidth={100} />
 
-                        <DropdownForm data={countryData} label="Country" color='red' onChange={country => { countryHandle(country) }} val={storeSignup.country} />
+                        <DropdownForm testID="signup_dropdown_country" data={countryData} label="Country" color='red' onChange={country => { countryHandle(country) }} val={storeSignup.country} />
 
-                        <DropdownForm data={companyData} label="Company" color='red' onChange={company => { companyHandle(company) }} val={storeSignup.company} />
+                        <DropdownForm testID="signup_dropdown_company" data={companyData} label="Company" color='red' onChange={company => { companyHandle(company) }} val={storeSignup.company} />
 
-                        <DropdownForm data={supervisorData} label="Supervisor" color='red' onChange={supervisor => { setstoreSignup({ ...storeSignup, supervisor: supervisor }) }} val={storeSignup.supervisor} />
+                        <DropdownForm testID="signup_dropdown_supervisor" data={supervisorData} label="Supervisor" color='red' onChange={supervisor => { setstoreSignup({ ...storeSignup, supervisor: supervisor }) }} val={storeSignup.supervisor} />
 
-                        <InputTextForm label="Phone" color="red" value={storeSignup.phone} onChangeText={(phone) => setstoreSignup({ ...storeSignup, phone: phone })} keyboardType="numeric" onBlur={(phone) => checkPhone(phone)} refname={phoneInputRef} />
+                        <InputTextForm testID="signup_input_phone" label="Phone" color="red" value={storeSignup.phone} onChangeText={(phone) => setstoreSignup({ ...storeSignup, phone: phone })} keyboardType="numeric" onBlur={(phone) => checkPhone(phone)} refname={phoneInputRef} />
 
                         <Text style={styles.formMargin}>Password</Text>
                         <View style={styles.passwordMainContainer}>
                             <View style={styles.passwordContainer}>
-                                <TextInput secureTextEntry={passwordVisibility ? false : true} style={styles.inputTextStyle} onChangeText={(passsword) => setstoreSignup({ ...storeSignup, password: passsword })} value={storeSignup.password} />
+                                <TextInput testID="signup_input_password" accessibilityLabel="signup_input_password" secureTextEntry={passwordVisibility ? false : true} style={styles.inputTextStyle} onChangeText={(passsword) => setstoreSignup({ ...storeSignup, password: passsword })} value={storeSignup.password} />
                                 <TouchableOpacity
                                     onPress={() => setPasswordVisibility(!passwordVisibility)}
                                 >
@@ -225,7 +225,7 @@ const Signup = () => {
                         <Text style={styles.formMargin}>Confirm Password</Text>
                         <View style={styles.passwordMainContainer}>
                             <View style={styles.passwordContainer}>
-                                <TextInput secureTextEntry={cpasswordVisibility ? false : true} style={styles.inputTextStyle} onChangeText={(cpassword => setstoreSignup({ ...storeSignup, cpassword: cpassword }))} onBlur={handleCheckPassowrdConfirm} value={storeSignup.cpassword} />
+                                <TextInput testID="signup_input_cpassword" accessibilityLabel="signup_input_cpassword" secureTextEntry={cpasswordVisibility ? false : true} style={styles.inputTextStyle} onChangeText={(cpassword => setstoreSignup({ ...storeSignup, cpassword: cpassword }))} onBlur={handleCheckPassowrdConfirm} value={storeSignup.cpassword} />
                                 <TouchableOpacity
                                     onPress={() => setcPasswordVisibility(!cpasswordVisibility)}
                                 >
@@ -244,7 +244,7 @@ const Signup = () => {
                 </View>
             </ScrollView>
             <View style={{ marginTop: 10, backgroundColor: '#D5FFD0' }}>
-                <ButtonForm label='Next' onPress={() => saveHandle()} />
+                <ButtonForm testID="signup_button_next" label='Next' onPress={() => saveHandle()} />
             </View>
         </>
     )

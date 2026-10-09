@@ -135,21 +135,21 @@ const Login = () => {
                         <View>
                             <Text style={{ fontSize: 25 }}>Sign In</Text>
                             <Text>Login with your registered phone number an password</Text>
-                            <TextInput style={styles.simpleInputTextStyle} placeholder="Enter your Register Phone no." keyboardType="numeric" onChangeText={phone => setstoreLoginUser({ ...storeLoginUser, phone: phone })} />
+                            <TextInput testID="login_input_phone" accessibilityLabel="login_input_phone" style={styles.simpleInputTextStyle} placeholder="Enter your Register Phone no." keyboardType="numeric" onChangeText={phone => setstoreLoginUser({ ...storeLoginUser, phone: phone })} />
 
-                            <TextInput style={styles.simpleInputTextStyle} placeholder="Enter Your Password" secureTextEntry={true} onChangeText={password => setstoreLoginUser({ ...storeLoginUser, password: password })} />
+                            <TextInput testID="login_input_password" accessibilityLabel="login_input_password" style={styles.simpleInputTextStyle} placeholder="Enter Your Password" secureTextEntry={true} onChangeText={password => setstoreLoginUser({ ...storeLoginUser, password: password })} />
                             <View style={{ marginTop: 20, }}>
-                                <DropdownForm data={config.roleData} label="Role" onChange={role => setstoreLoginUser({ ...storeLoginUser, role: role })} />
+                                <DropdownForm testID="login_dropdown_role" data={config.roleData} label="Role" onChange={role => setstoreLoginUser({ ...storeLoginUser, role: role })} />
                             </View>
                             <View style={{ marginTop: 5, }}>
-                                <DropdownForm data={companyData} label="Company" onChange={company => setstoreLoginUser({ ...storeLoginUser, company: company })} />
+                                <DropdownForm testID="login_dropdown_company" data={companyData} label="Company" onChange={company => setstoreLoginUser({ ...storeLoginUser, company: company })} />
                             </View>
                             <View style={{ alignItems: 'center' }} onPress>
                                 <Text>Forget Password?</Text>
                             </View>
                             <View style={{ alignItems: 'center', marginTop: 10, }}>
-                                <TouchableOpacity>
-                                    <Text onPress={() => navigation.navigate('Signup')}>New User ? Sign Up Now</Text>
+                                <TouchableOpacity testID="login_button_signup" accessibilityLabel="login_button_signup" onPress={() => navigation.navigate('Signup')}>
+                                    <Text>New User ? Sign Up Now</Text>
                                 </TouchableOpacity>
                             </View>
 
@@ -158,7 +158,7 @@ const Login = () => {
                 </View>
             </ScrollView>
             <View style={{ marginTop: 10 }}>
-                <ButtonForm label='Submit' onPress={saveHandle} />
+                <ButtonForm testID="login_button_submit" label='Submit' onPress={saveHandle} />
             </View>
         </>
     )

@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import ImageForm from '../Common/ImageForm';
 
-export const BoxDisplay = ({ text, text1, imageurl,onpress }) => {
+export const BoxDisplay = ({ text, text1, imageurl,onpress, testID }) => {
     return (
-        <TouchableOpacity onPress={onpress} style={styles.boxContainer}>
+        <TouchableOpacity testID={testID} accessibilityLabel={testID} onPress={onpress} style={styles.boxContainer}>
             <View style={styles.box1}>
                 <View style={styles.box1_1}>
                     <ImageForm

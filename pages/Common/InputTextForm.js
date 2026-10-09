@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, TextInput } from 'react-native'
 import React from 'react'
 
-const InputTextForm = ({ value, color, label, onChangeText, keyboardType, onBlur, refname }) => {
+const InputTextForm = ({ value, color, label, onChangeText, keyboardType, onBlur, refname, testID }) => {
   const labelString = label.charAt(0).toUpperCase() + label.slice(1);
   return (
     <>
@@ -13,6 +13,8 @@ const InputTextForm = ({ value, color, label, onChangeText, keyboardType, onBlur
           value={value}
           keyboardType={keyboardType ?? 'default'}
           ref={refname}
+          testID={testID}
+          accessibilityLabel={testID}
         />
       </View>
     </>
