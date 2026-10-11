@@ -24,9 +24,13 @@ import RNFS from 'react-native-fs';
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 import { showAIValidationError } from '../../utils/showAIValidationError';
 import { isPointInPolygon } from 'geolib';
+import ImageAnalysisScreen, {
+  MODELS,
+  loadModelFromAssets,
+  loadModel,
+  ModelSessionManager,
+} from '../Activity/ImageAnalysisScreen';
 import ActivityMap from '../../Common/ActivityMap';
-import ImageAnalysisScreen from '../Activity/ImageAnalysisScreen';
-import { MODELS, loadModelFromAssets, loadModel } from '../Activity/ImageAnalysisScreen'
 const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
   const location = useLocationTracking();
   const {
@@ -91,29 +95,11 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [AIModalVisible, setAIModalVisible] = useState(false);
   const [mapLatLon, setMapLatLon] = useState(null);
-  const [sessions, setSessions] = useState({
-    clarity: null,
-    obstacle: null,
-    pipe: null,
-    moisture: null,
-    ruler: null
-  }); //
-  const [modelStatus, setModelStatus] = useState({
-    clarity: false,
-    obstacle: false,
-    pipe: false,
-    moisture: false,
-    ruler: false
-  });//
-  const [modelLoading, setModelLoading] = useState({
-    clarity: false,
-    obstacle: false,
-    pipe: false,
-    moisture: false,
-    ruler: false
-  });//
-  const [loadingModels, setLoadingModels] = useState(true);
-    const [loadProgress, setLoadProgress] = useState(''); 
+  const [sessions, setSessions] = useState(() => ModelSessionManager.getSessions());
+  const [modelStatus, setModelStatus] = useState(() => ModelSessionManager.getStatus());
+  const [modelLoading, setModelLoading] = useState(() => ModelSessionManager.getLoading());
+  const [loadProgress, setLoadProgress] = useState('');
+  const [loadingModels, setLoadingModels] = useState(() => !ModelSessionManager.isCoreLoaded());
   const { params } = route;
   const onPageLoad = async () => {
     try {
@@ -206,30 +192,22 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
 
   const loadAllModels = async () => {
     try {
-      for (const model of MODELS) {
-        if (!isMountedRef.current) break;
-        if (loadedSessionsRef.current[model.key]) continue;
-
-        const session = await loadModelFromAssets(model.file);
-        if (!isMountedRef.current) {
-          session?.release?.();
-          break;
-        }
-        loadedSessionsRef.current[model.key] = session;
-        setSessions(prev => ({
-          ...prev,
-          [model.key]: session,
-        }));
-        setModelStatus(prev => ({
-          ...prev,
-          [model.key]: true,
-        }));
-      }
+      await ModelSessionManager.loadAll(
+        (updatedSessions, updatedStatus, updatedLoading, progressText) => {
+          if (!isMountedRef.current) return;
+          setSessions(updatedSessions);
+          setModelStatus(updatedStatus);
+          setModelLoading(updatedLoading);
+          if (progressText) {
+            setLoadProgress(progressText);
+          }
+        },
+      );
       if (isMountedRef.current) {
         setLoadingModels(false);
       }
     } catch (e) {
-      console.log("modelerror", e);
+      console.log('modelerror', e);
       if (isMountedRef.current) {
         setLoadingModels(false);
       }
@@ -248,16 +226,7 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
       task.cancel();
       isMountedRef.current = false;
       timeoutsRef.current.forEach(clearTimeout);
-
-      Object.values(loadedSessionsRef.current).forEach(session => {
-        try {
-          session?.release?.();
-        } catch (e) {
-          console.log('Error releasing session:', e);
-        }
-      });
-
-      loadedSessionsRef.current = {};
+      // Models stay cached in ModelSessionManager for reuse across screens
     };
   }, [ai_camera_pipe_image]);
   useEffect(() => {
@@ -363,7 +332,7 @@ const FarmerInstrumentWiseActivityDetails = ({ navigation }) => {
               setModalVisibleMap={setModalVisibleMap}
               plotPolygon={plotPolygon}
               TakePhoto={TakePhoto}
-              location={coords||dafaultLatLon}
+              location={coords || dafaultLatLon}
               setOutOfRange={setOutofRange}
               outofRange={outofRange}
               pipeLatLong={pipeLatLong}

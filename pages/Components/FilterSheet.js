@@ -513,12 +513,12 @@ const FilterSheetContent = React.memo(
 FilterSheetContent.displayName = 'FilterSheetContent';
 export const openFilterSheet = props => {
   try {
-    const { navigationBarHeight = 0, height = 0, filterItem = '' } = props || {};
+    const { navigationBarHeight = 0, height = 0, filterItem = '', seasonFilter = false, fieldType = '' } = props || {};
     if (!props) {
       console.warn('openFilterSheet: No props provided');
       return;
     }
-    const sheetHeight = filterItem === '' ? height : 300;
+    const sheetHeight = filterItem === '' ? height : seasonFilter ? 280 : 230;
     const finalHeight = Math.max(sheetHeight, height);
     SPSheet.show({
       component: () => <FilterSheetContent {...props} />,

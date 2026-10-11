@@ -8,13 +8,14 @@ import React, {
 } from 'react';
 import {
   FlatList,
-  Pressable,
+  TouchableOpacity,
   View,
   Text,
   StyleSheet,
   Platform,
   useWindowDimensions,
 } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import { Colors, Fonts } from '../utils/Constants';
 import ImageForm from '../Common/ImageForm';
 
@@ -40,6 +41,7 @@ const CarouselItem = memo(
   ({
     item,
     index,
+    totalItems,
     config,
     imageStyle,
     textStyle,
@@ -47,8 +49,9 @@ const CarouselItem = memo(
     onPress,
   }) => {
     const handlePress = useCallback(() => {
-      onPress?.(item, index);
-    }, [item, index, onPress]);
+      const realIndex = totalItems > 0 ? index % totalItems : index;
+      onPress?.(item, realIndex);
+    }, [item, index, totalItems, onPress]);
 
     const itemContainerStyle = useMemo(
       () => [
@@ -104,12 +107,13 @@ const CarouselItem = memo(
     );
 
     return (
-      <Pressable
+      <TouchableOpacity
         style={itemContainerStyle}
         onPress={handlePress}
-        android_ripple={{ color: Colors.lightGreen, borderless: true }}>
+        activeOpacity={0.65}
+        hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}>
         <View style={imageWrapperStyle}>
-          {item.imageurl ? (
+          {item?.imageurl ? (
             <ImageForm
               source={item.imageurl}
               resizeMode="cover"
@@ -118,7 +122,7 @@ const CarouselItem = memo(
           ) : null}
         </View>
 
-        {showText && item.text ? (
+        {showText && item?.text ? (
           <View style={textContainerStyle}>
             <Text
               style={textMergedStyle}
@@ -128,7 +132,7 @@ const CarouselItem = memo(
             </Text>
           </View>
         ) : null}
-      </Pressable>
+      </TouchableOpacity>
     );
   },
 );
@@ -145,11 +149,13 @@ const CarouselSlider = ({
   autoScroll = true,
   showText = true,
   onItemPress,
+  onPress,
   style,
   imageStyle,
   textStyle,
 }) => {
   const { width: screenWidth } = useWindowDimensions();
+  const isFocused = useIsFocused();
   const flatListRef = useRef(null);
   const autoScrollInterval = useRef(null);
   const restartTimeout = useRef(null);
@@ -209,9 +215,17 @@ const CarouselSlider = ({
     } catch (_) { }
   }, []);
 
+  // Stop auto-scroll
+  const stopAutoScroll = useCallback(() => {
+    if (autoScrollInterval.current) {
+      clearInterval(autoScrollInterval.current);
+      autoScrollInterval.current = null;
+    }
+  }, []);
+
   // Auto-scroll cycle
   const startAutoScroll = useCallback(() => {
-    if (!autoScroll || loopItems.length <= 1) return;
+    if (!autoScroll || loopItems.length <= 1 || !isFocused) return;
 
     if (autoScrollInterval.current) {
       clearInterval(autoScrollInterval.current);
@@ -237,23 +251,23 @@ const CarouselSlider = ({
     scrollSpeed,
     config.visibleItems,
     items.length,
+    isFocused,
     scrollToOffset,
   ]);
 
-  const stopAutoScroll = useCallback(() => {
-    if (autoScrollInterval.current) {
-      clearInterval(autoScrollInterval.current);
-      autoScrollInterval.current = null;
-    }
-  }, []);
-
-  // Manage auto-scroll lifecycle
+  // Manage auto-scroll lifecycle with screen focus
   useEffect(() => {
-    startAutoScroll();
+    if (isFocused && autoScroll) {
+      isManualScrolling.current = false;
+      startAutoScroll();
+    } else {
+      stopAutoScroll();
+      clearTimers();
+    }
     return () => {
       clearTimers();
     };
-  }, [startAutoScroll, clearTimers]);
+  }, [isFocused, autoScroll, startAutoScroll, stopAutoScroll, clearTimers]);
 
   const handleScroll = useCallback(event => {
     scrollOffset.current = event.nativeEvent.contentOffset.x;
@@ -268,26 +282,55 @@ const CarouselSlider = ({
     isManualScrolling.current = false;
     if (restartTimeout.current) clearTimeout(restartTimeout.current);
     restartTimeout.current = setTimeout(() => {
-      startAutoScroll();
-    }, 500);
-  }, [startAutoScroll]);
+      if (isFocused) {
+        startAutoScroll();
+      }
+    }, 1000);
+  }, [startAutoScroll, isFocused]);
+
+  const handleTouchStart = useCallback(() => {
+    stopAutoScroll();
+  }, [stopAutoScroll]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (restartTimeout.current) clearTimeout(restartTimeout.current);
+    restartTimeout.current = setTimeout(() => {
+      if (isFocused) {
+        startAutoScroll();
+      }
+    }, 1200);
+  }, [startAutoScroll, isFocused]);
 
   const handleItemPress = useCallback(
     (item, index) => {
       stopAutoScroll();
+      clearTimers();
+      isManualScrolling.current = false;
 
-      if (item?.onpress) {
-        item.onpress(item, index);
-      } else if (onItemPress) {
-        onItemPress(item, index);
+      const pressHandler =
+        onPress ||
+        onItemPress ||
+        item?.onPress ||
+        item?.onpress ||
+        item?.onClick ||
+        item?.onclick;
+
+      if (typeof pressHandler === 'function') {
+        pressHandler(item, index);
+      } else if (typeof item?.onpress === 'function') {
+        item.onpress();
+      } else if (typeof item?.onPress === 'function') {
+        item.onPress();
       }
 
       if (pressTimeout.current) clearTimeout(pressTimeout.current);
       pressTimeout.current = setTimeout(() => {
-        startAutoScroll();
-      }, 1000);
+        if (isFocused) {
+          startAutoScroll();
+        }
+      }, 1500);
     },
-    [stopAutoScroll, startAutoScroll, onItemPress],
+    [stopAutoScroll, clearTimers, startAutoScroll, onPress, onItemPress, isFocused],
   );
 
   const renderItem = useCallback(
@@ -295,6 +338,7 @@ const CarouselSlider = ({
       <CarouselItem
         item={item}
         index={index}
+        totalItems={items.length}
         config={config}
         imageStyle={imageStyle}
         textStyle={textStyle}
@@ -302,7 +346,7 @@ const CarouselSlider = ({
         onPress={handleItemPress}
       />
     ),
-    [config, imageStyle, textStyle, showText, handleItemPress],
+    [config, items.length, imageStyle, textStyle, showText, handleItemPress],
   );
 
   const getItemLayout = useCallback(
@@ -315,7 +359,7 @@ const CarouselSlider = ({
   );
 
   const keyExtractor = useCallback(
-    (item, index) => `${item.id || index}-${index}`,
+    (item, index) => `${item?.id || index}-${index}`,
     [],
   );
 
@@ -352,19 +396,23 @@ const CarouselSlider = ({
       decelerationRate="fast"
       pagingEnabled={false}
       bounces={false}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onScroll={handleScroll}
       onScrollBeginDrag={handleScrollBeginDrag}
       onScrollEndDrag={handleScrollEndDrag}
       onMomentumScrollEnd={handleScroll}
-      scrollEventThrottle={32}
+      scrollEventThrottle={16}
       contentContainerStyle={contentContainerStyle}
       initialScrollIndex={items.length > 1 ? items.length : 0}
       getItemLayout={getItemLayout}
-      // High RAM & CPU Optimizations
-      windowSize={3}
-      initialNumToRender={config.visibleItems + 1}
-      maxToRenderPerBatch={3}
+      keyboardShouldPersistTaps="handled"
+      // Performance & Touch Stability
+      windowSize={5}
+      initialNumToRender={config.visibleItems + 2}
+      maxToRenderPerBatch={4}
       updateCellsBatchingPeriod={80}
-      removeClippedSubviews={Platform.OS === 'android'}
+      removeClippedSubviews={false}
       disableIntervalMomentum={true}
       disableScrollViewPanResponder={false}
       scrollEnabled={true}
@@ -425,3 +473,5 @@ const styles = StyleSheet.create({
 });
 
 export default memo(CarouselSlider);
+
+

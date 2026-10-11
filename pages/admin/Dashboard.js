@@ -165,7 +165,7 @@ const Dashboard = ({ navigation }) => {
           token,
           { information: `${dbname},${lan_id},${user_id}` },
         ),
-        AllFarmerList()
+        // AllFarmerList()
       ]);
 
       // ---------- PROCESS FAST RESULTS ----------

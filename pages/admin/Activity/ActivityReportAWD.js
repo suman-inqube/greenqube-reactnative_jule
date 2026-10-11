@@ -52,10 +52,12 @@ import { showAIValidationError } from '../../utils/showAIValidationError.js';
 import SecurityWrapper from '../../SecurityCheck/SecurityWrapper.js';
 import PipeDetailsCard from '../../../Components/PipeDetailsCard.js';
 import { isWithin20Meters } from '../../Common/calculateAreaFun.js';
-import ScannerModal from '../../Common/ScannerModal.js';
-import ImageAnalysisScreen from './ImageAnalysisScreen.js'
-import { MODELS, loadModelFromAssets, loadModel } from './ImageAnalysisScreen.js'
-import { CURRENT_ENV } from '../../../config/environment.js';
+import ImageAnalysisScreen, {
+  MODELS,
+  loadModelFromAssets,
+  loadModel,
+  ModelSessionManager,
+} from './ImageAnalysisScreen.js';
 import { FEATURES } from '../../../config/featureFlags.js';
 import { axiosPut } from '../../utils/api.js'
 import TakePhoto from './TakePhoto.js';
@@ -63,6 +65,8 @@ import { launchCamera } from 'react-native-image-picker';
 import RecordComp from './RecordComp.js';
 import { captureRef } from 'react-native-view-shot';
 import AudioPlayerView from '../../Common/AudioPlayerView.js';
+import { CURRENT_ENV } from '../../../config/environment.js';
+import ScannerModal from '../../Common/ScannerModal.js';
 // import { useDownload, formatBytes, STAGE_LABELS, STAGE_COLORS } from '../../hooks/ModelDownload';
 const ActivityReportAWD = ({ navigation, route }) => {
   const { farmer, plot } = route?.params || {};
@@ -174,7 +178,8 @@ const ActivityReportAWD = ({ navigation, route }) => {
     cycle_start_date: '',
     act_master_id: '',
     field_type: '',
-    checkPipeCount: {}
+    checkPipeCount: {},
+    waterLevel: '',
   });
   const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
     name: '',
@@ -235,26 +240,17 @@ const ActivityReportAWD = ({ navigation, route }) => {
   // ==================== OUTSIDE useEffect ====================
   const loadAllModels = async () => {
     try {
-      for (const model of MODELS) {
-        if (!isMountedRef.current) break;
-        // Don't reload if already loaded
-        if (loadedSessionsRef.current[model.key]) continue;
-
-        const session = await loadModelFromAssets(model.file);
-        if (!isMountedRef.current) {
-          session?.release?.();
-          break;
-        }
-        loadedSessionsRef.current[model.key] = session;
-        setSessions(prev => ({
-          ...prev,
-          [model.key]: session,
-        }));
-        setModelStatus(prev => ({
-          ...prev,
-          [model.key]: true,
-        }));
-      }
+      await ModelSessionManager.loadAll(
+        (updatedSessions, updatedStatus, updatedLoading, progressText) => {
+          if (!isMountedRef.current) return;
+          setSessions(updatedSessions);
+          setModelStatus(updatedStatus);
+          setModelLoading(updatedLoading);
+          if (progressText) {
+            setLoadProgress(progressText);
+          }
+        },
+      );
       if (isMountedRef.current) {
         setLoadingModels(false);
       }
@@ -280,16 +276,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
       task.cancel();
       isMountedRef.current = false;
       timeoutsRef.current.forEach(clearTimeout);
-
-      Object.values(loadedSessionsRef.current).forEach(session => {
-        try {
-          session?.release?.();
-        } catch (e) {
-          console.log('Error releasing session:', e);
-        }
-      });
-
-      loadedSessionsRef.current = {};
+      // Models stay cached in ModelSessionManager for reuse across screens without RAM spikes or reloads
     };
   }, [ai_camera_pipe_image]);
 
@@ -1228,6 +1215,9 @@ const ActivityReportAWD = ({ navigation, route }) => {
         formData.append('water_used', saveData.water_used);
         formData.append('power_used', saveData.power_used);
         formData.append('app_version', '104');
+        // if (saveData.field_type == 'select' && saveData.waterLevel) {
+        //   formData.append('water_level', saveData.waterLevel);
+        // }
         let database_res;
         if (isOnline) {
           if (carbonType !== 'mangrove') {
@@ -1732,7 +1722,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
       } catch (error) {
         Toast.show({
           time: 3,
-          text: `QR Code is already registered with activity pipe.`,
+          text: `${error?.data?.error?.errorMessage}`,
           ...AlertMesg[0],
         });
       } finally {
@@ -1967,7 +1957,15 @@ const ActivityReportAWD = ({ navigation, route }) => {
           text: `${t('Please enter pipe name')}`,
           ...AlertMesg[0],
         });
-      } else if (
+      }
+      // else if (saveData.waterLevel == '' && field_type == 'select') {
+      //   Toast.show({
+      //     time: 2,
+      //     text: `${t('Please enter water level input')}`,
+      //     ...AlertMesg[0],
+      //   });
+      // } 
+      else if (
         selectedImagePipe.firstItem == '' ||
         selectedImagePipe.secondItem == ''
       ) {
@@ -2105,29 +2103,11 @@ const ActivityReportAWD = ({ navigation, route }) => {
   };
   const [AIModalVisible, setAIModalVisible] = useState(false);
   const [mapLatLon, setMapLatLon] = useState(null);
-  const [sessions, setSessions] = useState({
-    clarity: null,
-    obstacle: null,
-    pipe: null,
-    moisture: null,
-    ruler: null,
-  }); //
-  const [modelStatus, setModelStatus] = useState({
-    clarity: false,
-    obstacle: false,
-    pipe: false,
-    moisture: false,
-    ruler: false,
-  }); //
-  const [modelLoading, setModelLoading] = useState({
-    clarity: false,
-    obstacle: false,
-    pipe: false,
-    moisture: false,
-    ruler: false,
-  }); //
-  const [loadProgress, setLoadProgress] = useState(''); //
-  const [loadingModels, setLoadingModels] = useState(true);
+  const [sessions, setSessions] = useState(() => ModelSessionManager.getSessions());
+  const [modelStatus, setModelStatus] = useState(() => ModelSessionManager.getStatus());
+  const [modelLoading, setModelLoading] = useState(() => ModelSessionManager.getLoading());
+  const [loadProgress, setLoadProgress] = useState('');
+  const [loadingModels, setLoadingModels] = useState(() => !ModelSessionManager.isCoreLoaded());
   ////////
 
   const openImagePicker = item => {
@@ -2664,13 +2644,22 @@ const ActivityReportAWD = ({ navigation, route }) => {
                                   onChangeText={handleActivityPipeNumber}
                                 />
                               ) : (
-                                <DropdownForm
-                                  label={t('Instrument')}
-                                  required={true}
-                                  data={PipeListDetailsArr}
-                                  onChange={handleActivityPipeManual}
-                                  val={selectPipeList.label}
-                                />
+                                <View style={styles.inputWrapper}>
+                                  <DropdownForm
+                                    label={t('Instrument')}
+                                    required={true}
+                                    data={PipeListDetailsArr}
+                                    onChange={handleActivityPipeManual}
+                                    val={selectPipeList.label}
+                                  />
+                                  {/* <InputTextForm
+                                    label={t('Water Level Fall Input (cm)')}
+                                    required={true}
+                                    keyboardType="numeric"
+                                    value={saveData.waterLevel}
+                                    onChangeText={(text) => setSaveData(prev => ({ ...prev, waterLevel: text }))}
+                                  /> */}
+                                </View>
                               )}
                               <View style={styles.hiddenContainer}>
                                 {tempImage && (

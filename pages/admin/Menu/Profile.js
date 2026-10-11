@@ -7,12 +7,12 @@ import {
   Image,
   BackHandler,
 } from 'react-native';
-import React, {useState, useEffect, useCallback, useContext} from 'react';
-import {userDetailAPI} from '../../../config/apiHere';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
+import { userDetailAPI } from '../../../config/apiHere';
 import MessageDialog from '../../Common/MessageDialog';
-import {Colors} from '../../utils/Constants';
-import {ROUTES} from '../../utils/Routes';
-import {axiosDelete, axiosGet, axiosPut, axiosPost} from '../../utils/api';
+import { Colors } from '../../utils/Constants';
+import { ROUTES } from '../../utils/Routes';
+import { axiosDelete, axiosGet, axiosPut, axiosPost } from '../../utils/api';
 import {
   updateUserInfoAPI,
   districtDataListAPI1,
@@ -26,7 +26,7 @@ import {
   useIsFocused,
   CommonActions,
 } from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
+import { userCreateContext } from '../../Context/usersCreateContext';
 import LoadingScreen from '../../Common/LoadingScreen';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 import DatePickerField from '../../Common/DatePickerField';
@@ -47,7 +47,7 @@ const Profile = () => {
     DropdownForm,
     ButtonForm,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id} = loginUser_data;
+  const { dbname, lan_id, token, user_id } = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const [isLoading, setIsLoading] = useState(true);
@@ -86,11 +86,11 @@ const Profile = () => {
       },
     ];
     if (storePersnolInfo.stateName == '') {
-      Toast.show({text: `${t('please_select_state_first')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_select_state_first')}`, ...AlertMesg[0] });
     } else if (storePersnolInfo.districtName == '') {
-      Toast.show({text: `${t('please_select_zila_first')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('please_select_zila_first')}`, ...AlertMesg[0] });
     } else if (storePersnolInfo.blockName == '') {
-      Toast.show({text: `${t('select_block_first')}`, ...AlertMesg[0]});
+      Toast.show({ text: `${t('select_block_first')}`, ...AlertMesg[0] });
     } else {
       const formData = new FormData();
       formData.append('lan_id', storePersnolInfo.langId);
@@ -136,7 +136,7 @@ const Profile = () => {
           ...AlertMesg[0],
         });
         handleLogout();
-        navigation.navigate('Login', {pagename: 'Login'});
+        navigation.navigate('Login', { pagename: 'Login' });
       }
     }
   };
@@ -145,8 +145,6 @@ const Profile = () => {
       let language_res = await axiosGet(ROUTES.GET.FIRST_LAN_LIST(), null, {
         information: `${dbname}`,
       });
-      // firstLanguageListAPI(dbname);
-      console.log('LANGUAGE', language_res?.status);
       if (language_res?.status == 200) {
         let languageArray = language_res?.data?.data?.map(data => ({
           value: data.id,
@@ -160,7 +158,7 @@ const Profile = () => {
     }
   };
   const handleLanguage = async language => {
-    const {block, district, state} = storePersnolInfo;
+    const { block, district, state } = storePersnolInfo;
     const locDiffLangRes = await axiosGet(
       ROUTES.GET.LOC_DIFFERENCE_LANGUAGE({
         state_fid: state,
@@ -168,13 +166,10 @@ const Profile = () => {
         subdiv_fid: block,
       }),
       token,
-      {information: `${dbname},${language.value}`},
+      { information: `${dbname},${language.value}` },
     );
-    // locDiffLang(dbname, language.value, token, state, district, block);
-
-    console.log('locDiffLang', locDiffLangRes?.status);
     if (locDiffLangRes?.status == 200) {
-      const {distData, stateData, subdivData} =
+      const { distData, stateData, subdivData } =
         locDiffLangRes?.data?.data || {};
       await Promise.all([
         stateInfoDataList(dbname, language.value, token),
@@ -199,9 +194,6 @@ const Profile = () => {
       let state_res = await axiosGet(ROUTES.GET.STATE_API(), token, {
         information: `${dbname},${language}`,
       });
-      // stateListAPI(dbname, language, token);
-
-      console.log('STATE', state_res?.status);
       if (state_res?.status == 200) {
         let stateArray = state_res?.data?.data?.rows?.map(data => ({
           value: data?.fid,
@@ -233,11 +225,9 @@ const Profile = () => {
           stateID: state,
         }),
         '',
-        {information: `${dbname},${language}`},
+        { information: `${dbname},${language}` },
       );
       // districtDataListAPI1(dbname, language, state);
-
-      console.log('DISTRICT', district_res?.status);
       if (district_res?.status == 200) {
         let districtArray = district_res?.data?.data?.rows?.map(data => ({
           value: data?.fid,
@@ -268,11 +258,9 @@ const Profile = () => {
           districtID: district,
         }),
         '',
-        {information: `${dbname},${language}`},
+        { information: `${dbname},${language}` },
       );
       // blockDataListAPI1(dbname, language, district);
-
-      console.log('BLOCK', block_res?.status);
       if (block_res?.status == 200) {
         let blocktArray = block_res?.data?.data?.rows?.map(data => ({
           value: data?.fid,
@@ -293,7 +281,7 @@ const Profile = () => {
           user_id: user_id,
         }),
         token,
-        {information: `${dbname},${lan_id}`},
+        { information: `${dbname},${lan_id}` },
       );
       // userDetailAPI(dbname, languageId, token, user_id);
 
@@ -370,7 +358,7 @@ const Profile = () => {
           district: district,
           block: block,
         });
-        const {dbname, lan_id, token, user_id} = loginUser_data;
+        const { dbname, lan_id, token, user_id } = loginUser_data;
         userDetails(dbname, lan_id, token, user_id);
       }
       setIsLoading(false);
@@ -395,10 +383,10 @@ const Profile = () => {
       CommonActions.reset({
         index: 4,
         routes: [
-          {name: 'Login'},
+          { name: 'Login' },
           {
             name: 'Login',
-            params: {pagename: 'Login', locale: storePersnolInfo.langId},
+            params: { pagename: 'Login', locale: storePersnolInfo.langId },
           },
         ],
       }),
@@ -425,7 +413,7 @@ const Profile = () => {
             />
             <View style={styles.fromContainer}>
               <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={{padding: 10}}>
+                <View style={{ padding: 10 }}>
                   <InputTextForm
                     label={t('name')}
                     color="black"

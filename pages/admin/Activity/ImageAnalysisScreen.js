@@ -10,22 +10,27 @@ import {
   StatusBar,
   Modal,
   NativeModules,
+  Dimensions,
 } from 'react-native';
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import AIResultCard from '../../Components/AIResultCard';
 import * as ort from 'onnxruntime-react-native';
 import RNFS from 'react-native-fs';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { Camera, useCameraDevice } from 'react-native-vision-camera';
 import ImageResizer from '@bam.tech/react-native-image-resizer';
 import jpeg from 'jpeg-js';
 import { Buffer } from 'buffer';
 const { AssetPackModule } = NativeModules;
 global.Buffer = Buffer;
 import ModelDot from '../../Components/ModelDot';
-import { captureRef } from 'react-native-view-shot';
+import Marker, { Position, ImageFormat } from 'react-native-image-marker';
 import { Fonts } from '../../utils/Constants';
 import CustomAlert from '../../Common/CustomAlert';
 import { CURRENT_ENV } from '../../../config/environment';
+
+const APP_LOGO = require('../../Common/images/watter_logo.png');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export const MODELS = [
   {
@@ -49,13 +54,13 @@ export const MODELS = [
     size: 16,
     required: true,
   },
-  {
-    key: 'moisture',
-    file: 'moisture_classifier_simplified.onnx', // ✅ exact match
-    label: 'moisture Visibility',
-    size: 11,
-    required: false,
-  },
+  // {
+  //   key: 'moisture',
+  //   file: 'moisture_classifier_simplified.onnx', // ✅ exact match
+  //   label: 'moisture Visibility',
+  //   size: 11,
+  //   required: false,
+  // },
   {
     key: 'ruler',
     file: 'ruler_classifier_simplified.onnx',
@@ -69,29 +74,150 @@ function sigmoid(x) {
   return 1 / (1 + Math.exp(-x));
 }
 
-// ─────────────────────────────────────────────
-// PREDICT
-// ─────────────────────────────────────────────
-function predict(logits, positiveLabel, negativeLabel) {
-  if (!logits || logits.length === 0) return { label: 'Invalid', confidence: 0 };
 
-  let prob;
-  if (logits.length === 1) {
-    prob = sigmoid(logits[0]);
-  } else {
-    const max = Math.max(...logits);
-    const exps = logits.map(x => Math.exp(x - max));
-    const sum = exps.reduce((a, b) => a + b, 0);
-    prob = exps[1] / sum;
-  }
 
-  const isPositive = prob > 0.5;
-  return {
-    label: isPositive ? positiveLabel : negativeLabel,
-    confidence: isPositive ? prob : 1 - prob,
-    isPositive,
-  };
-}
+// ─────────────────────────────────────────────
+// GLOBAL MODEL SESSION MANAGER (Singleton Cache)
+// ─────────────────────────────────────────────
+const globalSessions = {
+  clarity: null,
+  obstacle: null,
+  pipe: null,
+  moisture: null,
+  ruler: null,
+};
+
+const globalStatus = {
+  clarity: false,
+  obstacle: false,
+  pipe: false,
+  moisture: false,
+  ruler: false,
+};
+
+const globalLoading = {
+  clarity: false,
+  obstacle: false,
+  pipe: false,
+  moisture: false,
+  ruler: false,
+};
+
+let activeLoadPromise = null;
+const sessionListeners = new Set();
+
+export const ModelSessionManager = {
+  getSessions: () => ({ ...globalSessions }),
+  getStatus: () => ({ ...globalStatus }),
+  getLoading: () => ({ ...globalLoading }),
+
+  isLoaded: key => Boolean(globalSessions[key]),
+  isCoreLoaded: () =>
+    Boolean(
+      globalSessions.clarity &&
+      globalSessions.obstacle &&
+      globalSessions.pipe,
+    ),
+  isAllLoaded: () =>
+    MODELS.every(m => !m.required || Boolean(globalSessions[m.key])),
+
+  subscribe: listener => {
+    sessionListeners.add(listener);
+    return () => sessionListeners.delete(listener);
+  },
+
+  notify: (progressText = '') => {
+    const currentSessions = { ...globalSessions };
+    const currentStatus = { ...globalStatus };
+    const currentLoading = { ...globalLoading };
+    sessionListeners.forEach(fn => {
+      try {
+        fn(currentSessions, currentStatus, currentLoading, progressText);
+      } catch (err) {
+        console.error('ModelSessionManager listener error:', err);
+      }
+    });
+  },
+
+  loadAll: async onUpdate => {
+    if (onUpdate) {
+      onUpdate(
+        { ...globalSessions },
+        { ...globalStatus },
+        { ...globalLoading },
+      );
+    }
+
+    if (activeLoadPromise) {
+      return activeLoadPromise;
+    }
+
+    activeLoadPromise = (async () => {
+      try {
+        for (const model of MODELS) {
+          if (globalSessions[model.key]) {
+            globalStatus[model.key] = true;
+            globalLoading[model.key] = false;
+            continue;
+          }
+
+          globalLoading[model.key] = true;
+          const progressMsg = `Loading ${model.label}...`;
+          ModelSessionManager.notify(progressMsg);
+          if (onUpdate) {
+            onUpdate(
+              { ...globalSessions },
+              { ...globalStatus },
+              { ...globalLoading },
+              progressMsg,
+            );
+          }
+
+          try {
+            const session = await loadModelFromAssets(model.file);
+            globalSessions[model.key] = session;
+            globalStatus[model.key] = true;
+          } catch (modelErr) {
+            console.error(`Error loading model ${model.key}:`, modelErr);
+            globalStatus[model.key] = false;
+          } finally {
+            globalLoading[model.key] = false;
+            ModelSessionManager.notify();
+            if (onUpdate) {
+              onUpdate(
+                { ...globalSessions },
+                { ...globalStatus },
+                { ...globalLoading },
+              );
+            }
+          }
+        }
+      } finally {
+        activeLoadPromise = null;
+      }
+      return {
+        sessions: { ...globalSessions },
+        status: { ...globalStatus },
+      };
+    })();
+
+    return activeLoadPromise;
+  },
+
+  releaseAll: () => {
+    Object.keys(globalSessions).forEach(key => {
+      try {
+        globalSessions[key]?.release?.();
+      } catch (e) {
+        console.warn('Error releasing session:', key, e);
+      }
+      globalSessions[key] = null;
+      globalStatus[key] = false;
+      globalLoading[key] = false;
+    });
+    ModelSessionManager.notify('All models released');
+  },
+};
 
 // ─────────────────────────────────────────────
 // LOAD MODEL UTILITY with retry logic
@@ -204,6 +330,39 @@ export async function imageToTensor(uri) {
     }
   }
 }
+export const getLatLon = coordsObj => {
+  if (!coordsObj) return { lat: 'N/A', lon: 'N/A' };
+  const lat =
+    coordsObj.latitude ?? coordsObj.lat ?? coordsObj.coords?.latitude ?? 'N/A';
+  const lon =
+    coordsObj.longitude ??
+    coordsObj.long ??
+    coordsObj.lon ??
+    coordsObj.lng ??
+    coordsObj.coords?.longitude ??
+    'N/A';
+  return {
+    lat: typeof lat === 'number' ? lat.toFixed(6) : String(lat),
+    lon: typeof lon === 'number' ? lon.toFixed(6) : String(lon),
+  };
+};
+export const formatWatermarkText = coordsObj => {
+  const { lat, lon } = getLatLon(coordsObj);
+  const now = new Date();
+  const formattedDate = new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(now);
+  const formattedTime = new Intl.DateTimeFormat('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true,
+  }).format(now);
+
+  return `Date: ${formattedDate}   Time: ${formattedTime}\nLocation: Lat: ${lat}, Lon: ${lon}`;
+};
 
 const ImageAnalysisScreen = ({
   AIModalVisible,
@@ -236,7 +395,10 @@ const ImageAnalysisScreen = ({
   const [image, setImage] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isCameraActive, setIsCameraActive] = useState(false);
 
+  const device = useCameraDevice('back');
+  const cameraRef = useRef(null);
   const isMountedRef = useRef(true);
   const timeoutRef = useRef(null);
 
@@ -258,6 +420,7 @@ const ImageAnalysisScreen = ({
 
   const handleCloseModal = useCallback(() => {
     clearActiveTimeout();
+    setIsCameraActive(false);
     setTempImage?.(null);
     setTempText?.('');
     setImage(null);
@@ -328,186 +491,206 @@ const ImageAnalysisScreen = ({
     [replaceImgKey, cameraItem, setSelectedImagePipe, setPipeDetails],
   );
 
-  // ── Take photo ──
+  // ── Take photo via Vision Camera ──
   const takePhoto = useCallback(async () => {
-    const options = {
-      mediaType: 'photo',
-      includeBase64: false, // 🔥 Disable base64 across bridge to prevent huge memory spikes
-      maxHeight: 800,
-      maxWidth: 800,
-      quality: 0.85,
-    };
     setisReady(false);
     clearActiveTimeout();
+    try {
+      const permission = await Camera.getCameraPermissionStatus();
+      if (permission === 'granted') {
+        setIsCameraActive(true);
+      } else {
+        const newPermission = await Camera.requestCameraPermission();
+        if (newPermission === 'granted') {
+          setIsCameraActive(true);
+        } else {
+          CustomAlert(
+            'Permission Denied',
+            'Camera permission is required to capture photos.',
+            true,
+            'OK',
+          );
+        }
+      }
+    } catch (error) {
+      console.error('Camera permission error:', error);
+      CustomAlert('Error', 'Failed to request camera permission.', true, 'OK');
+    }
+  }, [clearActiveTimeout]);
+  const handleCapturePhoto = useCallback(async () => {
+    if (!cameraRef.current) return;
+    try {
+      const photo = await cameraRef.current.takePhoto({
+        flash: 'off',
+        enableShutterSound: false,
+        qualityPrioritization: 'quality', // Locks auto-focus for sharp photos
+      });
 
-    launchCamera(options, async response => {
-      if (response.didCancel || !response.assets || !response.assets[0]) return;
+      setIsCameraActive(false);
+
+      if (!photo?.path) {
+        CustomAlert('Error', 'No image captured', true, 'OK');
+        return;
+      }
+
+      const rawUri = photo.path.startsWith('file://')
+        ? photo.path
+        : `file://${photo.path}`;
+      const fileName = photo.path.split('/').pop() || `photo_${Date.now()}.jpg`;
+
+      const asset = {
+        uri: rawUri,
+        fileName: fileName,
+        width: photo.width,
+        height: photo.height,
+      };
+
       if (!isMountedRef.current) return;
 
       setResult(null);
       setLoading(false);
-
-      const asset = response.assets[0];
       setImage(asset);
+      try {
+        const timestamp = Date.now();
+        const destFileName = asset.fileName || `photo_${timestamp}.jpg`;
+        const { lat, lon } = getLatLon(mapLatLon);
+        const watermarkText = formatWatermarkText(mapLatLon);
+        const destPath = `${RNFS.DocumentDirectoryPath}/${destFileName}`;
 
-      if (ai_camera_pipe_image != '1') {
-        try {
-          if (response.errorCode) {
-            CustomAlert('Camera Error:', response.errorMessage, true, 'OK');
-            return;
-          }
-          if (!asset?.uri) {
-            CustomAlert('Error', 'No image captured', true, 'OK');
-            return;
-          }
+        // Dynamic font and margin sizing based on photo resolution
+        const imgWidth = photo.width || 1200;
+        const dynamicFontSize = Math.max(36, Math.round(imgWidth * 0.035));
+        const dynamicMargin = Math.max(25, Math.round(imgWidth * 0.03));
 
-          const { latitude: lat, longitude: lon } = mapLatLon || {
-            lat: 'N/A',
-            lon: 'N/A',
-          };
+        const options = {
+          backgroundImage: {
+            src: asset.uri,
+            scale: 1,
+          },
+          watermarkTexts: [
+            {
+              text: watermarkText,
+              position: {
+                position: Position.bottomLeft,
+                X: dynamicMargin,
+                Y: dynamicMargin,
+              },
+              positionOptions: {
+                position: Position.bottomLeft,
+                X: dynamicMargin,
+                Y: dynamicMargin,
+              },
+              style: {
+                color: '#FFFFFF',
+                fontSize: dynamicFontSize,
+                fontSizeRatio: 0.045,
+                fontName: Fonts.Medium || 'Arial',
+                shadowStyle: {
+                  dx: 2,
+                  dy: 2,
+                  radius: 3,
+                  color: '#000000',
+                },
+                textBackgroundStyle: {
+                  paddingX: Math.round(dynamicFontSize * 0.7),
+                  paddingY: Math.round(dynamicFontSize * 0.5),
+                  color: '#000000A0',
+                },
+              },
+            },
+          ],
+          watermarkImage: {
+            src: APP_LOGO,
+            position: {
+              position: Position.bottomRight,
+              X: dynamicMargin,
+              Y: dynamicMargin,
+            },
+            positionOptions: {
+              position: Position.bottomRight,
+              X: dynamicMargin,
+              Y: dynamicMargin,
+            },
+            scale: 0.35,
+            alpha: 0.95,
+          },
+          quality: 100,
+          filename: destFileName.replace('.jpg', ''),
+          saveFormat: ImageFormat?.JPEG || 'JPEG',
+        };
 
-          const timestamp = Date.now();
-          const formattedDate = new Intl.DateTimeFormat('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-          }).format(timestamp);
+        const markedPath = await Marker.markText(options);
+        const cleanPath = markedPath.startsWith('file://')
+          ? markedPath.replace('file://', '')
+          : markedPath;
 
-          const watermarkText = `${formattedDate}\nLat: ${lat}, Lon: ${lon}`;
-          setTempImage(asset.uri);
-          setTempText(watermarkText);
+        if (cleanPath !== destPath && (await RNFS.exists(cleanPath))) {
+          await RNFS.copyFile(cleanPath, destPath);
+        }
 
-          timeoutRef.current = setTimeout(async () => {
-            try {
-              if (!watermarkViewRef?.current) return;
-              const uri = await captureRef(watermarkViewRef, {
-                format: 'jpg',
-                quality: 1,
-                width: 800,
-                height: 800,
-              });
-              const fileName = asset.fileName || `photo_${timestamp}.jpg`;
-              const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-              await RNFS.copyFile(uri, destPath);
+        const watermarkedAsset = {
+          uri: `file://${destPath}`,
+          fileName: destFileName,
+          width: photo.width,
+          height: photo.height,
+        };
 
-              if (isMountedRef.current) {
-                setTempImage(null);
-                setTempText('');
-                updatePipeDetailsState(destPath, fileName, lat, lon);
-                setisReady(true);
-              }
-            } catch (error) {
-              console.log('Capture Error:', error);
-              if (isMountedRef.current) {
-                setTempImage(null);
-                setTempText('');
-              }
-            } finally {
-              timeoutRef.current = null;
-            }
-          }, 3000);
-        } catch (error) {
-          CustomAlert('Catch Error ', String(error), true, 'OK');
-        } finally {
-          if (isMountedRef.current) {
-            setResult(null);
-            setLoading(false);
+        setImage(watermarkedAsset);
+
+        if (isMountedRef.current) {
+          updatePipeDetailsState(destPath, destFileName, lat, lon);
+          if (ai_camera_pipe_image != '1') {
+            setisReady(true);
           }
         }
+      } catch (error) {
+        console.log('Marker Error:', error);
+        setImage(asset);
+        CustomAlert('Watermark Error', String(error?.message || error), true, 'OK');
       }
-    });
+    } catch (error) {
+      console.error('Capture Error:', error);
+      CustomAlert('Camera Error', String(error?.message || error), true, 'OK');
+    }
   }, [
-    clearActiveTimeout,
     ai_camera_pipe_image,
     mapLatLon,
-    setTempImage,
-    setTempText,
-    watermarkViewRef,
     updatePipeDetailsState,
   ]);
 
-  const saveWatermarkedImage = useCallback(async () => {
-    const { latitude: lat, longitude: lon } = mapLatLon || {
-      lat: 'N/A',
-      lon: 'N/A',
-    };
-    const timestamp = Date.now();
-    const formattedDate = new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }).format(timestamp);
 
-    const watermarkText = `${formattedDate}\nLat: ${lat}, Lon: ${lon}`;
-    const imageUri = typeof image?.uri === 'string' ? image.uri : image?.path;
-
-    setTempImage(imageUri);
-    setTempText(watermarkText);
-
-    // Wait 1.5s for watermark view to render
-    await new Promise(resolve => {
-      timeoutRef.current = setTimeout(resolve, 1500);
-    });
-
+  const completeProcess = useCallback(() => {
     try {
-      const uri = await captureRef(watermarkViewRef, {
-        format: 'jpg',
-        quality: 1,
-        width: 800,
-        height: 800,
-      });
-      const fileName = image?.fileName || `photo_${timestamp}.jpg`;
-      const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-      await RNFS.copyFile(uri, destPath);
-
-      return {
-        path: destPath,
-        fileName,
-        lat,
-        lon,
-      };
-    } catch (error) {
-      console.log('Capture Error:', error);
-      throw error;
-    } finally {
-      timeoutRef.current = null;
-      if (isMountedRef.current) {
-        setTempImage(null);
-        setTempText('');
-      }
-    }
-  }, [mapLatLon, image, setTempImage, setTempText, watermarkViewRef]);
-
-  const completeProcess = useCallback(async () => {
-    try {
-      const imgWatermark = await saveWatermarkedImage();
-      const { path, fileName, lat, lon } = imgWatermark || {};
-      if (path && fileName) {
-        updatePipeDetailsState(path, fileName, lat, lon);
-      }
       setAIModalVisible(false);
     } catch (e) {
       console.error('Error in completeProcess:', e);
     }
-  }, [saveWatermarkedImage, updatePipeDetailsState, setAIModalVisible]);
+  }, [setAIModalVisible]);
 
   // ── Run models sequentially to eliminate concurrent memory peaks ──
   const runAllModels = useCallback(
     async imageUri => {
+      const activeSessions = {
+        ...ModelSessionManager.getSessions(),
+        ...(sessions || {}),
+      };
       const tensor = await imageToTensor(imageUri);
-
       // Sequential execution prevents spike of 5 simultaneous execution graphs in RAM
-      const clarity = sessions?.clarity ? await runSingleModel(sessions.clarity, tensor) : 0;
-      const obstacle = sessions?.obstacle ? await runSingleModel(sessions.obstacle, tensor) : 0;
-      const pipe = sessions?.pipe ? await runSingleModel(sessions.pipe, tensor) : 0;
-      const moisture = sessions?.moisture ? await runSingleModel(sessions.moisture, tensor) : 0;
-      const ruler = sessions?.ruler ? await runSingleModel(sessions.ruler, tensor) : 0;
+      const clarity = activeSessions?.clarity
+        ? await runSingleModel(activeSessions.clarity, tensor)
+        : 0;
+      const obstacle = activeSessions?.obstacle
+        ? await runSingleModel(activeSessions.obstacle, tensor)
+        : 0;
+      const pipe = activeSessions?.pipe
+        ? await runSingleModel(activeSessions.pipe, tensor)
+        : 0;
+      const moisture = activeSessions?.moisture
+        ? await runSingleModel(activeSessions.moisture, tensor)
+        : 0;
+      const ruler = activeSessions?.ruler
+        ? await runSingleModel(activeSessions.ruler, tensor)
+        : 0;
 
       return {
         clarity,
@@ -643,14 +826,30 @@ const ImageAnalysisScreen = ({
     }
   }, [loading, image, runAllModels, evaluateResults, act_type]);
 
+  const activeStatus = useMemo(
+    () => ({
+      ...ModelSessionManager.getStatus(),
+      ...(modelStatus || {}),
+    }),
+    [modelStatus],
+  );
+
+  const activeLoading = useMemo(
+    () => ({
+      ...ModelSessionManager.getLoading(),
+      ...(modelLoading || {}),
+    }),
+    [modelLoading],
+  );
+
   const coreModelsReady = useMemo(
-    () => Boolean(modelStatus?.clarity && modelStatus?.obstacle && modelStatus?.pipe),
-    [modelStatus?.clarity, modelStatus?.obstacle, modelStatus?.pipe],
+    () => Boolean(activeStatus?.clarity && activeStatus?.obstacle && activeStatus?.pipe),
+    [activeStatus?.clarity, activeStatus?.obstacle, activeStatus?.pipe],
   );
 
   const anyModelLoading = useMemo(
-    () => Object.values(modelLoading || {}).some(v => v === true),
-    [modelLoading],
+    () => Object.values(activeLoading || {}).some(v => v === true),
+    [activeLoading],
   );
 
   return (
@@ -661,23 +860,58 @@ const ImageAnalysisScreen = ({
       onRequestClose={handleCloseModal}>
       <SafeAreaView style={styles.safe}>
         <StatusBar barStyle="light-content" backgroundColor="#0A0A0A" />
-        <View style={styles.hiddenContainer}>
-          {tempImage ? (
-            <View
-              ref={watermarkViewRef}
-              style={styles.watermarkView}
-              collapsable={false}>
-              <Image
-                source={{ uri: tempImage }}
-                style={styles.watermarkImage}
-                resizeMode="cover"
-              />
-              <View style={styles.watermarkTextContainer}>
-                <Text style={styles.watermarkText}>{tempText}</Text>
-              </View>
+
+        {/* Vision Camera 1:1 Capture Modal */}
+        <Modal
+          visible={isCameraActive}
+          animationType="slide"
+          onRequestClose={() => setIsCameraActive(false)}>
+          <SafeAreaView style={styles.cameraContainer}>
+            <StatusBar barStyle="light-content" backgroundColor="#000000" />
+
+            {/* Top Bar with Close Button & 1:1 indicator */}
+            <View style={styles.cameraTopBar}>
+              <TouchableOpacity
+                style={styles.cameraCloseBtn}
+                onPress={() => setIsCameraActive(false)}>
+                <Text style={styles.cameraCloseBtnText}>✕</Text>
+              </TouchableOpacity>
+              <Text style={styles.cameraRatioLabel}>1:1</Text>
+              <View style={{ width: 44 }} />
             </View>
-          ) : null}
-        </View>
+
+            {/* 1:1 Square Viewfinder */}
+            <View style={styles.cameraSquareWrapper}>
+              {device ? (
+                <Camera
+                  ref={cameraRef}
+                  style={StyleSheet.absoluteFill}
+                  device={device}
+                  isActive={isCameraActive}
+                  photo={true}
+                  resizeMode="cover"
+                  outputOrientation="preview"
+                  qualityPrioritization='quality'
+                />
+              ) : (
+                <View style={styles.cameraLoading}>
+                  <ActivityIndicator size="large" color="#ffffff" />
+                  <Text style={styles.cameraLoadingText}>Loading camera...</Text>
+                </View>
+              )}
+            </View>
+
+            {/* Bottom Bar with Shutter Button */}
+            <View style={styles.cameraBottomBar}>
+              <TouchableOpacity
+                style={styles.captureBtnOuter}
+                onPress={handleCapturePhoto}
+                activeOpacity={0.7}>
+                <View style={styles.captureBtnInner} />
+              </TouchableOpacity>
+            </View>
+          </SafeAreaView>
+        </Modal>
 
         <ScrollView
           style={styles.scroll}
@@ -733,9 +967,9 @@ const ImageAnalysisScreen = ({
                   {MODELS.map(m => (
                     <ModelDot
                       key={m.key}
-                      loaded={modelStatus[m.key]}
+                      loaded={activeStatus[m.key]}
                       label={m.label}
-                      loading={modelLoading[m.key]}
+                      loading={activeLoading[m.key]}
                     />
                   ))}
                 </View>
@@ -994,35 +1228,81 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingHorizontal: 4,
   },
-
-  hiddenContainer: {
-    position: 'absolute',
-    left: -9999,
-    top: -9999,
-    width: 200,
-    height: 200,
+  cameraContainer: {
+    flex: 1,
+    backgroundColor: '#000000',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  watermarkView: {
-    width: 200,
-    height: 200,
-    backgroundColor: '#000',
+  cameraSquareWrapper: {
+    width: SCREEN_WIDTH,
+    height: SCREEN_WIDTH,
+    overflow: 'hidden',
+    backgroundColor: '#111827',
+    position: 'relative',
+    alignSelf: 'center',
   },
-  watermarkImage: {
+  cameraLoading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+  },
+  cameraLoadingText: {
+    color: '#ffffff',
+    marginTop: 12,
+    fontSize: 14,
+    fontFamily: Fonts.Medium,
+  },
+  cameraTopBar: {
     width: '100%',
-    height: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 16,
   },
-  watermarkTextContainer: {
-    position: 'absolute',
-    bottom: 5,
-    left: 5,
-    backgroundColor: 'rgba(0, 0, 0, 0)',
-    paddingHorizontal: 5,
-    paddingVertical: 3,
+  cameraCloseBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  watermarkText: {
-    color: '#df2020',
-    fontSize: 8,
+  cameraCloseBtnText: {
+    color: '#ffffff',
+    fontSize: 20,
     fontWeight: 'bold',
-    fontFamily: 'Arial',
+  },
+  cameraRatioLabel: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+    fontFamily: Fonts.Medium,
+  },
+  cameraBottomBar: {
+    width: '100%',
+    paddingBottom: 30,
+    paddingTop: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  captureBtnOuter: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 4,
+    borderColor: '#ffffff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+  captureBtnInner: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#ffffff',
   },
 });

@@ -24,12 +24,15 @@ import { captureRef } from 'react-native-view-shot';
 import RNFS from 'react-native-fs';
 import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 import { showAIValidationError } from '../../utils/showAIValidationError';
-import ActivityMap from '../../Common/ActivityMap';
-import ImageAnalysisScreen from './ImageAnalysisScreen';
-import { MODELS, loadModelFromAssets, loadModel } from './ImageAnalysisScreen'
-import { isPointInPolygon } from 'geolib';
+import ImageAnalysisScreen, {
+  MODELS,
+  loadModelFromAssets,
+  loadModel,
+  ModelSessionManager,
+} from './ImageAnalysisScreen';
 import { axiosGet, axiosPost, axiosPut } from '../../utils/api';
 import { ROUTES } from '../../utils/Routes';
+import ActivityMap from '../../Common/ActivityMap';
 const InstrumentWiseActivityDetails = ({ navigation }) => {
   const location = useLocationTracking();
   const {
@@ -211,30 +214,22 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
 
   const loadAllModels = async () => {
     try {
-      for (const model of MODELS) {
-        if (!isMountedRef.current) break;
-        if (loadedSessionsRef.current[model.key]) continue;
-
-        const session = await loadModelFromAssets(model.file);
-        if (!isMountedRef.current) {
-          session?.release?.();
-          break;
-        }
-        loadedSessionsRef.current[model.key] = session;
-        setSessions(prev => ({
-          ...prev,
-          [model.key]: session,
-        }));
-        setModelStatus(prev => ({
-          ...prev,
-          [model.key]: true,
-        }));
-      }
+      await ModelSessionManager.loadAll(
+        (updatedSessions, updatedStatus, updatedLoading, progressText) => {
+          if (!isMountedRef.current) return;
+          setSessions(updatedSessions);
+          setModelStatus(updatedStatus);
+          setModelLoading(updatedLoading);
+          if (progressText) {
+            setLoadProgress(progressText);
+          }
+        },
+      );
       if (isMountedRef.current) {
         setLoadingModels(false);
       }
     } catch (e) {
-      console.log("modelerror", e);
+      console.log('modelerror', e);
       if (isMountedRef.current) {
         setLoadingModels(false);
       }
@@ -253,16 +248,7 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
       task.cancel();
       isMountedRef.current = false;
       timeoutsRef.current.forEach(clearTimeout);
-
-      Object.values(loadedSessionsRef.current).forEach(session => {
-        try {
-          session?.release?.();
-        } catch (e) {
-          console.log('Error releasing session:', e);
-        }
-      });
-
-      loadedSessionsRef.current = {};
+      // Models stay cached in ModelSessionManager for reuse across screens
     };
   }, [ai_camera_pipe_image]);
   useEffect(() => {
@@ -348,29 +334,11 @@ const InstrumentWiseActivityDetails = ({ navigation }) => {
   }, []);
   const [AIModalVisible, setAIModalVisible] = useState(false);
   const [mapLatLon, setMapLatLon] = useState(null);
-  const [sessions, setSessions] = useState({
-    clarity: null,
-    obstacle: null,
-    pipe: null,
-    moisture: null,
-    ruler: null
-  }); //
-  const [modelStatus, setModelStatus] = useState({
-    clarity: false,
-    obstacle: false,
-    pipe: false,
-    moisture: false,
-    ruler: false
-  });//
-  const [modelLoading, setModelLoading] = useState({
-    clarity: false,
-    obstacle: false,
-    pipe: false,
-    moisture: false,
-    ruler: false
-  });//
-  const [loadProgress, setLoadProgress] = useState(''); //
-  const [loadingModels, setLoadingModels] = useState(true);
+  const [sessions, setSessions] = useState(() => ModelSessionManager.getSessions());
+  const [modelStatus, setModelStatus] = useState(() => ModelSessionManager.getStatus());
+  const [modelLoading, setModelLoading] = useState(() => ModelSessionManager.getLoading());
+  const [loadProgress, setLoadProgress] = useState('');
+  const [loadingModels, setLoadingModels] = useState(() => !ModelSessionManager.isCoreLoaded());
   const TakePhoto = useCallback(async () => {
     // const { latitude, longitude } = coords || {};
     // let latlong;

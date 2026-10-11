@@ -73,9 +73,12 @@ import ScannerModal from '../../Common/ScannerModal';
 import { ROUTES } from '../../utils/Routes';
 import { Camera } from 'react-native-vision-camera';
 import { getItem, removeItem } from '../../../config/getDataFromStorage';
-import { axiosGet, axiosPost } from '../../utils/api';
-import { MODELS, loadModelFromAssets, loadModel } from '../Activity/ImageAnalysisScreen'
-import ImageAnalysisScreen from '../Activity/ImageAnalysisScreen'
+import ImageAnalysisScreen, {
+  MODELS,
+  loadModelFromAssets,
+  loadModel,
+  ModelSessionManager,
+} from '../Activity/ImageAnalysisScreen';
 const FarmerActivityReportAWD = ({ navigation, route }) => {
   const { farmer, plot } = route?.params || {};
   const today = new Date();
@@ -219,7 +222,8 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
     act_perform_date: '',
     field_type: '',
     checkPipeCount: {},
-    act_type: ''
+    act_type: '',
+    waterLevel: '',
   });
 
   const [nameVarityStartEnd, setNameVarityStartEnd] = useState({
@@ -250,29 +254,11 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
 
   const [AIModalVisible, setAIModalVisible] = useState(false);
   const [mapLatLon, setMapLatLon] = useState(null);
-  const [sessions, setSessions] = useState({
-    clarity: null,
-    obstacle: null,
-    pipe: null,
-    soil: null,
-    ruler: null
-  }); //
-  const [modelStatus, setModelStatus] = useState({
-    clarity: false,
-    obstacle: false,
-    pipe: false,
-    soil: false,
-    ruler: false
-  });//
-  const [modelLoading, setModelLoading] = useState({
-    clarity: false,
-    obstacle: false,
-    pipe: false,
-    soil: false,
-    ruler: false
-  });//
-  const [loadProgress, setLoadProgress] = useState(''); //
-  const [loadingModels, setLoadingModels] = useState(true);
+  const [sessions, setSessions] = useState(() => ModelSessionManager.getSessions());
+  const [modelStatus, setModelStatus] = useState(() => ModelSessionManager.getStatus());
+  const [modelLoading, setModelLoading] = useState(() => ModelSessionManager.getLoading());
+  const [loadProgress, setLoadProgress] = useState('');
+  const [loadingModels, setLoadingModels] = useState(() => !ModelSessionManager.isCoreLoaded());
 
   const [lastActPDate, setLastActPDate] = useState();
   const [performActDate, setPerformActDate] = useState(false);
@@ -1362,6 +1348,9 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
       formData.append('water_used', saveData.water_used);
       formData.append('power_used', saveData.power_used);
       formData.append('app_version', '104');
+      if (saveData.field_type == 'select' && saveData.waterLevel) {
+        formData.append('water_level', saveData.waterLevel);
+      }
       var database_res;
       if (isOnline) {
         if (carbonType !== 'mangrove') {
@@ -1852,33 +1841,22 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
 
   const loadAllModels = async () => {
     try {
-      for (const model of MODELS) {
-        if (!isMountedRef.current) break;
-        if (loadedSessionsRef.current[model.key]) continue;
-
-        const session = await loadModelFromAssets(model.file);
-        if (!isMountedRef.current) {
-          session?.release?.();
-          break;
-        }
-
-        loadedSessionsRef.current[model.key] = session;
-
-        setSessions(prev => ({
-          ...prev,
-          [model.key]: session,
-        }));
-
-        setModelStatus(prev => ({
-          ...prev,
-          [model.key]: true,
-        }));
-      }
+      await ModelSessionManager.loadAll(
+        (updatedSessions, updatedStatus, updatedLoading, progressText) => {
+          if (!isMountedRef.current) return;
+          setSessions(updatedSessions);
+          setModelStatus(updatedStatus);
+          setModelLoading(updatedLoading);
+          if (progressText) {
+            setLoadProgress(progressText);
+          }
+        },
+      );
       if (isMountedRef.current) {
         setLoadingModels(false);
       }
     } catch (e) {
-      console.log("modelerror", e);
+      console.log('modelerror', e);
       if (isMountedRef.current) {
         setLoadingModels(false);
       }
@@ -1897,16 +1875,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
       task.cancel();
       isMountedRef.current = false;
       timeoutsRef.current.forEach(clearTimeout);
-
-      Object.values(loadedSessionsRef.current).forEach(session => {
-        try {
-          session?.release?.();
-        } catch (e) {
-          console.log('Error releasing session:', e);
-        }
-      });
-
-      loadedSessionsRef.current = {};
+      // Models stay cached in ModelSessionManager for reuse across screens
     };
   }, [ai_camera_pipe_image]);
   // IMPROVED useEffect - Pre-fill when navigating from PlotWiseMap
@@ -1986,6 +1955,12 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
       Toast.show({
         time: 2,
         text: `${t('Please enter pipe name')}`,
+        ...AlertMesg[0],
+      });
+    } else if (saveData.waterLevel == '' && field_type == 'select') {
+      Toast.show({
+        time: 2,
+        text: `${t('Please enter water level input')}`,
         ...AlertMesg[0],
       });
     } else if (
@@ -2274,10 +2249,9 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
           });
         }
       } catch (error) {
-        console.log('pipe data555=', JSON.stringify(error));
         Toast.show({
           time: 3,
-          text: `QR Code is already registered with activity pipe.`,
+          text: `${error?.data?.error?.errorMessage}`,
           ...AlertMesg[0],
         });
       }
@@ -2833,13 +2807,22 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
                                       onChangeText={handleActivityPipeNumber}
                                     />
                                   ) : (
-                                    <DropdownForm
-                                      label={t('Instrument')}
-                                      required={true}
-                                      data={PipeListDetailsArr}
-                                      onChange={handleActivityPipeManual}
-                                      val={selectPipeList.label}
-                                    />
+                                    <View style={styles.inputWrapper}>
+                                      <DropdownForm
+                                        label={t('Instrument')}
+                                        required={true}
+                                        data={PipeListDetailsArr}
+                                        onChange={handleActivityPipeManual}
+                                        val={selectPipeList.label}
+                                      />
+                                      <InputTextForm
+                                        label={t('Water Level Fall Input (cm)')}
+                                        required={true}
+                                        keyboardType="numeric"
+                                        value={saveData.waterLevel}
+                                        onChangeText={(text) => setSaveData(prev => ({ ...prev, waterLevel: text }))}
+                                      />
+                                    </View>
                                   )}
                                   <View style={styles.hiddenContainer}>
                                     {tempImage && (

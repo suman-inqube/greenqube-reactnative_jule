@@ -1,4 +1,4 @@
-import React, {lazy, useEffect, memo, useCallback, useMemo} from 'react';
+import React, { useEffect, memo, useCallback, useMemo } from 'react';
 import {
   TouchableOpacity,
   Image,
@@ -9,19 +9,22 @@ import {
   Platform,
 } from 'react-native';
 import ImageForm from '../Common/ImageForm';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {goBack} from '../utils/NavigationUtils';
-import {Colors, Fonts} from '../utils/Constants';
-import {useDrawerStatus} from '@react-navigation/drawer';
-import {useTranslation} from 'react-i18next';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { goBack } from '../utils/NavigationUtils';
+import { Colors, Fonts } from '../utils/Constants';
+import { useDrawerStatus } from '@react-navigation/drawer';
+import { useTranslation } from 'react-i18next';
+
 const DASHBOARD_TITLE = 'Dashboard';
 const DAILY_SALES_TITLE = 'Daily Sales Report';
 const FARMER_DASHBOARD_TITLE = 'FarmerDashboard';
-const TITLES_WITHOUT_FILTER = [
+
+const TITLES_WITHOUT_FILTER = new Set([
   DASHBOARD_TITLE,
   DAILY_SALES_TITLE,
   FARMER_DASHBOARD_TITLE,
-];
+]);
+
 const IMAGES = {
   back: require('../Common/images/back.png'),
   logo: require('../Common/images/logo.png'),
@@ -30,243 +33,100 @@ const IMAGES = {
   fourDot: require('../Common/images/4dot.png'),
   dashboard: require('../Common/images/dashboard.jpeg'),
 };
-const BackButton = memo(({onPress}) => (
-  <TouchableOpacity onPress={onPress}>
-    <Image source={IMAGES.back} resizeMode="contain" style={styles.backIcon} />
-  </TouchableOpacity>
-));
 
-const LogoImage = memo(({isDashboard}) => (
-  <Image
-    source={isDashboard ? IMAGES.logo : IMAGES.logoIcon}
-    style={isDashboard ? styles.dashboardLogo : styles.regularLogo}
-    resizeMode="contain"
-  />
-));
-
-const RoundButton = memo(({onPress, imageSource, style}) => (
-  <TouchableOpacity style={[styles.roundButton, style]} onPress={onPress}>
-    <Image source={imageSource} style={styles.buttonIcon} />
-  </TouchableOpacity>
-));
-
-const CompanyLogo = memo(({logoImage}) => (
-  // <View style={styles.companyLogoContainer}>
-
-  <ImageForm
-    source={{uri: logoImage}}
-    resizeMode="contain"
-    height={45}
-    width={45}
-  />
-  // </View>
-));
-
-const BannerImage = memo(({topBanner}) =>
-  topBanner ? (
-    <ImageForm
-      source={{uri: topBanner}}
-      resizeMode="cover"
-      height={200}
-      width="100%"
-    />
-  ) : (
-    <Image source={IMAGES.dashboard} style={styles.defaultBanner} />
-  ),
-);
-
-const CustomHeader = memo(
-  ({
-    path,
-    HandlerGoBack,
-    banner,
-    logoImage,
-    topBanner,
-    show,
-    filterOptionShow,
-  }) => {
-    const drawerStatus = useDrawerStatus();
-    const {t} = useTranslation();
-    const navigation = useNavigation();
-    const route = useRoute();
-    const titleMap = useMemo(
-      () => ({
-        Dashboard: 'Dashboard',
-        Profile: t('profile'),
-        Settings: 'App Settings',
-        activityList: 'Activity List',
-        ProblemList: t('problem_reporting'),
-        FarmerFarmIncomeExpenseList: t('income_expense_list'),
-        FarmIncomeExpenseList: t('income_expense_list'),
-        FarmIncomeExpenseView: t('income_expense_list'),
-        AddExpense: t('add_expense'),
-        AddIcome: t('add_income'),
-        ChangePassword: t('change_password'),
-        LoanEnquiryDetail: t('loan_enquiry_detail'),
-        LoanRequest: t('loan_request_n'),
-        LoanViewPastRequested: t('view_loan_nrequested'),
-        InsuranceViewPastRequested: t('Insu_enquiry_detail'),
-        RequestForInsurance: t('request_for_ninsurance'),
-        FarmerLoanViewPastRequested: t('view_loan_nrequested'),
-        FarmerLoanEnquiryDetail: t('Loan Enquiry Detail'),
-        FarmerLoanRequest: t('loan_request_n'),
-        FarmerInsuViewPastRequested: t('Insu_enquiry_detail'),
-        FarmerRequestForInsurance: t('request_for_ninsurance'),
-        PestisideCalculator: t('pestiside_calculator'),
-        FertilizerCalculator: t('fertilizer_calculator'),
-        FarmerInstrumentWiseActivityView: t('instrument_Wise_Activity_View'),
-        FarmerChangePassword: t('change_password'),
-        FarmerAddExpense: t('add_expense'),
-        FarmerAddIncome: t('add_income'),
-        FarmerFarmIncomeExpenseView: t('income_expense_View'),
-        InstrumentWiseActivityView: t('instrument_Wise_Activity_View'),
-        activityDetail: t('act_detail_'),
-        DailySalesReport: t('daily_sales_report'),
-        OutPutList: t('want_to_sell'),
-        userList: t('farmer_list'),
-        FarmerListProblem: t('problem_reporting'),
-        FarmerCreateProblem: t('add_crop_problem'),
-        FarmerActivityList: t('my_activities'),
-        FarmerActivityDetail: t('act_detail_'),
-        FarmerActivityReportAWD: t('report_activity_AWD'),
-        FarmerActivityReport: t('report_activity'),
-        ActivityReportAWD: t('report_activity_AWD'),
-        activityReport: t('report_activity'),
-        ProblemView: t('plot_and_crop_problem'),
-        ProblemCreate: t('add_crop_problem'),
-        FarmerViewProblem: t('plot_and_crop_problem'),
-        FinancialInformation: t('financial_information'),
-        PlotSiteProduceInformation: t('reg_land_crop_information'),
-        RegistationSignUpViwer: t('Registation_SignUp_Viwer'),
-        PostNew: t('Post_New'),
-        password: t('forgot_password'),
-        activityList: t('my_activities'),
-        information: t('useful_ninformation_dash'),
-        CrateProblemUser: t('problem_reporting'),
-        InputList: t('agri_inputs_ninquiry_far_dash'),
-        PersonalInformation: t('personal_information'),
-        FarmerViewPast: t('view_output_nposted'),
-        FarmerPostNew: t('post_output_n'),
-        FarmerUsefulInformationList: t('dash_useful_information_list'),
-        FarmerUsefulInformation: t('dash_useful_information'),
-        FarmerTrainingList: t('training_support_list'),
-        FarmerTraining: t('training_support'),
-        FarmerLiveHood: t('farm_product'),
-        PackageOfPractices: t('scientific_farming'),
-        PackageOfPracticesDetails: t('Details'),
-        PackageItemDetails: t('Package_Item_Details'),
-        SoilHealthManagement: t('soil_health_management'),
-        PostRequest: t('request_soil_testing'),
-        MySoil: t('my_soil'),
-        InstrumentWiseActivityDetails: t('activity_Pipe_Images'),
-        FarmerInstrumentWiseActivityDetails: t('activity_Pipe_Images'),
-        FarmerInputList: t('products'),
-        FarmerPastEnquiry: t('past_enq'),
-        FarmerWantToBuy: t('want_to_buy_seed_de'),
-        WantToBuy: t('want_to_buy_seed_de'),
-        PastEnquiry: t('past_enq'),
-        TraingList: t('training_support_list'),
-        DealerReport: t('dealer_report'),
-        FarmerReport: t('farmer_report'),
-        SalesDetail: t('sales_detail'),
-        FarmerInputList: t('products'),
-        FarmerDashboard: 'FarmerDashboard',
-        FarmerProfile: t('farmer_profile'),
-        UsefulInformationList: t('dash_useful_information_list'),
-        UsefulInformation: t('dash_useful_information'),
-        livehood: t('farm_product'),
-        PlotStatusUpdate: t('Plot_Status_Update'),
-        Market: t('plot_status'),
-        UpcomingActivity: t('upcomming_act'),
-        PendingActivity: t('Pending Activity'),
-        FarmerUpcomingActivity: t('upcomming_act'),
-        FarmerPendingActivity: t('Pending Activity'),
-        ActivityPlotWise: t('plot_season_wise_activity'),
-        FarmerActivityPlotWise: t(' Plot & Season wise Activity'),
-        PlotWiseMap: t('Map_View'),
-      }),
-
-      [t],
-    );
-    const title = useMemo(
-      () => titleMap[route.name] ?? route.name,
-      [titleMap, route.name],
-    );
-    console.log('Screen-', route.name);
-    const isDashboard = useMemo(
-      () => title === DASHBOARD_TITLE || title === FARMER_DASHBOARD_TITLE,
-      [title],
-    );
-    const showFilter = useMemo(
-      () => !TITLES_WITHOUT_FILTER.includes(title) && filterOptionShow,
-      [title, filterOptionShow],
-    );
-    const showBanner = useMemo(
-      () => show && !banner && (topBanner || true),
-      [show, banner, topBanner],
-    );
-    const handleGoBack = useCallback(() => {
-      if (HandlerGoBack) {
-        HandlerGoBack();
-      } else {
-        goBack();
-      }
-    }, [HandlerGoBack]);
-
-    const openDrawer = useCallback(() => {
-      navigation.openDrawer();
-    }, [navigation]);
-
-    const handleFilterPress = useCallback(() => {
-      if (filterOptionShow) {
-        filterOptionShow();
-      }
-    }, [filterOptionShow]);
-    const statusBarProps = useMemo(
-      () => ({
-        barStyle: 'light-content',
-        backgroundColor: drawerStatus === 'open' ? Colors.drawer : '#1c571cff',
-      }),
-      [drawerStatus],
-    );
-
-    useEffect(() => {
-      navigation.closeDrawer();
-    }, [navigation]);
-    return (
-      <View style={styles.mainContainer}>
-        <StatusBar {...statusBarProps} />
-
-        <View
-          style={Platform.select({
-            android: styles.androidContainer,
-            ios: styles.iosContainer,
-          })}>
-          <View style={styles.leftContainer}>
-            <BackButton onPress={handleGoBack} />
-            <LogoImage isDashboard={isDashboard} />
-            {!isDashboard && <Text style={styles.titleText}>{title}</Text>}
-          </View>
-          <View style={styles.rightSection}>
-            {logoImage && isDashboard && <CompanyLogo logoImage={logoImage} />}
-
-            {showFilter && (
-              <RoundButton
-                onPress={handleFilterPress}
-                imageSource={IMAGES.setting}
-              />
-            )}
-
-            <RoundButton onPress={openDrawer} imageSource={IMAGES.fourDot} />
-          </View>
-        </View>
-        {showBanner && <BannerImage topBanner={topBanner} />}
-      </View>
-    );
-  },
-);
-
-CustomHeader.displayName = 'CustomHeader';
+const ROUTE_TITLE_CONFIG = {
+  Dashboard: { static: DASHBOARD_TITLE },
+  Profile: { key: 'profile' },
+  Settings: { static: 'App Settings' },
+  activityList: { key: 'my_activities' },
+  ProblemList: { key: 'problem_reporting' },
+  FarmerFarmIncomeExpenseList: { key: 'income_expense_list' },
+  FarmIncomeExpenseList: { key: 'income_expense_list' },
+  FarmIncomeExpenseView: { key: 'income_expense_list' },
+  AddExpense: { key: 'add_expense' },
+  AddIcome: { key: 'add_income' },
+  ChangePassword: { key: 'change_password' },
+  LoanEnquiryDetail: { key: 'loan_enquiry_detail' },
+  LoanRequest: { key: 'loan_request_n' },
+  LoanViewPastRequested: { key: 'view_loan_nrequested' },
+  InsuranceViewPastRequested: { key: 'Insu_enquiry_detail' },
+  RequestForInsurance: { key: 'request_for_ninsurance' },
+  FarmerLoanViewPastRequested: { key: 'view_loan_nrequested' },
+  FarmerLoanEnquiryDetail: { key: 'Loan Enquiry Detail' },
+  FarmerLoanRequest: { key: 'loan_request_n' },
+  FarmerInsuViewPastRequested: { key: 'Insu_enquiry_detail' },
+  FarmerRequestForInsurance: { key: 'request_for_ninsurance' },
+  PestisideCalculator: { key: 'pestiside_calculator' },
+  FertilizerCalculator: { key: 'fertilizer_calculator' },
+  FarmerInstrumentWiseActivityView: { key: 'instrument_Wise_Activity_View' },
+  FarmerChangePassword: { key: 'change_password' },
+  FarmerAddExpense: { key: 'add_expense' },
+  FarmerAddIncome: { key: 'add_income' },
+  FarmerFarmIncomeExpenseView: { key: 'income_expense_View' },
+  InstrumentWiseActivityView: { key: 'instrument_Wise_Activity_View' },
+  activityDetail: { key: 'act_detail_' },
+  DailySalesReport: { key: 'daily_sales_report' },
+  OutPutList: { key: 'want_to_sell' },
+  userList: { key: 'farmer_list' },
+  FarmerListProblem: { key: 'problem_reporting' },
+  FarmerCreateProblem: { key: 'add_crop_problem' },
+  FarmerActivityList: { key: 'my_activities' },
+  FarmerActivityDetail: { key: 'act_detail_' },
+  FarmerActivityReportAWD: { key: 'report_activity_AWD' },
+  FarmerActivityReport: { key: 'report_activity' },
+  ActivityReportAWD: { key: 'report_activity_AWD' },
+  activityReport: { key: 'report_activity' },
+  ProblemView: { key: 'plot_and_crop_problem' },
+  ProblemCreate: { key: 'add_crop_problem' },
+  FarmerViewProblem: { key: 'plot_and_crop_problem' },
+  FinancialInformation: { key: 'financial_information' },
+  PlotSiteProduceInformation: { key: 'reg_land_crop_information' },
+  RegistationSignUpViwer: { key: 'Registation_SignUp_Viwer' },
+  PostNew: { key: 'Post_New' },
+  password: { key: 'forgot_password' },
+  information: { key: 'useful_ninformation_dash' },
+  CrateProblemUser: { key: 'problem_reporting' },
+  InputList: { key: 'agri_inputs_ninquiry_far_dash' },
+  PersonalInformation: { key: 'personal_information' },
+  FarmerViewPast: { key: 'view_output_nposted' },
+  FarmerPostNew: { key: 'post_output_n' },
+  FarmerUsefulInformationList: { key: 'dash_useful_information_list' },
+  FarmerUsefulInformation: { key: 'dash_useful_information' },
+  FarmerTrainingList: { key: 'training_support_list' },
+  FarmerTraining: { key: 'training_support' },
+  FarmerLiveHood: { key: 'farm_product' },
+  PackageOfPractices: { key: 'scientific_farming' },
+  PackageOfPracticesDetails: { key: 'Details' },
+  PackageItemDetails: { key: 'Package_Item_Details' },
+  SoilHealthManagement: { key: 'soil_health_management' },
+  PostRequest: { key: 'request_soil_testing' },
+  MySoil: { key: 'my_soil' },
+  InstrumentWiseActivityDetails: { key: 'activity_Pipe_Images' },
+  FarmerInstrumentWiseActivityDetails: { key: 'activity_Pipe_Images' },
+  FarmerInputList: { key: 'products' },
+  FarmerPastEnquiry: { key: 'past_enq' },
+  FarmerWantToBuy: { key: 'want_to_buy_seed_de' },
+  WantToBuy: { key: 'want_to_buy_seed_de' },
+  PastEnquiry: { key: 'past_enq' },
+  TraingList: { key: 'training_support_list' },
+  DealerReport: { key: 'dealer_report' },
+  FarmerReport: { key: 'farmer_report' },
+  SalesDetail: { key: 'sales_detail' },
+  FarmerDashboard: { static: FARMER_DASHBOARD_TITLE },
+  FarmerProfile: { key: 'farmer_profile' },
+  UsefulInformationList: { key: 'dash_useful_information_list' },
+  UsefulInformation: { key: 'dash_useful_information' },
+  livehood: { key: 'farm_product' },
+  PlotStatusUpdate: { key: 'Plot_Status_Update' },
+  Market: { key: 'plot_status' },
+  UpcomingActivity: { key: 'upcomming_act' },
+  PendingActivity: { key: 'Pending Activity' },
+  FarmerUpcomingActivity: { key: 'upcomming_act' },
+  FarmerPendingActivity: { key: 'Pending Activity' },
+  ActivityPlotWise: { key: 'plot_season_wise_activity' },
+  FarmerActivityPlotWise: { key: ' Plot & Season wise Activity' },
+  PlotWiseMap: { key: 'Map_View' },
+};
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -275,18 +135,12 @@ const styles = StyleSheet.create({
     minHeight: 70,
     justifyContent: 'center',
   },
-  androidContainer: {
+  headerContainer: {
     justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
     paddingHorizontal: 15,
-  },
-  iosContainer: {
-    marginTop: 30,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    flexDirection: 'row',
-    paddingHorizontal: 15,
+    ...(Platform.OS === 'ios' ? { marginTop: 30 } : {}),
   },
   leftContainer: {
     flexDirection: 'row',
@@ -350,4 +204,137 @@ const styles = StyleSheet.create({
   },
 });
 
+const BackButton = memo(({ onPress }) => (
+  <TouchableOpacity onPress={onPress} activeOpacity={0.7} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+    <Image source={IMAGES.back} resizeMode="contain" style={styles.backIcon} />
+  </TouchableOpacity>
+));
+
+const LogoImage = memo(({ isDashboard }) => (
+  <Image
+    source={isDashboard ? IMAGES.logo : IMAGES.logoIcon}
+    style={isDashboard ? styles.dashboardLogo : styles.regularLogo}
+    resizeMode="contain"
+  />
+));
+
+const RoundButton = memo(({ onPress, imageSource, style }) => (
+  <TouchableOpacity
+    style={[styles.roundButton, style]}
+    onPress={onPress}
+    activeOpacity={0.7}
+    hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}>
+    <Image source={imageSource} style={styles.buttonIcon} />
+  </TouchableOpacity>
+));
+
+const CompanyLogo = memo(({ logoImage }) => (
+  <ImageForm
+    source={{ uri: logoImage }}
+    resizeMode="contain"
+    height={45}
+    width={45}
+  />
+));
+
+const BannerImage = memo(({ topBanner }) =>
+  topBanner ? (
+    <ImageForm
+      source={{ uri: topBanner }}
+      resizeMode="cover"
+      height={200}
+      width="100%"
+    />
+  ) : (
+    <Image source={IMAGES.dashboard} style={styles.defaultBanner} />
+  ),
+);
+
+const CustomHeader = memo(
+  ({
+    HandlerGoBack,
+    banner,
+    logoImage,
+    topBanner,
+    show,
+    filterOptionShow,
+  }) => {
+    const drawerStatus = useDrawerStatus();
+    const { t } = useTranslation();
+    const navigation = useNavigation();
+    const route = useRoute();
+
+    const title = useMemo(() => {
+      const config = ROUTE_TITLE_CONFIG[route.name];
+      if (!config) return route.name;
+      return config.static ?? t(config.key);
+    }, [route.name, t]);
+
+    const isDashboard = title === DASHBOARD_TITLE || title === FARMER_DASHBOARD_TITLE;
+    const showFilter = !TITLES_WITHOUT_FILTER.has(title) && !!filterOptionShow;
+    const showBanner = show && !banner && (topBanner || true);
+
+    const handleGoBack = useCallback(() => {
+      if (HandlerGoBack) {
+        HandlerGoBack();
+      } else {
+        goBack();
+      }
+    }, [HandlerGoBack]);
+
+    const openDrawer = useCallback(() => {
+      navigation.openDrawer();
+    }, [navigation]);
+
+    const handleFilterPress = useCallback(() => {
+      if (filterOptionShow) {
+        filterOptionShow();
+      }
+    }, [filterOptionShow]);
+
+    const statusBarProps = useMemo(
+      () => ({
+        barStyle: 'light-content',
+        backgroundColor: drawerStatus === 'open' ? Colors.drawer : '#1c571cff',
+      }),
+      [drawerStatus],
+    );
+
+    useEffect(() => {
+      navigation.closeDrawer();
+    }, [navigation]);
+
+    return (
+      <View style={styles.mainContainer}>
+        <StatusBar {...statusBarProps} />
+
+        <View style={styles.headerContainer}>
+          <View style={styles.leftContainer}>
+            <BackButton onPress={handleGoBack} />
+            <LogoImage isDashboard={isDashboard} />
+            {!isDashboard && <Text style={styles.titleText}>{title}</Text>}
+          </View>
+          <View style={styles.rightSection}>
+            {logoImage && isDashboard && <CompanyLogo logoImage={logoImage} />}
+
+            {showFilter && (
+              <RoundButton
+                onPress={handleFilterPress}
+                imageSource={IMAGES.setting}
+              />
+            )}
+
+            <RoundButton onPress={openDrawer} imageSource={IMAGES.fourDot} />
+          </View>
+        </View>
+        {showBanner && <BannerImage topBanner={topBanner} />}
+      </View>
+    );
+  },
+);
+
+CustomHeader.displayName = 'CustomHeader';
+
 export default memo(CustomHeader);
+
+

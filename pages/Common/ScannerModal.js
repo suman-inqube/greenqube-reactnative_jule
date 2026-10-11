@@ -1,11 +1,11 @@
 import React from 'react';
-import {Modal, View, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import { Modal, View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import QRBarcodeScanner from './QRBarcodeScanner';
 
-export default function ScannerModal({onScan, onClose}) {
+export default function ScannerModal({ onScan, onClose }) {
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         <QRBarcodeScanner
           onScanned={value => {
             onScan(value);

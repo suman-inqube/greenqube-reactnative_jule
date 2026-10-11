@@ -17,9 +17,9 @@ import React, {
   useRef,
   useMemo,
 } from 'react';
-import {useIsFocused, useRoute} from '@react-navigation/native';
-import {userCreateContext} from '../../Context/usersCreateContext';
-import {SPSheet, Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
+import { useIsFocused, useRoute } from '@react-navigation/native';
+import { userCreateContext } from '../../Context/usersCreateContext';
+import { SPSheet, Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import CarbonActivityBottomSheet from '../../Common/CarbonActivityBottomSheet';
 import {
   OPTIONS_CARBON,
@@ -27,18 +27,18 @@ import {
   CARBON_TYPE,
 } from '../../utils/options';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
-import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
-import {Colors, Fonts} from '../../utils/Constants';
-import {axiosGet} from '../../utils/api';
-import {ROUTES} from '../../utils/Routes';
+import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
+import { Colors, Fonts } from '../../utils/Constants';
+import { axiosGet } from '../../utils/api';
+import { ROUTES } from '../../utils/Routes';
 import SkeletonCardActivityList from '../../Components/Skeleton/SkeletonCardActivityList';
 import PaginationNav from '../../Components/PaginationNav';
-import {AlertMesg} from '../../Common/ToastAlert';
+import { AlertMesg } from '../../Common/ToastAlert';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import ActivityCard from '../../Components/ActivityCard';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
 
-function ActivityList({navigation}) {
+function ActivityList({ navigation }) {
   //GQR-67
   const {
     loginUser_data,
@@ -54,7 +54,7 @@ function ActivityList({navigation}) {
     farmerData,
     navigationBarHeight,
   } = useContext(userCreateContext);
-  const {dbname, lan_id, token, user_id, carbonFlag} = loginUser_data;
+  const { dbname, lan_id, token, user_id, carbonFlag } = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const route = useRoute();
@@ -72,12 +72,12 @@ function ActivityList({navigation}) {
     label: '',
     value: '',
   });
-  const [carbonType, setCarbonType] = useState({label: '', value: ''});
+  const [carbonType, setCarbonType] = useState({ label: '', value: '' });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [refreshing, setRefreshing] = useState(false);
   const filterOptionShow = useCallback(async () => {
-    const {openFilterSheet} = await import('../../Components/FilterSheet');
+    const { openFilterSheet } = await import('../../Components/FilterSheet');
     openFilterSheet({
       options: ['farmer', 'phone', 'date', 'carbon'],
       t: t,
@@ -104,7 +104,7 @@ function ActivityList({navigation}) {
     });
   }, [filterItem, searchFarmerName, searchFarmerPhone, fromDate, toDate]);
   const handleFilterResult = useCallback(
-    ({filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType}) => {
+    ({ filter, fromDate, toDate, farmerName, farmerPhone, sheetCarbonType }) => {
       try {
         let search_key_val = '';
         if (filter == 'Farmer/Product Name') {
@@ -136,7 +136,7 @@ function ActivityList({navigation}) {
           sheetCarbonType?.value,
           filter,
         );
-      } catch (error) {}
+      } catch (error) { }
     },
     [
       filterItem,
@@ -151,9 +151,9 @@ function ActivityList({navigation}) {
     try {
       setFromDate('');
       setToDate('');
-      setSearchFarmerName({label: '', value: ''});
-      setSearchFarmerPhone({label: '', value: ''});
-      setCarbonType({label: '', value: ''});
+      setSearchFarmerName({ label: '', value: '' });
+      setSearchFarmerPhone({ label: '', value: '' });
+      setCarbonType({ label: '', value: '' });
       setFilterItem('');
       fetchActivityListAPI(1, '', '', '', '', '');
       setPage(1);
@@ -186,18 +186,18 @@ function ActivityList({navigation}) {
                 search_key_type && search_key_type !== 'carbon'
                   ? search_key_val
                   : filterItem
-                  ? filterItem === 'Farmer/Product Name'
-                    ? searchFarmerName?.label
-                    : filterItem === 'PhoneNumber'
-                    ? searchFarmerPhone?.label
-                    : ''
-                  : '',
+                    ? filterItem === 'Farmer/Product Name'
+                      ? searchFarmerName?.label
+                      : filterItem === 'PhoneNumber'
+                        ? searchFarmerPhone?.label
+                        : ''
+                    : '',
               from_date:
                 fromDateParams == undefined ? fromDate : fromDateParams,
               to_date: toDateParams == undefined ? toDate : toDateParams,
             }),
             token,
-            {information: `${dbname},${lan_id},${user_id}`},
+            { information: `${dbname},${lan_id},${user_id}` },
           );
           if (response?.status == 200) {
             await setItem('activityList', response);
@@ -211,7 +211,7 @@ function ActivityList({navigation}) {
           setIsLoading(false);
         }
         if (flatListRef.current) {
-          flatListRef.current.scrollToOffset({offset: 0, animated: true});
+          flatListRef.current.scrollToOffset({ offset: 0, animated: true });
         }
       } catch (error) {
         console.log(error);
@@ -227,7 +227,7 @@ function ActivityList({navigation}) {
   }, []);
   useEffect(() => {
     if (route?.params?.action === 'addData') {
-      Toast.show({text: t('Data_submitted_successfully'), ...AlertMesg[0]});
+      Toast.show({ text: t('Data_submitted_successfully'), ...AlertMesg[0] });
       setTotalPages(1);
       fetchActivityListAPI(1, '');
       setPage(1);
@@ -285,9 +285,9 @@ function ActivityList({navigation}) {
             {renderCustomHeader}
             <FlatList
               ref={flatListRef}
-              data={isLoading ? Array.from({length: 5}) : activityAll}
+              data={isLoading ? Array.from({ length: 5 }) : activityAll}
               keyExtractor={(item, index) => index?.toString()}
-              renderItem={({item, index}) =>
+              renderItem={({ item, index }) =>
                 isLoading ? (
                   <SkeletonCardActivityList />
                 ) : (
@@ -309,7 +309,7 @@ function ActivityList({navigation}) {
                   tintColor="#4CAF50"
                 />
               }
-              contentContainerStyle={{padding: 16, paddingBottom: 10}}
+              contentContainerStyle={{ padding: 16, paddingBottom: 10 }}
               showsVerticalScrollIndicator={false}
               initialNumToRender={5}
               windowSize={5}
@@ -333,7 +333,7 @@ function ActivityList({navigation}) {
               }}
               showBackground={true}
               overlayColor="rgba(22, 17, 17, 0.35)"
-              distanceToEdge={{vertical: 80, horizontal: 25}}
+              distanceToEdge={{ vertical: 80, horizontal: 25 }}
             />
           </View>
         </Root>
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     // elevation: 4,
@@ -523,7 +523,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#10B981',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
