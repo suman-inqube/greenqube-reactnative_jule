@@ -167,6 +167,7 @@ const UserCreateContextProvider = ({ children }) => {
     // if(coords.latitude==""){
     //   alert("aaaaaaaaa")
     // }
+    return;
     if (initGpsRef.current) return;
     initGpsRef.current = true;
     try {
@@ -208,7 +209,7 @@ const UserCreateContextProvider = ({ children }) => {
             Alert.alert('Error', 'Unable to fetch location. Please try again.');
             return;
           }
-console.log("pos.coords",pos.coords)
+          console.log("pos.coords", pos.coords)
           const { latitude, longitude, accuracy } = pos.coords;
           setCoords(prev => {
             if (prev.latitude === latitude && prev.longitude === longitude && prev.accuracy === accuracy) {

@@ -1,14 +1,14 @@
 import axios from 'axios';
 import NetInfo from '@react-native-community/netinfo';
-import {Alert} from 'react-native';
+import { Alert } from 'react-native';
 import qs from 'qs';
 import CryptoJS from 'crypto-js';
-import {Toast} from '@sekizlipenguen/react-native-popup-confirm-toast';
-import {AlertMesg} from '../Common/ToastAlert';
-import {getItem, removeItem} from '../../config/getDataFromStorage';
-import {resetTo} from './NavigationUtils';
-import {cacheManager} from './mmkvStorage';
-import {BASE_URL, ENCRYPTION_KEY} from '../../config/environment';
+import { Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
+import { AlertMesg } from '../Common/ToastAlert';
+import { getItem, removeItem } from '../../config/getDataFromStorage';
+import { resetTo } from './NavigationUtils';
+import { cacheManager } from './mmkvStorage';
+import { BASE_URL, ENCRYPTION_KEY } from '../../config/environment';
 const STORAGE_KEYS = [
   'logoImageData',
   'loginUser_data',
@@ -35,7 +35,7 @@ const instance = axios.create({
 });
 
 instance.interceptors.request.use(config => {
-  config.metadata = {startTime: new Date().getTime()};
+  config.metadata = { startTime: new Date().getTime() };
   return config;
 });
 
@@ -63,7 +63,7 @@ const setupInterceptors = () => {
             padding: CryptoJS.pad.Pkcs7,
           });
           const parsed = JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
-          return {data: parsed, status: 200};
+          return { data: parsed, status: 200 };
         }
       } catch (err) {
         console.error('Decryption failed:', err);
@@ -88,8 +88,8 @@ const isInternetAvailable = async (silent = false) => {
   return connected;
 };
 
-const logCurl = ({url, method, headers, body}) => {
-  if(!__DEV__) return;
+const logCurl = ({ url, method, headers, body }) => {
+  if (!__DEV__) return;
   let curl = `curl -X ${method} 'http://134.209.155.11:4003/${url}'`;
 
   // 1. Format Headers
@@ -137,18 +137,18 @@ export const axiosGet = async (
   const online = await isInternetAvailable(true);
   if (!online) {
     const cached = cacheManager.getCache(cacheKey);
-    if (cached) return {data: cached, status: 200, fromCache: true};
+    if (cached) return { data: cached, status: 200, fromCache: true };
     return Promise.reject({
       status: 0,
-      data: {message: 'No internet & no cache'},
+      data: { message: 'No internet & no cache' },
     });
   }
   // console.log("url",url)
   // console.log("extraHeaders",extraHeaders)
-  logCurl({url, method: 'GET', headers: {...(token && {Authorization: token}), ...extraHeaders}});
+  logCurl({ url, method: 'GET', headers: { ...(token && { Authorization: token }), ...extraHeaders } });
   try {
     const response = await instance.get(url, {
-      headers: {...(token && {Authorization: token}), ...extraHeaders},
+      headers: { ...(token && { Authorization: token }), ...extraHeaders },
       signal: abortController?.signal,
     });
     cacheManager.setCache(cacheKey, response.data);
@@ -159,7 +159,7 @@ export const axiosGet = async (
 
     if (!online) {
       const cached = cacheManager.getCache(cacheKey);
-      if (cached) return {data: cached, status: 200, fromCache: true};
+      if (cached) return { data: cached, status: 200, fromCache: true };
     }
     throw await handleError(error);
   }
@@ -185,7 +185,7 @@ export const axiosPost = async (
       extraHeaders,
       method: 'POST',
     });
-    return {data: {message: 'Queued Locally'}, status: 202, isOffline: true};
+    return { data: { message: 'Queued Locally' }, status: 202, isOffline: true };
   }
 
   const payload = isUrlEncoded ? qs.stringify(body) : body;
@@ -193,16 +193,16 @@ export const axiosPost = async (
     'Content-Type': isFormData(body)
       ? 'multipart/form-data'
       : isUrlEncoded
-      ? 'application/x-www-form-urlencoded'
-      : 'application/json',
-    ...(token && {Authorization: token}),
+        ? 'application/x-www-form-urlencoded'
+        : 'application/json',
+    ...(token && { Authorization: token }),
     ...extraHeaders,
   };
   // const headers = {
   //   ...(token && {Authorization: token}),
   //   ...extraHeaders,
   // };
-  logCurl({url, method: 'POST', headers, body: payload});
+  logCurl({ url, method: 'POST', headers, body: payload });
   // console.log('check', url, body, headers);
   try {
     return await instance.post(url, payload, {
@@ -210,7 +210,7 @@ export const axiosPost = async (
       signal: abortController?.signal,
     });
   } catch (error) {
-    console.log("url",url)
+    console.log("url", url)
     console.log('gggg', error);
 
     throw await handleError(error);
@@ -231,9 +231,9 @@ export const axiosPut = async (
     'Content-Type': isFormData(body)
       ? 'multipart/form-data'
       : isUrlEncoded
-      ? 'application/x-www-form-urlencoded'
-      : 'application/json',
-    ...(token && {Authorization: token}),
+        ? 'application/x-www-form-urlencoded'
+        : 'application/json',
+    ...(token && { Authorization: token }),
     ...extraHeaders,
   };
   if (!online) {
@@ -245,10 +245,10 @@ export const axiosPut = async (
       headers,
       method: 'PUT',
     });
-    return {data: {message: 'Queued Locally'}, status: 202, isOffline: true};
+    return { data: { message: 'Queued Locally' }, status: 202, isOffline: true };
   }
   const payload = isUrlEncoded ? qs.stringify(body) : body;
-  logCurl({url, method: 'PUT', headers, body: payload});
+  logCurl({ url, method: 'PUT', headers, body: payload });
 
   try {
     return await instance.put(url, payload, {
@@ -279,26 +279,26 @@ const handleError = async error => {
     console.log('error', error?.response?.status);
     return {
       status: error.response.status || 409,
-      data: error.response.data || {message: 'Unknown error'},
+      data: error.response.data || { message: 'Unknown error' },
     };
   }
 
   if (axios.isCancel(error) || error.name === 'AbortError')
-    return {status: 499, data: {message: 'Request cancelled'}};
+    return { status: 499, data: { message: 'Request cancelled' } };
   if (error.code === 'ECONNABORTED')
-    return {status: 408, data: {message: 'Request timed out'}};
+    return { status: 408, data: { message: 'Request timed out' } };
   if (
     error?.response?.status === 401 &&
     error?.response?.data?.data?.code == 'TOKEN_EXPIRED'
   ) {
     await delay(3000);
-    resetTo('Login', {locale: getItem('loginUser_data').lan_id || 1});
+    resetTo('Login', { locale: getItem('loginUser_data').lan_id || 1 });
     await Promise.all(STORAGE_KEYS.map(key => removeItem(key)));
   }
-  console.log("handleError",error)
+  console.log("handleError", error)
   return {
     status: error?.response?.status || 500,
-    data: error?.response?.data || {message: 'Connection error'},
+    data: error?.response?.data || { message: 'Connection error' },
   };
 };
 
@@ -309,10 +309,10 @@ export const axiosDelete = async (
   abortController = null,
 ) => {
   if (!(await isInternetAvailable()))
-    return Promise.reject({status: 0, data: {message: 'No internet'}});
+    return Promise.reject({ status: 0, data: { message: 'No internet' } });
   try {
     return await instance.delete(url, {
-      headers: {...(token && {Authorization: token}), ...extraHeaders},
+      headers: { ...(token && { Authorization: token }), ...extraHeaders },
       signal: abortController?.signal,
     });
   } catch (error) {

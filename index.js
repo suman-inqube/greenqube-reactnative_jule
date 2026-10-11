@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { AppRegistry } from 'react-native';
+import { AppRegistry, Platform } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 enableScreens(true);
 import App from './App';
@@ -36,11 +36,15 @@ const configureExceptionHandlers = (setFatalError) => {
 
   const nativeExceptionHandler = (errorString) => {
     console.error('[Native Exception]', errorString);
-    RNRestart.Restart();
+    if (Platform.OS === 'android') {
+      RNRestart.Restart();
+    }
   };
 
   setJSExceptionHandler(jsExceptionHandler, false);
-  setNativeExceptionHandler(nativeExceptionHandler);
+  if (Platform.OS === 'android') {
+    setNativeExceptionHandler(nativeExceptionHandler);
+  }
 
   isExceptionHandlerConfigured = true;
 };

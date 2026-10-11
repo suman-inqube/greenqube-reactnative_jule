@@ -169,7 +169,7 @@ const SplashScreen = ({ navigation }) => {
     if (!isMountedRef.current) return;
 
     try {
-      const language_res = await axiosGet(ROUTES.GET.LANGUAGE_LIST,'',{information: `${dbName}`});
+      const language_res = await axiosGet(ROUTES.GET.LANGUAGE_LIST, '', { information: `${dbName}` });
       if (!isMountedRef.current) return;
       if (language_res?.data?.data) {
         setState(prev => ({
@@ -329,88 +329,88 @@ const SplashScreen = ({ navigation }) => {
 
   return (
     <MyErrorBoundary>
-        {/* <StatusBar barStyle="light-content" backgroundColor="transparent" translucent /> */}
-        <ImageBackground
-          source={require('./pages/Common/images/crystal_splash_screen.jpg')}
-          style={styles.backgroundImage}
-          imageStyle={styles.backgroundImageStyle}
+      {/* <StatusBar barStyle="light-content" backgroundColor="transparent" translucent /> */}
+      <ImageBackground
+        source={require('./pages/Common/images/crystal_splash_screen.jpg')}
+        style={styles.backgroundImage}
+        imageStyle={styles.backgroundImageStyle}
+      >
+        <LinearGradient
+          colors={['rgba(0,50,100,0.7)', 'rgba(0,30,60,0.8)', 'rgba(0,10,30,0.9)']}
+          style={styles.gradientOverlay}
         >
-           <LinearGradient
-            colors={['rgba(0,50,100,0.7)', 'rgba(0,30,60,0.8)', 'rgba(0,10,30,0.9)']}
-            style={styles.gradientOverlay}
-          > 
-            <View style={[styles.container, { paddingTop: insets.top }]}>
-              {/* Modals */}
-              {state.modalVisible&&<SplashScreenModal
-                height={SCREEN_HEIGHT}
-                setModalVisible={setModalVisible}
-                modalVisible={state.modalVisible}
-                companyData={state.companyData}
-                sendDataToParent={handleCompanySelection}
-                searchTextData={searchCompanyByName}
-                style={styles.modalStyle}
-              />}
+          <View style={[styles.container, { paddingTop: insets.top }]}>
+            {/* Modals */}
+            {state.modalVisible && <SplashScreenModal
+              height={SCREEN_HEIGHT}
+              setModalVisible={setModalVisible}
+              modalVisible={state.modalVisible}
+              companyData={state.companyData}
+              sendDataToParent={handleCompanySelection}
+              searchTextData={searchCompanyByName}
+              style={styles.modalStyle}
+            />}
 
-              {state.modalVisibleLan&&<SplashScreenModalLanguage
-                setModalVisibleLan={setModalVisibleLan}
-                modalVisibleLan={state.modalVisibleLan}
-                companyData={state.languageData}
-                sendDataToParentLan={handleLanguageSelection}
-                style={styles.modalStyle}
-              />
-              }
-              {/* Main Content */}
+            {state.modalVisibleLan && <SplashScreenModalLanguage
+              setModalVisibleLan={setModalVisibleLan}
+              modalVisibleLan={state.modalVisibleLan}
+              companyData={state.languageData}
+              sendDataToParentLan={handleLanguageSelection}
+              style={styles.modalStyle}
+            />
+            }
+            {/* Main Content */}
+            <Animated.View
+              style={[
+                styles.content,
+                {
+                  opacity: fadeAnim,
+                  transform: [
+                    { scale: scaleAnim },
+                    { translateY: slideAnim }
+                  ]
+                }
+              ]}
+            >
               <Animated.View
                 style={[
-                  styles.content,
-                  {
-                    opacity: fadeAnim,
-                    transform: [
-                      { scale: scaleAnim },
-                      { translateY: slideAnim }
-                    ]
-                  }
+                  styles.logoContainer,
+                  { transform: [{ scale: state.isLoading ? pulseAnim : 1 }] }
                 ]}
               >
-                <Animated.View
-                  style={[
-                    styles.logoContainer,
-                    { transform: [{ scale: state.isLoading ? pulseAnim : 1 }] }
-                  ]}
-                >
-                  <Image
-                    source={require('./pages/Common/images/greenqube_logo.png')}
-                    style={styles.logo}
-                    resizeMode="contain"
-                  />
-                </Animated.View>
-
-                {/* App Title */}
-                <Animated.View style={[styles.titleContainer, { opacity: fadeAnim }]}>
-                  <Text style={styles.appTitle}>GreenQube</Text>
-                  <Text style={styles.appSubtitle}>Agricultural Solutions</Text>
-                </Animated.View>
+                <Image
+                  source={require('./pages/Common/images/greenqube_logo.png')}
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
               </Animated.View>
 
-              {/* Loading Indicator */}
-              {state.isLoading && (
-                <Animated.View style={[styles.loadingContainer, { opacity: fadeAnim }]}>
-                  <ActivityIndicator
-                    size="large"
-                    color="#4CAF50"
-                    style={styles.loadingIndicator}
-                  />
-                  <Text style={styles.loadingText}>Loading...</Text>
-                </Animated.View>
-              )}
+              {/* App Title */}
+              <Animated.View style={[styles.titleContainer, { opacity: fadeAnim }]}>
+                <Text style={styles.appTitle}>GreenQube</Text>
+                <Text style={styles.appSubtitle}>Agricultural Solutions</Text>
+              </Animated.View>
+            </Animated.View>
 
-              {/* Version Info */}
-              {/*<Animated.View style={[styles.versionContainer, { opacity: fadeAnim }]}>
+            {/* Loading Indicator */}
+            {state.isLoading && (
+              <Animated.View style={[styles.loadingContainer, { opacity: fadeAnim }]}>
+                <ActivityIndicator
+                  size="large"
+                  color="#4CAF50"
+                  style={styles.loadingIndicator}
+                />
+                <Text style={styles.loadingText}>Loading...</Text>
+              </Animated.View>
+            )}
+
+            {/* Version Info */}
+            {/*<Animated.View style={[styles.versionContainer, { opacity: fadeAnim }]}>
                 <Text style={styles.versionText}>Version 1.0.0</Text>
               </Animated.View>*/}
-            </View>
-           </LinearGradient> 
-        </ImageBackground>
+          </View>
+        </LinearGradient>
+      </ImageBackground>
     </MyErrorBoundary>
   );
 };

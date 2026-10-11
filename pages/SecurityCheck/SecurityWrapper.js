@@ -5,7 +5,7 @@ const SecurityWrapper = ({ children, coords }) => {
     const checkMockLocation = async (coords) => {
         try {
             if (coords?.mocked == true) {
-                showMockAlert();
+                // showMockAlert();
             }
         } catch (error) {
             console.log('Error checking mock location:', error);

@@ -1,10 +1,10 @@
-import React, {useRef, useContext, lazy} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import React, { useRef, useContext, lazy } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import 'react-native-gesture-handler';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {StyleSheet} from 'react-native';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { StyleSheet } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import SplashScreen from './SplashScreen';
 import AdminNavigation from './pages/admin/AdminNavigation';
@@ -21,11 +21,11 @@ const ProduceInfo = lazy(() => import('./pages/ProduceInfo'));
 const ProduceInfoUpdate = lazy(() => import('./pages/ProduceInfoUpdate'));
 
 import withSecurityCheck from './pages/SecurityCheck/withSecurityCheck';
-import {userCreateContext} from './pages/Context/usersCreateContext';
-import {addModuleForView} from './config/apiHere';
+import { userCreateContext } from './pages/Context/usersCreateContext';
+import { addModuleForView } from './config/apiHere';
 import './ignoreWarnings';
-import {navigationRef} from './pages/utils/NavigationUtils';
-import {BottomSheetProvider} from './pages/Common/BottomSheetProvider';
+import { navigationRef } from './pages/utils/NavigationUtils';
+import { BottomSheetProvider } from './pages/Common/BottomSheetProvider';
 
 const Stack = createNativeStackNavigator();
 
@@ -35,13 +35,13 @@ const Stack = createNativeStackNavigator();
 
 function AppContent() {
   const routeNameRef = useRef();
-  const {loginUser_data} = useContext(userCreateContext) || {};
-  const {dbname, lan_id, token, user_id} = loginUser_data || {};
+  const { loginUser_data } = useContext(userCreateContext) || {};
+  const { dbname, lan_id, token, user_id } = loginUser_data || {};
 
   return (
     <BottomSheetProvider>
       <SafeAreaProvider>
-        <GestureHandlerRootView style={{flex: 1}}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
           <NavigationContainer
             ref={navigationRef}
             onReady={() => {
@@ -119,8 +119,8 @@ function AppContent() {
             }}>
             <Stack.Navigator
               initialRouteName="SplashScreen"
-              screenOptions={{headerShown: false, freezeOnBlur: true}}
-              >
+              screenOptions={{ headerShown: false, freezeOnBlur: true }}
+            >
               <Stack.Screen name="SplashScreen" component={SplashScreen} />
               <Stack.Screen name="Login" component={Login} />
               <Stack.Screen name="Signup" component={Signup} />

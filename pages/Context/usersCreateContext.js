@@ -93,6 +93,7 @@ const UserCreateContextProvider = props => {
   };
 
   const ensureGpsEnabled = async () => {
+    if (Platform.OS !== 'android') return true;
     try {
       const enabled = await isLocationEnabled();
       if (!enabled) {
@@ -177,7 +178,7 @@ const UserCreateContextProvider = props => {
           );
         }
         if (pos.mocked === true) {
-          handleMockDetected();
+          // handleMockDetected();
           return;
         }
         if (pos.coords.accuracy > 50) {
@@ -227,7 +228,7 @@ const UserCreateContextProvider = props => {
     locationIntervalRef.current = setInterval(() => {
       Geolocation.getCurrentPosition(
         p => {
-          if (p?.mocked === true) handleMockDetected();
+          // if (p?.mocked === true) handleMockDetected();
         },
         () => { },
         { enableHighAccuracy: true, timeout: 10000 },
@@ -272,7 +273,9 @@ const UserCreateContextProvider = props => {
         getItem('logoImageData'),
         getItem('topBannerData'),
         getItem('companyLanguage_data'),
-        getNavigationBarHeight(),
+        Platform.OS === 'android'
+          ? getNavigationBarHeight()
+          : Promise.resolve(0),
       ]);
       setNavigationBarHeight(getNavigationBar);
       i18next.changeLanguage(loginUser_data?.lan_id?.toString());
