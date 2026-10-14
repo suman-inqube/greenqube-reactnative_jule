@@ -288,7 +288,6 @@ const Dashboard = ({ navigation }) => {
           : [];
 
       // ✅ CHECK IF CARBON HAS DATA
-      console.log('carbonActivities', typeof carbonActivities);
       const hasCarbonActivity =
         carbonActivities.length > 0 &&
         carbonActivities.some(
@@ -416,7 +415,9 @@ const Dashboard = ({ navigation }) => {
           style={{
             flex: 1,
             backgroundColor: Colors.useGreen,
-            margin: '4%',
+            marginHorizontal: '4%',
+            marginTop: 8,
+            marginBottom: '4%',
             borderRadius: 12,
             overflow: 'hidden',
           }}>
@@ -474,7 +475,7 @@ const Dashboard = ({ navigation }) => {
   );
   return (
     <FarmerDrawerScreenWrapper1>
-      <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
         {isLoading.initial ? (
           <SkeletonScreenDashoard />
         ) : (
@@ -564,7 +565,7 @@ const Dashboard = ({ navigation }) => {
             </View>
           </>
         )}
-      </SafeAreaView>
+      </View>
     </FarmerDrawerScreenWrapper1>
   );
 };

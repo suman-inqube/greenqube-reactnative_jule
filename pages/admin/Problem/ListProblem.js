@@ -216,7 +216,7 @@ const ListProblem = ({navigation}) => {
   return (
     <FarmerDrawerScreenWrapper1>
       <Root>
-        <SafeAreaView
+        <View
           style={{flex: 1, backgroundColor: Colors.background_light}}>
           <View style={{flex: 1}}>
             {renderCustomHeader}
@@ -309,7 +309,7 @@ const ListProblem = ({navigation}) => {
               distanceToEdge={{vertical: 80, horizontal: 25}}
             />
           </View>
-        </SafeAreaView>
+        </View>
       </Root>
     </FarmerDrawerScreenWrapper1>
   );

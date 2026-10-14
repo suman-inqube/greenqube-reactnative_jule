@@ -1,54 +1,75 @@
+
+import { Platform, PermissionsAndroid } from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
 import FusedLocation from 'react-native-fused-location';
-import { PermissionsAndroid, Platform } from 'react-native';
 import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 
-/**
- * Get current GPS location (High Accuracy)
- * Returns: { latitude, longitude, accuracy } or null
- */
+const getAndroidLocation = async () => {
+  const permission = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+  );
+
+  if (permission !== PermissionsAndroid.RESULTS.GRANTED) {
+    throw new Error('Location permission denied');
+  }
+
+  await promptForEnableLocationIfNeeded({
+    interval: 10000,
+    fastInterval: 5000,
+  });
+
+  await FusedLocation.setLocationPriority(
+    FusedLocation.Constants.HIGH_ACCURACY,
+  );
+
+  const location = await FusedLocation.getFusedLocation();
+
+  if (!location) {
+    throw new Error('Unable to get Android location');
+  }
+
+  return {
+    latitude: location.latitude,
+    longitude: location.longitude,
+    accuracy: location.accuracy ?? null,
+  };
+};
+
+const getIOSLocation = async () => {
+  return new Promise((resolve, reject) => {
+    Geolocation.getCurrentPosition(
+      position => {
+        const { latitude, longitude, accuracy } = position.coords;
+
+        resolve({
+          latitude,
+          longitude,
+          accuracy: accuracy ?? null,
+        });
+      },
+      error => reject(error),
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 0,
+      },
+    );
+  });
+};
+
 export const getHighAccuracyLocation = async () => {
   try {
-    // 1. Request runtime permission
-    if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      );
-      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-        console.error('Location permission denied');
-        return null;
-      }
+    const location =
+      Platform.OS === 'android'
+        ? await getAndroidLocation()
+        : Platform.OS === 'ios'
+          ? await getIOSLocation()
+          : null;
 
-      // 2. Ensure GPS is enabled (Prompts user if GPS is OFF)
-      try {
-        await promptForEnableLocationIfNeeded({
-          interval: 10000,
-          fastInterval: 5000,
-        });
-      } catch (gpsError) {
-        console.warn('GPS enable was rejected or failed:', gpsError);
-        return null;
-      }
-    }
-
-    // 3. Set high accuracy
-    await FusedLocation.setLocationPriority(
-      FusedLocation.Constants.HIGH_ACCURACY,
-    );
-
-    // 4. Get location
-    const location = await FusedLocation.getFusedLocation();
-    console.log({
-      latitude: location.latitude,
-      longitude: location.longitude,
-      accuracy: location.accuracy
-    })
-    return {
-      latitude: location.latitude,
-      longitude: location.longitude,
-      accuracy: location.accuracy,
-    };
+    console.log('Current location:', location);
+    return location;
   } catch (error) {
-    console.error('Location error:', error);
+    console.error('Location error:', error.message || error);
     return null;
   }
 };

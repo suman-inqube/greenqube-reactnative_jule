@@ -539,7 +539,7 @@ const ProofAndIdentityPropfComp = ({
             spSheet={SPSheet}
           />
         ),
-      height: 230,
+      height: 190,
       onClose: () => {
         isSheetOpening.current = false;
       },

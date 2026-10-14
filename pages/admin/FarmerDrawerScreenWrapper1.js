@@ -1,18 +1,17 @@
-import {View, Text, StyleSheet, StatusBar} from 'react-native';
-import React, {memo} from 'react';
+import { StyleSheet } from 'react-native';
+import React, { memo } from 'react';
 import Animated, {
   interpolate,
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import {useDrawerProgress} from '@react-navigation/drawer';
-import {SafeAreaView, SafeAreaProvider} from 'react-native-safe-area-context';
-import {Root} from '@sekizlipenguen/react-native-popup-confirm-toast';
+import { useDrawerProgress } from '@react-navigation/drawer';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
+import { Root } from '@sekizlipenguen/react-native-popup-confirm-toast';
 import MyErrorBoundary from '../Common/MyErrorBoundary';
-
-const FarmerDrawerScreenWrapper1 = ({children}) => {
+const AnimatedSafeAreaView = Animated.createAnimatedComponent(SafeAreaView);
+const FarmerDrawerScreenWrapper1 = ({ children }) => {
   const progress = useDrawerProgress();
-
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
       {
@@ -21,32 +20,27 @@ const FarmerDrawerScreenWrapper1 = ({children}) => {
     ],
     borderRadius: withSpring(
       interpolate(progress.value, [0, 1], [0, 30], 'clamp'),
-      {damping: 10},
+      { damping: 10 },
     ),
     overflow: 'hidden',
   }));
-
+  const safeAreaAnimatedStyle = useAnimatedStyle(() => ({ backgroundColor: progress.value > 0 ? '#1d3122' : '#1c571c' }));
   return (
     <SafeAreaProvider>
-      <SafeAreaView
-        style={{flex: 1, backgroundColor: '#1d3122'}}
-        edges={['top', 'right', 'bottom', 'left']}>
+      <AnimatedSafeAreaView
+        style={[
+          styles.safeArea,
+          safeAreaAnimatedStyle 
+        ]}
+        edges={['top', 'right', 'left','buttom']}>
         <Root>
           <MyErrorBoundary>
-            {/* 👇 Add your StatusBar here
-          <StatusBar
-            translucent={false}         // false = StatusBar takes up space
-            backgroundColor="#1d3122"   // match your background
-            barStyle="light-content"    // or "dark-content" depending on background
-            animated={true}
-          /> */}
-
             <Animated.View style={[styles.container, animatedStyle]}>
               {children}
             </Animated.View>
           </MyErrorBoundary>
         </Root>
-      </SafeAreaView>
+      </AnimatedSafeAreaView>
     </SafeAreaProvider>
   );
 };
@@ -54,5 +48,11 @@ const FarmerDrawerScreenWrapper1 = ({children}) => {
 export default memo(FarmerDrawerScreenWrapper1);
 
 const styles = StyleSheet.create({
-  container: {flex: 1},
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#1c571c',
+  },
+  container: {
+    flex: 1,
+  },
 });

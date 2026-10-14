@@ -1,8 +1,8 @@
-import React, {Suspense, lazy} from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {createDrawerNavigator} from '@react-navigation/drawer';
+import React, { Suspense, lazy } from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import CustomDrawer from './CustomDrawer';
-import {Colors} from '../utils/Constants';
+import { Colors } from '../utils/Constants';
 import Offline from './Offline';
 
 const Stack = createNativeStackNavigator();
@@ -98,43 +98,9 @@ function AdminStack() {
       screenOptions={{
         headerShown: false,
         freezeOnBlur: true,
-        contentStyle: {backgroundColor: 'transparent'},
-
-        // 🔄 Screen transition
-        animation: 'slide_from_bottom', // others: 'fade', 'slide_from_left', 'slide_from_bottom', 'simple_push'
-
-        // 📱 iOS swipe back gesture
-        gestureEnabled: true,
-        gestureDirection: 'horizontal', // or 'vertical'
-
-        // 🎨 Card presentation
-        presentation: 'modal', // others: 'card', 'transparentModal'
-
-        // ⏱️ Transition timing
-        animationDuration: 300,
-
-        // 🔙 Replace behavior
-        animationTypeForReplace: 'pop', // or 'push'
-
-        // ⬅️ Swipe sensitivity (iOS)
-        gestureResponseDistance: {
-          horizontal: 150,
-          vertical: 200,
-        },
-
-        // 🎬 Custom transition interpolator (advanced)
-        cardStyleInterpolator: ({current, layouts}) => ({
-          cardStyle: {
-            transform: [
-              {
-                translateX: current.progress.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [layouts.screen.width, 0],
-                }),
-              },
-            ],
-          },
-        }),
+        contentStyle: { backgroundColor: 'transparent' },
+        animation: 'slide_from_right',
+        presentation: 'card',
       }}>
       <Stack.Screen name="Dashboard" component={Dashboard} />
       <Stack.Screen
@@ -262,13 +228,13 @@ const AdminNavigation = () => {
       borderBottomColor: '#baffa0',
       marginHorizontal: 20,
     },
-    drawerLabelStyle: {marginLeft: -20},
+    drawerLabelStyle: { marginLeft: -20 },
     drawerStyle: {
       backgroundColor: Colors.drawer,
       width: '65%',
       marginLeft: -0.2,
     },
-    sceneContainerStyle: {backgroundColor: Colors.drawer, zIndex: 100},
+    sceneContainerStyle: { backgroundColor: Colors.drawer, zIndex: 100 },
   };
   return (
     <Drawer.Navigator
@@ -277,7 +243,7 @@ const AdminNavigation = () => {
       <Drawer.Screen
         name="AdminStack"
         component={AdminStack}
-        options={{title: 'Admin Dashboard'}}
+        options={{ title: 'Admin Dashboard' }}
       />
     </Drawer.Navigator>
   );

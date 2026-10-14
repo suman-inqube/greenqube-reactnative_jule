@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     paddingHorizontal: 15,
-    ...(Platform.OS === 'ios' ? { marginTop: 30 } : {}),
+    // ...(Platform.OS === 'ios' ? { marginTop: 30 } : {}),
   },
   leftContainer: {
     flexDirection: 'row',
