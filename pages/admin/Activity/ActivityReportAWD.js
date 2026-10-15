@@ -381,7 +381,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
           { latitude: lat, longitude: lon },
           { latitude: existingPipe.latitude, longitude: existingPipe.longitude },
         );
-        if (distance < 20) {
+        if (distance < 20 && CURRENT_ENV !== 'DEMO') {
           Alert.alert(
             'Too Close!',
             `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
@@ -1215,9 +1215,9 @@ const ActivityReportAWD = ({ navigation, route }) => {
         formData.append('water_used', saveData.water_used);
         formData.append('power_used', saveData.power_used);
         formData.append('app_version', '104');
-        // if (saveData.field_type == 'select' && saveData.waterLevel) {
-        //   formData.append('water_level', saveData.waterLevel);
-        // }
+        if (saveData.field_type == 'select' && saveData.waterLevel) {
+          formData.append('water_level', saveData.waterLevel);
+        }
         let database_res;
         if (isOnline) {
           if (carbonType !== 'mangrove') {
@@ -1694,11 +1694,10 @@ const ActivityReportAWD = ({ navigation, route }) => {
 
       isScanningRef.current = true;
       lastScannedRef.current = scannedValue;
-
       try {
         const scanedData = await axiosGet(
           ROUTES.GET.UNIQUE_SCAN_CODE({
-            unique_id: scannedValue,
+            unique_id: scannedValue?.value,
             sDId: sDId,
           }),
           token,
@@ -1707,7 +1706,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
           'pipeQrDetails',
         );
         if (scanedData?.status == 200) {
-          setPipeNumber(scannedValue);
+          setPipeNumber(scannedValue?.value);
           const tenDaysAgo = new Date();
           tenDaysAgo.setDate(today.getDate() - 10);
 
@@ -1735,9 +1734,8 @@ const ActivityReportAWD = ({ navigation, route }) => {
       const matchedPipe = PipeListDetailsArr.find(
         item =>
           item?.label?.toString().trim().toLowerCase() ===
-          scannedValue.toString().trim().toLowerCase(),
+          scannedValue?.value.toString().trim().toLowerCase(),
       );
-
       if (matchedPipe) {
         const isNotEmpty = value =>
           value !== null && value !== undefined && String(value).trim() !== '';
@@ -1958,13 +1956,13 @@ const ActivityReportAWD = ({ navigation, route }) => {
           ...AlertMesg[0],
         });
       }
-      // else if (saveData.waterLevel == '' && field_type == 'select') {
-      //   Toast.show({
-      //     time: 2,
-      //     text: `${t('Please enter water level input')}`,
-      //     ...AlertMesg[0],
-      //   });
-      // } 
+      else if (saveData.waterLevel == '' && field_type != 'add') {
+        Toast.show({
+          time: 2,
+          text: `${t('Please enter water level input')}`,
+          ...AlertMesg[0],
+        });
+      }
       else if (
         selectedImagePipe.firstItem == '' ||
         selectedImagePipe.secondItem == ''
@@ -2011,7 +2009,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
         setPipeNumber('');
       }
     },
-    [pipeNumber, selectedImagePipe],
+    [pipeNumber, selectedImagePipe, saveData.waterLevel],
   );
 
   const openImagePickerPipe = useCallback(async item => {
@@ -2611,30 +2609,40 @@ const ActivityReportAWD = ({ navigation, route }) => {
                                     </TouchableOpacity>
                                   </View>
                                 ) : (
-                                  <View
-                                    style={{ marginVertical: 30, height: 45 }}>
-                                    <TouchableOpacity
-                                      activeOpacity={0.8}
-                                      style={styles.pipeInputScan}
-                                      onPress={() => {
-                                        setScan(true);
-                                      }}>
-                                      <View style={styles.inputWrapper}>
-                                        <InputTextForm
-                                          label={t('Enter Instrument Name')}
-                                          editable={false}
-                                          required={true}
-                                          value={selectPipeList.label}
-                                        />
-                                      </View>
+                                  <>
+                                    <View
+                                      style={{ marginVertical: 30, height: 45 }}>
+                                      <TouchableOpacity
+                                        activeOpacity={0.8}
+                                        style={styles.pipeInputScan}
+                                        onPress={() => {
+                                          setScan(true);
+                                        }}>
+                                        <View style={styles.inputWrapper}>
+                                          <InputTextForm
+                                            label={t('Enter Instrument Name')}
+                                            editable={false}
+                                            required={true}
+                                            value={selectPipeList.label}
+                                          />
+                                        </View>
 
-                                      <Image
-                                        source={require('../../Common/images/scan.png')}
-                                        style={styles.icon}
-                                        resizeMode="contain"
-                                      />
-                                    </TouchableOpacity>
-                                  </View>
+                                        <Image
+                                          source={require('../../Common/images/scan.png')}
+                                          style={styles.icon}
+                                          resizeMode="contain"
+                                        />
+                                      </TouchableOpacity>
+                                    </View>
+
+                                    <InputTextForm
+                                      label={t('Water Level Fall Input (cm)')}
+                                      required={true}
+                                      keyboardType="numeric"
+                                      value={saveData.waterLevel}
+                                      onChangeText={(text) => setSaveData(prev => ({ ...prev, waterLevel: text }))}
+                                    />
+                                  </>
                                 )
                               ) : saveData.field_type == 'add' ? (
                                 <InputTextForm
@@ -2652,13 +2660,13 @@ const ActivityReportAWD = ({ navigation, route }) => {
                                     onChange={handleActivityPipeManual}
                                     val={selectPipeList.label}
                                   />
-                                  {/* <InputTextForm
+                                  <InputTextForm
                                     label={t('Water Level Fall Input (cm)')}
                                     required={true}
                                     keyboardType="numeric"
                                     value={saveData.waterLevel}
                                     onChangeText={(text) => setSaveData(prev => ({ ...prev, waterLevel: text }))}
-                                  /> */}
+                                  />
                                 </View>
                               )}
                               <View style={styles.hiddenContainer}>

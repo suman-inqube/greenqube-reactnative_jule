@@ -79,6 +79,7 @@ import ImageAnalysisScreen, {
   loadModel,
   ModelSessionManager,
 } from '../Activity/ImageAnalysisScreen';
+import { axiosGet, axiosPost } from '../../utils/api';
 const FarmerActivityReportAWD = ({ navigation, route }) => {
   const { farmer, plot } = route?.params || {};
   const today = new Date();
@@ -326,7 +327,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
         //   )} meters`,
         // );
 
-        if (distance < 20) {
+        if (distance < 20 && CURRENT_ENV !== 'DEMO') {
           Alert.alert(
             'Too Close!',
             `Move at least 20 meters away from existing Pipe "${existingPipe.name}".`,
@@ -1720,7 +1721,6 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
           }
         }
       } catch (error) {
-        console.log('catch111')
         if (carbonType !== 'mangrove') {
           const [pipecount] = await Promise.all([
             axiosGet(ROUTES.GET.CHECK_PIPE_COUNT({ plot_fid: saveData.plot_id, activity_id: item?.act_master_id, season_date_fid: sDId }),
@@ -1735,7 +1735,6 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
               checkPipeCount: pipe_summary,
             }));
           }
-          console.error(error)
           CrashlyticsRecordError(
             error,
             'ActivityReportAWD',
@@ -1767,70 +1766,71 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
     }
   };
   const onPageLoad = async () => {
-    // requestLivePermission();
-    const QRFlag = await getItem('pipeQR');
-    setPipeQR(QRFlag);
-
-    console.log('carbonType==', carbonType);
-    const { latitude, longitude } = coords || {};
-    var latlong;
-    if (latitude == '' && longitude == '') {
-      latlong = await getHighAccuracyLocation();
-    }
-    const lat = latitude === '' ? latlong.latitude : latitude;
-    const lon = longitude === '' ? latlong.longitude : longitude;
-    setDefaultLatLon({ latitude: lat, longitude: lon, accuracy: 10 });
-    setSaveData(prev => ({
-      ...prev,
-      act_pattern: 'schedule',
-      latitude: lat,
-      longitude: lon,
-    }));
-    setisActiveMenu(true);
-    setfarmerID(user_id);
-    problemPlotAgainstFarmer();
-    // if (isOnline) {
-    //   var activityType_res = await activityTypeAPIAWD(dbname, lan_id, user_id);
-    //   await setItem('activityType' + user_id, activityType_res);
-    // } else {
-    //   var activityType_res = await getItem('activityType' + user_id);
-    // }
-    // if (activityType_res) {
-    //   setIsLoading(false);
-    //   const dataArray = [];
-    //   activityType_res.data.data.rows.forEach(element => {
-    //     dataArray.push({
-    //       value: element.fid,
-    //       label: element.categoryName,
-    //       field_type: element.field_type,
-    //     });
-    //   });
-    //   setactivityTypeAll(dataArray);
-    // }
-
-    if (carbonType !== 'mangrove') {
-      if (isOnline) {
-        var activityType_res = await axiosGet(
-          ROUTES.GET.ACTIVITY_TYPE_AWD(),
-          '',
-          { information: `${dbname},${lan_id},${farmerID}` },
-        );
-        await setItem('activityType' + user_id, activityType_res);
-      } else {
-        var activityType_res = await getItem(
-          'activityType' + user_id,
-        );
+    try {
+      const QRFlag = await getItem('pipeQR');
+      setPipeQR(QRFlag);
+      const { latitude, longitude } = coords || {};
+      var latlong;
+      if (latitude == '' && longitude == '') {
+        latlong = await getHighAccuracyLocation();
       }
-      if (activityType_res?.status == 200) {
-        const dataArray = activityType_res?.data?.data?.rows.map(data => ({
-          value: data.fid,
-          label: data.categoryName,
-          field_type: data.field_type,
-        }));
-        setactivityTypeAll(dataArray);
+      const lat = latitude === '' ? latlong.latitude : latitude;
+      const lon = longitude === '' ? latlong.longitude : longitude;
+      setDefaultLatLon({ latitude: lat, longitude: lon, accuracy: 10 });
+      setSaveData(prev => ({
+        ...prev,
+        act_pattern: 'schedule',
+        latitude: lat,
+        longitude: lon,
+      }));
+      setisActiveMenu(true);
+      setfarmerID(user_id);
+      problemPlotAgainstFarmer();
+      // if (isOnline) {
+      //   var activityType_res = await activityTypeAPIAWD(dbname, lan_id, user_id);
+      //   await setItem('activityType' + user_id, activityType_res);
+      // } else {
+      //   var activityType_res = await getItem('activityType' + user_id);
+      // }
+      // if (activityType_res) {
+      //   setIsLoading(false);
+      //   const dataArray = [];
+      //   activityType_res.data.data.rows.forEach(element => {
+      //     dataArray.push({
+      //       value: element.fid,
+      //       label: element.categoryName,
+      //       field_type: element.field_type,
+      //     });
+      //   });
+      //   setactivityTypeAll(dataArray);
+      // }
+
+      if (carbonType !== 'mangrove') {
+        if (isOnline) {
+          var activityType_res = await axiosGet(
+            ROUTES.GET.ACTIVITY_TYPE_AWD(),
+            '',
+            { information: `${dbname},${lan_id},${farmerID}` },
+          );
+          await setItem('activityType' + user_id, activityType_res);
+        } else {
+          var activityType_res = await getItem(
+            'activityType' + user_id,
+          );
+        }
+        if (activityType_res?.status == 200) {
+          const dataArray = activityType_res?.data?.data?.rows.map(data => ({
+            value: data.fid,
+            label: data.categoryName,
+            field_type: data.field_type,
+          }));
+          setactivityTypeAll(dataArray);
+        }
       }
+      setLocation({ lat, lon });
+    } catch (error) {
+      console.error("Aaaaaaa", error)
     }
-    setLocation({ lat, lon });
   };
   useEffect(() => {
     onPageLoad();
@@ -1951,13 +1951,14 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
     setPipeNumber(text);
   }, []);
   const addMorePipe = field_type => {
+
     if (pipeNumber == '' && field_type == 'add') {
       Toast.show({
         time: 2,
         text: `${t('Please enter pipe name')}`,
         ...AlertMesg[0],
       });
-    } else if (saveData.waterLevel == '' && field_type == 'select') {
+    } else if (saveData.waterLevel == '' && field_type != 'add') {
       Toast.show({
         time: 2,
         text: `${t('Please enter water level input')}`,
@@ -2223,7 +2224,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
       try {
         const scanedData = await axiosGet(
           ROUTES.GET.UNIQUE_SCAN_CODE({
-            unique_id: scannedValue,
+            unique_id: scannedValue?.value,
             sDId: sDId
           }),
           token,
@@ -2232,7 +2233,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
           'pipeQrDetails',
         );
         if (scanedData?.status == 200) {
-          setPipeNumber(scannedValue);
+          setPipeNumber(scannedValue?.value);
 
           const tenDaysAgo = new Date();
           tenDaysAgo.setDate(today.getDate() - 10);
@@ -2261,7 +2262,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
       const matchedPipe = PipeListDetailsArr.find(
         item =>
           item?.label?.toString().trim().toLowerCase() ===
-          scannedValue.toString().trim().toLowerCase(),
+          scannedValue?.value.toString().trim().toLowerCase(),
       );
 
       if (matchedPipe) {
@@ -2771,33 +2772,43 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
                                         </TouchableOpacity>
                                       </View>
                                     ) : (
-                                      <View
-                                        style={{
-                                          marginVertical: 30,
-                                          height: 45,
-                                        }}>
-                                        <TouchableOpacity
-                                          activeOpacity={0.8}
-                                          style={styles.pipeInputScan}
-                                          onPress={() => {
-                                            setScan(true);
+                                      <>
+                                        <View
+                                          style={{
+                                            marginVertical: 30,
+                                            height: 45,
                                           }}>
-                                          <View style={styles.inputWrapper}>
-                                            <InputTextForm
-                                              label={t('Enter Instrument Name')}
-                                              editable={false}
-                                              required={true}
-                                              value={selectPipeList.label}
-                                            />
-                                          </View>
+                                          <TouchableOpacity
+                                            activeOpacity={0.8}
+                                            style={styles.pipeInputScan}
+                                            onPress={() => {
+                                              setScan(true);
+                                            }}>
+                                            <View style={styles.inputWrapper}>
+                                              <InputTextForm
+                                                label={t('Enter Instrument Name')}
+                                                editable={false}
+                                                required={true}
+                                                value={selectPipeList.label}
+                                              />
+                                            </View>
 
-                                          <Image
-                                            source={require('../../Common/images/scan.png')}
-                                            style={styles.icon}
-                                            resizeMode="contain"
-                                          />
-                                        </TouchableOpacity>
-                                      </View>
+                                            <Image
+                                              source={require('../../Common/images/scan.png')}
+                                              style={styles.icon}
+                                              resizeMode="contain"
+                                            />
+                                          </TouchableOpacity>
+                                        </View>
+
+                                        <InputTextForm
+                                          label={t('Water Level Fall Input (cm)')}
+                                          required={true}
+                                          keyboardType="numeric"
+                                          value={saveData.waterLevel}
+                                          onChangeText={(text) => setSaveData(prev => ({ ...prev, waterLevel: text }))}
+                                        />
+                                      </>
                                     )
                                   ) : saveData.field_type == 'add' ? (
                                     <InputTextForm
