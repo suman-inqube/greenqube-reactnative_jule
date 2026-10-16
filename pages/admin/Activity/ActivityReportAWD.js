@@ -1698,7 +1698,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
       try {
         const scanedData = await axiosGet(
           ROUTES.GET.UNIQUE_SCAN_CODE({
-            unique_id: scannedValue,
+            unique_id: scannedValue?.value,
             sDId: sDId,
           }),
           token,
