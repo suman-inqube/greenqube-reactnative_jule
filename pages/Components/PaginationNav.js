@@ -38,22 +38,29 @@ const PaginationNav = ({page, totalPages, onPrev, onNext, t, isLoading}) => {
 
 const styles = StyleSheet.create({
   bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 13,
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: -2},
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingHorizontal: 18,
+  paddingVertical: 15,
+  backgroundColor: 'white',
+
+  borderTopLeftRadius: 20,
+  borderTopRightRadius: 20,
+
+  // Top, left and right borders only
+  borderTopWidth: 1,
+  borderLeftWidth: 1,
+  borderRightWidth: 1,
+  borderColor: Colors.border,
+
+  // Shadow
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: -2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 3.84,
+  elevation: 5,
+},
   navButton: {
     padding: 8,
     flexDirection: 'row',

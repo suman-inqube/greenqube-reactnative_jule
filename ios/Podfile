@@ -14,6 +14,9 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
+# Enable VisionCamera Frame Processors (worklets installed)
+$VCEnableFrameProcessors = true
+
 target 'GreenQube' do
   config = use_native_modules!
 

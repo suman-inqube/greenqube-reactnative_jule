@@ -1048,9 +1048,10 @@ const Information = ({ sendDataToParent, farmerID }) => {
     [],
   );
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
-      <Root>
-        <MyErrorBoundary>
+    <FarmerDrawerScreenWrapper1>
+
+      <MyErrorBoundary>
+        <Root>
           {renderCustomHeader}
           <DatePickerComp
             openDate={open}
@@ -1391,9 +1392,9 @@ const Information = ({ sendDataToParent, farmerID }) => {
             onPress={() => handleUserListUpdate()}
             loading={isLoading}
           />
-        </MyErrorBoundary>
-      </Root>
-    </SafeAreaView>
+        </Root>
+      </MyErrorBoundary>
+    </FarmerDrawerScreenWrapper1>
   );
 };
 

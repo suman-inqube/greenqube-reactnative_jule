@@ -9,6 +9,7 @@ import {
   FlatList,
   ImageForm,
   TextInput,
+  Platform,
 } from 'react-native';
 import React, { useState, useEffect, useContext, useRef, useMemo } from 'react';
 import CollapsibleCard from '../../Common/CollapsibleCard';
@@ -106,7 +107,9 @@ const Market = () => {
       setRejection('');
     }
     setPage(1);
-    scrollRef.current?.scrollTo({ x: Number(index) * width, animated: true });
+    if (Platform.OS === 'android') {
+      scrollRef.current?.scrollTo({ x: Number(index) * width, animated: true });
+    }
   };
   const animatedValue = useRef(new Animated.Value(0)).current;
   const indicatorPosition = animatedValue.interpolate({

@@ -1,4 +1,3 @@
-// components/CarouselSlider.js
 import React, { useRef, useEffect } from 'react';
 import {
     FlatList,

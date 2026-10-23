@@ -33,7 +33,6 @@ export const getItem = async (key) => {
     try {
         if (!key) return null;
         const value = await EncryptedStorage.getItem(key);
-        console.log('Retrieved value from local storage:', value);
         if (value === null || value === undefined) {
             return null;
         }

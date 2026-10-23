@@ -8,6 +8,7 @@ import {
   Dimensions,
   InteractionManager,
   BackHandler,
+  Platform,
 } from 'react-native';
 import React, {
   useEffect,
@@ -62,7 +63,7 @@ const PlotListFarmer = () => {
   const scrollRef = useRef(null);
   const animatedValue = useRef(new Animated.Value(0)).current;
 
-  const { loginUser_data, t, Root, CustomHeader,dbLanTokUsr } = useContext(userCreateContext);
+  const { loginUser_data, t, Root, CustomHeader, dbLanTokUsr } = useContext(userCreateContext);
 
   const { dbname, lan_id, token, user_id } = loginUser_data;
 
@@ -96,8 +97,9 @@ const PlotListFarmer = () => {
   const onTabPress = useCallback((index, data = {}) => {
     setActiveTab(index);
     setDataProps(data);
-
-    scrollRef.current?.scrollTo({ x: index * width, animated: true });
+    if (Platform.OS === 'android') {
+      scrollRef.current?.scrollTo({ x: index * width, animated: true });
+    }
   }, []);
 
   // -----------------------------
@@ -384,7 +386,7 @@ const PlotListFarmer = () => {
             </>
           )}
 
-          {activeTab === 0 &&  dbLanTokUsr?.carbonType == "mangrove"  && (
+          {activeTab === 0 && dbLanTokUsr?.carbonType == "mangrove" && (
             <FloatingActionButton
               position="right"
               actions={getActionsPlot(t, styles, Colors)}

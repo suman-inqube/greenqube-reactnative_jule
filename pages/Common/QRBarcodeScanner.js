@@ -1,16 +1,12 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import {
   Camera,
   useCameraDevice,
   useCameraFormat,
   useCameraPermission,
-} from "react-native-vision-camera";
-import {
-  CameraHighlights,
-  useBarcodeScanner,
-} from "@mgcrea/vision-camera-barcode-scanner";
-import { Worklets } from "react-native-worklets-core";
+  useCodeScanner,
+} from 'react-native-vision-camera';
 
 export default function QRBarcodeScanner({ onScanned }) {
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -22,35 +18,23 @@ export default function QRBarcodeScanner({ onScanned }) {
     }
   }, [hasPermission, requestPermission]);
 
-  // JS callback safely executed when single QR code is auto detected
-  const onCodesDetected = useCallback(
-    Worklets.createRunOnJS((barcodes) => {
-      if (scannedCode) return; // Only scan 1 single QR code
-
-      if (barcodes && barcodes.length > 0) {
-        const first = barcodes[0];
-        setScannedCode({
-          value: first.value ?? "Unknown",
-          type: first.type ?? "QR",
-        });
-      }
-    }),
-    [scannedCode],
-  );
-
-  // Scan only single QR code type
-  const { props: cameraProps, highlights } = useBarcodeScanner({
-    fps: 5,
-    barcodeTypes: ["qr"],
-    onBarcodeScanned: (barcodes) => {
-      "worklet";
-      if (barcodes.length > 0) {
-        onCodesDetected(barcodes);
+  const codeScanner = useCodeScanner({
+    codeTypes: ['qr', 'ean-13', 'ean-8', 'code-128', 'code-39', 'upc-e'],
+    onCodeScanned: codes => {
+      if (scannedCode) return;
+      if (codes && codes.length > 0) {
+        const first = codes[0];
+        if (first?.value) {
+          setScannedCode({
+            value: first.value,
+            type: first.type ?? 'QR',
+          });
+        }
       }
     },
   });
 
-  const device = useCameraDevice("back");
+  const device = useCameraDevice('back');
   const format = useCameraFormat(device, [
     { videoResolution: { width: 1920, height: 1080 } },
   ]);
@@ -58,7 +42,7 @@ export default function QRBarcodeScanner({ onScanned }) {
   if (!hasPermission) {
     return (
       <View style={[styles.container, styles.center]}>
-        <Text style={styles.text}>No Camera Permission</Text>
+        <Text style={styles.text}>Camera permission required</Text>
       </View>
     );
   }
@@ -78,16 +62,19 @@ export default function QRBarcodeScanner({ onScanned }) {
         device={device}
         format={format}
         isActive={!scannedCode}
-        {...cameraProps}
+        codeScanner={codeScanner}
       />
 
-      {/* Auto-detected real-time bounding box borders */}
-      <CameraHighlights highlights={highlights} color="#00E676" />
+      {/* Target Scanning Box Overlay */}
+      <View style={styles.overlay} pointerEvents="none">
+        <View style={styles.scanBox} />
+        <Text style={styles.hint}>Align QR / Barcode inside the box</Text>
+      </View>
 
       {/* Scanned Single QR Code Result Card */}
       {scannedCode && (
         <View style={styles.resultContainer}>
-          <Text style={styles.resultTitle}>Scanned QR Code Result</Text>
+          <Text style={styles.resultTitle}>Scanned Code Result</Text>
           <View style={styles.codeItem}>
             <Text style={styles.codeType}>Type: {scannedCode.type}</Text>
             <Text style={styles.codeValue} selectable={true}>
@@ -104,7 +91,8 @@ export default function QRBarcodeScanner({ onScanned }) {
             <TouchableOpacity
               style={[styles.button, styles.okBtn]}
               onPress={() => {
-                onScanned?.(scannedCode);
+                const val = typeof scannedCode === 'object' ? scannedCode.value : scannedCode;
+                onScanned?.(val);
                 setScannedCode(null);
               }}
             >
@@ -120,37 +108,61 @@ export default function QRBarcodeScanner({ onScanned }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: '#000',
   },
   center: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   text: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 16,
   },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scanBox: {
+    width: 260,
+    height: 260,
+    borderWidth: 2,
+    borderColor: '#00E676',
+    borderRadius: 16,
+    backgroundColor: 'rgba(0, 230, 118, 0.05)',
+  },
+  hint: {
+    marginTop: 20,
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '500',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
   resultContainer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 30,
     left: 20,
     right: 20,
-    backgroundColor: "rgba(20, 20, 25, 0.95)",
+    backgroundColor: 'rgba(20, 20, 25, 0.95)',
     borderRadius: 16,
     padding: 18,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.15)",
+    borderColor: 'rgba(255, 255, 255, 0.15)',
   },
   resultTitle: {
     fontSize: 14,
-    fontWeight: "700",
-    color: "#00E676",
-    textTransform: "uppercase",
+    fontWeight: '700',
+    color: '#00E676',
+    textTransform: 'uppercase',
     letterSpacing: 1,
     marginBottom: 8,
   },
@@ -159,13 +171,13 @@ const styles = StyleSheet.create({
   },
   codeType: {
     fontSize: 12,
-    color: "#9E9E9E",
+    color: '#9E9E9E',
     marginBottom: 2,
   },
   codeValue: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   buttonRow: {
     flexDirection: 'row',

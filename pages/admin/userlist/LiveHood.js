@@ -460,23 +460,12 @@ const LiveHood = ({
   const onPageLoad = useCallback(async () => {
     try {
       setIsLoading(true);
-      // const { latitude, longitude } = coords || {};
-      // var latlong;
-      // if (latitude == '' && longitude == '') {
-      //   latlong = await getHighAccuracyLocation();
-      // }
-      // // const fusedLocation = await getItem('fusedLocation');
-      // // const { latitude, longitude } = fusedLocation;
-      // const lat = latitude === '' ? latlong.latitude : latitude;
-      // const lon = longitude === '' ? latlong.longitude : longitude;
       const { latitude: lat, longitude: lon } = (await getHighAccuracyLocation()) || {};
       if (!lat || !lon || lat === 0 || lon === 0) {
         setIsLoading(false);
         Alert.alert('Location Error', 'Unable to get valid GPS location.');
         return;
       }
-      // const lat = latitude;
-      // const lon = longitude;
       setreferencelatLong({ latitude: lat, longitude: lon });
       setDefaultLatLon({ latitude: lat, longitude: lon });
       const axiosConfig = {
@@ -607,13 +596,6 @@ const LiveHood = ({
   const handlePlot = useCallback(
     async findData => {
       try {
-        // const { latitude, longitude } = coords;
-        // var latlong;
-        // if (latitude == '' && longitude == '') {
-        //   latlong = await getHighAccuracyLocation();
-        // }
-        // const lat = latitude === '' ? latlong.latitude : latitude;
-        // const lon = longitude === '' ? latlong.longitude : longitude;
         const { latitude: lat, longitude: lon } = (await getHighAccuracyLocation()) || {};
         if (!lat || !lon || lat === 0 || lon === 0) {
           Alert.alert('Location Error', 'Unable to get valid GPS location.');
@@ -2634,74 +2616,78 @@ const LiveHood = ({
   const regionRef = useRef(null);
   const timeoutRef = useRef(null);
   const handleRegionChangeComplete = async newRegion => {
-    const { latitude, longitude } = newRegion;
-    regionRef.current = newRegion;
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    timeoutRef.current = setTimeout(async () => {
-      const latestRegion = regionRef.current;
-      setIsLoading(true);
-      const isSameLat =
-        Math.abs(latestRegion.latitude - newRegion.latitude) < 0.0001;
-      const isSameLng =
-        Math.abs(latestRegion.longitude - newRegion.longitude) < 0.0001;
-      if (isSameLat && isSameLng) {
-        try {
-          if (isOnline) {
-            const nearestLatLong_res = await axiosPost(
-              ROUTES.POST.NEAREST_LATLONG,
-              {
-                latitude: latitude,
-                longitude: longitude,
-                distance: 200,
-                data_limit: 100,
-              },
-              token,
-              false,
-              {
-                information: `${dbname},${lan_id}`,
-              },
-            );
-
-            // nearestLatLong(
-            //   dbname,
-            //   lan_id,
-            //   token,
-            //   latitude,
-            //   longitude,
-            // );
-            if (nearestLatLong_res?.status === 200) {
-              const data = nearestLatLong_res?.data?.data;
-              setnearPolData(data);
-              const groupedData = groupByRelId(data);
-
-              const parsedTargetArray = mainLocation.map(item => ({
-                latitude: parseFloat(item.latitude),
-                longitude: parseFloat(item.longitude),
-              }));
-              // const index = groupedData.findIndex(
-              //   subArray =>
-              //     JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
-              // );
-              const foundArray = groupedData.filter(
-                item => !isEqualCoordinatesArray(item, parsedTargetArray),
+    try {
+      const { latitude, longitude } = newRegion;
+      regionRef.current = newRegion;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(async () => {
+        const latestRegion = regionRef.current;
+        setIsLoading(true);
+        const isSameLat =
+          Math.abs(latestRegion.latitude - newRegion.latitude) < 0.0001;
+        const isSameLng =
+          Math.abs(latestRegion.longitude - newRegion.longitude) < 0.0001;
+        if (isSameLat && isSameLng) {
+          try {
+            if (isOnline) {
+              const nearestLatLong_res = await axiosPost(
+                ROUTES.POST.NEAREST_LATLONG,
+                {
+                  latitude: latitude,
+                  longitude: longitude,
+                  distance: 200,
+                  data_limit: 100,
+                },
+                token,
+                false,
+                {
+                  information: `${dbname},${lan_id}`,
+                },
               );
-              setnearPolSet(foundArray);
 
-              // setnearPolSet(groupedData);
-              setPolygons(foundArray);
+              // nearestLatLong(
+              //   dbname,
+              //   lan_id,
+              //   token,
+              //   latitude,
+              //   longitude,
+              // );
+              if (nearestLatLong_res?.status === 200) {
+                const data = nearestLatLong_res?.data?.data;
+                setnearPolData(data);
+                const groupedData = groupByRelId(data);
+
+                const parsedTargetArray = mainLocation.map(item => ({
+                  latitude: parseFloat(item.latitude),
+                  longitude: parseFloat(item.longitude),
+                }));
+                // const index = groupedData.findIndex(
+                //   subArray =>
+                //     JSON.stringify(subArray) === JSON.stringify(parsedTargetArray),
+                // );
+                const foundArray = groupedData.filter(
+                  item => !isEqualCoordinatesArray(item, parsedTargetArray),
+                );
+                setnearPolSet(foundArray);
+
+                // setnearPolSet(groupedData);
+                setPolygons(foundArray);
+              }
             }
+          } catch (error) {
+            console.error('Error fetching nearest polygon data:', error);
+          } finally {
+            setIsLoading(false);
           }
-        } catch (error) {
-          console.error('Error fetching nearest polygon data:', error);
-        } finally {
+        } else {
           setIsLoading(false);
         }
-      } else {
-        setIsLoading(false);
-      }
-    }, 3000);
+      }, 3000);
+    } catch (error) {
+      console.error('Error in handleRegionChangeComplete:', error);
+    }
   };
   const handleIOTId = useCallback(async text => {
     try {

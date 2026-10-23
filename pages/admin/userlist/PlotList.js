@@ -9,6 +9,7 @@ import {
   Dimensions,
   BackHandler,
   InteractionManager,
+  Platform,
 } from 'react-native';
 import React, {
   useEffect,
@@ -82,8 +83,9 @@ const PlotList = () => {
   const onTabPress = useCallback((index, data = {}) => {
     setActiveTab(index);
     setDataProps(data);
-
-    scrollRef.current?.scrollTo({ x: index * width, animated: true });
+    if (Platform.OS === 'android') {
+      scrollRef.current?.scrollTo({ x: index * width, animated: true });
+    }
   }, []);
 
   const onPageLoad = useCallback(async () => {
@@ -263,11 +265,12 @@ const PlotList = () => {
                   { useNativeDriver: false },
                 )}
                 scrollEventThrottle={16}
-                onMomentumScrollEnd={e =>
-                  setActiveTab(
-                    Math.round(e.nativeEvent.contentOffset.x / width),
-                  )
-                }>
+              onMomentumScrollEnd={e =>
+                setActiveTab(
+                  Math.round(e.nativeEvent.contentOffset.x / width),
+                )
+              }
+              >
                 {/* Tab 0: Plot List */}
                 <View style={styles.page}>
                   <FlatList
@@ -338,7 +341,8 @@ const PlotList = () => {
                   setActiveTab(
                     Math.round(e.nativeEvent.contentOffset.x / width),
                   )
-                }>
+                }
+              >
                 <View style={styles.page}>
                   <LiveHood
                     dataProps={dataProps}
