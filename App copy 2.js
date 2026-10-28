@@ -6,11 +6,11 @@ import {
   useCameraFormat,
   useCameraPermission,
 } from "react-native-vision-camera";
-import {
-  CameraHighlights,
-  useBarcodeScanner,
-} from "@mgcrea/vision-camera-barcode-scanner";
-import { Worklets } from "react-native-worklets-core";
+// import {
+//   CameraHighlights,
+//   useBarcodeScanner,
+// } from "@mgcrea/vision-camera-barcode-scanner";
+// import { Worklets } from "react-native-worklets-core";
 
 const App = () => {
   const { hasPermission, requestPermission } = useCameraPermission();

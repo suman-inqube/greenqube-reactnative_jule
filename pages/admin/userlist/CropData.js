@@ -112,7 +112,8 @@ const CropData = ({
         disable={
           addPlot
             ? false
-            : historyData || (edit === '' ? harvested === 'same produce' : edit)
+            : historyData
+          // || (edit === '' ? harvested === 'same produce' : edit)
         }
       />
       {/* 4. Production Process */}
@@ -395,8 +396,8 @@ const CropData = ({
       {/* 8. Cycle Start */}
       <TouchableOpacity
         onPress={() =>
-          !historyData &&
-            (harvested !== '' || userData === 'addUserData' || addPlot)
+          !historyData
+            // && (harvested !== '' || userData === 'addUserData' || addPlot)
             ? setopenCycleStart(true)
             : null
         }
@@ -415,8 +416,9 @@ const CropData = ({
       {/* 9. Cycle End */}
       <TouchableOpacity
         onPress={() =>
-          !historyData &&
-            (harvested !== '' || userData === 'addUserData' || addPlot)
+          !historyData
+            // &&
+            //   (harvested !== '' || userData === 'addUserData' || addPlot)
             ? setopenCycleEnd(true)
             : null
         }

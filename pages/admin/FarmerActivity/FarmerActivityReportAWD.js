@@ -2224,7 +2224,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
       try {
         const scanedData = await axiosGet(
           ROUTES.GET.UNIQUE_SCAN_CODE({
-            unique_id: scannedValue?.value,
+            unique_id: scannedValue,
             sDId: sDId
           }),
           token,
@@ -2233,7 +2233,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
           'pipeQrDetails',
         );
         if (scanedData?.status == 200) {
-          setPipeNumber(scannedValue?.value);
+          setPipeNumber(scannedValue);
 
           const tenDaysAgo = new Date();
           tenDaysAgo.setDate(today.getDate() - 10);
@@ -2262,7 +2262,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
       const matchedPipe = PipeListDetailsArr.find(
         item =>
           item?.label?.toString().trim().toLowerCase() ===
-          scannedValue?.value.toString().trim().toLowerCase(),
+          scannedValue.toString().trim().toLowerCase(),
       );
 
       if (matchedPipe) {

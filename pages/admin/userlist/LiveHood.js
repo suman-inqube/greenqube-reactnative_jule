@@ -1006,9 +1006,14 @@ const LiveHood = ({
                   straw_incorporate: data?.straw_incorporate,
                   end_usg_rm_straw: data?.end_usg_rm_straw,
                 }));
-
                 fetchAndGroupPestDetails(data?.cu_rel_id);
               }
+              produceNameAPI(
+                dbname,
+                lan_id,
+                data?.crop_type?.fid,
+                data?.crop_name?.fid,
+              );
 
               const seasonData = await axiosGet(
                 ROUTES.GET.PRODUCE_SEASON({
@@ -1032,6 +1037,25 @@ const LiveHood = ({
                     originalName: data.season_info.name,
                   }),
                 );
+              }
+              if (!historyData) {
+
+                const row = seasonData?.data?.data?.rows?.find(
+                  item => item.sd_id === data?.cropSeasonTime?.sd_id
+                );
+
+                if (row) {
+                  setMinStartDate(row?.start_date ? new Date(row.start_date) : null);
+                  setMaxStartDate(row?.end_date ? new Date(row.end_date) : null);
+
+                  setMinHarvestDate(
+                    row?.harvest_sdate ? new Date(row.harvest_sdate) : null,
+                  );
+
+                  setMaxHarvestDate(
+                    row?.harvest_edate ? new Date(row.harvest_edate) : null,
+                  );
+                }
               }
               setProductionSeason(prodctionSeasionArray);
 

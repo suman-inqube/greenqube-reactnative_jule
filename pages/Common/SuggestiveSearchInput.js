@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef, useCallback} from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   TextInput,
@@ -16,7 +16,7 @@ import {
 import axios from 'axios';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 // Replace with your actual API key
 const GOOGLE_API_KEY = 'AIzaSyBGTMfBKCZ9NJ57HX1NPm5hCnzK6_CYVD8';
@@ -39,7 +39,7 @@ const Colors = {
   warning: '#FBBC04',
   error: '#EA4335',
 };
-import {Fonts} from '../utils/Constants';
+import { Fonts } from '../utils/Constants';
 const SuggestiveSearchInput = ({
   placeholder = 'Search places...',
   onSelect,
@@ -68,7 +68,7 @@ const SuggestiveSearchInput = ({
 
   // 🔹 Optimized debounced search function
   const debouncedSearch =
-  //  useCallback(
+    //  useCallback(
     async searchQuery => {
       if (searchQuery.length < minQueryLength) {
         setSuggestions([]);
@@ -113,7 +113,7 @@ const SuggestiveSearchInput = ({
         setLoading(false);
       }
     }
-    // [countryCode, maxSuggestions, minQueryLength],
+  // [countryCode, maxSuggestions, minQueryLength],
   // );
 
   // 🔹 Effect for handling search with debounce
@@ -247,7 +247,7 @@ const SuggestiveSearchInput = ({
 
   // 🔹 Render suggestion item
   const renderSuggestionItem = useCallback(
-    ({item, index}) => (
+    ({ item, index }) => (
       <TouchableOpacity
         style={[
           styles.suggestionItem,
@@ -292,18 +292,18 @@ const SuggestiveSearchInput = ({
             styles.inputWrapper,
             // { borderColor }
             suggestions.length != 0 ||
-            (!hideList &&
-              query.length >= minQueryLength &&
-              suggestions.length === 0 &&
-              !loading &&
-              !error)
+              (!hideList &&
+                query.length >= minQueryLength &&
+                suggestions.length === 0 &&
+                !loading &&
+                !error)
               ? {
-                  borderRadius: 0,
-                  borderTopRightRadius: 20,
-                  borderTopLeftRadius: 20,
-                  borderBottomWidth: 1,
-                  borderColor: Colors.border,
-                }
+                borderRadius: 0,
+                borderTopRightRadius: 20,
+                borderTopLeftRadius: 20,
+                borderBottomWidth: 1,
+                borderColor: Colors.border,
+              }
               : {},
           ]}>
           {/* <TouchableOpacity
@@ -357,7 +357,7 @@ const SuggestiveSearchInput = ({
             style={[
               styles.suggestionBox,
               suggestionsStyle,
-              {opacity: fadeAnim},
+              { opacity: fadeAnim },
             ]}>
             <FlatList
               data={suggestions}
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     // elevation: 2,
     shadowColor: Colors.shadow,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
@@ -466,7 +466,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 20,
     // elevation: 8,
     shadowColor: Colors.shadow,
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
     zIndex: 1001,
@@ -542,7 +542,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 20,
     // elevation: 4,
     shadowColor: Colors.shadow,
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     padding: 20,
