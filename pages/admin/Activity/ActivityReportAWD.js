@@ -723,14 +723,16 @@ const ActivityReportAWD = ({ navigation, route }) => {
                 ) {
                   var overdueData;
                   if (element?.days_until_start < 0) {
-                    overdueData =
-                      element?.activityName.categoryName +
-                      ' (' +
-                      formatDate(element?.activity_start_date) +
-                      ' - ' +
-                      formatDate(element?.activity_end_date) +
-                      ')';
-                    setOverdueAct(prevItems => [...prevItems, overdueData]);
+                    if (element?.activityName != null) {
+                      overdueData =
+                        element?.activityName?.categoryName +
+                        ' (' +
+                        formatDate(element?.activity_start_date) +
+                        ' - ' +
+                        formatDate(element?.activity_end_date) +
+                        ')';
+                      setOverdueAct(prevItems => [...prevItems, overdueData]);
+                    }
                   }
                 });
                 const upcomingActivity =
@@ -818,7 +820,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
         setIsLoading(false);
       } catch (error) {
         CrashlyticsRecordError(error, 'ActivityReportAWD', 'handlePlot');
-        console.log(error);
+        console.error("error", error);
       }
     },
     [farmerID],
@@ -1292,7 +1294,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
             // showAIValidationError(database_res);
             const cleanFileName = name => name.replace(/^\d+-/, '');
             const failedNamesSet =
-              database_res?.data?.error?.errorMessage?.failed.map(i =>
+              database_res?.data?.error?.errorMessage?.failed?.map(i =>
                 cleanFileName(i.image_name),
               );
             const failedSet = new Set(failedNamesSet);
@@ -1357,7 +1359,11 @@ const ActivityReportAWD = ({ navigation, route }) => {
       }
 
     } catch (error) {
-      Alert.alert(error)
+      Toast.show({
+        time: 10, text: typeof error?.data?.error?.errorMessage === 'string' ?
+          error.data.error.errorMessage : JSON.stringify(error?.data?.error?.errorMessage ??
+            'Something went wrong'), ...AlertMesg[0]
+      })
     }
     setIsLoading(false);
   };

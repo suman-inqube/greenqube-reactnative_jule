@@ -2903,9 +2903,6 @@ const LiveHood = ({
       soilTypeValue: value,
     }));
   }, []);
-  const handleAddUserDataExpected = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, expectedProduction: text }));
-  }, []);
   const handleAddDataUnit = useCallback(
     item => {
       const { label, value } = item;

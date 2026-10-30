@@ -22,7 +22,6 @@ import React, {
 } from 'react';
 // import AudioRecorderPlayer from '@react-native-ohos/react-native-audio-recorder-player';
 import TakePhoto from './TakePhoto';
-import { launchCamera } from 'react-native-image-picker';
 import RecordComp from './RecordComp';
 import {
   activityScheduleAPI,
@@ -57,6 +56,7 @@ import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 // import useRecorder from '../../utils/useRecorder';
 import { captureRef } from 'react-native-view-shot';
 import * as AudioRecorderPlayerPkg from 'react-native-audio-recorder-player';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 const AudioRecorderPlayer =
   AudioRecorderPlayerPkg.default || AudioRecorderPlayerPkg;
 const audioRecorderPlayer =
@@ -249,77 +249,143 @@ const ActivityReport = ({ navigation, route }) => {
   const [lastActPDate, setLastActPDate] = useState();
   const [lastPerfromedDate, setLastPerfromedDate] = useState('');
   const [performActDate, setPerformActDate] = useState(true)
-  const openImagePicker = item => {
+  const openImagePicker = useCallback(item => {
+    Alert.alert(
+      'Select Photo',
+      'Choose an option to add a photo',
+      [
+        {
+          text: 'Camera',
+          onPress: () => pickImage(item, 'camera'),
+        },
+        {
+          text: 'Gallery',
+          onPress: () => pickImage(item, 'gallery'),
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+      { cancelable: true },
+    );
+  }, []);
+
+  const pickImage = async (item, source) => {
     try {
       const options = {
         mediaType: 'photo',
-        includeBase64: true,
+        includeBase64: false,
         maxHeight: 800,
         maxWidth: 800,
+        quality: 0.9,
       };
-      const addPhoto = newPhoto => {
-        setmyPhotoAll([...myphotoAll, newPhoto]);
-      };
-      launchCamera(options, async response => {
-        if (response.didCancel) {
-          console.log('User cancelled camera');
-        } else if (response.error) {
-          console.log('Camera Error: ', response.error);
-        } else {
-          try {
-            const timestamp = Date.now();
-            let imageUri = response.uri || response.assets?.[0]?.uri;
-            const watermarkText = `${saveData.latitude},${saveData.longitude
-              },${new Intl.DateTimeFormat('en-US', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-              }).format(timestamp)}`;
-            setTempImage(imageUri);
-            setTempText(watermarkText);
-            setTimeout(async () => {
-              try {
-                const uri = await captureRef(watermarkViewRef, {
-                  format: 'jpg',
-                  quality: 1,
-                  width: 800,
-                  height: 800,
-                });
-                const fileName =
-                  response.assets[0].fileName || `photo_${timestamp}.jpg`;
-                const destPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-                await RNFS.copyFile(uri, destPath);
-                const path = destPath;
-                console.log('fileName', fileName);
-                setTempImage(null);
-                setTempText('');
-                setSelectedImage({
-                  ...selectedImage,
-                  [item]: `file://${path}`,
-                });
-                const newPhoto = {
-                  uri: `file://${path}`,
-                  type: 'image/jpeg',
-                  name: `${fileName}`,
-                };
-                addPhoto(newPhoto);
-                console.log('Watermarked image saved:', path);
-              } catch (error) {
-                console.log('Capture Error:', error);
-                setTempImage(null);
-                setTempText('');
-              }
-            }, 500);
-          } catch (error) {
-            console.log('Watermark Error:', error);
-          }
+
+      const response =
+        source === 'camera'
+          ? await launchCamera(options)
+          : await launchImageLibrary(options);
+
+      if (response.didCancel) {
+        console.log('User cancelled image selection');
+        return;
+      }
+
+      if (response.errorCode) {
+        console.log(
+          'Image Picker Error:',
+          response.errorCode,
+          response.errorMessage,
+        );
+
+        Alert.alert(
+          'Error',
+          response.errorMessage || 'Unable to select the image.',
+        );
+        return;
+      }
+
+      const asset = response.assets?.[0];
+
+      if (!asset?.uri) {
+        Alert.alert('Error', 'No image was selected.');
+        return;
+      }
+
+      const timestamp = Date.now();
+      const fileName = asset.fileName || `photo_${timestamp}.jpg`;
+
+      let imageUri = asset.uri;
+
+      // Camera photos: apply GPS and date/time watermark.
+      if (source === 'camera') {
+        const latitude = saveData?.latitude ?? '';
+        const longitude = saveData?.longitude ?? '';
+
+        const dateTime = new Intl.DateTimeFormat('en-US', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        }).format(new Date(timestamp));
+
+        const watermarkText = `${latitude}, ${longitude}, ${dateTime}`;
+
+        setTempImage(asset.uri);
+        setTempText(watermarkText);
+
+        try {
+          // Wait for the watermark view to render.
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          const capturedUri = await captureRef(watermarkViewRef, {
+            format: 'jpg',
+            quality: 1,
+            width: 800,
+            height: 800,
+          });
+
+          const destPath = `${RNFS.DocumentDirectoryPath}/${timestamp}_${fileName}`;
+
+          await RNFS.copyFile(capturedUri.replace(/^file:\/\//, ''), destPath);
+
+          imageUri = `file://${destPath}`;
+        } finally {
+          setTempImage(null);
+          setTempText('');
         }
+      }
+
+      const newPhoto = {
+        uri: imageUri,
+        type: asset.type || 'image/jpeg',
+        name: fileName,
+      };
+
+      // Update the correct photo box.
+      setSelectedImage(previous => ({
+        ...previous,
+        [item]: imageUri,
+      }));
+
+      // Add the photo to the upload list.
+      setmyPhotoAll(previous => {
+        // Replace the previous upload entry for this same box.
+        const filteredPhotos = previous.filter(photo => photo.photoKey !== item);
+
+        return [...filteredPhotos, { ...newPhoto, photoKey: item }];
       });
+
+      console.log('Selected photo:', imageUri);
     } catch (error) {
-      console.log(error);
+      console.log('Image Processing Error:', error);
+
+      Alert.alert('Error', 'Unable to process the selected photo.');
+    } finally {
+      setTempImage(null);
+      setTempText('');
     }
   };
   const handleDatePicker = async item => {
@@ -454,7 +520,6 @@ const ActivityReport = ({ navigation, route }) => {
           console.log('User is outside the polygon.');
         }
       }
-      console.log('123', JSON.stringify(response));
       if (response) {
         const dateString = response?.data?.data?.harvesting_date;
         const harvesting_date = new Date(dateString);
@@ -536,13 +601,7 @@ const ActivityReport = ({ navigation, route }) => {
                   { information: `${dbname},${lan_id}` },
                 ),
                 axiosGet(
-                  ROUTES.GET.ACTIVITY_TYPE_MANG({
-                    type: 'user_activity',
-                    plot_fid: relId.value,
-                    cycle_start_date: cycle_start_date,
-                    cu_rel_fid: data.cu_rel_id,
-                    season_date_fid: data.season_date_fid,
-                  }),
+                  ROUTES.GET.ACTIVITY_TYPE_NON_CARBON({}),
                   token,
                   { information: `${dbname},${lan_id}` },
                 ),
@@ -573,11 +632,7 @@ const ActivityReport = ({ navigation, route }) => {
             );
           }
           if (activityType_res?.status == 200) {
-            console.log(
-              'activityType_res=',
-              JSON.stringify(activityType_res?.data?.data),
-            );
-            const dataArray = activityType_res?.data?.data?.activityType.map(
+            const dataArray = activityType_res?.data?.data?.rows?.map(
               data => ({
                 value: data.categoryId,
                 label: data.categoryName,

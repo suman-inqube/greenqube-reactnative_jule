@@ -305,8 +305,8 @@ export const ROUTES = {
       cycle_start_date = '',
       cu_rel_fid = '',
       season_date_fid = '',
-    }) =>
-      `loanEntityRoute/seqActivities?type=${type}&plot_fid=${plot_fid}&cycle_start_date=${cycle_start_date}&cu_rel_fid=${cu_rel_fid}&season_date_fid=${season_date_fid}`,
+    }) => `loanEntityRoute/seqActivities?type=${type}&plot_fid=${plot_fid}&cycle_start_date=${cycle_start_date}&cu_rel_fid=${cu_rel_fid}&season_date_fid=${season_date_fid}`,
+    ACTIVITY_TYPE_NON_CARBON: ({ }) => `categoryRoute/list/1/1/2?search_key=&categoryType=activity_type_master`,
     DETAILS_COMPANY: (db_company_id = '') =>
       `locationRoute/detailsCompany/${db_company_id}`,
 

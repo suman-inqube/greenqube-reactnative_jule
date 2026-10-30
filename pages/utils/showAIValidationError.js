@@ -3,37 +3,44 @@ import { Toast } from '@sekizlipenguen/react-native-popup-confirm-toast';
 
 export const showAIValidationError = (response) => {
   const errorData = response?.data?.error?.errorMessage;
-
   if (!errorData) {
     Toast.show({
+      ...AlertMesg[0],
       time: 4,
       text: 'Unknown error occurred.',
-      ...AlertMesg[0],
     });
     return;
   }
 
-  let toastMessage = errorData?.message || 'AI validation failed.';
+  let toastMessage =
+    typeof errorData === 'string'
+      ? errorData
+      : typeof errorData?.message === 'string'
+        ? errorData.message
+        : 'AI validation failed.';
 
-  if (Array.isArray(errorData?.failed) && errorData.failed.length > 0) {
+  if (
+    Array.isArray(errorData?.failed) &&
+    errorData.failed.length > 0
+  ) {
     const reasonTexts = errorData.failed
-      .map(item => {
-        // clean each reason → remove text after "image:"
-        const cleanReasons = item.reasons.map(reason =>
-          reason.replace(/image:.*/i, 'image')
+      .map((item) => {
+        const reasons = Array.isArray(item?.reasons)
+          ? item.reasons
+          : [];
+
+        const cleanReasons = reasons.map((reason) =>
+          String(reason).replace(/image:.*/i, 'image')
         );
-        return `${cleanReasons.join('\n ')}`;
+
+        return cleanReasons.join('\n');
       })
+      .filter(Boolean)
       .join('\n\n');
 
-    toastMessage += '\n\n• ' + reasonTexts;
+    if (reasonTexts) {
+      toastMessage += '\n\n• ' + reasonTexts;
+    }
   }
-
-  // Toast.show({
-  //   text: toastMessage,
-  //   autoHide: false,
-  // });
-
-  // setTimeout(() => Toast.hide(), 10000);
-   return toastMessage;
+  return toastMessage;
 };
