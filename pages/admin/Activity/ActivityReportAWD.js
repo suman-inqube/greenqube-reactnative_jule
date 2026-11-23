@@ -51,7 +51,7 @@ import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation.js'
 import { showAIValidationError } from '../../utils/showAIValidationError.js';
 import SecurityWrapper from '../../SecurityCheck/SecurityWrapper.js';
 import PipeDetailsCard from '../../../Components/PipeDetailsCard.js';
-import { isWithin20Meters } from '../../Common/calculateAreaFun.js';
+import { areAllPipesInsidePolygon, getNearestPipe, getOutsidePipeLocations, isWithin20Meters } from '../../Common/calculateAreaFun.js';
 import ImageAnalysisScreen, {
   MODELS,
   loadModelFromAssets,
@@ -340,20 +340,6 @@ const ActivityReportAWD = ({ navigation, route }) => {
   }, [farmer, plot]);
   const checkPipeDistance = async (currentLat, currentLon) => {
     try {
-      // if (!FEATURES.ENABLE_DISTANCE_CHECK) {
-      //   console.log('🚫 Distance check OFF (ENV:', CURRENT_ENV, ')');
-      //   return true;
-      // }
-      // Get fresh coordinates each time this function is called
-      // const { latitude, longitude } = coords || {};
-      // let freshLatLong;
-
-      // if (!latitude || !longitude) {
-      //   freshLatLong = await getHighAccuracyLocation();
-      // }
-
-      // const lat = currentLat || latitude || freshLatLong?.latitude || 0;
-      // const lon = currentLon || longitude || freshLatLong?.longitude || 0;
       const { latitude: lat, longitude: lon } = (await getHighAccuracyLocation()) || {};
       if (!lat || !lon || lat === 0 || lon === 0) {
         Alert.alert('Location Error', 'Unable to get valid GPS location.');
@@ -531,13 +517,21 @@ const ActivityReportAWD = ({ navigation, route }) => {
               { cancelable: false },
             );
           }
-          const latandlongArr =
-            response?.data?.data?.land_info?.agri_land_user_latlongs?.map(
-              (_data, _index) => ({
-                longitude: parseFloat(_data.longitude),
-                latitude: parseFloat(_data.latitude),
-              }),
-            );
+          const seenCoords = new Set();
+          const latandlongArr = (
+            response?.data?.data?.land_info?.agri_land_user_latlongs || []
+          )
+            .map((_data, _index) => ({
+              longitude: parseFloat(_data.longitude),
+              latitude: parseFloat(_data.latitude),
+            }))
+            .filter(coord => {
+              if (isNaN(coord.latitude) || isNaN(coord.longitude)) return false;
+              const key = `${coord.latitude.toFixed(6)},${coord.longitude.toFixed(6)}`;
+              if (seenCoords.has(key)) return false;
+              seenCoords.add(key);
+              return true;
+            });
           if (latandlongArr.length != 0) {
             setPlotPolygon(latandlongArr);
             const inside = isPointInPolygon({ lat, lon }, latandlongArr);
@@ -806,10 +800,11 @@ const ActivityReportAWD = ({ navigation, route }) => {
                   _data?.pipeActName?.categoryName +
                   ')',
                 color: _data?.pipeActName?.color_code,
+                // pipeLatLong:_data.pipeLatLong basude
               };
             },
           );
-
+          console.log('pipeLatLongArr', JSON.stringify(pipeLatLongArr));
           setPipeLatLong(pipeLatLongArr);
         } else {
           setPipeLatLong([]);
@@ -1225,14 +1220,29 @@ const ActivityReportAWD = ({ navigation, route }) => {
           if (carbonType !== 'mangrove') {
             if (saveData.field_type == 'add') {
               if (outofRange || CURRENT_ENV == 'DEMO') {
-                database_res = await addUserPipeActivity(
-                  dbname,
-                  lan_id,
-                  token,
-                  farmerID,
-                  formData,
-                  pipeDetails.length,
-                );
+                // check if user is inside the plot polygon or not pipe polygon basudev
+                // const inside = isPointInPolygon({ lat: saveData.latitude, lon: saveData.longitude }, plotPolygon)
+                const hasOutsideLocation = getOutsidePipeLocations(
+                  pipeDetails,
+                  plotPolygon
+                ).length > 0;
+                if (!hasOutsideLocation) {
+                  database_res = await addUserPipeActivity(
+                    dbname,
+                    lan_id,
+                    token,
+                    farmerID,
+                    formData,
+                    pipeDetails.length,
+                  );
+                } else {
+                  Toast.show({
+                    text: t('One or more pipe locations are outside the selected farm plot boundary. Please verify all pipe locations and ensure they are within the plot boundary before proceeding.'),
+                    ...AlertMesg[0],
+                  });
+                  setIsLoading(false);
+                  return;
+                }
               } else {
                 Toast.show({
                   text: t('You are not in your exact location'),
@@ -1242,15 +1252,22 @@ const ActivityReportAWD = ({ navigation, route }) => {
             } else {
               if (mapLatLon != null) {
                 const { latitude, longitude } = mapLatLon || {};
-                const distances = getDistance(selectPipeList.latlongs, {
+                // const distances = getDistance(selectPipeList.latlongs, {
+                //   latitude,
+                //   longitude,
+                // });
+                const nearestPipe = getNearestPipe(
+                  selectPipeList.latlongs,
                   latitude,
-                  longitude,
-                });
-                if (distances < 20 || CURRENT_ENV == 'DEMO') {
-                  // database_res = await axiosPost(ROUTES.POST.UPDATE_PIPE_ACTIVITY, formData, token, '', {
-                  //   information: `${dbname},${lan_id},${farmerID}`,
-                  //   pipe_count: 1,
-                  // })
+                  longitude
+                );
+                // check if user is inside the pipe polygon or not pipe polygon basudev
+                const allPipesInside = areAllPipesInsidePolygon(
+                  selectPipeList.latlongs,
+                  plotPolygon
+                );
+                //  if (nearestPipe.distance < 20 && allPipesInside) {
+                if (nearestPipe.distance < 20) {
                   database_res = await addPrevPipeActivity(
                     dbname,
                     lan_id,
@@ -1260,8 +1277,15 @@ const ActivityReportAWD = ({ navigation, route }) => {
                     1,
                   );
                 } else {
+                  // Toast.show({
+                  //   text: t('You are not in your exact pipe location'),
+                  //   ...AlertMesg[0],
+                  // });
                   Toast.show({
-                    text: t('You are not in your exact pipe location'),
+                    text: t(
+                      `You are not in your exact pipe location. Distance: ${nearestPipe?.distance?.toFixed(2) ?? 'N/A'
+                      }m. All Pipes Inside: ${allPipesInside ? 'YES' : 'NO'}`
+                    ),
                     ...AlertMesg[0],
                   });
                 }
@@ -1359,6 +1383,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
       }
 
     } catch (error) {
+      console.error('error', error);
       Toast.show({
         time: 10, text: typeof error?.data?.error?.errorMessage === 'string' ?
           error.data.error.errorMessage : JSON.stringify(error?.data?.error?.errorMessage ??
@@ -1492,6 +1517,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
       setIsAfterToday(true);
       setMinDateAct(true);
       setPerformActDate(true);
+      setIsLoading(true);
       if (carbonType === 'mangrove') {
         if (lastActPDate) {
           const date = new Date(lastActPDate);
@@ -1593,6 +1619,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
                 lastActivityPerfromDate:
                   _data?.lastActivityInfo?.act_perform_date,
                 latlongs: _data?.latlongs?.[0] || {},
+                latlongs: _data?.latlongs
               }),
             );
             setPipeListDetailsResArr(pipeDetailsArr);
@@ -1631,6 +1658,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
           );
         }
       }
+      setIsLoading(false);
     },
     [saveData.plot_id, saveData.cu_rel_id, lastActPDate],
   );
@@ -1979,40 +2007,48 @@ const ActivityReportAWD = ({ navigation, route }) => {
           ...AlertMesg[0],
         });
       } else {
-        setPipeDetails([
-          ...pipeDetails,
-          [
-            { pipe_name: pipeNumber },
+        if (pipeDetails.length == 0) {
+          setPipeDetails([
+            ...pipeDetails,
             [
-              {
-                imageURL: selectedImagePipe.firstItem,
-                imageName: selectedImagePipe.firstItemfileName,
-                status: '',
-                lat: selectedImagePipe.firstItemLat,
-                lon: selectedImagePipe.firstItemLong,
-              },
-              {
-                imageURL: selectedImagePipe.secondItem,
-                imageName: selectedImagePipe.secondItemfileName,
-                status: '',
-                lat: selectedImagePipe.secondItemLat,
-                lon: selectedImagePipe.secondItemLong,
-              },
+              { pipe_name: pipeNumber },
+              [
+                {
+                  imageURL: selectedImagePipe.firstItem,
+                  imageName: selectedImagePipe.firstItemfileName,
+                  status: '',
+                  lat: selectedImagePipe.firstItemLat,
+                  lon: selectedImagePipe.firstItemLong,
+                },
+                {
+                  imageURL: selectedImagePipe.secondItem,
+                  imageName: selectedImagePipe.secondItemfileName,
+                  status: '',
+                  lat: selectedImagePipe.secondItemLat,
+                  lon: selectedImagePipe.secondItemLong,
+                },
+              ],
             ],
-          ],
-        ]);
-        setSelectedImagePipe(prev => ({
-          ...prev,
-          firstItem: '',
-          firstItemLat: '',
-          firstItemLong: '',
-          secondItem: '',
-          secondItemLat: '',
-          secondItemLong: '',
-          firstItemfileName: '',
-          secondItemfileName: '',
-        }));
-        setPipeNumber('');
+          ]);
+          setSelectedImagePipe(prev => ({
+            ...prev,
+            firstItem: '',
+            firstItemLat: '',
+            firstItemLong: '',
+            secondItem: '',
+            secondItemLat: '',
+            secondItemLong: '',
+            firstItemfileName: '',
+            secondItemfileName: '',
+          }));
+          setPipeNumber('');
+        } else {
+          Toast.show({
+            time: 2,
+            text: `${t('Please submit the current pipe details before adding another pipe')}`,
+            ...AlertMesg[0],
+          });
+        }
       }
     },
     [pipeNumber, selectedImagePipe, saveData.waterLevel],
@@ -2042,21 +2078,18 @@ const ActivityReportAWD = ({ navigation, route }) => {
   const watermarkViewRef = useRef(null);
   const TakePhoto_Model = useCallback(
     async (replaceImgKey, coords) => {
-      // console.log("aaa",saveData.act_type)
       const { latitude, longitude } = coords || {};
-      // let latlong;
-      // if (!latitude || !longitude) {
-      //   latlong = await getHighAccuracyLocation();
-      // }
       const lat = latitude || latlong?.latitude || 0;
       const lon = longitude || latlong?.longitude || 0;
-      // const { latitude: lat, longitude: lon } = (await getHighAccuracyLocation()) || {};
       if (!lat || !lon || lat === 0 || lon === 0) {
         Alert.alert('Location Error', 'Unable to get valid GPS location.');
         return;
       }
+      console.log('TakePhoto_Model lat:', lat, 'lon:', lon);
+      console.log('pipe_fieldType.current:', pipe_fieldType.current);
       if (pipe_fieldType.current === 1) {
         const isPipeInstall = await checkPipeDistance(lat, lon);
+        console.log('isPipeInstall:', isPipeInstall);
         if (!isPipeInstall) {
           return;
         }
@@ -2298,6 +2331,7 @@ const ActivityReportAWD = ({ navigation, route }) => {
                   userLocationPriority="high"
                   setMapLatLon={setMapLatLon}
                   CURRENT_ENV={CURRENT_ENV}
+                  selectPipeList={selectPipeList}
                 />
               )}
 

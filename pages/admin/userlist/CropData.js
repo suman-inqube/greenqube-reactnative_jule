@@ -13,7 +13,7 @@ import {
   Image,
   StyleSheet,
 } from 'react-native';
-import { Colors, Fonts } from '../../utils/Constants';
+import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const CropData = ({
@@ -72,7 +72,19 @@ const CropData = ({
   handleAddUserDataFinalYieldUnit,
   handleAddDataYieldUnitProduct,
   historyData,
-  carbonType
+  carbonType,
+  organicAmendment,
+  fertilizer,
+  pesticide,
+  plantationMethod,
+  waterSource,
+  irrigationPractice,
+  riceStubble,
+  doStraw,
+  removedStraw,
+  handleAmendmentTypes,
+  amendmentUnit,
+  handleAmendmentUnit,
 }) => {
   return (
     <View style={styles.container}>
@@ -110,9 +122,7 @@ const CropData = ({
         onChange={handleAddDataproduceVariety}
         val={farmerData.produceVariety}
         disable={
-          addPlot
-            ? false
-            : historyData
+          addPlot ? false : historyData
           // || (edit === '' ? harvested === 'same produce' : edit)
         }
       />
@@ -132,7 +142,7 @@ const CropData = ({
       {/* 5. Expected Production & 6. Unit */}
       {carbonType !== 'mangrove' && (
         <View style={styles.row}>
-          <View style={{ width: '50%' }}>
+          <View style={{width: '50%'}}>
             <InputTextForm
               label={t('expected_yield')}
               keyboardType="number-pad"
@@ -142,7 +152,7 @@ const CropData = ({
               onChangeText={handleAddDataYieldUnitProduct} //{text => (farmerData.expectedProduction = text)} // Standardized with parent state
             />
           </View>
-          <View style={{ width: '45%' }}>
+          <View style={{width: '45%'}}>
             <DropdownForm
               label={t('select_unit_input')}
               required={true}
@@ -153,7 +163,7 @@ const CropData = ({
                 addPlot
                   ? false
                   : historyData ||
-                  (edit === '' ? harvested === 'same produce' : edit)
+                    (edit === '' ? harvested === 'same produce' : edit)
               }
             />
           </View>
@@ -162,217 +172,300 @@ const CropData = ({
       {/* {amendmentList.map((data, index) => {
         return ( */}
 
-      {carbonType !== 'mangrove' && harvested == '' && userData !== 'addUserData' && addPlot !== true && (
-        <>
-          <View style={styles.AddExpenseContainer}>
-            <View style={styles.inputContainer}>
-              <Text
-                style={{
-                  fontSize: 24,
-                  marginBottom: 10,
-                }}>
-                {t('amendments_inputs')}
-              </Text>
+      {carbonType !== 'mangrove' &&
+        harvested == '' &&
+        userData !== 'addUserData' &&
+        addPlot !== true && (
+          <>
+            <View style={styles.AddExpenseContainer}>
+              <View style={styles.inputContainer}>
+                <Text
+                  style={{
+                    fontSize: 24,
+                    marginBottom: 10,
+                  }}>
+                  {t('amendments_inputs')}
+                </Text>
 
-              <View>
-                {amendmentTypes.map(option => (
-                  <TouchableOpacity
-                    key={option.value}
-                    style={styles.radioRow}
-                    onPress={() => setSelectedType(option.value)}>
-                    <View style={styles.radioOuter}>
-                      {selectedType === option.value && (
-                        <View style={styles.radioInner} />
-                      )}
-                    </View>
+                <View>
+                  {amendmentTypes.map(option => (
+                    <TouchableOpacity
+                      key={option.value}
+                      style={styles.radioRow}
+                      onPress={() => setSelectedType(option.value)}>
+                      <View style={styles.radioOuter}>
+                        {selectedType === option.value && (
+                          <View style={styles.radioInner} />
+                        )}
+                      </View>
 
-                    <Text style={styles.radioText}>{t(option.label)}</Text>
-                  </TouchableOpacity>
-                ))}
+                      <Text style={styles.radioText}>{t(option.label)}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                {/* <InputTextForm
+                  label={t('name')}
+                  value={formData.ferti_pesti_fid}
+                  onChangeText={text => handleChange('ferti_pesti_fid', text)}
+                /> */}
+                <DropdownForm
+                  label={t('name')}
+                  data={
+                    selectedType === 'pesticide'
+                      ? pesticide
+                      : selectedType === 'fertilizers'
+                      ? fertilizer
+                      : organicAmendment
+                  }
+                  onChange={handleAmendmentTypes}
+                  val={farmerData.ferti_pesti_fid}
+                />
               </View>
 
-              <InputTextForm
-                label={t('name')}
-                value={formData.ferti_pesti_fid}
-                onChangeText={text => handleChange('ferti_pesti_fid', text)}
+              <View style={styles.AddExpenseItemContainer}>
+                <InputTextForm
+                  label={t('quantity_kg')}
+                  value={formData.quantity}
+                  onChangeText={text => handleChange('quantity', text)}
+                />
+
+                <InputTextForm
+                  label={t('number_of_applications')}
+                  value={formData.no_of_applications}
+                  onChangeText={text =>
+                    handleChange('no_of_applications', text)
+                  }
+                />
+              </View>
+
+              <DropdownForm
+                label={t('select_unit_input')}
+                data={amendmentUnit}
+                onChange={handleAmendmentUnit}
               />
+
+              <TouchableOpacity
+                onPress={addMoreAmendments}
+                style={styles.addMore}>
+                <MaterialIcons name={'add-circle'} color="white" size={25} />
+                <Text style={styles.addMoreText}>{t('save')}</Text>
+              </TouchableOpacity>
             </View>
 
-            <View style={styles.AddExpenseItemContainer}>
-              <InputTextForm
-                label={t('quantity_kg')}
-                value={formData.quantity}
-                onChangeText={text => handleChange('quantity', text)}
-              />
+            {/* <Text style={{fontSize: 18, fontWeight: 'bold'}}>
+              {JSON.stringify(allItems, null, 2)}
+            </Text> */}
+            {allItems.length > 0 && (
+              <View style={{marginTop: 20}}>
+                <Text style={{fontSize: 18, fontWeight: 'bold'}}>
+                  {t('items')}
+                </Text>
 
-              <InputTextForm
-                label={t('number_of_applications')}
-                value={formData.no_of_applications}
-                onChangeText={text => handleChange('no_of_applications', text)}
-              />
-            </View>
+                {allItems.map((item, index) => (
+                  <View
+                    key={item.uniqueKey}
+                    style={{
+                      backgroundColor: '#fff',
+                      padding: 12,
+                      marginVertical: 6,
+                      borderRadius: 8,
+                      elevation: 2,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}>
+                    <View>
+                      <Text>
+                        {t('type')}:{' '}
+                        {item?.type === 'organic_amendment_type'
+                          ? 'Organic Amendments'
+                          : item?.type === 'fertilizers'
+                          ? 'Fertilizers'
+                          : item?.type === 'pesticide'
+                          ? 'Pesticide'
+                          : ''}
+                      </Text>
+                      <Text>
+                        {t('name')}:{' '}
+                        {item.isFromAPI
+                          ? item?.fpAmend?.categoryName
+                          : item?.ferti_pesti_name}
+                      </Text>
+                      <Text>
+                        {t('quantity')}: {item.quantity}{' '}
+                        {item.isFromAPI
+                          ? item?.fp_unit?.unit_name
+                          : item?.unit_name}
+                        {/* {item?.fp_unit?.unit_name || t('kg')} */}
+                      </Text>
+                      <Text>
+                        {t('applications')}: {item.no_of_applications}
+                      </Text>
+                    </View>
+
+                    {!item.isFromAPI && (
+                      <TouchableOpacity
+                        onPress={() => {
+                          setAmendmentData(prev => ({
+                            ...prev,
+                            [item.type]: prev[item.type].filter(
+                              (_, i) =>
+                                i !== Number(item.uniqueKey.split('-')[1]),
+                            ),
+                          }));
+                        }}
+                        style={{
+                          backgroundColor: 'red',
+                          padding: 6,
+                          borderRadius: 6,
+                        }}>
+                        <Text style={{color: 'white'}}>{t('delete')}</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
+                ))}
+              </View>
+            )}
+
+            <InputTextForm
+              label={t('yield')}
+              value={farmerData.final_yield_qty}
+              onChangeText={handleAddUserDataFinalYield}
+            />
+
+            {/* <InputTextForm
+              label={t('yield_unit')}
+              value={farmerData.final_yield_unit}
+              onChangeText={handleAddUserDataFinalYieldUnit}
+            /> */}
+
+            <DropdownForm
+              label={t('yield_unit')}
+              data={productionUnit}
+              onChange={handleAddUserDataFinalYieldUnit}
+              val={farmerData.final_yield_unit}
+            />
+
+            {/* <InputTextForm
+              label={t('plantation_method')}
+              value={farmerData.plantation_method}
+              onChangeText={handleAddUserDataPlantationMethod}
+            /> */}
+
+            <DropdownForm
+              label={t('plantation_method')}
+              data={plantationMethod}
+              onChange={handleAddUserDataPlantationMethod}
+              val={farmerData.plantation_method}
+            />
 
             <TouchableOpacity
-              onPress={addMoreAmendments}
-              style={styles.addMore}>
-              <MaterialIcons name={'add-circle'} color="white" size={25} />
-              <Text style={styles.addMoreText}>{t('save')}</Text>
+              onPress={() => setseddingData(true)}
+              style={styles.datePicker}>
+              <Text style={styles.label}>{t('seeding_date')}</Text>
+              <View style={styles.dateDisplay}>
+                <Text style={{color: '#000'}}>
+                  {farmerData.seeding_date || t('select')}
+                </Text>
+                <Image
+                  source={require('../../Common/images/calendar.png')}
+                  style={styles.icon}
+                />
+              </View>
             </TouchableOpacity>
-          </View>
 
-          {allItems.length > 0 && (
-            <View style={{ marginTop: 20 }}>
-              <Text style={{ fontSize: 18, fontWeight: 'bold' }}>
-                {t('items')}
-              </Text>
+            {/* <InputTextForm
+              label={t('water_source')}
+              value={farmerData.water_source}
+              onChangeText={handleAddUserDataWaterSource}
+            /> */}
+            <DropdownForm
+              label={t('water_source')}
+              data={waterSource}
+              onChange={handleAddUserDataWaterSource}
+              val={farmerData.water_source}
+            />
 
-              {allItems.map((item, index) => (
-                <View
-                  key={item.uniqueKey}
-                  style={{
-                    backgroundColor: '#fff',
-                    padding: 12,
-                    marginVertical: 6,
-                    borderRadius: 8,
-                    elevation: 2,
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}>
-                  <View>
-                    <Text>
-                      {t('type')}: {item.type}
-                    </Text>
-                    <Text>
-                      {t('name')}: {item.ferti_pesti_fid}
-                    </Text>
-                    <Text>
-                      {t('quantity')}: {item.quantity}{' '}
-                      {item?.fp_unit?.unit_name || t('kg')}
-                    </Text>
-                    <Text>
-                      {t('applications')}: {item.no_of_applications}
-                    </Text>
-                  </View>
+            <InputTextForm
+              label={t('gap_seeding_first_irrigation')}
+              value={farmerData.gap_seeding_firrig}
+              onChangeText={handleAddUserDataGapSeedingFirrig}
+            />
 
-                  {!item.isFromAPI && (
-                    <TouchableOpacity
-                      onPress={() => {
-                        setAmendmentData(prev => ({
-                          ...prev,
-                          [item.type]: prev[item.type].filter(
-                            (_, i) =>
-                              i !== Number(item.uniqueKey.split('-')[1]),
-                          ),
-                        }));
-                      }}
-                      style={{
-                        backgroundColor: 'red',
-                        padding: 6,
-                        borderRadius: 6,
-                      }}>
-                      <Text style={{ color: 'white' }}>{t('delete')}</Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              ))}
-            </View>
-          )}
+            {/* <InputTextForm
+              label={t('irrigation_practice')}
+              value={farmerData.irri_practice}
+              onChangeText={handleAddUserDataIrriPractice}
+            /> */}
+            <DropdownForm
+              label={t('irrigation_practice')}
+              data={irrigationPractice}
+              onChange={handleAddUserDataIrriPractice}
+              val={farmerData.irri_practice}
+            />
 
-          <InputTextForm
-            label={t('yield')}
-            value={farmerData.final_yield_qty}
-            onChangeText={handleAddUserDataFinalYield}
-          />
+            <InputTextForm
+              label={t('drying_periods_practiced')}
+              value={farmerData.drying_period_prac}
+              onChangeText={handleAddUserDataDryingPeriodPrac}
+            />
 
-          <InputTextForm
-            label={t('yield_unit')}
-            value={farmerData.final_yield_unit}
-            onChangeText={handleAddUserDataFinalYieldUnit}
-          />
+            <InputTextForm
+              label={t('gap_draining_harvest')}
+              value={farmerData.gap_draining_harvest}
+              onChangeText={handleAddUserDataGapDrainingHarvest}
+            />
 
-          <InputTextForm
-            label={t('plantation_method')}
-            value={farmerData.plantation_method}
-            onChangeText={handleAddUserDataPlantationMethod}
-          />
+            {/* <InputTextForm
+              label={t('rice_stubble_after_harvest')}
+              value={farmerData.after_harvest_rice_stubble}
+              onChangeText={handleAddUserDataAfterHarvestRiceStubble}
+            /> */}
+            <DropdownForm
+              label={t('rice_stubble_after_harvest')}
+              data={riceStubble}
+              onChange={handleAddUserDataAfterHarvestRiceStubble}
+              val={farmerData.after_harvest_rice_stubble}
+            />
 
-          <TouchableOpacity
-            onPress={() => setseddingData(true)}
-            style={styles.datePicker}>
-            <Text style={styles.label}>{t('seeding_date')}</Text>
-            <View style={styles.dateDisplay}>
-              <Text style={{ color: '#000' }}>
-                {farmerData.seeding_date || t('select')}
-              </Text>
-              <Image
-                source={require('../../Common/images/calendar.png')}
-                style={styles.icon}
-              />
-            </View>
-          </TouchableOpacity>
+            {/* <InputTextForm
+              label={t('straw_after_harvest')}
+              value={farmerData.after_harvest_straw}
+              onChangeText={handleAddUserDataAfterHarvestStraw}
+            /> */}
+            <DropdownForm
+              label={t('straw_after_harvest')}
+              data={doStraw}
+              onChange={handleAddUserDataAfterHarvestStraw}
+              val={farmerData.after_harvest_straw}
+            />
 
-          <InputTextForm
-            label={t('water_source')}
-            value={farmerData.water_source}
-            onChangeText={handleAddUserDataWaterSource}
-          />
+            <InputTextForm
+              label={t('straw_removed_percent')}
+              value={farmerData.straw_removed}
+              onChangeText={handleAddUserDataStrawRemoved}
+            />
 
-          <InputTextForm
-            label={t('gap_seeding_first_irrigation')}
-            value={farmerData.gap_seeding_firrig}
-            onChangeText={handleAddUserDataGapSeedingFirrig}
-          />
+            <InputTextForm
+              label={t('straw_incorporated_percent')}
+              value={farmerData.straw_incorporate}
+              onChangeText={handleAddUserDataStrawIncorporate}
+            />
 
-          <InputTextForm
-            label={t('irrigation_practice')}
-            value={farmerData.irri_practice}
-            onChangeText={handleAddUserDataIrriPractice}
-          />
-
-          <InputTextForm
-            label={t('drying_periods_practiced')}
-            value={farmerData.drying_period_prac}
-            onChangeText={handleAddUserDataDryingPeriodPrac}
-          />
-
-          <InputTextForm
-            label={t('gap_draining_harvest')}
-            value={farmerData.gap_draining_harvest}
-            onChangeText={handleAddUserDataGapDrainingHarvest}
-          />
-
-          <InputTextForm
-            label={t('rice_stubble_after_harvest')}
-            value={farmerData.after_harvest_rice_stubble}
-            onChangeText={handleAddUserDataAfterHarvestRiceStubble}
-          />
-
-          <InputTextForm
-            label={t('straw_after_harvest')}
-            value={farmerData.after_harvest_straw}
-            onChangeText={handleAddUserDataAfterHarvestStraw}
-          />
-
-          <InputTextForm
-            label={t('straw_removed_percent')}
-            value={farmerData.straw_removed}
-            onChangeText={handleAddUserDataStrawRemoved}
-          />
-
-          <InputTextForm
-            label={t('straw_incorporated_percent')}
-            value={farmerData.straw_incorporate}
-            onChangeText={handleAddUserDataStrawIncorporate}
-          />
-
-          <InputTextForm
-            label={t('end_usage_removed_straw')}
-            value={farmerData.end_usg_rm_straw}
-            onChangeText={handleAddUserDataEndUsgRmStraw}
-          />
-        </>
-      )}
+            {/* <InputTextForm
+              label={t('end_usage_removed_straw')}
+              value={farmerData.end_usg_rm_straw}
+              onChangeText={handleAddUserDataEndUsgRmStraw}
+            /> */}
+            <DropdownForm
+              label={t('end_usage_removed_straw')}
+              data={removedStraw}
+              onChange={handleAddUserDataEndUsgRmStraw}
+              val={farmerData.end_usg_rm_straw}
+            />
+          </>
+        )}
       {/* 7. Production Session */}
       <DropdownForm
         label={t('addcrop_select_cultivating_season')}
@@ -385,26 +478,26 @@ const CropData = ({
           historyData
             ? true
             : edit == ''
-              ? harvested == 'same produce' || harvested == 'add new Produce'
-                ? false
-                : harvested == ''
-                  ? false
-                  : true
-              : edit
+            ? harvested == 'same produce' || harvested == 'add new Produce'
+              ? false
+              : harvested == ''
+              ? false
+              : true
+            : edit
         }
       />
       {/* 8. Cycle Start */}
       <TouchableOpacity
         onPress={() =>
           !historyData
-            // && (harvested !== '' || userData === 'addUserData' || addPlot)
-            ? setopenCycleStart(true)
+            ? // && (harvested !== '' || userData === 'addUserData' || addPlot)
+              setopenCycleStart(true)
             : null
         }
         style={styles.datePicker}>
         <Text style={styles.label}>{t('showing_date')} *</Text>
         <View style={styles.dateDisplay}>
-          <Text style={{ color: '#000' }}>
+          <Text style={{color: '#000'}}>
             {farmerData.cycleStartDate || 'Select'}
           </Text>
           <Image
@@ -417,9 +510,9 @@ const CropData = ({
       <TouchableOpacity
         onPress={() =>
           !historyData
-            // &&
-            //   (harvested !== '' || userData === 'addUserData' || addPlot)
-            ? setopenCycleEnd(true)
+            ? // &&
+              //   (harvested !== '' || userData === 'addUserData' || addPlot)
+              setopenCycleEnd(true)
             : null
         }
         style={styles.datePicker}>
@@ -427,7 +520,7 @@ const CropData = ({
           {t('harvesting_date_auto_calculated')} *
         </Text>
         <View style={styles.dateDisplay}>
-          <Text style={{ color: '#000' }}>
+          <Text style={{color: '#000'}}>
             {farmerData.cycleEndDate || 'Select'}
           </Text>
           <Image
@@ -441,9 +534,9 @@ const CropData = ({
 };
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', justifyContent: 'space-between' },
-  datePicker: { marginVertical: 10 },
-  label: { color: '#4e4e4e', fontFamily: Fonts.Regular, fontSize: 15 },
+  row: {flexDirection: 'row', justifyContent: 'space-between'},
+  datePicker: {marginVertical: 10},
+  label: {color: '#4e4e4e', fontFamily: Fonts.Regular, fontSize: 15},
   dateDisplay: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -454,7 +547,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     backgroundColor: '#fff',
   },
-  icon: { width: 20, height: 20, tintColor: Colors.useGreen },
+  icon: {width: 20, height: 20, tintColor: Colors.useGreen},
   AddExpenseContainer: {
     flex: 1,
     marginVertical: 10,

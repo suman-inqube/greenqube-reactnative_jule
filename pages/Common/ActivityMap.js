@@ -8,7 +8,7 @@ import {
   Text,
   Platform,
 } from 'react-native';
-import MapView, { Polygon, Marker, Callout, Circle, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Polygon, Marker, Callout, Circle, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import { isPointInPolygon, getDistance } from 'geolib';
 import { Fonts } from '../utils/Constants';
 
@@ -126,6 +126,17 @@ const calculatePointAtDistance = (lat, lng, distanceMeters, bearingDegrees = 0) 
   };
 };
 
+
+/**
+ * Formats distance in meters or kilometers.
+ */
+const formatDistance = meters => {
+  if (meters == null || isNaN(meters)) return null;
+  if (meters < 1000) {
+    return `${Math.round(meters)}m`;
+  }
+  return `${(meters / 1000).toFixed(1)}km`;
+};
 /**
  * Groups pipe coordinates and slightly offsets duplicates to prevent stacking.
  */
@@ -221,7 +232,9 @@ const DistanceRings = memo(({ userLocation }) => {
 // Memoized Pipe Markers List
 const PipeMarkersList = memo(({ groupedMarkers, onSelectMarker }) => {
   if (!groupedMarkers || groupedMarkers.length === 0) return null;
-
+  if (__DEV__) {
+    console.log("groupedMarkers", JSON.stringify(groupedMarkers))
+  }
   return (
     <>
       {groupedMarkers.map((group, groupIdx) =>
@@ -262,7 +275,10 @@ const ActivityMap = ({
   replaceImgKey,
   TakePhotoReplaceImage,
   setMapLatLon,
+  selectPipeList
 }) => {
+  // console.error("selectPipeList", JSON.stringify(selectPipeList))
+  // console.log("pipeLatLong", JSON.stringify(pipeLatLong))
   const mapRef = useRef(null);
   const lastLocationUpdate = useRef(0);
   const lastCoord = useRef(null);
@@ -282,7 +298,7 @@ const ActivityMap = ({
       isMountedRef.current = false;
     };
   }, []);
-
+  // console.log(JSON.stringify(pipeLatLong))
   // Safe camera centering utility
   const centerOnLocation = useCallback((coord, animated = true) => {
     if (!coord || !mapRef.current) return;
@@ -294,6 +310,8 @@ const ActivityMap = ({
       mapRef.current.animateCamera(
         {
           center: { latitude: lat, longitude: lng },
+          // center: { latitude: 25.554263516390048, longitude: 88.09223257005215 },
+          // center: { latitude: 25.5522304, longitude: 88.0943861 },
           zoom: 18,
           pitch: 0,
           heading: 0,
@@ -367,18 +385,109 @@ const ActivityMap = ({
     return groupPointsByCoordinates(flattened);
   }, [pipeLatLong]);
 
+  // Extract selected pipe target coordinates cleanly
+  const selectedPipeCoord = useMemo(() => {
+    if (!selectPipeList) return null;
+    let lat = null;
+    let lng = null;
+    const raw = selectPipeList.latlongs;
+
+    if (raw && typeof raw === 'object') {
+      if (Array.isArray(raw) && raw.length > 0) {
+        lat = Number(raw[0].latitude);
+        lng = Number(raw[0].longitude);
+      } else if (raw.latitude != null && raw.longitude != null) {
+        lat = Number(raw.latitude);
+        lng = Number(raw.longitude);
+      }
+    } else if (selectPipeList.latitude != null && selectPipeList.longitude != null) {
+      lat = Number(selectPipeList.latitude);
+      lng = Number(selectPipeList.longitude);
+    }
+
+    if (lat == null || lng == null || isNaN(lat) || isNaN(lng) || (lat === 0 && lng === 0)) {
+      return null;
+    }
+
+    return {
+      latitude: lat,
+      longitude: lng,
+      name: selectPipeList.label || 'Selected Pipe',
+      id: selectPipeList.value || selectPipeList?.latlongs?.pipe_pid || 'selected-pipe',
+    };
+  }, [selectPipeList]);
+
+  // Coordinates for the direct line from current blue dot to selected pipe
+  const pipeLineCoords = useMemo(() => {
+    const currentLoc = userLocation || location;
+    if (
+      !currentLoc?.latitude ||
+      !currentLoc?.longitude ||
+      !selectedPipeCoord?.latitude ||
+      !selectedPipeCoord?.longitude
+    ) {
+      return null;
+    }
+    return [
+      { latitude: Number(currentLoc.latitude), longitude: Number(currentLoc.longitude) },
+      { latitude: Number(selectedPipeCoord.latitude), longitude: Number(selectedPipeCoord.longitude) },
+    ];
+  }, [userLocation, location, selectedPipeCoord]);
+
+  // Live distance in meters between blue dot and selected pipe
+  const selectedPipeDistance = useMemo(() => {
+    const currentLoc = userLocation || location;
+    if (
+      !currentLoc?.latitude ||
+      !currentLoc?.longitude ||
+      !selectedPipeCoord?.latitude ||
+      !selectedPipeCoord?.longitude
+    ) {
+      return null;
+    }
+    try {
+      const d = getDistance(
+        { latitude: Number(currentLoc.latitude), longitude: Number(currentLoc.longitude) },
+        { latitude: Number(selectedPipeCoord.latitude), longitude: Number(selectedPipeCoord.longitude) },
+      );
+      return Math.round(d);
+    } catch (_) {
+      return null;
+    }
+  }, [userLocation, location, selectedPipeCoord]);
+
+  const selectedPipeDistanceText = useMemo(() => {
+    if (selectedPipeDistance == null) return null;
+    if (selectedPipeDistance < 1000) {
+      return `${selectedPipeDistance}m`;
+    }
+    return `${(selectedPipeDistance / 1000).toFixed(1)}km`;
+  }, [selectedPipeDistance]);
+
+  // Midpoint coordinate of the line for placing distance badge
+  const lineMidPoint = useMemo(() => {
+    if (!pipeLineCoords || pipeLineCoords.length < 2) return null;
+    return {
+      latitude: (pipeLineCoords[0].latitude + pipeLineCoords[1].latitude) / 2,
+      longitude: (pipeLineCoords[0].longitude + pipeLineCoords[1].longitude) / 2,
+    };
+  }, [pipeLineCoords]);
+
   // Safe initial camera center coordinates
   const initialCenter = useMemo(() => {
-    const lat = Number(location?.latitude || userLocation?.latitude);
-    const lng = Number(location?.longitude || userLocation?.longitude);
+    const lat = Number(location?.latitude || userLocation?.latitude || selectedPipeCoord?.latitude);
+    const lng = Number(location?.longitude || userLocation?.longitude || selectedPipeCoord?.longitude);
     if (!isNaN(lat) && !isNaN(lng) && (lat !== 0 || lng !== 0)) {
       return { latitude: lat, longitude: lng };
     }
     return DEFAULT_MAP_CENTER;
-  }, [location, userLocation]);
+  }, [location, userLocation, selectedPipeCoord]);
 
   // Validated polygon coordinates for MapView Polygon
   const validPolygonCoords = useMemo(() => {
+    if (__DEV__) {
+      console.log("plotPolygon", JSON.stringify(plotPolygon))
+    }
     if (!Array.isArray(plotPolygon) || plotPolygon.length < 3) return null;
     return plotPolygon.filter(
       p => p && typeof p.latitude === 'number' && typeof p.longitude === 'number',
@@ -470,6 +579,7 @@ const ActivityMap = ({
   );
 
   const handleSelectMarker = useCallback(polygon => {
+    // console.log('Selected Marker:', polygon);
     if (isMountedRef.current) {
       setSelectedMarker(polygon);
     }
@@ -487,14 +597,38 @@ const ActivityMap = ({
       return;
     }
     const currentLoc = userLocation || location;
-    if (
-      TakePhotoReplaceImage &&
-      replaceImgKey?.arrayPosition != null &&
-      replaceImgKey.arrayPosition !== ''
-    ) {
-      TakePhotoReplaceImage(replaceImgKey, currentLoc);
-    } else {
-      TakePhoto?.(replaceImgKey, currentLoc);
+    if (Array.isArray(plotPolygon) && plotPolygon.length > 2) {
+      try {
+        const inside = isPointInPolygon(currentLoc, plotPolygon);
+        if (inside) {
+          if (
+            TakePhotoReplaceImage &&
+            replaceImgKey?.arrayPosition != null &&
+            replaceImgKey.arrayPosition !== ''
+          ) {
+            TakePhotoReplaceImage(replaceImgKey, currentLoc);
+          } else {
+            TakePhoto?.(replaceImgKey, currentLoc);
+          }
+        } else {
+          // Alert.alert(
+          //   'Out of Range',
+          //   'You are currently outside the farm plot boundary. Please move inside the plot to capture images.',
+          //   [{ text: 'OK' }],
+          // );
+          Alert.alert(
+            "Location Outside Farm Boundary",
+            "Your device's current GPS location is outside the farm plot boundary. Please move inside the designated plot area and ensure your GPS signal is accurate before capturing images.",
+            [{ text: "OK" }]
+          );
+        }
+      } catch (error) {
+        Alert.alert(
+          'Error',
+          error,
+          [{ text: 'OK' }],
+        );
+      }
     }
   }, [
     TakePhoto,
@@ -504,6 +638,7 @@ const ActivityMap = ({
     location,
     gpsAccuracy,
     isLocationStable,
+    plotPolygon,
   ]);
 
   const handleCloseModal = useCallback(() => {
@@ -536,7 +671,7 @@ const ActivityMap = ({
             provider={PROVIDER_GOOGLE}
             customMapStyle={ROAD_AND_LAND_MAP_STYLE}
             showsUserLocation={true}
-            followsUserLocation={true}
+            followsUserLocation={false}
             showsMyLocationButton={true}
             toolbarEnabled={false}
             showsCompass={false}
@@ -546,13 +681,13 @@ const ActivityMap = ({
             showsIndoors={false}
             showsTraffic={false}
             showsPointsOfInterest={false}
-            loadingEnabled={true}
+            loadingEnabled={false}
             loadingIndicatorColor="#2E7D32"
             loadingBackgroundColor="#0A0A0A"
             moveOnMarkerPress={false}
             userLocationPriority="high"
             minZoomLevel={14}
-            maxZoomLevel={20}
+            maxZoomLevel={19}
             userLocationUpdateInterval={2000}
             userLocationFastestInterval={1500}
             initialCamera={{
@@ -562,8 +697,10 @@ const ActivityMap = ({
               pitch: 0,
             }}
             initialRegion={{
-              latitude: initialCenter.latitude,
-              longitude: initialCenter.longitude,
+              latitude: 22.290371,
+              longitude: 87.849141,
+              // latitude: initialCenter.latitude,
+              // longitude: initialCenter.longitude,
               latitudeDelta: 0.003,
               longitudeDelta: 0.003,
             }}
@@ -587,6 +724,65 @@ const ActivityMap = ({
               groupedMarkers={groupedMarkers}
               onSelectMarker={handleSelectMarker}
             />
+
+            {/* Direct Line from Blue Dot to Selected Pipe */}
+            {pipeLineCoords && (
+              <Polyline
+                coordinates={pipeLineCoords}
+                strokeColor="#00E5FF"
+                strokeWidth={3}
+                lineDashPattern={[8, 5]}
+                zIndex={15}
+              />
+            )}
+
+            {/* Distance Badge on Line Midpoint */}
+            {lineMidPoint && selectedPipeDistanceText && (
+              <Marker
+                coordinate={lineMidPoint}
+                anchor={{ x: 0.5, y: 0.5 }}
+                tracksViewChanges={false}
+                zIndex={16}>
+                <View style={styles.lineDistanceBadge}>
+                  <Text style={styles.lineDistanceText}>{selectedPipeDistanceText}</Text>
+                </View>
+              </Marker>
+            )}
+
+            {/* Highlighted Target Marker for Selected Pipe */}
+            {selectedPipeCoord && (
+              <Marker
+                coordinate={{
+                  latitude: selectedPipeCoord.latitude,
+                  longitude: selectedPipeCoord.longitude,
+                }}
+                anchor={{ x: 0.5, y: 1 }}
+                tracksViewChanges={false}
+                zIndex={20}>
+                <View style={styles.targetPipeMarkerWrapper}>
+                  <View
+                    style={[
+                      styles.targetPipeBadge,
+                      selectedPipeDistance != null && selectedPipeDistance <= 10
+                        ? styles.targetPipeBadgeInRange
+                        : styles.targetPipeBadgeOutRange,
+                    ]}>
+                    <Text style={styles.targetPipeBadgeName} numberOfLines={1}>
+                      {selectPipeList?.label ? `🎯 ${selectPipeList.label}` : '🎯 Selected Pipe'}
+                    </Text>
+                    {selectedPipeDistanceText && (
+                      <Text style={styles.targetPipeBadgeDist}>
+                        {selectedPipeDistanceText}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={styles.targetPinCircle}>
+                    <View style={styles.targetPinInner} />
+                  </View>
+                  <View style={styles.targetPinPointer} />
+                </View>
+              </Marker>
+            )}
           </MapView>
         </View>
 
@@ -597,6 +793,30 @@ const ActivityMap = ({
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
           <Text style={styles.closeIcon}>✕</Text>
         </TouchableOpacity>
+
+        {/* Selected Pipe Real-time Distance HUD */}
+        {selectedPipeCoord && selectedPipeDistanceText && (
+          <View
+            style={[
+              styles.selectedPipeHUD,
+              selectedPipeDistance <= 10
+                ? styles.hudInRange
+                : styles.hudOutOfRange,
+            ]}>
+            <Text style={styles.hudIcon}>
+              {selectedPipeDistance <= 10 ? '✅' : '🎯'}
+            </Text>
+            <View style={styles.hudTextWrapper}>
+              <Text style={styles.hudPipeName} numberOfLines={1}>
+                {selectPipeList?.label || 'Selected Pipe'}
+              </Text>
+              <Text style={styles.hudDistanceText}>
+                {selectedPipeDistanceText} away{' '}
+                {selectedPipeDistance <= 10 ? '(≤10m In Range)' : '(Move Closer)'}
+              </Text>
+            </View>
+          </View>
+        )}
 
         {/* Top GPS Accuracy / Stability Pill */}
         {!gpsAccuracy || gpsAccuracy > HIGH_ACCURACY_THRESHOLD ? (
@@ -840,6 +1060,130 @@ const styles = StyleSheet.create({
     color: '#222',
     fontWeight: '600',
     fontSize: 13,
+  },
+  lineDistanceBadge: {
+    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#00E5FF',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 2,
+  },
+  lineDistanceText: {
+    color: '#00E5FF',
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  targetPipeMarkerWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  targetPipeBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    borderWidth: 1.5,
+    marginBottom: 3,
+    elevation: 5,
+    alignItems: 'center',
+  },
+  targetPipeBadgeInRange: {
+    backgroundColor: '#1B5E20',
+    borderColor: '#69F0AE',
+  },
+  targetPipeBadgeOutRange: {
+    backgroundColor: '#0D47A1',
+    borderColor: '#40C4FF',
+  },
+  targetPipeBadgeName: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: 'bold',
+    maxWidth: 120,
+  },
+  targetPipeBadgeDist: {
+    color: '#FFF',
+    fontSize: 11,
+    fontWeight: 'bold',
+    marginTop: 1,
+  },
+  targetPinCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#00E5FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2.5,
+    borderColor: '#FFF',
+    elevation: 6,
+  },
+  targetPinInner: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#0D47A1',
+  },
+  targetPinPointer: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 7,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: '#00E5FF',
+    alignSelf: 'center',
+    marginTop: -1,
+  },
+  selectedPipeHUD: {
+    position: 'absolute',
+    top: Platform.OS === 'android' ? 70 : 95,
+    left: 20,
+    right: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOpacity: 0.35,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    zIndex: 10,
+  },
+  hudInRange: {
+    backgroundColor: 'rgba(27, 94, 32, 0.92)',
+    borderColor: '#69F0AE',
+  },
+  hudOutOfRange: {
+    backgroundColor: 'rgba(13, 71, 161, 0.92)',
+    borderColor: '#40C4FF',
+  },
+  hudIcon: {
+    fontSize: 20,
+    marginRight: 10,
+  },
+  hudTextWrapper: {
+    flex: 1,
+  },
+  hudPipeName: {
+    color: '#FFF',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  hudDistanceText: {
+    color: '#E0F7FA',
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 1,
   },
 });
 

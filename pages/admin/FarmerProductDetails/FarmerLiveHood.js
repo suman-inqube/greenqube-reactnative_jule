@@ -22,18 +22,18 @@ import {
   uploadFarmerIdAdd,
   setCycleDateAPI,
 } from '../../../config/apiHere';
-import { LandUnitArea, LandUnitsquare_metre } from '../../../config/apiHere';
+import {LandUnitArea, LandUnitsquare_metre} from '../../../config/apiHere';
 import config from '../../../config';
 import axios from 'axios';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 const qs = require('qs');
 import HarvestedModel from './HarvestedModel';
-import { CrashlyticsRecordError } from '../../Crashlytics/CrashlyticsRecordError';
-import { userCreateContext } from '../../Context/usersCreateContext';
+import {CrashlyticsRecordError} from '../../Crashlytics/CrashlyticsRecordError';
+import {userCreateContext} from '../../Context/usersCreateContext';
 import Map from '../Map';
 import * as geolib from 'geolib';
-import { getDistance } from 'geolib';
-import { APP_MAP_RANGE_POLYGON } from '@env';
+import {getDistance} from 'geolib';
+import {APP_MAP_RANGE_POLYGON} from '@env';
 import * as turf from '@turf/turf';
 import {
   calculateAreaFun,
@@ -41,7 +41,7 @@ import {
   calculatePolygonArea,
   isWithin20Meters,
 } from '../../Common/calculateAreaFun';
-import DocumentPicker, { types } from '@react-native-documents/picker';
+import DocumentPicker, {types} from '@react-native-documents/picker';
 import {
   getPlotDocAPI,
   deletePlotImageAPI,
@@ -52,18 +52,19 @@ import CarbonCertificate from '../../Common/CarbonCertificate';
 import SignatureCapture from '../../Common/SignaturePad';
 import ProofAndIdentityPropfComp from '../../Common/ProofAndIdentityPropfComp';
 import FarmerDrawerScreenWrapper1 from '../FarmerDrawerScreenWrapper1';
-import { Colors, Fonts } from '../../utils/Constants';
+import {Colors, Fonts} from '../../utils/Constants';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { getActionsPlot } from '../../utils/options';
+import {getActionsPlot} from '../../utils/options';
 import FloatingActionButton from '../../Components/FloatingActionButton';
 import MyErrorBoundary from '../../Common/MyErrorBoundary';
-import { axiosGet, axiosPut, axiosPost } from '../../utils/api';
-import { ROUTES } from '../../utils/Routes';
-import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
-import { ProductionSeasonAndApi } from '../../../config/apiHere';
-import { AddLandCropDetailsAPI } from '../../../config/apiHere';
-import { formatISODateWithSuffix } from '../../Common/CommonFunction';
+import {axiosGet, axiosPut, axiosPost} from '../../utils/api';
+import {ROUTES} from '../../utils/Routes';
+import {getHighAccuracyLocation} from '../../utils/getHighAccuracyLocation';
+import {ProductionSeasonAndApi} from '../../../config/apiHere';
+import {AddLandCropDetailsAPI} from '../../../config/apiHere';
+import {formatISODateWithSuffix} from '../../Common/CommonFunction';
 import FarmerCropData from './FarmerCropData';
+
 const FarmerLiveHood = ({
   dataProps,
   setActiveTab,
@@ -104,13 +105,13 @@ const FarmerLiveHood = ({
   const [minStartDate, setMinStartDate] = useState(new Date());
   const [maxHarvestDate, setMaxHarvestDate] = useState(new Date());
   const [minHarvestDate, setMinHarvestDate] = useState(new Date());
-  const { dbname, lan_id, token, user_id, owner, carbonFlag } = loginUser_data;
+  const {dbname, lan_id, token, user_id, owner, carbonFlag} = loginUser_data;
   //GQR-67
   const isFocused = useIsFocused();
   const [plotAll, setplotAll] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [statuslevel, setstatuslevel] = useState({ label: '', value: '' });
-  const [plotStatus, setplotStatus] = useState({ label: '', value: '' });
+  const [statuslevel, setstatuslevel] = useState({label: '', value: ''});
+  const [plotStatus, setplotStatus] = useState({label: '', value: ''});
 
   const [seddingData, setseddingData] = useState(false);
 
@@ -171,12 +172,12 @@ const FarmerLiveHood = ({
   const [landTypeAll, setlandTypeAll] = useState([]);
   const [unitAll, setUnitAll] = useState([]);
   const [location, setLocation] = useState([
-    { latitude: '', longitude: '' },
+    {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
     // {latitude: '', longitude: ''},
   ]);
   const [mainLocation, setmainLocation] = useState([
-    { latitude: '', longitude: '' },
+    {latitude: '', longitude: ''},
   ]);
   const [newDate, setnewDate] = useState(new Date());
   const [locationType, setLocationType] = useState('location_tap');
@@ -252,7 +253,7 @@ const FarmerLiveHood = ({
   const [outofRange, setOutofRange] = useState(false);
   const [previousPlotLatlong, setPreviousPlotLatlong] = useState([]);
   const [carboncertificate, setCarboncertificate] = useState([
-    { uri: '', name: '', type: '', fileName: '', id: '' },
+    {uri: '', name: '', type: '', fileName: '', id: ''},
   ]);
   const [signature, setSignature] = useState({
     uri: '',
@@ -276,16 +277,31 @@ const FarmerLiveHood = ({
 
   const [formData, setFormData] = useState({
     ferti_pesti_fid: '',
+    ferti_pesti_name: '',
     quantity: '',
     unit_fid: '',
+    unit_name: '',
     no_of_applications: '',
   });
+  /////////////////
+    const [organicAmendment, setOrganicAmendmentRes] = useState([]);
+    const [fertilizer, setfertilizer] = useState([]);
+    const [pesticide, setPesticide] = useState([]);
+    const [amendmentUnit, setAmendmentUnit] = useState([]);
+    const [plantationMethod, setPlantationMethod] = useState([]);
+    const [waterSource, setWaterSource] = useState([]);
+    const [irrigationPractice, setIrrigationPractice] = useState([]);
+    const [riceStubble, setRiceStubble] = useState([]);
+    const [doStraw, setDoStraw] = useState([]);
+    const [removedStraw, setRemovedStraw] = useState([]);
+  
+    ////////////////////////////
 
-  const [allItems, setAllItems] = useState([]);
+  // const [allItems, setAllItems] = useState([]);
   const amendmentTypes = [
-    { label: 'Organic amendment', value: 'organic_amendment_type' },
-    { label: 'Fertilizer', value: 'fertilizers' },
-    { label: 'Pesticide', value: 'pesticide' },
+    {label: 'Organic amendment', value: 'organic_amendment_type'},
+    {label: 'Fertilizer', value: 'fertilizers'},
+    {label: 'Pesticide', value: 'pesticide'},
   ];
 
   const groupByRelId = data => {
@@ -295,7 +311,7 @@ const FarmerLiveHood = ({
       if (isNaN(latitude) || isNaN(longitude)) {
         return result;
       }
-      const newItem = { latitude, longitude };
+      const newItem = {latitude, longitude};
       if (!result[item.rel_id]) {
         result[item.rel_id] = [];
       }
@@ -319,33 +335,75 @@ const FarmerLiveHood = ({
     }));
   };
   const addMoreAmendments = () => {
-    if (!formData.quantity) {
-      Toast.show({ text: 'Enter Quantity', ...AlertMesg[0] });
+   const {ferti_pesti_fid,ferti_pesti_name, quantity, no_of_applications,unit_fid} = formData;
+
+    if (!ferti_pesti_fid || !quantity || !no_of_applications || !unit_fid) {
+      Toast.show({
+        text: 'Please fill all fields',
+        ...AlertMesg[0],
+      });
       return;
     }
 
     const newItem = {
-      ...formData,
-      type: selectedType,
-      uniqueKey: Date.now(),
+      ferti_pesti_fid,
+      ferti_pesti_name,
+      quantity: Number(quantity),
+      unit_fid: formData.unit_fid,
+      unit_name: formData.unit_name,
+      no_of_applications: Number(no_of_applications),
+      isFromAPI: false, // 🔥 important
     };
 
-    setAllItems(prev => [...prev, newItem]);
+    setAmendmentData(prev => ({
+      ...prev,
+      [selectedType]: [...prev[selectedType], newEntry],
+    }));
 
     setFormData({
-      ferti_pesti_fid: '',
-      quantity: '',
-      unit_fid: '',
-      no_of_applications: '',
+      ferti_pesti_fid,
+      ferti_pesti_name,
+      quantity: Number(quantity),
+      unit_fid: formData.unit_fid,
+      unit_name: formData.unit_name,
+      no_of_applications: Number(no_of_applications),
+      isFromAPI: false, // 🔥 important
     });
   };
 
   const deleteAmendment = index => {
-    const updated = [...allItems];
-    updated.splice(index, 1);
-    setAllItems(updated);
+    setAmendmentData(prev => ({
+      ...prev,
+      [selectedType]: prev[selectedType].filter((_, i) => i !== index),
+    }));
   };
-  const formatAmendmentPayload = (allItems, cu_rel_id) => {
+
+  const allItems = Object.entries(amendmentData).flatMap(([type, items]) =>
+    items.map((item, index) => ({
+      ...item,
+      type,
+      uniqueKey: `${type}-${index}`,
+    })),
+  );
+
+   const handleAmendmentTypes = (item) => {
+    console.log('Selected amendment type:', selectedType, 'Item:', item.value);
+    setFormData(prev => ({
+      ...prev,
+      ferti_pesti_fid: item.value,
+      ferti_pesti_name: item.label,
+    }));
+
+  }
+   const handleAmendmentUnit = (item) => {
+    console.log('Selected amendment unit:', selectedType, 'Item:', item.value);
+    setFormData(prev => ({
+      ...prev,
+      unit_fid: item.value,
+      unit_name: item.label,
+    }));
+  }
+   const formatAmendmentPayload = (allItems, cu_rel_id) => {
     const groupedData = {
       cu_rel_fid: cu_rel_id,
       organic_amendment_type: [],
@@ -354,15 +412,34 @@ const FarmerLiveHood = ({
     };
 
     allItems.forEach(item => {
-      const { type, uniqueKey, ...rest } = item;
+      const {type, uniqueKey, isFromAPI, ...rest} = item;
 
-      if (groupedData[type]) {
+      // 🔥 Only push locally added items
+      if (!isFromAPI && groupedData[type]) {
         groupedData[type].push(rest);
       }
     });
 
     return groupedData;
   };
+  // const formatAmendmentPayload = (allItems, cu_rel_id) => {
+  //   const groupedData = {
+  //     cu_rel_fid: cu_rel_id,
+  //     organic_amendment_type: [],
+  //     fertilizers: [],
+  //     pesticide: [],
+  //   };
+
+  //   allItems.forEach(item => {
+  //     const {type, uniqueKey, ...rest} = item;
+
+  //     if (groupedData[type]) {
+  //       groupedData[type].push(rest);
+  //     }
+  //   });
+
+  //   return groupedData;
+  // };
 
   const fetchAndGroupPestDetails = async cuRelId => {
     if (!cuRelId) return;
@@ -411,34 +488,34 @@ const FarmerLiveHood = ({
       console.log('Error fetching pest details:', error);
     }
   };
-  useEffect(() => {
-    const apiItems = [];
-    Object.keys(amendmentData).forEach(type => {
-      amendmentData[type].forEach(item => {
-        apiItems.push({
-          ...item,
-          type: type.toLowerCase(),
-          uniqueKey: `api-${item.ferti_pesti_fid}-${Date.now()}`,
-          isFromAPI: true,
-        });
-      });
-    });
+  // useEffect(() => {
+  //   const apiItems = [];
+  //   Object.keys(amendmentData).forEach(type => {
+  //     amendmentData[type].forEach(item => {
+  //       apiItems.push({
+  //         ...item,
+  //         type: type.toLowerCase(),
+  //         uniqueKey: `api-${item.ferti_pesti_fid}-${Date.now()}`,
+  //         isFromAPI: true,
+  //       });
+  //     });
+  //   });
 
-    if (apiItems.length > 0) {
-      setAllItems(apiItems);
-    }
-  }, [amendmentData]);
+  //   if (apiItems.length > 0) {
+  //     setAllItems(apiItems);
+  //   }
+  // }, [amendmentData]);
   const onPageLoad = async () => {
     try {
       setIsLoading(true);
-      const { latitude, longitude } = coords;
+      const {latitude, longitude} = coords;
       var latLong;
       if (latitude == '' && longitude == '') {
         latLong = await getHighAccuracyLocation();
       }
       const lat = latitude === '' ? latLong.latitude : latitude;
       const lon = longitude === '' ? latLong.longitude : longitude;
-      setDefaultLatLon({ latitude: lat, longitude: lon, accuracy: 10 });
+      setDefaultLatLon({latitude: lat, longitude: lon, accuracy: 10});
       let groupedData;
       const axiosConfig = {
         headers: {
@@ -451,7 +528,7 @@ const FarmerLiveHood = ({
           farmerID: user_id,
         }),
         token,
-        { information: `${dbname},${lan_id}` },
+        {information: `${dbname},${lan_id}`},
       );
       // problemPlotAgainstFarmerAPI(
       //   dbname,
@@ -484,7 +561,7 @@ const FarmerLiveHood = ({
             farmeruserID: user_id,
           }),
           token,
-          { information: `${dbname},${lan_id}` },
+          {information: `${dbname},${lan_id}`},
         ),
         // PlotSiteUserLandDetails(dbname, lan_id, token, user_id),
         LandUnitArea(dbname, lan_id, token),
@@ -496,7 +573,158 @@ const FarmerLiveHood = ({
         produceVarietyAPI(dbname, lan_id),
         productionProcessAPI(dbname, lan_id),
       ]);
-      setreferencelatLong({ latitude: lat, longitude: lon });
+
+      //////////////////
+            const [
+              organicAmendmentRes,
+              fertilizerRes,
+              pesticideRes,
+              amendmentUnitRes,
+              plantationMethodRes,
+              waterSourceRes,
+              irrigationPracticeRes,
+              doRiceStubbleRes,
+              doStrawRes,
+              removedStrawRes,
+            ] = await Promise.all([
+              axiosGet(
+                ROUTES.GET.AMENDMENT_TYPE({
+                  categoryType: 'organic_amendment',
+                }),
+                token,
+                {information: `${dbname},${lan_id},${user_id}`},
+              ),
+              axiosGet(
+                ROUTES.GET.AMENDMENT_TYPE({
+                  categoryType: 'fertilizer',
+                }),
+                token,
+                {information: `${dbname},${lan_id},${user_id}`},
+              ),
+              axiosGet(
+                ROUTES.GET.AMENDMENT_TYPE({
+                  categoryType: 'pesticide',
+                }),
+                token,
+                {information: `${dbname},${lan_id},${user_id}`},
+              ),
+              axiosGet(
+                ROUTES.GET.ALL_UNIT({
+                  unit_type: 'product_unit',
+                  sub_type: '',
+                }),
+                token,
+                {information: `${dbname},${lan_id},${user_id}`},
+              ),
+              axiosGet(
+                ROUTES.GET.AMENDMENT_TYPE({
+                  categoryType: 'plantation_method',
+                }),
+                token,
+                {information: `${dbname},${lan_id},${user_id}`},
+              ),
+              axiosGet(
+                ROUTES.GET.AMENDMENT_TYPE({
+                  categoryType: 'water_source',
+                }),
+                token,
+                {information: `${dbname},${lan_id},${user_id}`},
+              ),
+              axiosGet(
+                ROUTES.GET.AMENDMENT_TYPE({
+                  categoryType: 'irrigation_practice',
+                }),
+                token,
+                {information: `${dbname},${lan_id},${user_id}`},
+              ),
+              axiosGet(
+                ROUTES.GET.AMENDMENT_TYPE({
+                  categoryType: 'after_harvest_what_do_you_do_with_rice_stubble',
+                }),
+                token,
+                {information: `${dbname},${lan_id},${user_id}`},
+              ),
+              axiosGet(
+                ROUTES.GET.AMENDMENT_TYPE({
+                  categoryType: 'after_harvest_what_do_you_do_with_the_straw',
+                }),
+                token,
+                {information: `${dbname},${lan_id},${user_id}`},
+              ),
+              axiosGet(
+                ROUTES.GET.AMENDMENT_TYPE({
+                  categoryType: 'end_use_of_removed_straw',
+                }),
+                token,
+                {information: `${dbname},${lan_id},${user_id}`},
+              ),
+            ]);
+      
+            if (organicAmendmentRes?.status === 200) {
+              // const {rows} = organicAmendmentRes?.data?.data || {};
+               const organicAmendmentArr = organicAmendmentRes?.data?.data?.rows.map(
+              data => ({value: data?.fid, label: data.categoryName}),
+            );
+              setOrganicAmendmentRes(organicAmendmentArr);
+            }
+             if (fertilizerRes?.status === 200) {
+               const fertilizerArr = fertilizerRes?.data?.data?.rows.map(
+              data => ({value: data?.fid, label: data.categoryName}),
+            );
+              setfertilizer(fertilizerArr);
+            }
+              if (pesticideRes?.status === 200) {
+                const pesticideArr = pesticideRes?.data?.data?.rows.map(
+                data => ({value: data?.fid, label: data.categoryName}),
+              );
+                setPesticide(pesticideArr);
+              }
+               if (amendmentUnitRes?.status === 200) {
+                const amendmentUnitArr = amendmentUnitRes?.data?.data?.rows.map(
+                data => ({value: data?.fid, label: data.name}),
+              );
+                setAmendmentUnit(amendmentUnitArr);
+              }
+             if (plantationMethodRes?.status === 200) {
+              const plantationMethodArr = plantationMethodRes?.data?.data?.rows.map(
+              data => ({value: data?.fid, label: data.categoryName}),
+            );
+              setPlantationMethod(plantationMethodArr);
+            }
+            if (waterSourceRes?.status === 200) {
+              const waterSourceArr = waterSourceRes?.data?.data?.rows.map(
+                data => ({value: data?.fid, label: data.categoryName}),
+              );
+              setWaterSource(waterSourceArr);
+            }
+            if (irrigationPracticeRes?.status === 200) {
+             const irrigationPracticeArr = irrigationPracticeRes?.data?.data?.rows.map(
+                data => ({value: data?.fid, label: data.categoryName}),
+              );
+              setIrrigationPractice(irrigationPracticeArr);
+            }
+            if (doRiceStubbleRes?.status === 200) {
+            const  doRiceStubbleArr = doRiceStubbleRes?.data?.data?.rows.map(
+                data => ({value: data?.fid, label: data.categoryName}),
+              );
+              setRiceStubble(doRiceStubbleArr);
+            }
+            if (doStrawRes?.status === 200) {
+               const  doStrawArr = doStrawRes?.data?.data?.rows.map(
+                data => ({value: data?.fid, label: data.categoryName}),
+              );
+              setDoStraw(doStrawArr);
+            }
+            if (removedStrawRes?.status === 200) {
+               const removedStrawArr = removedStrawRes?.data?.data?.rows.map(
+                data => ({value: data?.fid, label: data.categoryName}),
+              );
+              setRemovedStraw(removedStrawArr);
+            }
+      
+      
+            //////////////////////////
+      setreferencelatLong({latitude: lat, longitude: lon});
       if (nearestLatLong_res.status == 200) {
         if (nearestLatLong_res.data.data.length > 0) {
           setnearPolData(nearestLatLong_res.data.data);
@@ -536,7 +764,7 @@ const FarmerLiveHood = ({
         }
       }
       if (LandUnitArea_res?.status == 200) {
-        const { count, rows } = LandUnitArea_res?.data?.data || {};
+        const {count, rows} = LandUnitArea_res?.data?.data || {};
         if (count > 0) {
           setLandAreaUnit(rows);
         } else {
@@ -544,7 +772,7 @@ const FarmerLiveHood = ({
         }
       }
       if (LandUnitsquare_metre_res?.status == 200) {
-        const { count, rows } = LandUnitsquare_metre_res?.data?.data || {};
+        const {count, rows} = LandUnitsquare_metre_res?.data?.data || {};
         if (count > 0) {
           setLandUnitsquareMetre(rows);
         } else {
@@ -614,11 +842,11 @@ const FarmerLiveHood = ({
       crop_cycl_start_date: '',
     });
     setAddressProof([
-      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
-      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
-      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
-      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
-      { uri: '', name: '', type: '', fileName: '', id: '', isvalid: false },
+      {uri: '', name: '', type: '', fileName: '', id: '', isvalid: false},
+      {uri: '', name: '', type: '', fileName: '', id: '', isvalid: false},
+      {uri: '', name: '', type: '', fileName: '', id: '', isvalid: false},
+      {uri: '', name: '', type: '', fileName: '', id: '', isvalid: false},
+      {uri: '', name: '', type: '', fileName: '', id: '', isvalid: false},
     ]);
   };
   const handleHarvested = async data => {
@@ -631,6 +859,20 @@ const FarmerLiveHood = ({
         productionSeasonValue: '',
         cycleStartDate: '',
         cycleEndDate: '',
+        final_yield_qty: '',
+        final_yield_unit: '',
+        plantation_method: '',
+        seeding_date: '',
+        water_source: '',
+        gap_seeding_firrig: '',
+        irri_practice: '',
+        drying_period_prac: '',
+        gap_draining_harvest: '',
+        after_harvest_rice_stubble: '',
+        after_harvest_straw: '',
+        straw_removed: '',
+        straw_incorporate: '',
+        end_usg_rm_straw: '',
       });
     } else {
       setFarmerData({
@@ -655,8 +897,27 @@ const FarmerLiveHood = ({
         IOTLatLong: '',
         IOTLatlat: '',
         crop_cycl_start_date: '',
+        final_yield_qty: '',
+        final_yield_unit: '',
+        plantation_method: '',
+        seeding_date: '',
+        water_source: '',
+        gap_seeding_firrig: '',
+        irri_practice: '',
+        drying_period_prac: '',
+        gap_draining_harvest: '',
+        after_harvest_rice_stubble: '',
+        after_harvest_straw: '',
+        straw_removed: '',
+        straw_incorporate: '',
+        end_usg_rm_straw: '',
       });
     }
+  };
+
+   const handleseedDatePicker = async item => {
+    const selectedDate = effective_dates(item);
+    setFarmerData(prev => ({...prev, ['seeding_date']: selectedDate}));
   };
   const handleDatePicker = async item => {
     const selectedDate = effective_dates(item);
@@ -698,10 +959,10 @@ const FarmerLiveHood = ({
   };
   const handleDatePicker2 = item => {
     const effective_date = effective_dates(item);
-    setFarmerData({ ...farmerData, cycleEndDate: effective_date });
+    setFarmerData({...farmerData, cycleEndDate: effective_date});
   };
   const handleCurrentLatLong = async index => {
-    const { latitude, longitude } = coords;
+    const {latitude, longitude} = coords;
     const values = [...location];
     var latLong;
     if (latitude == '' && longitude == '') {
@@ -716,7 +977,7 @@ const FarmerLiveHood = ({
       lat > 0 &&
       lon > 0
     ) {
-      values[index] = { latitude: lat, longitude: lon };
+      values[index] = {latitude: lat, longitude: lon};
       setLocation(values);
       const filteredDatalatLong = values.filter(
         item => item?.latitude !== '' && item?.latitude != 0,
@@ -731,7 +992,7 @@ const FarmerLiveHood = ({
         if (landUnitsquareMetre?.[0]?.defined_unit_value) {
           setArea(
             Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-            geolib.getAreaOfPolygon(filteredDatalatLong),
+              geolib.getAreaOfPolygon(filteredDatalatLong),
           );
         } else {
           setArea(geolib.getAreaOfPolygon(filteredDatalatLong));
@@ -765,7 +1026,7 @@ const FarmerLiveHood = ({
           Number(selectUnitValue) * Number(farmerData.land_size),
       });
     } else {
-      setFarmerData({ ...farmerData, [name]: item.label, [value]: item.value });
+      setFarmerData({...farmerData, [name]: item.label, [value]: item.value});
       if (name === 'terrainType') {
         livelihoodTypeAPI(dbname, lan_id, item.value, '');
       }
@@ -892,7 +1153,7 @@ const FarmerLiveHood = ({
     productionProcessAPI(dbname, lan_id);
   };
   const handleAddDataUnitProduct = item => {
-    const { label, value } = item;
+    const {label, value} = item;
     setFarmerData(prev => ({
       ...prev,
       unitProduct: label,
@@ -974,7 +1235,7 @@ const FarmerLiveHood = ({
         crop_name_id: crop_name_id,
       }),
       '',
-      { information: `${dbName},${languageID}` },
+      {information: `${dbName},${languageID}`},
     );
 
     // ProductionSeasonAndApi(
@@ -1045,12 +1306,12 @@ const FarmerLiveHood = ({
     const productionProcessRes = await axiosGet(
       ROUTES.GET.PRODUCTION_PROCESS({}),
       '',
-      { information: `${dbName},${languageID}` },
+      {information: `${dbName},${languageID}`},
     );
     // ProductionProcessAPI(dbName, languageID);
     if (productionProcessRes?.status == 200) {
       productionProcessRes.data.data.rows.map((data, index) => {
-        productionProcessArr.push({ value: data.fid, label: data.name });
+        productionProcessArr.push({value: data.fid, label: data.name});
       });
       setProductionProcess(productionProcessArr);
     }
@@ -1059,7 +1320,7 @@ const FarmerLiveHood = ({
     const ProductionUnitRes = await axiosGet(
       ROUTES.GET.PRODUCTION_UNIT({}),
       '',
-      { information: `${dbName},${languageID}` },
+      {information: `${dbName},${languageID}`},
     );
     // ProductionUnitAPI(dbName, languageID);
     if (ProductionUnitRes?.status == 200) {
@@ -1084,7 +1345,7 @@ const FarmerLiveHood = ({
       const locationArry = [];
       const latlongArr = [];
       if (location?.[0]?.editing == true && statuslevel.label != '') {
-        const { latitude, longitude } = coords || {};
+        const {latitude, longitude} = coords || {};
         var latlong;
         if (latitude == '' && longitude == '') {
           latlong = await getHighAccuracyLocation();
@@ -1092,7 +1353,7 @@ const FarmerLiveHood = ({
         const lat = latitude === '' ? latlong.latitude : latitude;
         const lon = longitude === '' ? latlong.longitude : longitude;
         const distances = previousPlotLatlong.map(p =>
-          getDistance(p, { lat, lon }),
+          getDistance(p, {lat, lon}),
         );
       }
 
@@ -1131,7 +1392,7 @@ const FarmerLiveHood = ({
                       ),
                   },
                 ],
-                { cancelable: false },
+                {cancelable: false},
               );
               setIsLoading(false);
               return;
@@ -1149,15 +1410,27 @@ const FarmerLiveHood = ({
           });
         }
       });
-      const hasLandProof = addressProof?.some(file => file?.uri && file.uri.trim() !== '');
-      if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && hasLandProof && !farmerData.daag_no) {
+      const hasLandProof = addressProof?.some(
+        file => file?.uri && file.uri.trim() !== '',
+      );
+      if (
+        dbLanTokUsr?.carbonType !== 'mangrove' &&
+        carbonFlag &&
+        hasLandProof &&
+        !farmerData.daag_no
+      ) {
         Toast.show({
           text: 'Please enter Daag Number',
           ...AlertMesg[0],
         });
         return;
       }
-      if (dbLanTokUsr?.carbonType !== 'mangrove' && carbonFlag && hasLandProof && !farmerData.jl_no) {
+      if (
+        dbLanTokUsr?.carbonType !== 'mangrove' &&
+        carbonFlag &&
+        hasLandProof &&
+        !farmerData.jl_no
+      ) {
         Toast.show({
           text: 'Please enter JL Number',
           ...AlertMesg[0],
@@ -1185,9 +1458,9 @@ const FarmerLiveHood = ({
           ...AlertMesg[0],
         });
       } else if (farmerData.unitValue == '') {
-        Toast.show({ text: `${t('please_select_unit_first')}`, ...AlertMesg[0] });
+        Toast.show({text: `${t('please_select_unit_first')}`, ...AlertMesg[0]});
       } else if (farmerData.land_size == '') {
-        Toast.show({ text: `${t('please_enter_unit')}`, ...AlertMesg[0] });
+        Toast.show({text: `${t('please_enter_unit')}`, ...AlertMesg[0]});
       } else if (locationArry.length == 0) {
         Toast.show({
           text: `${t('please_submit_location_first')}`,
@@ -1218,16 +1491,22 @@ const FarmerLiveHood = ({
           text: `${t('please_select_production_system_first')}`,
           ...AlertMesg[0],
         });
-      } else if (dbLanTokUsr?.carbonType !== 'mangrove' && farmerData.expectedProduction == '') {
-        Toast.show({ text: `${t('please_give_yeild_size')}`, ...AlertMesg[0] });
-      } else if (dbLanTokUsr?.carbonType !== 'mangrove' && farmerData.unitProductValue == '') {
-        Toast.show({ text: `${t('please_select_yeild_unit')}`, ...AlertMesg[0] });
+      } else if (
+        dbLanTokUsr?.carbonType !== 'mangrove' &&
+        farmerData.expectedProduction == ''
+      ) {
+        Toast.show({text: `${t('please_give_yeild_size')}`, ...AlertMesg[0]});
+      } else if (
+        dbLanTokUsr?.carbonType !== 'mangrove' &&
+        farmerData.unitProductValue == ''
+      ) {
+        Toast.show({text: `${t('please_select_yeild_unit')}`, ...AlertMesg[0]});
       } else if (farmerData.cycleStartDate == '') {
-        Toast.show({ text: 'Please Select Planting Date', ...AlertMesg[0] });
+        Toast.show({text: 'Please Select Planting Date', ...AlertMesg[0]});
       } else if (farmerData.cycleEndDate == '') {
-        Toast.show({ text: `${t('select_enddate_first')}`, ...AlertMesg[0] });
+        Toast.show({text: `${t('select_enddate_first')}`, ...AlertMesg[0]});
       } else if (defaultLand == false) {
-        Toast.show({ text: 'Please set default unit', ...AlertMesg[0] });
+        Toast.show({text: 'Please set default unit', ...AlertMesg[0]});
       } else if (convertionLUState == true) {
         Toast.show({
           text: 'Please add the unit equivalent factor to default unit',
@@ -1319,7 +1598,7 @@ const FarmerLiveHood = ({
             '',
           );
           if (AddLandCropDetails_res?.status === 200) {
-            Toast.show({ text: t('l_c_add_succ'), ...AlertMesg[0] });
+            Toast.show({text: t('l_c_add_succ'), ...AlertMesg[0]});
             onTabPress(0);
             // setTimeout(() => {
             //   navigation.navigate('FarmerDashboard');
@@ -1353,9 +1632,15 @@ const FarmerLiveHood = ({
             user_id: user_id,
             plot_no: farmerData.plot_Site_Name,
             createdBy: user_id,
-            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { daag_no: farmerData.daag_no }),
-            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { khatian_no: farmerData.khatian_no }),
-            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { jl_no: farmerData.jl_no }),
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && {
+              daag_no: farmerData.daag_no,
+            }),
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && {
+              khatian_no: farmerData.khatian_no,
+            }),
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && {
+              jl_no: farmerData.jl_no,
+            }),
             plant_number: farmerData.plant_number,
             mouja: farmerData.mouja,
             terrain_type_id: farmerData.terrainTypeValue,
@@ -1385,11 +1670,21 @@ const FarmerLiveHood = ({
             latlong_data: latlongArrString,
             google_area: cusGooglearea,
             plot_image: filterAddressImage,
-            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { yield_amount: farmerData.expectedProduction }),
-            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { yield_unit: farmerData.unitProductValue }),
-            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { device_no: farmerData.IOTId }),
-            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { device_lat: farmerData.IOTLatlat }),
-            ...(dbLanTokUsr?.carbonType !== 'mangrove' && { device_long: farmerData.IOTLatLong }),
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && {
+              yield_amount: farmerData.expectedProduction,
+            }),
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && {
+              yield_unit: farmerData.unitProductValue,
+            }),
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && {
+              device_no: farmerData.IOTId,
+            }),
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && {
+              device_lat: farmerData.IOTLatlat,
+            }),
+            ...(dbLanTokUsr?.carbonType !== 'mangrove' && {
+              device_long: farmerData.IOTLatLong,
+            }),
           };
           if (cusCropCyclStartDate) {
             dataToSend.crop_cycl_start_date = cusCropCyclStartDate;
@@ -1406,7 +1701,7 @@ const FarmerLiveHood = ({
               dataToSend,
               token,
               true,
-              { information: `${dbname},${lan_id},${user_id}` },
+              {information: `${dbname},${lan_id},${user_id}`},
             );
           } else {
             console.log(
@@ -1458,10 +1753,10 @@ const FarmerLiveHood = ({
           // if (filterAddressImage.length != 0) {
           let ADD_PLOTI_MGS_API_CALL = false;
           addressProof.map((data, index) => {
-            if (data.name != '' && data.id == '' && data.isvalid === "change") {
+            if (data.name != '' && data.id == '' && data.isvalid === 'change') {
               formDataPlotImg.append('plot_image', data);
             }
-            if (data.uri != "") {
+            if (data.uri != '') {
               ADD_PLOTI_MGS_API_CALL = true;
             }
           });
@@ -1471,7 +1766,15 @@ const FarmerLiveHood = ({
               isOnline
                 ? deletePlotImageAPI(dbname, lan_id, token, formDataDelete)
                 : Promise.resolve(null),
-              ADD_PLOTI_MGS_API_CALL ? addPlotImageAPI(dbname, lan_id, token, user_id, formDataPlotImg) : Promise.resolve(null),
+              ADD_PLOTI_MGS_API_CALL
+                ? addPlotImageAPI(
+                    dbname,
+                    lan_id,
+                    token,
+                    user_id,
+                    formDataPlotImg,
+                  )
+                : Promise.resolve(null),
               addCropInputAPI(dbname, lan_id, token, user_id, finalPayload),
             ]);
 
@@ -1479,8 +1782,8 @@ const FarmerLiveHood = ({
             Alert.alert(
               'File',
               addPlotImageAPIRes.data?.error?.errorMessage,
-              [{ text: 'OK', onPress: () => console.log(area) }],
-              { cancelable: false },
+              [{text: 'OK', onPress: () => console.log(area)}],
+              {cancelable: false},
             );
             setIsLoading(false);
             return;
@@ -1491,7 +1794,7 @@ const FarmerLiveHood = ({
           ) {
             const formdatauploadFarmerIdAdd = new FormData();
             if (identityProofIdentityPropf[0]?.uri != '') {
-              const { uri, type, name } = identityProofIdentityPropf[0];
+              const {uri, type, name} = identityProofIdentityPropf[0];
               formdatauploadFarmerIdAdd.append('farmer_address', {
                 uri,
                 type,
@@ -1499,7 +1802,7 @@ const FarmerLiveHood = ({
               });
             }
             if (identityProofIdentityPropf[1]?.id == '') {
-              const { uri, type, name } = identityProofIdentityPropf[1];
+              const {uri, type, name} = identityProofIdentityPropf[1];
               formdatauploadFarmerIdAdd.append('farmer_identity', {
                 uri,
                 type,
@@ -1562,7 +1865,8 @@ const FarmerLiveHood = ({
               }
             }
           }
-          const { plot_status, missing, rejected_documents } = addPlotImageAPIRes?.data?.data?.validationResponse || {}
+          const {plot_status, missing, rejected_documents} =
+            addPlotImageAPIRes?.data?.data?.validationResponse || {};
           if (missing?.length > 0) {
             const addressVal = [...addressProof];
             setSelectedTab('PLOT');
@@ -1573,27 +1877,27 @@ const FarmerLiveHood = ({
             setplotStatus({
               label: plot_status,
               value: plot_status,
-            })
+            });
             setIsLoading(false);
             // const updatedAddressProof = [...addressProof];
-            const updatedAddressProof = addressProof.map((data) => {
+            const updatedAddressProof = addressProof.map(data => {
               const isRejected = rejected_documents?.some(
-                (doc) => doc.file_title === data.fileName
+                doc => doc.file_title === data.fileName,
               );
 
               return {
                 fileName: data.fileName,
-                id: "",
-                isvalid: data.uri === "" ? true : isRejected,
+                id: '',
+                isvalid: data.uri === '' ? true : isRejected,
                 name: data.fileName,
                 type: data.type,
                 uri: data.uri,
-                value: "",
+                value: '',
               };
             });
             setAddressProof(updatedAddressProof);
             scrollToTop();
-            Toast.show({ text: missing, ...AlertMesg[0] });
+            Toast.show({text: missing, ...AlertMesg[0]});
             setIsLoading(false);
             return;
           } else {
@@ -1603,7 +1907,7 @@ const FarmerLiveHood = ({
             if (updateLandCropdetails_res?.status === 200) {
               removesetLocation();
 
-              Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
+              Toast.show({text: t('l_c_update_succ'), ...AlertMesg[0]});
               onTabPress(0);
               // setTimeout(() => {
               //   navigation.navigate('FarmerDashboard');
@@ -1618,7 +1922,7 @@ const FarmerLiveHood = ({
           } else {
             if (cropInputRes?.status === 200) {
               removesetLocation();
-              Toast.show({ text: t('l_c_update_succ'), ...AlertMesg[0] });
+              Toast.show({text: t('l_c_update_succ'), ...AlertMesg[0]});
               onTabPress(0);
             } else {
               setIsLoading(false);
@@ -1679,7 +1983,7 @@ const FarmerLiveHood = ({
             crop_name_id: '',
           }),
           '',
-          { information: `${dbname},${lan_id}` },
+          {information: `${dbname},${lan_id}`},
         ),
         // // ProductionSeasonAndApi(dbname, lan_id, ''),
 
@@ -1711,8 +2015,8 @@ const FarmerLiveHood = ({
       setPlotId(findData.value);
       if (getPlotDoc?.status == 200) {
         //basudev
-        const { count } = getPlotDoc?.data?.data;
-        const { plot_img, landUserImgs } = getPlotDoc?.data?.data?.rows[0] || {};
+        const {count} = getPlotDoc?.data?.data;
+        const {plot_img, landUserImgs} = getPlotDoc?.data?.data?.rows[0] || {};
         const values = [...addressProof];
         const carbonCertificateValues = [...carboncertificate];
         const filteredPlotImages = plot_img.filter(
@@ -1849,8 +2153,8 @@ const FarmerLiveHood = ({
               Alert.alert(
                 'Note',
                 'You will not be able to edit Geo Locations, Plot/Site Size and Land Record Documents.',
-                [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-                { cancelable: false },
+                [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+                {cancelable: false},
               );
             }
             setplotStatus(prev => ({
@@ -1884,7 +2188,7 @@ const FarmerLiveHood = ({
             if (landUnitsquareMetre?.[0]?.defined_unit_value) {
               setArea(
                 Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-                Number(data.land_info?.google_area),
+                  Number(data.land_info?.google_area),
               );
             } else {
               setArea(data.land_info?.google_area);
@@ -1906,7 +2210,8 @@ const FarmerLiveHood = ({
                 plot_Site_Name: findData?.label,
 
                 expectedProduction: dataProps?.plot_crops[0]?.yield_amount,
-                cycleStartDate: dataProps?.plot_crops[0]?.sowing_date?.split('T')[0],
+                cycleStartDate:
+                  dataProps?.plot_crops[0]?.sowing_date?.split('T')[0],
                 cycleEndDate:
                   dataProps?.plot_crops[0]?.harvesting_date.substring(-1, 10),
 
@@ -1919,11 +2224,13 @@ const FarmerLiveHood = ({
                 unit: dataLandDetails?.land_unit?.name,
                 unitValue: dataLandDetails?.land_unit?.fid,
 
-                productionSeason: `${dataProps?.plot_crops[0]?.cropSeasonTime?.season_info?.name
-                  }${dataProps?.plot_crops[0]?.cropSeasonTime?.year
+                productionSeason: `${
+                  dataProps?.plot_crops[0]?.cropSeasonTime?.season_info?.name
+                }${
+                  dataProps?.plot_crops[0]?.cropSeasonTime?.year
                     ? '(' + dataProps?.plot_crops[0]?.cropSeasonTime?.year + ')'
                     : ''
-                  }`,
+                }`,
 
                 productionSeasonValue:
                   dataProps?.plot_crops[0]?.cropSeasonTime?.season_fid,
@@ -2008,10 +2315,11 @@ const FarmerLiveHood = ({
                 soilTypeValue: dataLandDetails?.soil_type?.fid,
                 unit: dataLandDetails?.land_unit?.name,
                 unitValue: dataLandDetails?.land_unit?.fid,
-                productionSeason: `${data?.crop_season?.name}  ${data?.cropSeasonTime?.year
-                  ? '(' + data?.cropSeasonTime?.year + ')'
-                  : ''
-                  }`,
+                productionSeason: `${data?.crop_season?.name}  ${
+                  data?.cropSeasonTime?.year
+                    ? '(' + data?.cropSeasonTime?.year + ')'
+                    : ''
+                }`,
                 productionSeasonValue: data?.crop_season?.fid,
                 productionSeasonSdId: data?.season_date_fid,
                 livelihoodType: data?.crop_type?.name,
@@ -2033,9 +2341,31 @@ const FarmerLiveHood = ({
                 ConvertedreportedLandsize:
                   Number(dataLandDetails?.land_unit?.defined_unit_value) *
                   Number(dataLandDetails?.land_size),
+                  final_yield_qty: data?.final_yield_qty,
+                  final_yield_unit: data?.final_yield_unit,
+                  plantation_method: data?.plantation_method,
+                  seeding_date: data?.seeding_date,
+                  water_source: data?.water_source,
+                  gap_seeding_firrig: String(data?.gap_seeding_firrig ?? ''),
+                  irri_practice: data?.irri_practice,
+                  drying_period_prac: data?.drying_period_prac,
+                  gap_draining_harvest: String(
+                    data?.gap_draining_harvest ?? '',
+                  ),
+                  after_harvest_rice_stubble: data?.after_harvest_rice_stubble,
+                  after_harvest_straw: data?.after_harvest_straw,
+                  straw_removed: data?.straw_removed,
+                  straw_incorporate: data?.straw_incorporate,
+                  end_usg_rm_straw: data?.end_usg_rm_straw,
               }));
               fetchAndGroupPestDetails(data?.cu_rel_id);
             }
+             produceNameAPI(
+                dbname,
+                lan_id,
+                data?.crop_type?.fid,
+                data?.crop_name?.fid,
+              );
             const seasonData = await axiosGet(
               ROUTES.GET.PRODUCE_SEASON({
                 crop_name_fid: data?.crop_name?.fid,
@@ -2060,13 +2390,14 @@ const FarmerLiveHood = ({
               );
             }
             if (!historyData) {
-
               const row = seasonData?.data?.data?.rows?.find(
-                item => item.sd_id === data?.cropSeasonTime?.sd_id
+                item => item.sd_id === data?.cropSeasonTime?.sd_id,
               );
 
               if (row) {
-                setMinStartDate(row?.start_date ? new Date(row.start_date) : null);
+                setMinStartDate(
+                  row?.start_date ? new Date(row.start_date) : null,
+                );
                 setMaxStartDate(row?.end_date ? new Date(row.end_date) : null);
 
                 setMinHarvestDate(
@@ -2141,9 +2472,9 @@ const FarmerLiveHood = ({
               };
             } else {
               if (agri_land_user_latlongs[0] == undefined) {
-                values[index + 1] = { latitude: '', longitude: '' };
+                values[index + 1] = {latitude: '', longitude: ''};
               } else {
-                values[index] = { latitude: '', longitude: '' };
+                values[index] = {latitude: '', longitude: ''};
               }
             }
           });
@@ -2180,9 +2511,9 @@ const FarmerLiveHood = ({
         }
         //basudev out of range
         if (agri_land_user_latlongs.length > 1) {
-          const { latitude, longitude } = coords;
+          const {latitude, longitude} = coords;
           const is20Meters = isWithin20Meters(
-            { latitude, longitude },
+            {latitude, longitude},
             agri_land_user_latlongs,
             40,
           );
@@ -2205,10 +2536,10 @@ const FarmerLiveHood = ({
         const productSeasonresResArr = [];
         const livelihoodTypeArr = [];
         productSeasonresRes.data.data?.crop_season?.map((data, index) => {
-          productSeasonresResArr.push({ value: data.fid, label: data.name });
+          productSeasonresResArr.push({value: data.fid, label: data.name});
         });
         productSeasonresRes.data.data?.crop_type?.map((data, index) => {
-          livelihoodTypeArr.push({ value: data.fid, label: data.name });
+          livelihoodTypeArr.push({value: data.fid, label: data.name});
         });
         // setProductionSeason(productSeasonresResArr);
         setLivelihoodType(livelihoodTypeArr);
@@ -2228,11 +2559,11 @@ const FarmerLiveHood = ({
     setPreviousPlotLatlong([]);
     setArea(0);
     setPlotEdit(true);
-    setstatuslevel({ label: '', value: '' });
-    setplotStatus({ label: '', value: '' });
+    setstatuslevel({label: '', value: ''});
+    setplotStatus({label: '', value: ''});
   };
   const handleAddUserData = (name, data) => {
-    setFarmerData(prev => ({ ...prev, [`${name}`]: data }));
+    setFarmerData(prev => ({...prev, [`${name}`]: data}));
   };
   const handleAddUserDataland_size = useCallback(
     text => {
@@ -2246,7 +2577,7 @@ const FarmerLiveHood = ({
   );
   const handleAddDataUnit = useCallback(
     item => {
-      const { label, value } = item;
+      const {label, value} = item;
       let selectUnitValue = '';
       if (farmerData.unit_valueArr != '') {
         JSON.parse(farmerData.unit_valueArr).map((data, index) => {
@@ -2268,74 +2599,109 @@ const FarmerLiveHood = ({
     [farmerData.land_size],
   );
   const handleAddUserDataPlot = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['plot_Site_Name']: text }));
+    setFarmerData(prev => ({...prev, ['plot_Site_Name']: text}));
   }, []);
   const handleAddUserDataDaag = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['daag_no']: text }));
+    setFarmerData(prev => ({...prev, ['daag_no']: text}));
   }, []);
   const handleAddUserDataKKhatian = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['khatian_no']: text }));
+    setFarmerData(prev => ({...prev, ['khatian_no']: text}));
   }, []);
   const handleAddUserDataPlanNumber = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['plant_number']: text }));
+    setFarmerData(prev => ({...prev, ['plant_number']: text}));
   }, []);
   const handleAddUserDataJLNo = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['jl_no']: text }));
+    setFarmerData(prev => ({...prev, ['jl_no']: text}));
   }, []);
   const handleAddUserDataMouja = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['mouja']: text }));
+    setFarmerData(prev => ({...prev, ['mouja']: text}));
   }, []);
   const handleAddUserDataYield = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['yield']: text }));
+    setFarmerData(prev => ({...prev, ['yield']: text}));
   }, []);
-  const handleAddUserDataPlantationMethod = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['plantation_method']: text }));
-  }, []);
+ const handleAddUserDataPlantationMethod = useCallback(item => {
+      const {label, value} = item;
+     setFarmerData(prev => ({
+       ...prev,
+       plantation_method: value,
+       plantation_methodlabel: label,
+     }));
+   }, []);
 
-  const handleAddUserDataWaterSource = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['water_source']: text }));
-  }, []);
+ const handleAddUserDataWaterSource = useCallback(item => {
+      const {label, value} = item;
+     setFarmerData(prev => ({
+       ...prev,
+       water_source: value,
+       water_sourcelabel: label,
+     }));
+   }, []);
   const handleAddUserDataGapSeedingFirrig = useCallback(text => {
     if (text === '' || numericRegex.test(text)) {
-      setFarmerData(prev => ({ ...prev, ['gap_seeding_firrig']: text }));
+      setFarmerData(prev => ({...prev, ['gap_seeding_firrig']: text}));
     }
   }, []);
-  const handleAddUserDataIrriPractice = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['irri_practice']: text }));
-  }, []);
+   const handleAddUserDataIrriPractice = useCallback(item => {
+     
+      const {label, value} = item;
+      setFarmerData(prev => ({
+        ...prev,
+        irri_practice: value,
+        irri_practicelabel: label,
+      }));
+    }, []);
 
   const handleAddUserDataDryingPeriodPrac = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['drying_period_prac']: text }));
+    setFarmerData(prev => ({...prev, ['drying_period_prac']: text}));
   }, []);
   const handleAddUserDataGapDrainingHarvest = useCallback(text => {
     if (text === '' || numericRegex.test(text)) {
-      setFarmerData(prev => ({ ...prev, ['gap_draining_harvest']: text }));
+      setFarmerData(prev => ({...prev, ['gap_draining_harvest']: text}));
     }
   }, []);
-  const handleAddUserDataAfterHarvestRiceStubble = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['after_harvest_rice_stubble']: text }));
-  }, []);
-  const handleAddUserDataAfterHarvestStraw = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['after_harvest_straw']: text }));
-  }, []);
+  const handleAddUserDataAfterHarvestRiceStubble = useCallback(item => {
+      // setFarmerData(prev => ({...prev, ['after_harvest_rice_stubble']: text}));
+       const {label, value} = item;
+      setFarmerData(prev => ({
+        ...prev,
+        after_harvest_rice_stubble: value,
+        after_harvest_rice_stubblelabel: label,
+      }));
+    }, []);
+    const handleAddUserDataAfterHarvestStraw = useCallback(item => {
+      // setFarmerData(prev => ({...prev, ['after_harvest_straw']: text}));
+       const {label, value} = item;
+      setFarmerData(prev => ({
+        ...prev,
+        after_harvest_straw: value,
+        after_harvest_strawlabel: label,
+      }));
+    }, []);
+
 
   const handleAddUserDataStrawRemoved = useCallback(text => {
     if (text === '' || numericRegex.test(text)) {
-      setFarmerData(prev => ({ ...prev, ['straw_removed']: text }));
+      setFarmerData(prev => ({...prev, ['straw_removed']: text}));
     }
   }, []);
   const handleAddUserDataStrawIncorporate = useCallback(text => {
     if (text === '' || numericRegex.test(text)) {
-      setFarmerData(prev => ({ ...prev, ['straw_incorporate']: text }));
+      setFarmerData(prev => ({...prev, ['straw_incorporate']: text}));
     }
   }, []);
-  const handleAddUserDataEndUsgRmStraw = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['end_usg_rm_straw']: text }));
-  }, []);
+  const handleAddUserDataEndUsgRmStraw = useCallback(item => {
+      // setFarmerData(prev => ({...prev, ['end_usg_rm_straw']: text}));
+      const {label, value} = item;
+      setFarmerData(prev => ({
+        ...prev,
+        end_usg_rm_straw: value,
+        end_usg_rm_strawlabel: label,
+      }));
+    }, []);
 
   const handleAddDataYieldUnitProduct = useCallback(text => {
     if (text === '' || numericRegex.test(text)) {
-      setFarmerData(prev => ({ ...prev, ['expectedProduction']: text }));
+      setFarmerData(prev => ({...prev, ['expectedProduction']: text}));
     }
   }, []);
   const handleAddUserDataFinalYield = useCallback(text => {
@@ -2347,11 +2713,17 @@ const FarmerLiveHood = ({
       }));
     }
   }, []);
-  const handleAddUserDataFinalYieldUnit = useCallback(text => {
-    setFarmerData(prev => ({ ...prev, ['final_yield_unit']: text }));
+const handleAddUserDataFinalYieldUnit = useCallback(item => {
+    // setFarmerData(prev => ({...prev, ['final_yield_unit']: text}));
+     const {label, value} = item;
+    setFarmerData(prev => ({
+      ...prev,
+      final_yield_unit: value,
+      final_yield_unitLabel: label,
+    }));
   }, []);
   const handleAddDataTerrainType = useCallback(item => {
-    const { label, value } = item;
+    const {label, value} = item;
     setFarmerData(prev => ({
       ...prev,
       terrainType: label,
@@ -2360,7 +2732,7 @@ const FarmerLiveHood = ({
     livelihoodTypeAPI(dbname, lan_id, value, '');
   }, []);
   const handleAddDataLandType = useCallback(item => {
-    const { label, value } = item;
+    const {label, value} = item;
     setFarmerData(prev => ({
       ...prev,
       landType: label,
@@ -2368,7 +2740,7 @@ const FarmerLiveHood = ({
     }));
   }, []);
   const handleAddDataSoilType = useCallback(item => {
-    const { label, value } = item;
+    const {label, value} = item;
     setFarmerData(prev => ({
       ...prev,
       soilType: label,
@@ -2394,9 +2766,9 @@ const FarmerLiveHood = ({
         'CARBON_DOCUMENTS_REJECTED',
       ].includes(statuslevel.label)
     ) {
-      const { latitude, longitude } = event.nativeEvent.coordinate;
+      const {latitude, longitude} = event.nativeEvent.coordinate;
       const groupedData = groupByRelId(nearPolData);
-      setNewPolygon([...newPolygon, { latitude, longitude, editing: true }]);
+      setNewPolygon([...newPolygon, {latitude, longitude, editing: true}]);
     }
   };
   // GRQ-1132
@@ -2443,7 +2815,7 @@ const FarmerLiveHood = ({
         if (landUnitsquareMetre?.[0]?.defined_unit_value) {
           setArea(
             Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-            geolib.getAreaOfPolygon(newPolygon),
+              geolib.getAreaOfPolygon(newPolygon),
           );
         } else {
           setArea(geolib.getAreaOfPolygon(newPolygon));
@@ -2462,7 +2834,7 @@ const FarmerLiveHood = ({
         if (landUnitsquareMetre?.[0]?.defined_unit_value) {
           setArea(
             Number(landUnitsquareMetre?.[0]?.defined_unit_value) *
-            geolib.getAreaOfPolygon(newPolygon),
+              geolib.getAreaOfPolygon(newPolygon),
           );
         } else {
           setArea(geolib.getAreaOfPolygon(newPolygon));
@@ -2471,8 +2843,8 @@ const FarmerLiveHood = ({
         Alert.alert(
           'Overlap Detected',
           'Coordinates are overlapping',
-          [{ text: 'OK', onPress: () => console.log('OK Pressed') }],
-          { cancelable: false },
+          [{text: 'OK', onPress: () => console.log('OK Pressed')}],
+          {cancelable: false},
         );
       }
     } else {
@@ -2491,7 +2863,7 @@ const FarmerLiveHood = ({
     }
   };
   const clearNewPolygon = () => {
-    setFarmerData({ ...farmerData, google_area: 0 });
+    setFarmerData({...farmerData, google_area: 0});
     if (userData == 'addUserData' || addPlot == true) {
       setNewPolygon([]);
       // setPolygons([]);
@@ -2542,16 +2914,16 @@ const FarmerLiveHood = ({
   // GRQ-1135
   const removesetLocation = () => {
     setLocation([
-      { latitude: '', longitude: '' },
+      {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
       // {latitude: '', longitude: ''},
     ]);
     setAddressProof([
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
-      { uri: '', name: '', type: '', fileName: '', id: '' },
+      {uri: '', name: '', type: '', fileName: '', id: ''},
+      {uri: '', name: '', type: '', fileName: '', id: ''},
+      {uri: '', name: '', type: '', fileName: '', id: ''},
+      {uri: '', name: '', type: '', fileName: '', id: ''},
+      {uri: '', name: '', type: '', fileName: '', id: ''},
     ]);
     setPhotoDeletedValue([]);
   };
@@ -2585,7 +2957,7 @@ const FarmerLiveHood = ({
 
   const handleIOTId = useCallback(async text => {
     try {
-      setFarmerData(prev => ({ ...prev, IOTId: text }));
+      setFarmerData(prev => ({...prev, IOTId: text}));
     } catch (error) {
       console.log('Error in handleIOTId', error);
     }
@@ -2593,7 +2965,7 @@ const FarmerLiveHood = ({
   const handleCurrentLatLongIOT = useCallback(async () => {
     try {
       // const { latitude, longitude } = coords || {};
-      const { latitude, longitude } = await getHighAccuracyLocation();
+      const {latitude, longitude} = await getHighAccuracyLocation();
 
       setFarmerData(prev => ({
         ...prev,
@@ -2615,7 +2987,7 @@ const FarmerLiveHood = ({
     );
   };
   const handleRegionChangeComplete = async newRegion => {
-    const { latitude, longitude } = newRegion;
+    const {latitude, longitude} = newRegion;
     regionRef.current = newRegion;
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -2710,6 +3082,14 @@ const FarmerLiveHood = ({
   }, [statuslevel.label, harvested]);
   return (
     <MyErrorBoundary>
+    <DatePickerComp
+          openDate={seddingData}
+          newDate={minStartDate}
+          minimumDate={minStartDate}
+          maximumDate={maxHarvestDate}
+          setOpenDate={setseddingData}
+          handleDatePicker={handleseedDatePicker}
+        />
       <DatePickerComp
         openDate={penCycleStart}
         newDate={minStartDate}
@@ -2760,8 +3140,9 @@ const FarmerLiveHood = ({
           padding: 16,
           backgroundColor: Colors.background,
         }}
-        showsVerticalScrollIndicator={false} ref={scrollViewRef}>
-        <View style={{ marginBottom: 40 }}>
+        showsVerticalScrollIndicator={false}
+        ref={scrollViewRef}>
+        <View style={{marginBottom: 40}}>
           {statuslevel.label == 'REJECTED' && (
             <View
               style={{
@@ -2809,39 +3190,37 @@ const FarmerLiveHood = ({
                   val={farmerData.plot_Site_Name}
                 />
               )}
-              {
-                dbLanTokUsr?.carbonType !== 'mangrove' && (
-                  <>
-                    <InputTextForm
-                      label={t('daag_no')}
-                      value={farmerData.daag_no}
-                      required={carbonFlag === true}
-                      onChangeText={handleAddUserDataDaag}
-                      editable={
-                        statuslevel.label == 'APPROVED' ||
-                          statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                          statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                          statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                          ? false
-                          : true
-                      }
-                    />
-                    <InputTextForm
-                      label={t('khatian_no')}
-                      value={farmerData.khatian_no}
-                      onChangeText={handleAddUserDataKKhatian}
-                      editable={
-                        statuslevel.label == 'APPROVED' ||
-                          statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                          statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                          statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                          ? false
-                          : true
-                      }
-                    />
-                  </>
-                )
-              }
+              {dbLanTokUsr?.carbonType !== 'mangrove' && (
+                <>
+                  <InputTextForm
+                    label={t('daag_no')}
+                    value={farmerData.daag_no}
+                    required={carbonFlag === true}
+                    onChangeText={handleAddUserDataDaag}
+                    editable={
+                      statuslevel.label == 'APPROVED' ||
+                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                        ? false
+                        : true
+                    }
+                  />
+                  <InputTextForm
+                    label={t('khatian_no')}
+                    value={farmerData.khatian_no}
+                    onChangeText={handleAddUserDataKKhatian}
+                    editable={
+                      statuslevel.label == 'APPROVED' ||
+                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                        ? false
+                        : true
+                    }
+                  />
+                </>
+              )}
 
               <InputTextForm
                 label={t('no_of_plants')}
@@ -2849,9 +3228,9 @@ const FarmerLiveHood = ({
                 onChangeText={handleAddUserDataPlanNumber}
                 editable={
                   statuslevel.label == 'APPROVED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                  statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                  statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                     ? false
                     : true
                 }
@@ -2864,9 +3243,9 @@ const FarmerLiveHood = ({
                   onChangeText={handleAddUserDataJLNo}
                   editable={
                     statuslevel.label == 'APPROVED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                       ? false
                       : true
                   }
@@ -2881,9 +3260,9 @@ const FarmerLiveHood = ({
                   onChangeText={handleAddUserDataMouja}
                   editable={
                     statuslevel.label == 'APPROVED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                    statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                    statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                    statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                       ? false
                       : true
                   }
@@ -2914,7 +3293,7 @@ const FarmerLiveHood = ({
                 val={farmerData.soilType}
               />
               <View style={styles.plotSiteUnit}>
-                <View style={{ width: '45%' }}>
+                <View style={{width: '45%'}}>
                   <InputTextForm
                     label={t('pre_land_size')}
                     required={true}
@@ -2922,16 +3301,16 @@ const FarmerLiveHood = ({
                     onChangeText={handleAddUserDataland_size}
                     editable={
                       statuslevel.label == 'APPROVED' ||
-                        //  ||statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED'
-                        statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                        statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                      //  ||statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED'
+                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                         ? false
                         : true
                     }
                     keyboardType="number-pad"
                   />
                 </View>
-                <View style={{ width: '45%' }}>
+                <View style={{width: '45%'}}>
                   <DropdownForm
                     label={t('select_unit')}
                     required={true}
@@ -2940,8 +3319,8 @@ const FarmerLiveHood = ({
                     val={farmerData.unit}
                     disable={
                       plotStatus.label == 'APPROVED' ||
-                        statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
-                        statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
+                      statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED'
                         ? true
                         : false
                     }
@@ -2952,9 +3331,10 @@ const FarmerLiveHood = ({
                 <InputTextForm
                   label={
                     t('Converted reported Land size ') +
-                    `${landAreaUnit?.[0]?.defined_unit_value
-                      ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                      : '(Square meter)'
+                    `${
+                      landAreaUnit?.[0]?.defined_unit_value
+                        ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                        : '(Square meter)'
                     }`
                   }
                   value={farmerData?.ConvertedreportedLandsize.toString()}
@@ -2962,129 +3342,131 @@ const FarmerLiveHood = ({
                   editable={false}
                 />
               )}
-              {
-                dbLanTokUsr?.carbonType !== 'mangrove' && (
-                  <>
-                    <View style={{ marginTop: 10 }}>
-                      <InputTextForm
-                        label={t('enter_iot_device_id')}
-                        onChangeText={handleIOTId}
-                        value={farmerData.IOTId}
-                      />
-                    </View>
+              {dbLanTokUsr?.carbonType !== 'mangrove' && (
+                <>
+                  <View style={{marginTop: 10}}>
+                    <InputTextForm
+                      label={t('enter_iot_device_id')}
+                      onChangeText={handleIOTId}
+                      value={farmerData.IOTId}
+                    />
+                  </View>
 
-                    <View style={styles.locationContainer}>
-                      <View style={styles.locationHeader}>
-                        <Text style={styles.locationTitle}>
-                          {t('geo_tag_iot_device')}
+                  <View style={styles.locationContainer}>
+                    <View style={styles.locationHeader}>
+                      <Text style={styles.locationTitle}>
+                        {t('geo_tag_iot_device')}
+                      </Text>
+
+                      <TouchableOpacity
+                        onPress={() => handleCurrentLatLongIOT()}
+                        style={styles.locationStatusInactive}>
+                        <MaterialIcons
+                          name="location-on"
+                          size={20}
+                          color="#F44336"
+                        />
+                        <Text style={styles.locationStatusText}>
+                          {t('tap_to_tag')}
                         </Text>
-
-                        <TouchableOpacity
-                          onPress={() => handleCurrentLatLongIOT()}
-                          style={styles.locationStatusInactive}>
-                          <MaterialIcons
-                            name="location-on"
-                            size={20}
-                            color="#F44336"
-                          />
-                          <Text style={styles.locationStatusText}>
-                            {t('tap_to_tag')}
-                          </Text>
-                        </TouchableOpacity>
-                      </View>
-
-                      <View style={styles.coordinatesContainer}>
-                        <View style={styles.coordinateItem}>
-                          <MaterialIcons name="pin-drop" size={16} color="#2196F3" />
-                          <Text style={styles.coordinateText}>
-                            {t('lat')}: {farmerData.IOTLatlat}
-                          </Text>
-                        </View>
-                        <View style={styles.coordinateItem}>
-                          <MaterialIcons name="pin-drop" size={16} color="#2196F3" />
-                          <Text style={styles.coordinateText}>
-                            {t('long')}:{farmerData.IOTLatLong}
-                          </Text>
-                        </View>
-                      </View>
+                      </TouchableOpacity>
                     </View>
 
-                  </>
-                )
-              }
-              {
-                dbLanTokUsr?.carbonType !== 'mangrove' && (
-                  <>
-                    <View style={{ marginTop: 15 }}>
-                      <ProofAndIdentityPropfComp
-                        identityProofIdentityPropf={identityProofIdentityPropf}
-                        t={t}
-                        title={t('address_proofAndIdentityPropf')}
-                        setStateValue={setIdentityProofIdentityPropf}
-                        stateValue={identityProofIdentityPropf}
-                        photoDeletedValue={identityPhotoDeletedValue}
-                        setPhotoDeletedValue={setIdentityPhotoDeletedValue}
-                        loginUser_data={loginUser_data}
-                        status_level={statuslevel.label}
-                        InputTextFormEdit={
-                          statuslevel.label == 'PENDING' ||
-                            statuslevel.label == 'REJECTED'
-                            ? true
-                            : false
-                        }
-                        disable={
-                          statuslevel.label == 'APPROVED' ||
-                            // ||
-                            // statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED'
-                            statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                            statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                            ? false
-                            : statuslevel.label == 'PENDING' ||
-                              statuslevel.label == 'REJECTED'
-                              ? false
-                              : true
-                        }
-                        farmerName={loginUser_data?.userName}
-                        ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
-
-                      />
+                    <View style={styles.coordinatesContainer}>
+                      <View style={styles.coordinateItem}>
+                        <MaterialIcons
+                          name="pin-drop"
+                          size={16}
+                          color="#2196F3"
+                        />
+                        <Text style={styles.coordinateText}>
+                          {t('lat')}: {farmerData.IOTLatlat}
+                        </Text>
+                      </View>
+                      <View style={styles.coordinateItem}>
+                        <MaterialIcons
+                          name="pin-drop"
+                          size={16}
+                          color="#2196F3"
+                        />
+                        <Text style={styles.coordinateText}>
+                          {t('long')}:{farmerData.IOTLatLong}
+                        </Text>
+                      </View>
                     </View>
+                  </View>
+                </>
+              )}
+              {dbLanTokUsr?.carbonType !== 'mangrove' && (
+                <>
+                  <View style={{marginTop: 15}}>
                     <ProofAndIdentityPropfComp
+                      identityProofIdentityPropf={identityProofIdentityPropf}
                       t={t}
-                      title={t('address_proof')}
-                      setStateValue={setAddressProof}
-                      stateValue={addressProof}
-                      status_level={statuslevel.label}
-                      photoDeletedValue={photoDeletedValue}
-                      setPhotoDeletedValue={setPhotoDeletedValue}
+                      title={t('address_proofAndIdentityPropf')}
+                      setStateValue={setIdentityProofIdentityPropf}
+                      stateValue={identityProofIdentityPropf}
+                      photoDeletedValue={identityPhotoDeletedValue}
+                      setPhotoDeletedValue={setIdentityPhotoDeletedValue}
                       loginUser_data={loginUser_data}
+                      status_level={statuslevel.label}
+                      InputTextFormEdit={
+                        statuslevel.label == 'PENDING' ||
+                        statuslevel.label == 'REJECTED'
+                          ? true
+                          : false
+                      }
                       disable={
                         statuslevel.label == 'APPROVED' ||
-                          // || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED'
-                          statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
-                          statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                        // ||
+                        // statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED'
+                        statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                        statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                           ? false
                           : statuslevel.label == 'PENDING' ||
                             statuslevel.label == 'REJECTED'
-                            ? false
-                            : true
+                          ? false
+                          : true
                       }
-                      InputTextFormEdit={InputTextFormEdit}
-                      allowAddMore={true}
-                      is_id_proof={identityProofIdentityPropf}
+                      farmerName={loginUser_data?.userName}
+                      ai_camera_id_proof={dbLanTokUsr?.ai_camera_id_proof}
                     />
-                  </>
-                )
-              }
-
+                  </View>
+                  <ProofAndIdentityPropfComp
+                    t={t}
+                    title={t('address_proof')}
+                    setStateValue={setAddressProof}
+                    stateValue={addressProof}
+                    status_level={statuslevel.label}
+                    photoDeletedValue={photoDeletedValue}
+                    setPhotoDeletedValue={setPhotoDeletedValue}
+                    loginUser_data={loginUser_data}
+                    disable={
+                      statuslevel.label == 'APPROVED' ||
+                      // || statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED'
+                      statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
+                      statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
+                        ? false
+                        : statuslevel.label == 'PENDING' ||
+                          statuslevel.label == 'REJECTED'
+                        ? false
+                        : true
+                    }
+                    InputTextFormEdit={InputTextFormEdit}
+                    allowAddMore={true}
+                    is_id_proof={identityProofIdentityPropf}
+                  />
+                </>
+              )}
 
               {area != 0 && area != null && (
                 <InputTextForm
                   label={
                     t('Calculated Map Area ') +
-                    `${landAreaUnit?.[0]?.defined_unit_value
-                      ? '(' + landAreaUnit?.[0]?.unit_name + ')'
-                      : '(Square meter)'
+                    `${
+                      landAreaUnit?.[0]?.defined_unit_value
+                        ? '(' + landAreaUnit?.[0]?.unit_name + ')'
+                        : '(Square meter)'
                     }`
                   }
                   value={area.toString()}
@@ -3115,11 +3497,11 @@ const FarmerLiveHood = ({
                           <TouchableOpacity
                             onPress={() =>
                               data?.latitude != 10 &&
-                                data?.latitude.length != ''
+                              data?.latitude.length != ''
                                 ? ''
                                 : dataProps.label != 'APPROVED'
-                                  ? handleCurrentLatLong(index)
-                                  : ''
+                                ? handleCurrentLatLong(index)
+                                : ''
                             }
                             style={styles.locationStatusInactive}>
                             <MaterialIcons
@@ -3135,11 +3517,11 @@ const FarmerLiveHood = ({
                           <TouchableOpacity
                             onPress={() =>
                               data?.latitude != 10 &&
-                                data?.latitude.length != ''
+                              data?.latitude.length != ''
                                 ? ''
                                 : dataProps.label != 'APPROVED'
-                                  ? handleCurrentLatLong(index)
-                                  : ''
+                                ? handleCurrentLatLong(index)
+                                : ''
                             }
                             style={styles.locationStatusInactive}>
                             <MaterialIcons
@@ -3191,8 +3573,9 @@ const FarmerLiveHood = ({
                 statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
                 statuslevel.label === 'CARBON_DOCUMENTS_REJECTED' ||
                 statuslevel.label == 'CARBON_DOCUMENTS_REJECTED') &&
-                carbonFlag == true && dbLanTokUsr?.carbonType !== 'mangrove' ? (
-                <View style={{ marginTop: 15 }}>
+              carbonFlag == true &&
+              dbLanTokUsr?.carbonType !== 'mangrove' ? (
+                <View style={{marginTop: 15}}>
                   <CarbonCertificate
                     identityProofIdentityPropf={carboncertificate}
                     t={t}
@@ -3206,17 +3589,17 @@ const FarmerLiveHood = ({
                     }
                     disable={
                       statuslevel.label == 'APPROVED' ||
-                        statuslevel.label == 'PENDING'
+                      statuslevel.label == 'PENDING'
                         ? true
                         : //  statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
                         statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
                           statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
-                          ? false
-                          : true
+                        ? false
+                        : true
                     }
                     InputTextFormEdit={
                       statuslevel.label == 'APPROVED' ||
-                        statuslevel.label == 'PENDING'
+                      statuslevel.label == 'PENDING'
                         ? true
                         : false
                     }
@@ -3306,24 +3689,32 @@ const FarmerLiveHood = ({
               handleAddDataYieldUnitProduct={handleAddDataYieldUnitProduct}
               historyData={historyData}
               carbonType={dbLanTokUsr?.carbonType}
+              organicAmendment={organicAmendment}
+                fertilizer={fertilizer}
+                pesticide={pesticide}
+                plantationMethod={plantationMethod}
+                waterSource={waterSource}
+                irrigationPractice={irrigationPractice}
+                riceStubble={riceStubble}
+                doStraw={doStraw}
+                removedStraw={removedStraw}
+                handleAmendmentTypes={handleAmendmentTypes}
+                amendmentUnit={amendmentUnit}
+                handleAmendmentUnit={handleAmendmentUnit}
             />
           )}
         </View>
       </ScrollView>
-      {
-        selectedTab === 'CROP' && (
-          <ButtonForm
-            label={t('submit')}
-            onPress={() => handleUserListUpdate()}
-            loading={isLoading}
-          />
-        )
-      }
-      {
-        selectedTab != 'CROP' && (
-          <ButtonForm label={t('next')} onPress={() => setSelectedTab('CROP')} />
-        )
-      }
+      {selectedTab === 'CROP' && (
+        <ButtonForm
+          label={t('submit')}
+          onPress={() => handleUserListUpdate()}
+          loading={isLoading}
+        />
+      )}
+      {selectedTab != 'CROP' && (
+        <ButtonForm label={t('next')} onPress={() => setSelectedTab('CROP')} />
+      )}
       {/* <TouchableOpacity
           style={styles.locationAddMoreContainer}
           onPress={addMoreLocation}>
@@ -3344,7 +3735,7 @@ const FarmerLiveHood = ({
           }
         }}
         overlayColor="rgba(22, 17, 17, 0.35)"
-        distanceToEdge={{ vertical: 80, horizontal: 25 }}
+        distanceToEdge={{vertical: 80, horizontal: 25}}
       />
       {/* ) : 
       <TouchableOpacity
@@ -3356,45 +3747,43 @@ const FarmerLiveHood = ({
         </TouchableOpacity>
         null} */}
 
-      {
-        showModal && (
-          <Modal
-            animationIn="slideInLeft"
-            animationOut="slideOutRight"
-            animationInTiming={500}
-            animationOutTiming={750}
-            isVisible={showModal}
-            useNativeDriver={true}
-            onBackButtonPress={() => {
-              setShowModal(!showModal);
-            }}>
-            <Map
-              polygons={polygons}
-              newPolygon={newPolygon}
-              setEditing={setEditing}
-              editing={editing}
-              handleMapPress={handleMapPress}
-              finalizePolygon={finalizePolygon}
-              clearNewPolygon={clearNewPolygon}
-              setShowModal={setShowModal}
-              undoMark={undoMark}
-              landAreaUnit={landAreaUnit}
-              landUnitsquareMetre={landUnitsquareMetre}
-              area={area}
-              // basudev
-              // basudev
-              location={location}
-              statuslevel={statuslevel.label}
-              type="livehoood"
-              baselatLong={referencelatLong}
-              handleRegionChangeComplete={handleRegionChangeComplete}
-              isLoading={isLoading}
-              coords={coords}
-            />
-          </Modal>
-        )
-      }
-    </MyErrorBoundary >
+      {showModal && (
+        <Modal
+          animationIn="slideInLeft"
+          animationOut="slideOutRight"
+          animationInTiming={500}
+          animationOutTiming={750}
+          isVisible={showModal}
+          useNativeDriver={true}
+          onBackButtonPress={() => {
+            setShowModal(!showModal);
+          }}>
+          <Map
+            polygons={polygons}
+            newPolygon={newPolygon}
+            setEditing={setEditing}
+            editing={editing}
+            handleMapPress={handleMapPress}
+            finalizePolygon={finalizePolygon}
+            clearNewPolygon={clearNewPolygon}
+            setShowModal={setShowModal}
+            undoMark={undoMark}
+            landAreaUnit={landAreaUnit}
+            landUnitsquareMetre={landUnitsquareMetre}
+            area={area}
+            // basudev
+            // basudev
+            location={location}
+            statuslevel={statuslevel.label}
+            type="livehoood"
+            baselatLong={referencelatLong}
+            handleRegionChangeComplete={handleRegionChangeComplete}
+            isLoading={isLoading}
+            coords={coords}
+          />
+        </Modal>
+      )}
+    </MyErrorBoundary>
   );
 };
 

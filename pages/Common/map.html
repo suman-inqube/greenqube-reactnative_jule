@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AWD Field Polygon Map</title>
+
+    <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .info {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      z-index: 5;
+      background: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px #0003;
+    }
+
+    .info h3 {
+      margin: 0 0 6px;
+    }
+
+    .info p {
+      margin: 0;
+      font-size: 13px;
+    }
+  </style>
+  </head>
+
+  <body>
+
+    <div class="info">
+      <h3>AWD Field Boundary</h3>
+      <p>24 Polygon Points | 3 AWD Pipe Installation</p>
+    </div>
+
+    <div id="map"></div>
+
+    <script>
+    // 24 Polygon Coordinates
+    const polygonCoordinates = [
+  { lat: 23.97934269346372, lng: 88.0044549331069 },
+  { lat: 23.97928295731969, lng: 88.0048431828618 },
+  { lat: 23.979449912114276, lng: 88.0048743635416 },
+  { lat: 23.9796671061929, lng: 88.00491727888584 },
+  { lat: 23.979736032304903, lng: 88.00515465438366 },
+  { lat: 23.979564482802225, lng: 88.00538431853056 },
+  { lat: 23.979251710710248, lng: 88.00528507679701 },
+  { lat: 23.979165016646302, lng: 88.00530452281237 },
+  { lat: 23.979132544649737, lng: 88.00558783113956 },
+  { lat: 23.97896130068339, lng: 88.00671972334385 },
+  { lat: 23.97895394852231, lng: 88.00733596086502 },
+  { lat: 23.979216481680695, lng: 88.00770912319422 },
+  { lat: 23.97949402490459, lng: 88.00791967660189 },
+  { lat: 23.97942601767987, lng: 88.00828512758017 },
+  { lat: 23.9794927995495, lng: 88.00872836261988 },
+  { lat: 23.979283876337504, lng: 88.00890270620584 },
+  { lat: 23.979390788697998, lng: 88.00951391458511 },
+  { lat: 23.979504746761066, lng: 88.00985757261515 },
+  { lat: 23.979972218835673, lng: 88.01027063280344 },
+  { lat: 23.983313400051408, lng: 88.0096771940589 },
+  { lat: 23.987815448742367, lng: 88.01094990223646 },
+  { lat: 23.98847433917423, lng: 88.0091742798686 },
+  { lat: 23.989302618783118, lng: 88.00390876829624 },
+  { lat: 23.988690292766236, lng: 88.00378940999508 },
+  { lat: 23.98885509115023, lng: 88.00278458744287 },
+  { lat: 23.987817592975176, lng: 88.00279933959246 },
+  { lat: 23.98725764067857, lng: 88.00281409174204 },
+  { lat: 23.987186268028168, lng: 88.00312791019678 },
+  { lat: 23.98677855483324, lng: 88.00333477556705 },
+  { lat: 23.986688189975897, lng: 88.00376392900944 },
+  { lat: 23.986610690573166, lng: 88.004045560956 },
+  { lat: 23.986280781526563, lng: 88.00422325730324 },
+  { lat: 23.986170811656542, lng: 88.0044636502862 },
+  { lat: 23.985899102967764, lng: 88.00435736775398 },
+  { lat: 23.985832630743527, lng: 88.00407439470291 },
+  { lat: 23.98572786799791, lng: 88.00372570753098 },
+  { lat: 23.98543900419644, lng: 88.00342597067356 },
+  { lat: 23.98493754980189, lng: 88.00388127565384 },
+  { lat: 23.984857598737488, lng: 88.00408210605383 },
+  { lat: 23.984584968297945, lng: 88.00400767475367 },
+  { lat: 23.9842930386593, lng: 88.00379142165184 },
+  { lat: 23.984318157499985, lng: 88.0034276470542 },
+  { lat: 23.984395964609522, lng: 88.00304409116507 },
+  { lat: 23.984448346534755, lng: 88.00283823162317 },
+  { lat: 23.984298858878926, lng: 88.00272792577744 },
+  { lat: 23.984108629459435, lng: 88.00263740122318 },
+  { lat: 23.98389236185539, lng: 88.00245836377144 },
+  { lat: 23.983820374682814, lng: 88.00223004072905 },
+  { lat: 23.983648524291166, lng: 88.00215125083923 },
+  { lat: 23.983403460947414, lng: 88.0020047351718 },
+  { lat: 23.983252746759426, lng: 88.00183709710836 },
+  { lat: 23.983251521440085, lng: 88.00237186253071 },
+  { lat: 23.983389369790956, lng: 88.00258342176676 },
+  { lat: 23.98346901543756, lng: 88.00285700708628 },
+  { lat: 23.983414488807895, lng: 88.00304006785154 },
+  { lat: 23.983151351545896, lng: 88.00288517028093 },
+  { lat: 23.98302453083415, lng: 88.00310678780079 },
+  { lat: 23.983179840239327, lng: 88.0032854899764 },
+  { lat: 23.982931712697848, lng: 88.0032529681921 },
+  { lat: 23.982726164705774, lng: 88.00321474671364 },
+  { lat: 23.982758023134373, lng: 88.00296496599913 },
+  { lat: 23.982308941096157, lng: 88.00272189080715 },
+  { lat: 23.98164910011757, lng: 88.00248585641384 },
+  { lat: 23.981180102455, lng: 88.00222869962454 },
+  { lat: 23.980663314679383, lng: 88.00194639712572 },
+  { lat: 23.980369538131537, lng: 88.00208117812872 },
+  { lat: 23.98020901760751, lng: 88.00274301320314 },
+  { lat: 23.980098429878215, lng: 88.00294350832701 },
+  { lat: 23.979952000550387, lng: 88.00294652581215 },
+  { lat: 23.979738483010436, lng: 88.00282046198845 },
+  { lat: 23.979534767954444, lng: 88.00336495041847 },
+  { lat: 23.979413151444124, lng: 88.00381992012262 },
+  { lat: 23.97952588413264, lng: 88.00397615879774 },
+  { lat: 23.979654239981237, lng: 88.004021756351 },
+  { lat: 23.97970325411401, lng: 88.00414077937603 },
+  { lat: 23.979712137923585, lng: 88.00432417541742 },
+  { lat: 23.979670782253137, lng: 88.00444085150957 },
+  { lat: 23.979507503809728, lng: 88.0044512450695 }
+]
+      ;
+
+    // AWD Pipe Installation Locations
+    const pipeLocations = 
+    [
+      // {
+      //   latitude: 23.9850741,
+      //   longitude: 88.0043532,
+      //   name: "003007534 (AWD Pipe installation)",
+      //   color: "yellow"
+      // },
+      // {
+      //   latitude: 23.9699356,
+      //   longitude: 88.0055768,
+      //   name: "003012554 (AWD Pipe installation)",
+      //   color: "yellow"
+      // },
+      // {
+      //   latitude: 23.970319,
+      //   longitude: 88.0064945,
+      //   name: "003007847 (AWD Pipe installation)",
+      //   color: "yellow"
+      // }
+      // {
+      //   "latlong_id": "a856e3a0-b56f-11f1-8f9b-ab669f69eeb2",
+      //   "ldurel_fid": "78f03894-3fdc-4d1d-aa2a-ea2518c240e4",
+      //   "type": "awd_pipe",
+      //   "latitude": 23.9758484,
+      //   "longitude": 87.9963598,
+      //   "status": "1",
+      //   "createdAt": "2026-09-21T03:50:59.553Z",
+      //   "updatedAt": "2026-09-21T03:50:59.553Z"
+      // },
+         {
+        "latlong_id": "a856e3a1-b56f-11f1-8f9b-ab669f69eeb2",
+        "ldurel_fid": "78f03894-3fdc-4d1d-aa2a-ea2518c240e4",
+        "type": "awd_pipe",
+        "latitude": 23.9732638,
+        "longitude": 88.0043532,
+        "status": "1",
+        "createdAt": "2026-09-21T03:50:59.553Z",
+        "updatedAt": "2026-09-21T03:50:59.553Z"
+      },
+      {
+        "latlong_id": "a856e3a0-b56f-11f1-8f9b-ab669f69eeb2",
+        "ldurel_fid": "78f03894-3fdc-4d1d-aa2a-ea2518c240e4",
+        "type": "awd_pipe",
+        "latitude": 23.9758484,
+        "longitude": 87.9963598,
+        "status": "1",
+        "createdAt": "2026-09-21T03:50:59.553Z",
+        "updatedAt": "2026-09-21T03:50:59.553Z"
+      }
+    ];
+
+    let map;
+
+    function initMap() {
+
+      map = new google.maps.Map(
+        document.getElementById("map"),
+        {
+          center: {
+            lat: 23.9764,
+            lng: 87.9965
+          },
+          zoom: 16,
+          mapTypeId: "satellite",
+          mapTypeControl: true,
+          streetViewControl: true,
+          fullscreenControl: true
+        }
+      );
+
+      const bounds = new google.maps.LatLngBounds();
+
+      // Draw Polygon
+      new google.maps.Polygon({
+        paths: polygonCoordinates,
+        strokeColor: "#FF0000",
+        strokeOpacity: 1,
+        strokeWeight: 3,
+        fillColor: "#FF0000",
+        fillOpacity: 1,
+        map: map
+      });
+
+      // Add 24 Polygon Point Markers
+      polygonCoordinates.forEach((point, index) => {
+
+        bounds.extend(point);
+
+        const marker = new google.maps.Marker({
+          position: point,
+          map: map,
+          title: `Polygon Point ${index + 1}`,
+          label: {
+            text: String(index + 1),
+            color: "#FFFFFF",
+            fontSize: "10px"
+          },
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 6,
+            fillColor: "#1976D2",
+            fillOpacity: 1,
+            strokeColor: "#FFFFFF",
+            strokeWeight: 2
+          }
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: `
+                        <div>
+                            <b>Polygon Point ${index + 1}</b><br>
+                            Latitude: ${point.lat}<br>
+                            Longitude: ${point.lng}
+                        </div>
+                    `
+        });
+
+        marker.addListener("click", () => {
+          infoWindow.open({
+            map: map,
+            anchor: marker
+          });
+        });
+
+      });
+
+      // Add 3 AWD Pipe Installation Markers
+      pipeLocations.forEach((location, index) => {
+
+        const position = {
+          lat: location.latitude,
+          lng: location.longitude
+        };
+
+        bounds.extend(position);
+
+        const marker = new google.maps.Marker({
+          position: position,
+          map: map,
+          title: location.name,
+          label: {
+            text: `P${index + 1}`,
+            color: "#000000",
+            fontWeight: "bold",
+            fontSize: "11px"
+          },
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 9,
+            fillColor: location.color,
+            fillOpacity: 1,
+            strokeColor: "#FFFFFF",
+            strokeWeight: 2
+          },
+          zIndex: 100
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: `
+                        <div style="min-width:200px">
+                            <h3 style="margin:0 0 8px;color:#b8860b">
+                                AWD Pipe Installation
+                            </h3>
+                            <b>${location.name}</b>
+                            <hr>
+                            Latitude: ${location.latitude}<br>
+                            Longitude: ${location.longitude}
+                        </div>
+                    `
+        });
+
+        marker.addListener("click", () => {
+          infoWindow.open({
+            map: map,
+            anchor: marker
+          });
+        });
+
+      });
+
+      // Fit all polygon points and pipe markers
+      map.fitBounds(bounds);
+
+    }
+  </script>
+
+    <!-- Replace with your restricted Google Maps API key -->
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBGTMfBKCZ9NJ57HX1NPm5hCnzK6_CYVD8&callback=initMap">
+    </script>
+
+  </body>
+
+</html>

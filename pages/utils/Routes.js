@@ -384,7 +384,7 @@ export const ROUTES = {
       district = '',
       subdivision = '',
     }) =>
-      `loanEntityRoute/polygonList_v2?pageNo=1&pageLimit=500&createdBy=${createdBy}&latitude=${latitude}&longitude=${longitude}&distance=${distance}&state=${state}&district=${district}&subdivision=${subdivision}`,
+      `loanEntityRoute/polygonList_v2?pageNo=1&pageLimit=1000&createdBy=${createdBy}&latitude=${latitude}&longitude=${longitude}&distance=${distance}&state=${state}&district=${district}&subdivision=${subdivision}`,
     PLOT_MAP_DETAILS: ({ user_id = '', land_unit_id = '' }) =>
       `loanEntityRoute/polygonDetails_v2?user_id=${user_id}&land_unit_id=${land_unit_id}`,
 
@@ -401,6 +401,10 @@ export const ROUTES = {
     CHECK_PIPE_COUNT: ({ plot_fid = "", activity_id = "", season_date_fid = "" }) => `loanEntityRoute/checkPipeCount?plot_fid=${plot_fid}&activity_id=${activity_id}&season_date_fid=${season_date_fid}`,
     GET_PHONE_BY_SEASON: ({ seasonSid = '' }) =>
       `loginSignupRoute/newlistuser/1/0/2?search_key=&season_fid=${seasonSid}&userType=2`,
+    AMENDMENT_TYPE: ({categoryType = ''}) =>
+      `categoryRoute/listMasterData?search_key=&categoryType=${categoryType}`,
+    ALL_UNIT: ({unit_type = '', sub_type = ''}) =>
+      `unitRoute/list/1/0/5?unit_type=${unit_type}&sub_type=${sub_type}`,
   },
 
   PUT: {

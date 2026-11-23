@@ -364,7 +364,8 @@ const UserCreateContextProvider = props => {
           carbonType: option_name == "Carbon mangrove" ? 'mangrove' : option_name,
           co_farmer,
           offline_mode,
-          ai_camera_pipe_image,
+          // __DEV__ 0
+          ai_camera_pipe_image: 0,
           ai_camera_id_proof,
         });
         const dataArrayName = farmer_response?.data?.data?.rows.map(data => ({

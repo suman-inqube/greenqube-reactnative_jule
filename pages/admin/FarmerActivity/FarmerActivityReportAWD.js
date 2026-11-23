@@ -80,6 +80,7 @@ import ImageAnalysisScreen, {
   ModelSessionManager,
 } from '../Activity/ImageAnalysisScreen';
 import { axiosGet, axiosPost } from '../../utils/api';
+import { getOutsidePipeLocations, isWithin20Meters } from '../../Common/calculateAreaFun.js';
 const FarmerActivityReportAWD = ({ navigation, route }) => {
   const { farmer, plot } = route?.params || {};
   const today = new Date();
@@ -263,19 +264,6 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
 
   const [lastActPDate, setLastActPDate] = useState();
   const [performActDate, setPerformActDate] = useState(false);
-  // const checkPipeDistance = (currentLat, currentLon) => {
-  //   try {
-  //     console.error('pipeLatLong', pipeLatLong);
-  //     const prePipeCheck = isWithin20Meters(
-  //       {currentLat, currentLon},
-  //       pipeLatLong,
-  //       40,
-  //     );
-  //     console.log('prePipeCheck', prePipeCheck);
-  //   } catch (error) {
-  //     console.log('error', error);
-  //   }
-  // };
   const checkPipeDistance = async (currentLat, currentLon) => {
     try {
       // Get fresh coordinates each time this function is called
@@ -345,79 +333,7 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
     }
   };
   const [PipeListDetailsArr, setPipeListDetailsResArr] = useState([]);
-  // const openImagePicker = item => {
-  //   const options = {
-  //     mediaType: 'photo',
-  //     includeBase64: true,
-  //     maxHeight: 800,
-  //     maxWidth: 800,
-  //   };
 
-  //   const addPhoto = newPhoto => {
-  //     setmyPhotoAll([...myphotoAll, newPhoto]);
-  //   };
-
-  //   launchCamera(options, async response => {
-  //     if (response.didCancel) {
-  //       console.log('User cancelled camera');
-  //     } else if (response.error) {
-  //       console.log('Camera Error: ', response.error);
-  //     } else {
-  //       const timestamp = Date.now();
-  //       let imageUri = response.uri || response.assets?.[0]?.uri;
-  //       const options = {
-  //         backgroundImage: {
-  //           src: imageUri,
-  //           scale: 1,
-  //         },
-  //         watermarkTexts: [
-  //           {
-  //             text: `${coords.latitude},${coords.longitude
-  //               },${new Intl.DateTimeFormat('en-US', {
-  //                 year: 'numeric',
-  //                 month: '2-digit',
-  //                 day: '2-digit',
-  //                 hour: '2-digit',
-  //                 minute: '2-digit',
-  //                 second: '2-digit',
-  //               }).format(timestamp)}`,
-
-  //             positionOptions: {
-  //               position: Position.bottomLeft,
-  //             },
-  //             style: {
-  //               color: '#df2020',
-  //               fontSize: 2,
-  //               fontName: 'Arial',
-  //               textBackgroundStyle: {
-  //                 padding: '10% 10%',
-  //                 color: '#00000000',
-  //               },
-  //             },
-  //           },
-  //         ],
-  //         scale: 1,
-  //         quality: 100,
-
-  //         filename: `${response.assets[0].fileName}`,
-  //         saveFormat: `${response.assets[0].type}`,
-  //         maxSize: 1000,
-  //       };
-  //       let path = await Marker.markText(options);
-  //       setSelectedImage({
-  //         ...selectedImage,
-  //         [item]: `file://${path}`,
-  //       });
-  //       const newPhoto = {
-  //         uri: `file://${path}`,
-  //         type: 'image/jpeg',
-  //         name: `file://${path}`,
-  //       };
-
-  //       addPhoto(newPhoto);
-  //     }
-  //   });
-  // };
 
   const openImagePicker = item => {
     try {
@@ -1302,47 +1218,6 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
             });
           }
         }
-        // if (saveData.field_type == 'add') {
-        //   pipeDetails.map((_data, _index) => {
-        //     const { selectedImagePipe } = _data;
-        //     const { firstItem, secondItem } = selectedImagePipe || {};
-        //     const firstItemfileName = firstItem.split('/').pop();
-        //     const secondItemfileName = secondItem.split('/').pop();
-        //     if (firstItemfileName != '') {
-        //       formData.append(`pipe_image_${_index + 1}`, {
-        //         uri: firstItem,
-        //         type: 'image/jpeg',
-        //         name: firstItemfileName,
-        //       });
-        //     }
-        //     if (secondItemfileName != '') {
-        //       formData.append(`pipe_image_${_index + 1}`, {
-        //         uri: secondItem,
-        //         type: 'image/jpeg',
-        //         name: secondItemfileName,
-        //       });
-        //     }
-        //   });
-        // } else {
-        //   const pipe_image = [];
-        //   if (selectedImagePipe?.firstItem != '') {
-        //     pipe_image.push({
-        //       uri: selectedImagePipe?.firstItem,
-        //       type: 'image/jpeg',
-        //       name: selectedImagePipe?.firstItem.split('/').pop(),
-        //     });
-        //   }
-        //   if (selectedImagePipe?.secondItem != '') {
-        //     pipe_image.push({
-        //       uri: selectedImagePipe.secondItem,
-        //       type: 'image/jpeg',
-        //       name: selectedImagePipe.secondItem.split('/').pop(),
-        //     });
-        //   }
-        //   pipe_image.map((_data, _index) => {
-        //     formData.append(`pipe_files[0]`, _data);
-        //   });
-        // }
       }
       formData.append('act_desc', saveData.act_desc);
       formData.append('material_used', saveData.material_used);
@@ -1356,14 +1231,27 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
       if (isOnline) {
         if (carbonType !== 'mangrove') {
           if (saveData.field_type == 'add') {
-            database_res = await addUserPipeActivity(
-              dbname,
-              lan_id,
-              token,
-              farmerID,
-              formData,
-              pipeDetails.length,
-            );
+            const hasOutsideLocation = getOutsidePipeLocations(
+              pipeDetails,
+              plotPolygon
+            ).length > 0;
+            if (!hasOutsideLocation) {
+              database_res = await addUserPipeActivity(
+                dbname,
+                lan_id,
+                token,
+                farmerID,
+                formData,
+                pipeDetails.length,
+              );
+            } else {
+              Toast.show({
+                text: t('One or more pipe locations are outside the selected plot boundary. Please ensure all pipe locations are within the plot boundary before proceeding.'),
+                ...AlertMesg[0],
+              });
+              setIsLoading(false);
+              return;
+            }
           } else {
             if (coords != null) {
               const { latitude, longitude } = coords || {};
@@ -1371,7 +1259,9 @@ const FarmerActivityReportAWD = ({ navigation, route }) => {
                 latitude,
                 longitude,
               });
-              if (distances < 10) {
+              // check if user is inside the pipe polygon or not pipe polygon basudev
+              const inside = isPointInPolygon(selectPipeList.latlongs, plotPolygon);
+              if (distances < 20 && inside) {
                 database_res = await addPrevPipeActivity(
                   dbname,
                   lan_id,
