@@ -1,5 +1,5 @@
 // Change this only when switching environment
-const ENV = 'LIVE'; // 'DEMO' | 'LIVE' |'NEW'
+const ENV = 'DEMO'; // 'DEMO' | 'LIVE' |'NEW'
 
 const BASE_URLS = {
   DEMO: 'http://134.209.155.11:4003/',

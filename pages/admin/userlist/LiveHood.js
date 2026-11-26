@@ -4046,7 +4046,7 @@ const LiveHood = ({
                         statuslevel.label == 'APPROVED' ||
                         statuslevel.label == 'PENDING'
                           ? true
-                          : statuslevel.label == 'CARBON_DOCUMENTS_SUBMITTED' ||
+                          : statuslevel.label == 'CARBON_DOCUMENTS_APPROVED' ||
                             statuslevel.label === 'CARBON_DOCUMENTS_REJECTED'
                           ? false
                           : true
