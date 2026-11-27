@@ -51,6 +51,7 @@ import DatePickerField from '../../Common/DatePickerField';
 import { axiosGet, axiosPost } from '../../utils/api';
 import { ROUTES } from '../../utils/Routes';
 import { captureRef } from 'react-native-view-shot';
+import { getHighAccuracyLocation } from '../../utils/getHighAccuracyLocation';
 const CreateProblem = ({ navigation }) => {
   //GQR-65
   const {
@@ -425,7 +426,12 @@ const CreateProblem = ({ navigation }) => {
     [nameVarityStartEnd],
   );
   const onPageLoad = async () => {
-    const { latitude, longitude } = coords || {};
+    const { latitude, longitude } = (await getHighAccuracyLocation()) || {};
+    if (!latitude || !longitude || latitude === 0 || longitude === 0) {
+      setIsLoading(false);
+      Alert.alert('Location Error', 'Unable to get valid GPS location.');
+      return;
+    }
     setSaveData({ ...saveData, latitude: latitude, longitude: longitude });
     setdbLanTokUsr({
       ...dbLanTokUsr,

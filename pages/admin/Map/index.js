@@ -14,6 +14,7 @@ import {
   Image,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import MapView, {
   Polygon,
@@ -590,14 +591,6 @@ export default function Map({
           <LoadingScreen />
         </View>
       )}
-      <TouchableOpacity
-        style={styles.searchIcon}
-        onPress={() => setShowModal(false)}>
-        <Image
-          source={require('../../Common/images/cross100.png')}
-          style={styles.crossIcon}
-        />
-      </TouchableOpacity>
 
       {isDownloading && (
         <View style={styles.downloadOverlay}>
@@ -708,12 +701,42 @@ export default function Map({
           </Text>
         </View>
       )}
+      <View
+        style={{
+          position: 'absolute',
+          top: Platform.OS === 'ios' ? 50 : 7,
+          left: 0,
+          right: 0,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          paddingHorizontal: 12,
+          zIndex: 999,
+          elevation: 10,
+        }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: Platform.OS === 'ios' ? '95%' : '75%', }}>
+          <View style={{ marginRight: 10 }}>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowModal(false)}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+              <Text style={styles.closeIcon}>✕</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{ marginRight: 12, width: Platform.OS === 'ios' ? '92%' : '100%' }}>
+            <SuggestiveSearchInput
+              fetchSuggestions={fetchSearchSuggestions}
+              onSelect={handleSelect}
+            />
+          </View>
 
+        </View>
+      </View>
       <View style={styles.searchContainer}>
-        <SuggestiveSearchInput
+        {/* <SuggestiveSearchInput
           fetchSuggestions={fetchSearchSuggestions}
           onSelect={handleSelect}
-        />
+        /> */}
       </View>
 
       <FloatingActionButton
@@ -742,16 +765,6 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     position: 'absolute',
-  },
-  searchIcon: {
-    position: 'absolute',
-    top: 12,
-    left: 10,
-    zIndex: 999,
-    width: 38,
-    height: 38,
-    backgroundColor: '#e6dfdf',
-    opacity: 0.7,
   },
   crossIcon: {
     width: 35,
@@ -818,5 +831,24 @@ const styles = StyleSheet.create({
     top: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  closeButton: {
+    // position: 'absolute',
+    // top: Platform.OS === 'android' ? 20 : 45,
+    // left: 20,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#FFF',
+    zIndex: 10,
+  },
+  closeIcon: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });

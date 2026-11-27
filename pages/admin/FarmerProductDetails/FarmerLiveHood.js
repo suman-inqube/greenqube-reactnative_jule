@@ -1462,10 +1462,10 @@ const FarmerLiveHood = ({
           // if (filterAddressImage.length != 0) {
           let ADD_PLOTI_MGS_API_CALL = false;
           addressProof.map((data, index) => {
-            if (data.name != '' && data.id == '' && data.isvalid === "change") {
+            if (data.name != '' && data.id == '' && data.isvalid === "change" && data.uri && data.uri !== '') {
               formDataPlotImg.append('plot_image', data);
             }
-            if (data.uri != "") {
+            if (data.uri && data.uri !== "") {
               ADD_PLOTI_MGS_API_CALL = true;
             }
           });
@@ -1493,37 +1493,43 @@ const FarmerLiveHood = ({
             statuslevel.label == 'REJECTED' ||
             statuslevel.label == 'PENDING'
           ) {
+            let hasFarmerIdDocs = false;
             const formdatauploadFarmerIdAdd = new FormData();
-            if (identityProofIdentityPropf[0]?.uri != '') {
+            if (identityProofIdentityPropf[0]?.uri && identityProofIdentityPropf[0]?.uri !== '') {
               const { uri, type, name } = identityProofIdentityPropf[0];
               formdatauploadFarmerIdAdd.append('farmer_address', {
                 uri,
                 type,
                 name,
               });
+              hasFarmerIdDocs = true;
             }
-            if (identityProofIdentityPropf[1]?.id == '') {
+            if (identityProofIdentityPropf[1]?.uri && identityProofIdentityPropf[1]?.uri !== '') {
               const { uri, type, name } = identityProofIdentityPropf[1];
               formdatauploadFarmerIdAdd.append('farmer_identity', {
                 uri,
                 type,
                 name,
               });
+              hasFarmerIdDocs = true;
             }
-            formdatauploadFarmerIdAdd.append('rel_id', farmerData.land_rel_id);
-            formdatauploadFarmerIdAdd.append('user_id', user_id);
-            const resOocUpdate = await uploadFarmerIdAdd(
-              dbname,
-              lan_id,
-              user_id,
-              token,
-              formdatauploadFarmerIdAdd,
-            );
-            if (resOocUpdate?.status != 200) {
-              Toast.show({
-                text: resOocUpdate?.data?.error?.errorMessage,
-                ...AlertMesg[0],
-              });
+
+            if (hasFarmerIdDocs) {
+              formdatauploadFarmerIdAdd.append('rel_id', farmerData.land_rel_id);
+              formdatauploadFarmerIdAdd.append('user_id', user_id);
+              const resOocUpdate = await uploadFarmerIdAdd(
+                dbname,
+                lan_id,
+                user_id,
+                token,
+                formdatauploadFarmerIdAdd,
+              );
+              if (resOocUpdate?.status != 200) {
+                Toast.show({
+                  text: resOocUpdate?.data?.error?.errorMessage,
+                  ...AlertMesg[0],
+                });
+              }
             }
           }
           if (

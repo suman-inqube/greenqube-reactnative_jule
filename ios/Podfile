@@ -20,9 +20,9 @@ $VCEnableFrameProcessors = true
 target 'GreenQube' do
   config = use_native_modules!
 
-  # React Native Maps dependencies
-  rn_maps_path = '../node_modules/react-native-maps'
-  pod 'react-native-google-maps', :path => rn_maps_path
+   # React Native Maps dependencies
+rn_maps_path = '../node_modules/react-native-maps'
+pod 'react-native-google-maps', :path => rn_maps_path
 
   use_react_native!(
     :path => config[:reactNativePath],
@@ -56,5 +56,7 @@ target 'GreenQube' do
         config_file.save_as(aggregate_target.xcconfig_path(config_name))
       end
     end
+
+    system("python3 #{__dir__}/patch_mlkit_sim.py")
   end
 end

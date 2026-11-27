@@ -151,33 +151,203 @@ const ProofAndIdentityPropfComp = ({
       outputPath,
     });
   };
+  // const handleScanAndCreatePdf = useCallback(
+  //   async (imageType, index) => {
+  //     setLoading(true);
+  //     //  check id proof not null and then allow scan otherwise show alert
+  //     if (is_id_proof?.[1]?.uri == "") {
+  //       Alert.alert("Please add ID proof of the farmer first")
+  //       setLoading(false);
+  //       return;
+  //     }
+  //     try {
+  //       const { scannedImages, status } = await DocumentScanner.scanDocument({
+  //         letUserAdjustCrop: false,
+  //         maxNumDocuments: 1,
+  //         noAutoEnhance: false,
+  //         croppedImageQuality: 0.9, // control quality
+  //         croppedImageMaxSize: 1600, // limit size
+  //       });
+  //       if (status !== 'success' || !scannedImages?.length) return;
+  //       const resized = await Promise.all(scannedImages.map(uri => resizeImage(uri)));
+  //       const fileName = `document_${Date.now()}.pdf`;
+  //       const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+  //       let pdfPath = await createPdf({ pages: resized.map(uri => ({ imagePath: uri })), outputPath, });
+  //       pdfPath = await compressIfNeeded(pdfPath, scannedImages);
+  //       const values = [...stateValue];
+  //       markPhotoDeleted(index, values);
+  //       values[index] = {
+  //         uri: `file://${pdfPath}`,
+  //         name: fileName,
+  //         fileName,
+  //         type: 'application/pdf',
+  //         imageType,
+  //         value: '1',
+  //         id: '',
+  //       };
+  //       setStateValue(values);
+  //     } catch (err) {
+  //       console.error('Scan error:', err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   },
+  //   [stateValue, photoDeletedValue, is_id_proof],
+  // );
+
+
+
+
+
+  // Keep your existing imports for:
+  // DocumentScanner, resizeImage, createPdf, compressIfNeeded
+
+  const normalizeFilePath = value => {
+    if (typeof value !== 'string' || !value.trim()) {
+      throw new Error('Invalid or empty file path');
+    }
+
+    let path = value.trim();
+
+    // Remove file:// only when present.
+    if (path.startsWith('file://')) {
+      path = decodeURIComponent(path.slice(7));
+    }
+
+    return path;
+  };
+
+  const normalizeFileUri = value => {
+    if (typeof value !== 'string' || !value.trim()) {
+      throw new Error('Invalid or empty file URI');
+    }
+
+    const path = value.trim();
+
+    // Avoid creating file://file://...
+    if (path.startsWith('file://')) {
+      return path;
+    }
+
+    return `file://${path}`;
+  };
+
+
+
+
+  // Keep your existing imports for:
+  // DocumentScanner, resizeImage, createPdf, compressIfNeeded
+
+  const normalizePath = value => {
+    if (typeof value !== 'string' || !value.trim()) {
+      throw new Error('Invalid file path');
+    }
+
+    let path = value.trim();
+
+    if (path.startsWith('file://')) {
+      path = decodeURIComponent(path.slice(7));
+    }
+
+    return path;
+  };
+
+  const normalizeUri = value => {
+    if (typeof value !== 'string' || !value.trim()) {
+      throw new Error('Invalid file URI');
+    }
+
+    if (value.startsWith('file://')) {
+      return value;
+    }
+
+    return `file://${value}`;
+  };
+
+  // Place this callback inside your component.
   const handleScanAndCreatePdf = useCallback(
     async (imageType, index) => {
-      setLoading(true);
-      //  check id proof not null and then allow scan otherwise show alert
       if (is_id_proof?.[1]?.uri == "") {
         Alert.alert("Please add ID proof of the farmer first")
         setLoading(false);
         return;
       }
+      setLoading(true);
+
       try {
-        const { scannedImages, status } = await DocumentScanner.scanDocument({
+        const result = await DocumentScanner.scanDocument({
           letUserAdjustCrop: false,
           maxNumDocuments: 1,
           noAutoEnhance: false,
-          croppedImageQuality: 0.9, // control quality
-          croppedImageMaxSize: 1600, // limit size
+          croppedImageQuality: 0.9,
+          croppedImageMaxSize: 1600,
         });
-        if (status !== 'success' || !scannedImages?.length) return;
-        const resized = await Promise.all(scannedImages.map(uri => resizeImage(uri)));
+        if (
+          result?.status !== 'success' ||
+          !result?.scannedImages?.length
+        ) {
+          console.log('Scanning cancelled or no images returned');
+          return;
+        }
+        const resized = await Promise.all(
+          result.scannedImages.map(async (uri, i) => {
+            const resizedUri = await resizeImage(uri);
+            if (!resizedUri) {
+              throw new Error(`Failed to resize image ${i + 1}`);
+            }
+            return resizedUri;
+          }),
+        );
+        for (const uri of resized) {
+          const imagePath = normalizePath(uri);
+          const exists = await RNFS.exists(imagePath);
+          if (!exists) {
+            throw new Error(`Image file not found: ${imagePath}`);
+          }
+        }
         const fileName = `document_${Date.now()}.pdf`;
-        const outputPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-        let pdfPath = await createPdf({ pages: resized.map(uri => ({ imagePath: uri })), outputPath, });
-        pdfPath = await compressIfNeeded(pdfPath, scannedImages);
+        const outputPath =
+          `${RNFS.DocumentDirectoryPath}/${fileName}`;
+        const pages = resized.map(uri => ({
+          imagePath: normalizeUri(uri),
+        }));
+        const createdPath = await createPdf({
+          pages,
+          outputPath: normalizeUri(outputPath),
+        });
+        if (!createdPath) {
+          throw new Error('PDF creation returned an empty path');
+        }
+        let finalPath = normalizePath(createdPath);
+        if (!(await RNFS.exists(finalPath))) {
+          if (await RNFS.exists(outputPath)) {
+            finalPath = outputPath;
+          } else {
+            throw new Error(`PDF file not found: ${finalPath}`);
+          }
+        }
+        const compressedPath = await compressIfNeeded(
+          finalPath,
+          result.scannedImages,
+        );
+
+        if (compressedPath) {
+          finalPath = normalizePath(compressedPath);
+        }
+
+        // 7. Verify final PDF
+        const exists = await RNFS.exists(finalPath);
+
+        if (!exists) {
+          throw new Error(`Final PDF does not exist: ${finalPath}`);
+        }
+
+        const stat = await RNFS.stat(finalPath);
         const values = [...stateValue];
         markPhotoDeleted(index, values);
+
         values[index] = {
-          uri: `file://${pdfPath}`,
+          uri: normalizeUri(finalPath),
           name: fileName,
           fileName,
           type: 'application/pdf',
@@ -186,14 +356,31 @@ const ProofAndIdentityPropfComp = ({
           id: '',
         };
         setStateValue(values);
-      } catch (err) {
-        console.error('Scan error:', err);
+      } catch (error) {
+        console.error(
+          `[${Platform.OS}] Scan/PDF error:`,
+          error?.stack || error,
+        );
+
+        Alert.alert(
+          'Scan Failed',
+          error?.message ||
+          'Unable to scan document and create PDF.',
+        );
       } finally {
         setLoading(false);
       }
     },
-    [stateValue, photoDeletedValue, is_id_proof],
+    [
+      stateValue,
+      is_id_proof,
+      resizeImage,
+      createPdf,
+      compressIfNeeded,
+      markPhotoDeleted,
+    ],
   );
+
 
   const addMoreImageBox = () => {
     setStateValue(prev => [

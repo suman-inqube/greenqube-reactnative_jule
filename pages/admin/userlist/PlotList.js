@@ -265,11 +265,11 @@ const PlotList = () => {
                   { useNativeDriver: false },
                 )}
                 scrollEventThrottle={16}
-              onMomentumScrollEnd={e =>
-                setActiveTab(
-                  Math.round(e.nativeEvent.contentOffset.x / width),
-                )
-              }
+                onMomentumScrollEnd={e =>
+                  setActiveTab(
+                    Math.round(e.nativeEvent.contentOffset.x / width),
+                  )
+                }
               >
                 {/* Tab 0: Plot List */}
                 <View style={styles.page}>
@@ -373,7 +373,7 @@ const PlotList = () => {
           )}
         </View>
       </FarmerDrawerScreenWrapper1>
-    </Root>
+    </Root >
   );
 };
 

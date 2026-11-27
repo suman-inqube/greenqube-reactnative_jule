@@ -622,12 +622,12 @@ const ActivityMap = ({
           gpsAccuracy &&
           gpsAccuracy <= HIGH_ACCURACY_THRESHOLD &&
           isLocationStable ? (
-          <TouchableOpacity
-            style={[styles.captureButton, styles.captureButtonReady]}
-            activeOpacity={0.75}
-            onPress={handleCapturePress}>
-            <Text style={styles.captureIcon}>📷</Text>
-          </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.captureButton, styles.captureButtonReady]}
+          activeOpacity={0.75}
+          onPress={handleCapturePress}>
+          <Text style={styles.captureIcon}>📷</Text>
+        </TouchableOpacity>
         ) : null}
 
         {/* Selected Marker Detail Card */}

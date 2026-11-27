@@ -496,7 +496,7 @@ const Dashboard = ({ navigation }) => {
               <Animated.View
                 style={[styles.animatedHeaderImage, { height: imageHeight }]}>
                 <ImageBackground
-                    source={require('../Common/images/topBanner.jpeg')}
+                  source={require('../Common/images/topBanner.jpeg')}
                   // source={{ uri: uiState.topBannerImg || 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=400&fit=crop' }}
                   resizeMode="cover"
                   style={styles.imageBackground}

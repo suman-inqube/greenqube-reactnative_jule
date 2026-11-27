@@ -7,7 +7,15 @@ import {
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
+import {
+  // Camera,
+  // useCameraDevice,
+} from 'react-native-vision-camera';
 
+import {
+  CameraHighlights,
+  useBarcodeScanner,
+} from '@mgcrea/vision-camera-barcode-scanner';
 export default function QRBarcodeScanner({ onScanned }) {
   const { hasPermission, requestPermission } = useCameraPermission();
   const [scannedCode, setScannedCode] = useState(null);

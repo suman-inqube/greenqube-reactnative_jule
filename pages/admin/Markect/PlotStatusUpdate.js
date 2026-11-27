@@ -1862,54 +1862,50 @@ const PlotStatusUpdate = () => {
             }
 
             if (statuslevel.label == 'REJECTED' || statuslevel.label == 'PENDING') {
+              let hasFarmerIdDocs = false;
               const formdatauploadFarmerIdAdd = new FormData();
-              if (identityProofIdentityPropf[0]?.uri != '') {
+              if (identityProofIdentityPropf[0]?.uri && identityProofIdentityPropf[0]?.uri !== '') {
                 const { uri, type, name } = identityProofIdentityPropf[0];
                 formdatauploadFarmerIdAdd.append('farmer_address', {
                   uri,
                   type,
                   name,
                 });
+                hasFarmerIdDocs = true;
               }
-              if (identityProofIdentityPropf[1]?.id == '') {
+              if (identityProofIdentityPropf[1]?.uri && identityProofIdentityPropf[1]?.uri !== '') {
                 const { uri, type, name } = identityProofIdentityPropf[1];
                 formdatauploadFarmerIdAdd.append('farmer_identity', {
                   uri,
                   type,
                   name,
                 });
+                hasFarmerIdDocs = true;
               }
-              formdatauploadFarmerIdAdd.append('rel_id', farmerData.land_rel_id);
-              formdatauploadFarmerIdAdd.append('user_id', farmer_data.user_id);
 
-              // const resOocUpdate = await axiosPut(
-              //   ROUTES.PUT.UPLOAD_FARMER_ID_ADD,
-              //   formdatauploadFarmerIdAdd,
-              //   token,
-              //   false,
-              //   {
-              //     information: `${dbname},${lan_id},${farmer_data.user_id}`,
-              //       'Content-Type': 'multipart/form-data',
-              //   },
-              // );
-              const resOocUpdate = await uploadFarmerIdAdd(
-                dbname,
-                lan_id,
-                farmer_data.user_id,
-                token,
-                formdatauploadFarmerIdAdd,
-              );
-              if (resOocUpdate?.status == 200) {
-                Toast.show({
-                  text: 'hoyeche',
-                  ...AlertMesg[0],
-                });
-              }
-              if (resOocUpdate?.status != 200) {
-                Toast.show({
-                  text: resOocUpdate?.data?.error?.errorMessage,
-                  ...AlertMesg[0],
-                });
+              if (hasFarmerIdDocs) {
+                formdatauploadFarmerIdAdd.append('rel_id', farmerData.land_rel_id);
+                formdatauploadFarmerIdAdd.append('user_id', farmer_data.user_id);
+
+                const resOocUpdate = await uploadFarmerIdAdd(
+                  dbname,
+                  lan_id,
+                  farmer_data.user_id,
+                  token,
+                  formdatauploadFarmerIdAdd,
+                );
+                if (resOocUpdate?.status == 200) {
+                  Toast.show({
+                    text: 'hoyeche',
+                    ...AlertMesg[0],
+                  });
+                }
+                if (resOocUpdate?.status != 200) {
+                  Toast.show({
+                    text: resOocUpdate?.data?.error?.errorMessage,
+                    ...AlertMesg[0],
+                  });
+                }
               }
             }
             if (

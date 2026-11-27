@@ -18,13 +18,13 @@ const COLORS = {
   opened: '#1d3122',
   bottomClosed: '#FFFFFF',
 };
-const AnimatedSafeAreaView =Animated.createAnimatedComponent(SafeAreaView);
+const AnimatedSafeAreaView = Animated.createAnimatedComponent(SafeAreaView);
 const FarmerDrawerScreenWrapperContent = ({ children }) => {
   const progress = useDrawerProgress();
   const insets = useSafeAreaInsets();
   const isAndroid = Platform.OS === 'android';
   const screenAnimatedStyle = useAnimatedStyle(() => {
-  const drawerProgress = progress.value;
+    const drawerProgress = progress.value;
     return {
       transform: [
         {

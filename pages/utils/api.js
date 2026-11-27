@@ -77,7 +77,8 @@ setupInterceptors();
 
 const isInternetAvailable = async (silent = false) => {
   const state = await NetInfo.fetch();
-  const connected = !!(state.isConnected && state.isInternetReachable);
+  // isInternetReachable is null on app launch while probe is running; treat as connected unless explicitly false
+  const connected = Boolean(state.isConnected && state.isInternetReachable !== false);
   if (!connected && !silent) {
     Toast.show({
       time: 2,
@@ -138,10 +139,7 @@ export const axiosGet = async (
   if (!online) {
     const cached = cacheManager.getCache(cacheKey);
     if (cached) return { data: cached, status: 200, fromCache: true };
-    return Promise.reject({
-      status: 0,
-      data: { message: 'No internet & no cache' },
-    });
+    // If no cached data exists, proceed to attempt the network request
   }
   // console.log("url",url)
   // console.log("extraHeaders",extraHeaders)

@@ -7,10 +7,13 @@ import {
   Image,
   ActivityIndicator,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   StatusBar,
   Modal,
   NativeModules,
   Dimensions,
+  Platform,
+  Animated,
 } from 'react-native';
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import AIResultCard from '../../Components/AIResultCard';
@@ -28,6 +31,7 @@ import Marker, { Position, ImageFormat } from 'react-native-image-marker';
 import { Fonts } from '../../utils/Constants';
 import CustomAlert from '../../Common/CustomAlert';
 import { CURRENT_ENV } from '../../../config/environment';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const APP_LOGO = require('../../Common/images/watter_logo.png');
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -235,6 +239,48 @@ export async function loadModel(modelFile) {
 }
 
 export async function loadModelFromAssets(fileName, retries = 2) {
+  // ── iOS: Load model from Documents directory (copied by AppDelegate at startup) or Bundle ──
+  if (Platform.OS === 'ios') {
+    const candidatePaths = [
+      `${RNFS.DocumentDirectoryPath}/${fileName}`,
+      `${RNFS.MainBundlePath}/${fileName}`,
+      `${RNFS.MainBundlePath}/models/${fileName}`,
+      `${RNFS.MainBundlePath}/assets/models/${fileName}`,
+    ];
+
+    let targetPath = null;
+    for (const p of candidatePaths) {
+      if (await RNFS.exists(p)) {
+        targetPath = p;
+        break;
+      }
+    }
+
+    if (!targetPath) {
+      console.error(`❌ [iOS] Model "${fileName}" not found in DocumentDirectory or MainBundle`);
+      throw new Error(`Model ${fileName} not found on iOS device`);
+    }
+
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        console.log(`[iOS] Loading ONNX session for ${fileName} from: ${targetPath}`);
+        const session = await ort.InferenceSession.create(targetPath);
+        console.log(`✅ [iOS] Model loaded: ${fileName}`);
+        return session;
+      } catch (e) {
+        console.error(`Attempt ${attempt} failed for ${fileName}:`, e);
+        if (attempt === retries) throw e;
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+    return null;
+  }
+
+  // ── Android: Use custom native AssetPackModule ──
+  if (!AssetPackModule) {
+    throw new Error('AssetPackModule is null or not linked.');
+  }
+
   const res = await AssetPackModule.loadModel(fileName);
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
@@ -396,6 +442,12 @@ const ImageAnalysisScreen = ({
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [focusCoords, setFocusCoords] = useState(null);
+  const [isManualFocus, setIsManualFocus] = useState(false);
+
+  const focusAnim = useRef(new Animated.Value(1)).current;
+  const focusOpacity = useRef(new Animated.Value(0)).current;
+  const focusTimeoutRef = useRef(null);
 
   const device = useCameraDevice('back');
   const cameraRef = useRef(null);
@@ -408,7 +460,62 @@ const ImageAnalysisScreen = ({
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
+    if (focusTimeoutRef.current) {
+      clearTimeout(focusTimeoutRef.current);
+      focusTimeoutRef.current = null;
+    }
   }, []);
+
+  // ── Auto & Manual Focus Handler ──
+  const triggerFocus = useCallback(
+    async (x, y, isAuto = false) => {
+      if (!cameraRef.current) return;
+      if (focusTimeoutRef.current) {
+        clearTimeout(focusTimeoutRef.current);
+        focusTimeoutRef.current = null;
+      }
+
+      setFocusCoords({ x, y, isAuto });
+      setIsManualFocus(!isAuto);
+
+      focusAnim.setValue(1.4);
+      focusOpacity.setValue(1);
+
+      Animated.parallel([
+        Animated.spring(focusAnim, {
+          toValue: 1,
+          friction: 6,
+          tension: 40,
+          useNativeDriver: true,
+        }),
+        Animated.sequence([
+          Animated.delay(1200),
+          Animated.timing(focusOpacity, {
+            toValue: 0,
+            duration: 350,
+            useNativeDriver: true,
+          }),
+        ]),
+      ]).start();
+
+      try {
+        await cameraRef.current.focus({ x, y });
+      } catch (err) {
+        console.log('Focus action error:', err);
+      }
+    },
+    [focusAnim, focusOpacity],
+  );
+
+  const handleFocusTap = useCallback(
+    event => {
+      const { locationX, locationY } = event.nativeEvent;
+      const x = Math.max(35, Math.min(SCREEN_WIDTH - 35, locationX));
+      const y = Math.max(35, Math.min(SCREEN_WIDTH - 35, locationY));
+      triggerFocus(x, y, false);
+    },
+    [triggerFocus],
+  );
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -421,6 +528,8 @@ const ImageAnalysisScreen = ({
   const handleCloseModal = useCallback(() => {
     clearActiveTimeout();
     setIsCameraActive(false);
+    setFocusCoords(null);
+    setIsManualFocus(false);
     setTempImage?.(null);
     setTempText?.('');
     setImage(null);
@@ -447,17 +556,26 @@ const ImageAnalysisScreen = ({
         setImage(res.assets[0]);
         setResult(null);
         setLoading(false);
+        if (ai_camera_pipe_image != '1') {
+          setisReady(true);
+        }
       },
     );
-  }, []);
+  }, [ai_camera_pipe_image]);
 
   // ── Helper to safely update pipe details without deep JSON clone ──
   const updatePipeDetailsState = useCallback(
     (destPath, fileName, lat, lon) => {
+      const cleanPath =
+        typeof destPath === 'string' && destPath.startsWith('file://')
+          ? destPath.replace('file://', '')
+          : destPath;
+      const fileUri = `file://${cleanPath}`;
+
       if (replaceImgKey?.arrayPosition === '') {
         setSelectedImagePipe?.(prev => ({
           ...prev,
-          [cameraItem]: `file://${destPath}`,
+          [cameraItem]: fileUri,
           [`${cameraItem}fileName`]: fileName,
           [`${cameraItem}Lat`]: lat,
           [`${cameraItem}Long`]: lon,
@@ -475,7 +593,7 @@ const ImageAnalysisScreen = ({
 
             targetImgList[imgPosition] = {
               ...currentImage,
-              imageURL: `file://${destPath}`,
+              imageURL: fileUri,
               imageName: fileName,
               status: '',
               lat,
@@ -630,15 +748,17 @@ const ImageAnalysisScreen = ({
 
         const watermarkedAsset = {
           uri: `file://${destPath}`,
+          path: destPath,
           fileName: destFileName,
           width: photo.width,
           height: photo.height,
+          lat,
+          lon,
         };
 
         setImage(watermarkedAsset);
 
         if (isMountedRef.current) {
-          updatePipeDetailsState(destPath, destFileName, lat, lon);
           if (ai_camera_pipe_image != '1') {
             setisReady(true);
           }
@@ -652,20 +772,145 @@ const ImageAnalysisScreen = ({
       console.error('Capture Error:', error);
       CustomAlert('Camera Error', String(error?.message || error), true, 'OK');
     }
-  }, [
-    ai_camera_pipe_image,
-    mapLatLon,
-    updatePipeDetailsState,
-  ]);
+  }, [ai_camera_pipe_image, mapLatLon]);
 
 
-  const completeProcess = useCallback(() => {
+  const saveWatermarkedImage = useCallback(async () => {
+    if (!image) return null;
+
+    const { lat, lon } = getLatLon(mapLatLon);
+
+    // If already saved with path & fileName from camera capture
+    if (image.path && image.fileName) {
+      return {
+        path: image.path,
+        fileName: image.fileName,
+        lat: image.lat || lat,
+        lon: image.lon || lon,
+      };
+    }
+
+    if (image.uri && image.uri.includes(RNFS.DocumentDirectoryPath)) {
+      const cleanPath = image.uri.replace('file://', '');
+      const fileName = image.fileName || cleanPath.split('/').pop();
+      return {
+        path: cleanPath,
+        fileName,
+        lat,
+        lon,
+      };
+    }
+
+    // Apply watermark (e.g. for gallery picked images)
     try {
+      const timestamp = Date.now();
+      const rawUri = image.uri || image.path;
+      const destFileName = image.fileName || `photo_${timestamp}.jpg`;
+      const watermarkText = formatWatermarkText(mapLatLon);
+      const destPath = `${RNFS.DocumentDirectoryPath}/${destFileName}`;
+
+      const imgWidth = image.width || 1200;
+      const dynamicFontSize = Math.max(36, Math.round(imgWidth * 0.035));
+      const dynamicMargin = Math.max(25, Math.round(imgWidth * 0.03));
+
+      const options = {
+        backgroundImage: {
+          src: rawUri,
+          scale: 1,
+        },
+        watermarkTexts: [
+          {
+            text: watermarkText,
+            position: {
+              position: Position.bottomLeft,
+              X: dynamicMargin,
+              Y: dynamicMargin,
+            },
+            positionOptions: {
+              position: Position.bottomLeft,
+              X: dynamicMargin,
+              Y: dynamicMargin,
+            },
+            style: {
+              color: '#FFFFFF',
+              fontSize: dynamicFontSize,
+              fontSizeRatio: 0.045,
+              fontName: Fonts.Medium || 'Arial',
+              shadowStyle: {
+                dx: 2,
+                dy: 2,
+                radius: 3,
+                color: '#000000',
+              },
+              textBackgroundStyle: {
+                paddingX: Math.round(dynamicFontSize * 0.7),
+                paddingY: Math.round(dynamicFontSize * 0.5),
+                color: '#000000A0',
+              },
+            },
+          },
+        ],
+        watermarkImage: {
+          src: APP_LOGO,
+          position: {
+            position: Position.bottomRight,
+            X: dynamicMargin,
+            Y: dynamicMargin,
+          },
+          positionOptions: {
+            position: Position.bottomRight,
+            X: dynamicMargin,
+            Y: dynamicMargin,
+          },
+          scale: 0.35,
+          alpha: 0.95,
+        },
+        quality: 100,
+        filename: destFileName.replace('.jpg', ''),
+        saveFormat: ImageFormat?.JPEG || 'JPEG',
+      };
+
+      const markedPath = await Marker.markText(options);
+      const cleanPath = markedPath.startsWith('file://')
+        ? markedPath.replace('file://', '')
+        : markedPath;
+
+      if (cleanPath !== destPath && (await RNFS.exists(cleanPath))) {
+        await RNFS.copyFile(cleanPath, destPath);
+      }
+
+      return {
+        path: destPath,
+        fileName: destFileName,
+        lat,
+        lon,
+      };
+    } catch (error) {
+      console.error('saveWatermarkedImage error:', error);
+      const cleanPath = (image.uri || image.path || '').replace('file://', '');
+      const fileName =
+        image.fileName || cleanPath.split('/').pop() || `photo_${Date.now()}.jpg`;
+      return {
+        path: cleanPath,
+        fileName,
+        lat,
+        lon,
+      };
+    }
+  }, [image, mapLatLon]);
+
+  const completeProcess = useCallback(async () => {
+    try {
+      const imgWatermark = await saveWatermarkedImage();
+      const { path, fileName, lat, lon } = imgWatermark || {};
+      if (path && fileName) {
+        updatePipeDetailsState(path, fileName, lat, lon);
+      }
       setAIModalVisible(false);
     } catch (e) {
       console.error('Error in completeProcess:', e);
     }
-  }, [setAIModalVisible]);
+  }, [saveWatermarkedImage, updatePipeDetailsState, setAIModalVisible]);
 
   // ── Run models sequentially to eliminate concurrent memory peaks ──
   const runAllModels = useCallback(
@@ -861,70 +1106,144 @@ const ImageAnalysisScreen = ({
       <SafeAreaView style={styles.safe}>
         <StatusBar barStyle="light-content" backgroundColor="#0A0A0A" />
 
-        {/* Vision Camera 1:1 Capture Modal */}
-        <Modal
-          visible={isCameraActive}
-          animationType="slide"
-          onRequestClose={() => setIsCameraActive(false)}>
-          <SafeAreaView style={styles.cameraContainer}>
-            <StatusBar barStyle="light-content" backgroundColor="#000000" />
+        {/* Vision Camera 1:1 Capture Fullscreen View */}
+        {isCameraActive && (
+          <View style={styles.cameraOverlayContainer}>
+            <SafeAreaView style={styles.cameraContainer}>
+              <StatusBar barStyle="light-content" backgroundColor="#000000" />
 
-            {/* Top Bar with Close Button & 1:1 indicator */}
-            <View style={styles.cameraTopBar}>
-              <TouchableOpacity
-                style={styles.cameraCloseBtn}
-                onPress={() => setIsCameraActive(false)}>
-                <Text style={styles.cameraCloseBtnText}>✕</Text>
-              </TouchableOpacity>
-              <Text style={styles.cameraRatioLabel}>1:1</Text>
-              <View style={{ width: 44 }} />
-            </View>
+              {/* Top Bar with Close Button, 1:1 indicator & AF toggle */}
+              <View style={styles.cameraTopBar}>
+                <TouchableOpacity
+                  style={styles.cameraCloseBtn}
+                  onPress={() => setIsCameraActive(false)}
+                  hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                  activeOpacity={0.7}>
+                  <MaterialIcons name="close" size={24} color="#ffffff" />
+                </TouchableOpacity>
 
-            {/* 1:1 Square Viewfinder */}
-            <View style={styles.cameraSquareWrapper}>
-              {device ? (
-                <Camera
-                  ref={cameraRef}
-                  style={StyleSheet.absoluteFill}
-                  device={device}
-                  isActive={isCameraActive}
-                  photo={true}
-                  resizeMode="cover"
-                  outputOrientation="preview"
-                  qualityPrioritization='quality'
-                />
-              ) : (
-                <View style={styles.cameraLoading}>
-                  <ActivityIndicator size="large" color="#ffffff" />
-                  <Text style={styles.cameraLoadingText}>Loading camera...</Text>
+                <Text style={styles.cameraRatioLabel}>1:1</Text>
+
+                <TouchableOpacity
+                  style={[
+                    styles.focusModeBtn,
+                    !isManualFocus && styles.focusModeBtnActive,
+                  ]}
+                  onPress={() =>
+                    triggerFocus(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2, true)
+                  }>
+                  <Text style={styles.focusModeBtnText}>
+                    {!isManualFocus ? '● AF' : '○ Focus'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* 1:1 Square Viewfinder with Tap-To-Focus */}
+              <TouchableWithoutFeedback onPress={handleFocusTap}>
+                <View style={styles.cameraSquareWrapper}>
+                  {device ? (
+                    <Camera
+                      ref={cameraRef}
+                      style={StyleSheet.absoluteFill}
+                      device={device}
+                      isActive={isCameraActive}
+                      photo={true}
+                      preview={true}
+                      resizeMode="cover"
+                      androidPreviewViewType="texture-view"
+                      onInitialized={() => {
+                        console.log('Vision Camera session initialized');
+                        triggerFocus(SCREEN_WIDTH / 2, SCREEN_WIDTH / 2, true);
+                      }}
+                      onError={error => {
+                        console.error('Vision Camera runtime error:', error);
+                        CustomAlert(
+                          'Camera Error',
+                          error?.message || 'Camera failed to start.',
+                          true,
+                          'OK',
+                        );
+                      }}
+                    />
+                  ) : (
+                    <View style={styles.cameraLoading}>
+                      <ActivityIndicator size="large" color="#ffffff" />
+                      <Text style={styles.cameraLoadingText}>
+                        Loading camera...
+                      </Text>
+                    </View>
+                  )}
+
+                  {/* Visual Focus Reticle Indicator */}
+                  {focusCoords && (
+                    <Animated.View
+                      pointerEvents="none"
+                      style={[
+                        styles.focusBox,
+                        {
+                          left: focusCoords.x - 35,
+                          top: focusCoords.y - 35,
+                          opacity: focusOpacity,
+                          transform: [{ scale: focusAnim }],
+                        },
+                      ]}>
+                      <View style={styles.focusCornerTL} />
+                      <View style={styles.focusCornerTR} />
+                      <View style={styles.focusCornerBL} />
+                      <View style={styles.focusCornerBR} />
+                      <View style={styles.focusCenterDot} />
+                      {focusCoords.isAuto && (
+                        <Text style={styles.focusLabel}>AF</Text>
+                      )}
+                    </Animated.View>
+                  )}
+
+                  {/* Tap to focus hint */}
+                  <View style={styles.focusHintContainer} pointerEvents="none">
+                    <Text style={styles.focusHintText}>
+                      Tap screen to focus manually • AF for auto
+                    </Text>
+                  </View>
                 </View>
-              )}
-            </View>
+              </TouchableWithoutFeedback>
 
-            {/* Bottom Bar with Shutter Button */}
-            <View style={styles.cameraBottomBar}>
-              <TouchableOpacity
-                style={styles.captureBtnOuter}
-                onPress={handleCapturePhoto}
-                activeOpacity={0.7}>
-                <View style={styles.captureBtnInner} />
-              </TouchableOpacity>
-            </View>
-          </SafeAreaView>
-        </Modal>
+              {/* Bottom Bar with Shutter Button */}
+              <View style={styles.cameraBottomBar}>
+                <TouchableOpacity
+                  style={styles.captureBtnOuter}
+                  onPress={handleCapturePhoto}
+                  activeOpacity={0.7}>
+                  <View style={styles.captureBtnInner} />
+                </TouchableOpacity>
+              </View>
+            </SafeAreaView>
+          </View>
+        )}
+
+        {/* Main Modal Top Navigation Bar with Close Button */}
+        <View style={styles.modalHeaderBar}>
+          <TouchableOpacity
+            style={styles.modalCloseBtn}
+            onPress={handleCloseModal}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            activeOpacity={0.7}>
+            <MaterialIcons name="close" size={24} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.modalHeaderTitle}>
+            {ai_camera_pipe_image == '1' ? 'Pipe Analyzer' : 'Photo Capture'}
+          </Text>
+          <View style={{ width: 38 }} />
+        </View>
 
         <ScrollView
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}>
           {ai_camera_pipe_image == '1' ? (
-            <View style={styles.header}>
-              <Text style={styles.headerTitle}>Pipe Analyzer</Text>
+            <View style={styles.headerSubtitleBox}>
               <Text style={styles.headerSub}>AI-powered pipe inspection</Text>
             </View>
-          ) : (
-            <View style={{ marginTop: 100 }} />
-          )}
+          ) : null}
 
           <TouchableOpacity
             style={styles.imageArea}
@@ -1007,11 +1326,7 @@ const ImageAnalysisScreen = ({
 
           {isReady && (
             <TouchableOpacity
-              onPress={() =>
-                ai_camera_pipe_image != 1
-                  ? setAIModalVisible(false)
-                  : completeProcess()
-              }
+              onPress={completeProcess}
               style={[
                 styles.btn,
                 styles.btnPrimary,
@@ -1116,6 +1431,35 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     textAlign: 'center',
     fontFamily: Fonts.Medium,
+  },
+  headerSubtitleBox: {
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  modalHeaderBar: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1A1A1A',
+  },
+  modalCloseBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalHeaderTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    fontFamily: Fonts.Medium,
+    textAlign: 'center',
   },
   modelStatusContainer: {
     padding: 16,
@@ -1228,6 +1572,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingHorizontal: 4,
   },
+  cameraOverlayContainer: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#000000',
+    zIndex: 9999,
+    elevation: 9999,
+  },
   cameraContainer: {
     flex: 1,
     backgroundColor: '#000000',
@@ -1241,6 +1591,99 @@ const styles = StyleSheet.create({
     backgroundColor: '#111827',
     position: 'relative',
     alignSelf: 'center',
+  },
+  focusBox: {
+    position: 'absolute',
+    width: 70,
+    height: 70,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  focusCornerTL: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 16,
+    height: 16,
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderColor: '#FBBF24',
+  },
+  focusCornerTR: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 16,
+    height: 16,
+    borderTopWidth: 2,
+    borderRightWidth: 2,
+    borderColor: '#FBBF24',
+  },
+  focusCornerBL: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: 16,
+    height: 16,
+    borderBottomWidth: 2,
+    borderLeftWidth: 2,
+    borderColor: '#FBBF24',
+  },
+  focusCornerBR: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 16,
+    height: 16,
+    borderBottomWidth: 2,
+    borderRightWidth: 2,
+    borderColor: '#FBBF24',
+  },
+  focusCenterDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#FBBF24',
+  },
+  focusLabel: {
+    position: 'absolute',
+    bottom: -18,
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#FBBF24',
+    letterSpacing: 1,
+  },
+  focusHintContainer: {
+    position: 'absolute',
+    bottom: 12,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  focusHintText: {
+    color: 'rgba(255, 255, 255, 0.75)',
+    fontSize: 11,
+    fontFamily: Fonts.Medium,
+  },
+  focusModeBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+  },
+  focusModeBtnActive: {
+    backgroundColor: 'rgba(251, 191, 36, 0.25)',
+    borderColor: '#FBBF24',
+  },
+  focusModeBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '600',
+    fontFamily: Fonts.Medium,
   },
   cameraLoading: {
     flex: 1,

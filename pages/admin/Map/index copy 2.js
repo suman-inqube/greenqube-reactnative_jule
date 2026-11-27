@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef,useMemo,useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -20,10 +20,9 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import Geolocation from '@react-native-community/geolocation';
 import { Colors } from '../../utils/Constants';
 import { Fonts } from '../../utils/Constants';
-//  const GOOGLE_PLACES_API_KEY = 'AIzaSyBGTMfBKCZ9NJ57HX1NPm5hCnzK6_CYVD8';
 //  const GOOGLE_PLACES_API_KEY = 'AIzaSyCw8BW8Zb3DYtanHde65VY-lZfdrCIyFGw';
 // const GOOGLE_PLACES_API_KEY = 'AIzaSyARWleRgAXyLffwWi6Au5Y28dMgifrGzx4';
-// const GOOGLE_PLACES_API_KEY = 'AIzaSyBGTMfBKCZ9NJ57HX1NPm5hCnzK6_CYVD8';AIzaSyDZUR2UHEteHVQgwiGA7XJNOV5lHe0r8m4;
+// const GOOGLE_PLACES_API_KEY = AIzaSyDZUR2UHEteHVQgwiGA7XJNOV5lHe0r8m4;
 //  AIzaSyDdJMFf2yZCrKx9Vc0tgToblNVZ36MX0Io; AIzaSyARWleRgAXyLffwWi6Au5Y28dMgifrGzx4;
 const GOOGLE_PLACES_API_KEY = 'AIzaSyDZUR2UHEteHVQgwiGA7XJNOV5lHe0r8m4';
 var screenWidth = Dimensions.get('window').width;
@@ -54,13 +53,13 @@ export default function Map({
   statuslevel,
   type,
   baselatLong,
-   handleRegionChangeComplete,
+  handleRegionChangeComplete,
   isLoading
 }) {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [drawingReference, setDrawingReference] = useState(null);
   const [distanceThreshold, setDistanceThreshold] = useState(20);
-  const [marker, setMarker] = useState({ lat:0, lng: 0 });
+  const [marker, setMarker] = useState({ lat: 0, lng: 0 });
   const [value, setValue] = useState(null);
   const [selectedArea, setSelectedArea] = useState(0);
   const [coordinatesCurrent, setCoordinatesCurrent] = useState([]);
@@ -268,85 +267,85 @@ export default function Map({
     animateToLocation(
       item?.properties?.coordinates?.latitude,
       item?.properties?.coordinates?.longitude,
-      
+
     );
   };
-    const actions = useMemo(() => {
-      const baseActions = [
+  const actions = useMemo(() => {
+    const baseActions = [
+      {
+        text: editing ? 'Stop Editing' : 'Start Editing',
+        icon: require('../../Common/images/editing.png'),
+        name: 'toggleEdit',
+        position: 1,
+        color: Colors.useGreen,
+      },
+    ];
+
+    if (editing) {
+      baseActions.push(
         {
-          text: editing ? 'Stop Editing' : 'Start Editing',
-          icon: require('../../Common/images/editing.png'),
-          name: 'toggleEdit',
-          position: 1,
+          text: 'Finalize Polygon',
+          icon: require('../../Common/images/check.png'),
+          name: 'finalizePolygon',
+          position: 2,
           color: Colors.useGreen,
         },
-      ];
-  
-      if (editing) {
-        baseActions.push(
-          {
-            text: 'Finalize Polygon',
-            icon: require('../../Common/images/check.png'),
-            name: 'finalizePolygon',
-            position: 2,
-            color: Colors.useGreen,
-          },
-          {
-            text: 'Clear',
-            icon: require('../../Common/images/bin.png'),
-            name: 'clear',
-            position: 3,
-            color: Colors.useGreen,
-          },
-          {
-            text: 'Undo Mark',
-            icon: require('../../Common/images/undo.png'),
-            name: 'undoMark',
-            position: 4,
-            color: Colors.useGreen,
-          },
-        );
-      }
-  
-      return baseActions;
-    }, [editing]);
-      const handleActionPress = useCallback(
-        name => {
-          // if (!isMountedRef.current) return;
-    
-          switch (name) {
-            case 'toggleEdit':
-              setEditing(!editing);
-              break;
-            case 'finalizePolygon':
-              finalizePolygon();
-              break;
-            case 'clear':
-              clearMapGetDistance();
-              break;
-            case 'undoMark':
-              undoMark();
-              break;
-            case 'MapView':
-              setShowModal(prev => !prev);
-              break;
-            default:
-              console.log('Unhandled action:', name);
-          }
+        {
+          text: 'Clear',
+          icon: require('../../Common/images/bin.png'),
+          name: 'clear',
+          position: 3,
+          color: Colors.useGreen,
         },
-        [
-          editing,
-          setEditing,
-          finalizePolygon,
-          clearMapGetDistance,
-          undoMark,
-          setShowModal,
-        ],
+        {
+          text: 'Undo Mark',
+          icon: require('../../Common/images/undo.png'),
+          name: 'undoMark',
+          position: 4,
+          color: Colors.useGreen,
+        },
       );
+    }
+
+    return baseActions;
+  }, [editing]);
+  const handleActionPress = useCallback(
+    name => {
+      // if (!isMountedRef.current) return;
+
+      switch (name) {
+        case 'toggleEdit':
+          setEditing(!editing);
+          break;
+        case 'finalizePolygon':
+          finalizePolygon();
+          break;
+        case 'clear':
+          clearMapGetDistance();
+          break;
+        case 'undoMark':
+          undoMark();
+          break;
+        case 'MapView':
+          setShowModal(prev => !prev);
+          break;
+        default:
+          console.log('Unhandled action:', name);
+      }
+    },
+    [
+      editing,
+      setEditing,
+      finalizePolygon,
+      clearMapGetDistance,
+      undoMark,
+      setShowModal,
+    ],
+  );
   return (
     <>
       <View style={styles.container}>
-          {isLoading && (
+        {isLoading && (
           <View style={styles.loaderOverlay}>
             <LoadingScreen />
           </View>
@@ -356,7 +355,7 @@ export default function Map({
           onPress={() => setShowModal(false)}>
           <Image
             source={require('../../Common/images/cross100.png')}
-            style={{width: 35, height: 35, margin: 1}}
+            style={{ width: 35, height: 35, margin: 1 }}
           />
         </TouchableOpacity>
         <MapView
@@ -364,7 +363,7 @@ export default function Map({
           style={styles.map}
           mapType="hybrid"
           provider={PROVIDER_GOOGLE}
-           onRegionChangeComplete={handleRegionChangeComplete}
+          onRegionChangeComplete={handleRegionChangeComplete}
           // region={currentLocation}
           // initialRegion={{
           //   latitude: currentLocation?.latitude || 22.2906, // Default if no location
@@ -376,7 +375,7 @@ export default function Map({
           showsUserLocation={true}
           followsUserLocation={true}
           showsCompass={true}
-          compassOffset={{x: 20, y: 20}}
+          compassOffset={{ x: 20, y: 20 }}
           minZoomLevel={15}
           scrollEnabled={true}
           showsScale={true}
@@ -427,7 +426,7 @@ export default function Map({
           {newPolygon.map((coordinate, index) => (
             <Marker key={index} coordinate={coordinate} />
           ))}
-          <Marker coordinate={{latitude: marker.lat, longitude: marker.lng}} />
+          <Marker coordinate={{ latitude: marker.lat, longitude: marker.lng }} />
         </MapView>
 
         {selectedArea !== 0 && (
@@ -440,7 +439,7 @@ export default function Map({
               justifyContent: 'space-between',
             }}>
             <Text
-              style={{fontSize: 15, color: '#FFF', backgroundColor: '#000'}}>
+              style={{ fontSize: 15, color: '#FFF', backgroundColor: '#000' }}>
               Selected Area: {selectedArea}{' '}
               {landAreaUnit?.[0]?.defined_unit_value
                 ? landAreaUnit?.[0]?.unit_name
@@ -462,15 +461,15 @@ export default function Map({
             onSelect={handleSelect}
           />
         </View>
-           <FloatingActionButton
-        position="right"
-        actions={actions}
-        color={Colors.useGreen}
-        overlayColor="rgba(22, 17, 17, 0.35)"
-        distanceToEdge={{ vertical: 80, horizontal: 25 }}
-        onPressItem={handleActionPress}
-        openOnMount={editing}
-      />
+        <FloatingActionButton
+          position="right"
+          actions={actions}
+          color={Colors.useGreen}
+          overlayColor="rgba(22, 17, 17, 0.35)"
+          distanceToEdge={{ vertical: 80, horizontal: 25 }}
+          onPressItem={handleActionPress}
+          openOnMount={editing}
+        />
       </View>
 
     </>
@@ -526,16 +525,16 @@ const styles = StyleSheet.create({
       top: 12,
       opacity: 0.7,
     },
-      loaderOverlay: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(255,255,255,0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 999,
-  }
+    loaderOverlay: {
+      position: 'absolute',
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: 'rgba(255,255,255,0.6)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 999,
+    }
   },
 });

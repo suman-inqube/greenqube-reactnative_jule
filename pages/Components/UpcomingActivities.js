@@ -6,13 +6,13 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import React, {useState, memo, useMemo, useCallback} from 'react';
+import React, { useState, memo, useMemo, useCallback } from 'react';
 import ImageForm from '../Common/ImageForm';
 import ImagePlaceHolderCircleWithoutAddButton from '../Common/ImagePlaceHolderCircleWithoutAddButton';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import LoadingScreen from '../Common/LoadingScreen';
-import {MotiView} from 'moti';
+import { MotiView } from 'moti';
 import Skeleton from './Skeleton';
 const UpcomingActivities = ({
   uiState,
@@ -100,7 +100,7 @@ const UpcomingActivities = ({
   }, [activeTab, dashboardType, navigation]);
 
   const renderActivityItem = useCallback(
-    ({item}) => (
+    ({ item }) => (
       <View style={styles.activityItem}>
         <View style={styles.activityIndicator} />
         <View style={styles.activityDetails}>
@@ -110,11 +110,10 @@ const UpcomingActivities = ({
             <Text style={styles.activityDate}>
               {dashboardType === 'Supervisor'
                 ? item.farmerName
-                : `${
-                    activeTab === 'overdue'
-                      ? item.date * -1 || 0
-                      : item.date || 0
-                  } ${activeTab === 'overdue' ? 'days ago' : 'days'}`}
+                : `${activeTab === 'overdue'
+                  ? item.date * -1 || 0
+                  : item.date || 0
+                } ${activeTab === 'overdue' ? 'days ago' : 'days'}`}
             </Text>
 
             <Text style={styles.plotName}>{item.plot}</Text>
@@ -145,7 +144,7 @@ const UpcomingActivities = ({
           resizeMode="stretch"
           height={200}
           width={'100%'}
-          style={{borderRadius: 10}}
+          style={{ borderRadius: 10 }}
         />
         <View style={styles.greenOverlay} />
         <View style={styles.userTitleOverlay}>
@@ -153,13 +152,13 @@ const UpcomingActivities = ({
             <View style={styles.profileBackView}>
               {uiState?.profileImg ? (
                 <ImagePlaceHolderCircleWithoutAddButton
-                  imageurl={{uri: uiState?.profileImg}}
-                  style={{width: 110, height: 110, borderRadius: 75}}
+                  imageurl={{ uri: uiState?.profileImg }}
+                  style={{ width: 110, height: 110, borderRadius: 75 }}
                 />
               ) : (
                 <ImagePlaceHolderCircleWithoutAddButton
                   imageurl={require('../Common/images/avatar1.png')}
-                  style={{width: 110, height: 110, borderRadius: 75}}
+                  style={{ width: 110, height: 110, borderRadius: 75 }}
                 />
               )}
             </View>
@@ -179,8 +178,8 @@ const UpcomingActivities = ({
 
           {isLoading ? (
             <MotiView
-              from={{opacity: 0.4}}
-              animate={{opacity: 1}}
+              from={{ opacity: 0.4 }}
+              animate={{ opacity: 1 }}
               transition={{
                 type: 'timing',
                 duration: 900,
@@ -310,7 +309,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  mt6: {marginTop: 6},
+  mt6: { marginTop: 6 },
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',
